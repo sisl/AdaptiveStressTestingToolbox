@@ -1,0 +1,8 @@
+source activate DRL-AST-temp
+export PYTHONPATH=$PYTHONPATH:~/DRLAST/DRL-AST/rllab
+export PYTHONPATH=$PYTHONPATH:~/DRLAST/DRL-AST
+export PYTHONPATH=$PYTHONPATH:~/DRLAST/TestEnv
+export PYTHONPATH=$PYTHONPATH:~/OPENAI/gym
+export PYTHONPATH=$PYTHONPATH:/home/maxiaoba/DRLAST/DRL-AST/mcts
+export PYTHONPATH=$PYTHONPATH:/home/maxiaoba/DRLAST/TestEnv/Cartpole
+

@@ -1,0 +1,11 @@
+{
+  "args_data": null,
+  "exp_name": "crosswalk_exp",
+  "log_dir": "/home/maxiaoba/DRL-AST/data/example_results",
+  "log_tabular_only": false,
+  "params_log_file": "args.txt",
+  "snapshot_gap": 10,
+  "snapshot_mode": "gap",
+  "tabular_log_file": "tab.txt",
+  "text_log_file": "tex.txt"
+}

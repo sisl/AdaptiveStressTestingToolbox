@@ -1,0 +1,3 @@
+[submodule "rllab"]
+	path = rllab
+	url = https://github.com/mark-koren/rllab.git

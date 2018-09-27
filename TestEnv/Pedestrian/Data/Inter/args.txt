@@ -1,0 +1,14 @@
+{
+  "args_data": null,
+  "batch_size": 400,
+  "exp_name": "pedestrian",
+  "log_dir": "./Data/Inter",
+  "log_tabular_only": false,
+  "n_itr": 50,
+  "n_trial": 10,
+  "params_log_file": "args.txt",
+  "snapshot_gap": 10,
+  "snapshot_mode": "gap",
+  "tabular_log_file": "tab.txt",
+  "text_log_file": "tex.txt"
+}
