@@ -5,9 +5,8 @@ permalink: https://perma.cc/C9ZM-652R
 """
 
 import math
-import gym
-from gym import logger
-from gym.utils import seeding
+from .gym import logger
+from mcts import seeding
 import numpy as np
 from rllab.core.serializable import Serializable
 from rllab.envs.base import Env
@@ -16,13 +15,15 @@ from rllab.envs.base import Step
 from rllab.misc.overrides import overrides
 import rllab.spaces as spaces
 
-class CartPoleEnv(Env, Serializable):
+class CartPoleEnv(Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : 50
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, use_seed, *args, **kwargs):
+        self.use_seed = use_seed
+
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -42,7 +43,7 @@ class CartPoleEnv(Env, Serializable):
         self.wind_force_mag = 0.8*self.force_mag #for ast disturbance
 
         self.steps_beyond_done = None
-        Serializable.__init__(self, *args, **kwargs)
+        # Serializable.__init__(self, *args, **kwargs)
 
     @property
     def observation_space(self):
@@ -114,7 +115,8 @@ class CartPoleEnv(Env, Serializable):
         cartheight = 30.0
 
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
+            # from gym.envs.classic_control import rendering
+            from .gym import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
             l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
             axleoffset =cartheight/4.0
@@ -168,7 +170,6 @@ class CartPoleEnv(Env, Serializable):
         high = np.array([self.wind_force_mag])
         return spaces.Box(-high,high)
 
-
     def ast_get_observation(self):
         return np.array(self.state)
 
@@ -179,7 +180,9 @@ class CartPoleEnv(Env, Serializable):
         return self.ast_get_observation(), self.get_observation()
 
     def ast_step(self, action, ast_action):
-
+        if self.use_seed:
+            np.random.seed(ast_action)
+            ast_action = self.ast_action_space.sample()
         # wind_force = np.clip(ast_action, -self.wind_force_mag, self.wind_force_mag)
         wind_force = np.tanh(ast_action)*self.wind_force_mag
         self.ast_action = wind_force
@@ -188,7 +191,6 @@ class CartPoleEnv(Env, Serializable):
         state = self.state
         x, x_dot, theta, theta_dot = state
         force = self.force_mag if action==1 else -self.force_mag
-
         force += wind_force
 
         costheta = math.cos(theta)

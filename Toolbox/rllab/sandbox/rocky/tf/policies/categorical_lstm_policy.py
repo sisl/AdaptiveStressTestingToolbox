@@ -97,8 +97,7 @@ class CategoricalLSTMPolicy(StochasticPolicy, LayersPowered, Serializable):
             self.f_step_prob = tensor_utils.compile_function(
                 [
                     flat_input_var,
-                    prob_network.step_prev_hidden_layer.input_var,
-                    prob_network.step_prev_cell_layer.input_var
+                    prob_network.step_prev_state_layer.input_var,
                 ],
                 L.get_output([
                     prob_network.step_output_layer,
@@ -187,7 +186,7 @@ class CategoricalLSTMPolicy(StochasticPolicy, LayersPowered, Serializable):
             ], axis=-1)
         else:
             all_input = flat_obs
-        probs, hidden_vec, cell_vec = self.f_step_prob(all_input, self.prev_hiddens, self.prev_cells)
+        probs, hidden_vec, cell_vec = self.f_step_prob(all_input, np.hstack([self.prev_hiddens, self.prev_cells]))
         actions = special.weighted_sample_n(probs, np.arange(self.action_space.n))
         prev_actions = self.prev_actions
         self.prev_actions = self.action_space.flatten_n(actions)

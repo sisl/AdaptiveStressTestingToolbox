@@ -1,6 +1,6 @@
 import copy
-import MDP
-import MCTSdpw
+import mcts.MDP as MDP
+import mcts.MCTSdpw as MCTSdpw
 import numpy as np
 
 class ASTParams:

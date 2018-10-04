@@ -1,8 +1,7 @@
 import numpy as np
-import MCTSdpw
-import MDP
-import AdaptiveStressTesting as AST
-import RNGWrapper as RNG
+import mcts.MCTSdpw as MCTSdpw
+import mcts.MDP as MDP
+import mcts.RNGWrapper as RNG
 
 class StressTestResults:
 	def __init__(self,rewards,action_seqs,q_values):
@@ -15,19 +14,6 @@ def StressTestResultsInit(k):
 	action_seqs = [None]*k
 	q_values = [None]*k
 	return StressTestResults(rewards,action_seqs,q_values)
-
-# def uniform_getAction(ast_rsg):
-# 	if type(ast_rsg)==AST.AdaptiveStressTest:
-# 		return uniform_getAction(ast_rsg.rsg)
-# 	elif type(ast_rsg)==RNG.RSG:
-# 		def policy(s,rng):
-# 			return AST.random_action(ast_rsg)
-# 		return policy
-
-# def uniform_getAction(ast):
-# 	def policy(s,rng):
-# 		return ast.random_action()
-# 	return policy
 
 def rollout_getAction(ast):
 	def rollout_policy(s,tree,rng):

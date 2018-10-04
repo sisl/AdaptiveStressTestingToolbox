@@ -91,7 +91,8 @@ class CategoricalGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
             self.f_step_prob = tensor_utils.compile_function(
                 [
                     flat_input_var,
-                    prob_network.step_prev_hidden_layer.input_var
+                    # prob_network.step_prev_hidden_layer.input_var
+                    prob_network.step_prev_state_layer.input_var
                 ],
                 L.get_output([
                     prob_network.step_output_layer,

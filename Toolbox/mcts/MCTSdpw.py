@@ -1,6 +1,6 @@
 import time
-import mctstracker
-import BoundedPriorityQueues as BPQ
+import mcts.mctstracker as mctstracker
+import mcts.BoundedPriorityQueues as BPQ
 import numpy as np
 
 class DPWParams:

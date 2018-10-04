@@ -10,6 +10,8 @@ class AVSimulator(Simulator):
     """
     #Accept parameters for defining the behavior of the system under test[SUT]
     def __init__(self,
+                 use_seed, #use seed or disturbance at step
+                 spaces,
                  num_peds = 1,
                  dt = 0.1,
                  alpha = 0.85,
@@ -27,6 +29,8 @@ class AVSimulator(Simulator):
                  car_init_y = 0.0,
                  **kwargs):
         #Constant hyper-params -- set by user
+        self.use_seed = use_seed
+        self.spaces = spaces
         self.c_num_peds = num_peds
         self.c_dt = dt
         self.c_alpha = alpha
@@ -135,6 +139,10 @@ class AVSimulator(Simulator):
 
         """
         #get the action from the list
+        if self.use_seed:
+            np.random.seed(action)
+            action = self.action_space.sample()
+
         self._action = action
 
         # move the peds
@@ -163,9 +171,6 @@ class AVSimulator(Simulator):
             self._is_terminal = True
 
         return self._env_obs[0]
-
-    def isterminal(self):
-        return self._is_terminal
 
     def reset(self, s_0):
         """
@@ -226,7 +231,8 @@ class AVSimulator(Simulator):
         return {"peds": self._peds,
                 "car": self._car,
                 "is_goal": self.is_goal(),
-                "is_terminal": self._is_terminal}
+                "is_terminal": self._is_terminal,
+                "action": self._action}
 
     def is_goal(self):
         """
@@ -318,3 +324,11 @@ class AVSimulator(Simulator):
 
     def observe(self):
         self._env_obs = self._peds - self._car
+
+    @property
+    def observation_space(self):
+        return self.spaces.observation_space
+
+    @property
+    def action_space(self):
+        return self.spaces.action_space

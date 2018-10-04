@@ -1,8 +1,8 @@
-from mylab.spaces.ast_spaces import ASTSpaces
+# from mylab.spaces.ast_spaces import ASTSpaces
 from rllab.spaces import Box
 import numpy as np
 
-class AVSpaces(ASTSpaces):
+class AVSpaces():
     def __init__(self,
                  num_peds=1,
                  max_path_length = 50,

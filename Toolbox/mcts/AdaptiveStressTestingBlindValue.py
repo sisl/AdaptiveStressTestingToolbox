@@ -1,8 +1,8 @@
 import copy
-import MDP
-import MCTSdpw
+import mcts.MDP as MDP
+import mcts.MCTSdpw as MCTSdpw
 import numpy as np
-from AdaptiveStressTestingActionSpace import AdaptiveStressTestAS,ASTAction
+from mcts.AdaptiveStressTestingActionSpace import AdaptiveStressTestAS,ASTAction
 
 class ASTParams:
 	def __init__(self,max_steps,ec,M=10):

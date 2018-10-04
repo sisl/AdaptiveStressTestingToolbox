@@ -26,6 +26,7 @@ class AVReward(ASTReward):
         car = info["car"]
         is_goal = info["is_goal"]
         is_terminal = info["is_terminal"]
+        action = info["action"]
         dist = peds[:, 2:4] - car[2:4]
 
         # update reward and done bool

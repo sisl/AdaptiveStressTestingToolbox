@@ -1,4 +1,4 @@
-name: DRL-AST-temp
+name: ASTToolbox
 channels:
     - https://conda.anaconda.org/kne 
     - https://conda.anaconda.org/tlatorre 

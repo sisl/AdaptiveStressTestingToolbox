@@ -1,8 +1,8 @@
 import copy
-import MDP
-import MCTSdpw
+import mcts.MDP as MDP
+import mcts.MCTSdpw as MCTSdpw
 import numpy as np
-import RNGWrapper as RNG
+import mcts.RNGWrapper as RNG
 
 # DEFAULT_RSGLENGTH = 3
 
@@ -37,8 +37,7 @@ class AdaptiveStressTest:
 		return self.env.reset()
 	def update(self,action):
 		self.step_count += 1
-		np.random.seed(action.rsg.state)
-		obs, reward, done, info = self.env.step(self.env.action_space.sample())
+		obs, reward, done, info = self.env.step(action.rsg.state)
 		self._isterminal = done
 		self._reward = reward
 		return obs, reward, done, info

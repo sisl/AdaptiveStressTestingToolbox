@@ -1,6 +1,5 @@
-import MDP
-import AdaptiveStressTesting as AST
-import RNGWrapper as RNG
+import mcts.MDP as MDP
+import mcts.RNGWrapper as RNG
 
 class SampleResults:
 	def __init__(self,reward,action_seq):
@@ -23,14 +22,17 @@ def action_seq_policy_basic(action_seq):
 def action_seq_policy(action_seq,s):
 	return action_seq_policy_basic(action_seq)
 
-def uniform_policy(ast_rsg,s):
-	if type(ast_rsg)==AST.AdaptiveStressTest:
-		return AST.random_action(ast_rsg.rsg)
-	elif type(ast_rsg)==RNG.RSG:
-		return AST.random_action(ast_rsg)
+# def uniform_policy(ast_rsg,s):
+# 	if type(ast_rsg)==AST.AdaptiveStressTest:
+# 		return AST.random_action(ast_rsg.rsg)
+# 	elif type(ast_rsg)==RNG.RSG:
+# 		return AST.random_action(ast_rsg)
+
+def uniform_policy(ast,s):
+	return ast.random_action()
 
 def sample(ast,verbose=True):
-	reward, actions = MDP.simulate(ast.transition_model,ast.rsg,uniform_policy,verbose=verbose)
+	reward, actions = MDP.simulate(ast.transition_model,ast,uniform_policy,verbose=verbose)
 	return SampleResults(reward,actions)
 
 def nsample(ast,nsamples,print_rate=1):
