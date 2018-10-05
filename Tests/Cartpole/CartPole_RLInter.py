@@ -26,6 +26,7 @@ import argparse
 import tensorflow as tf
 import joblib
 import math
+import numpy as np
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -58,7 +59,10 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
+seed = 0
 with tf.Session() as sess:
+	np.random.seed(seed)
+	tf.set_random_seed(seed)
 	# Instantiate the policy
 	env_inner = CartPoleEnv(use_seed=False)
 	ast_spec = EnvSpec(
@@ -100,7 +104,7 @@ with tf.Session() as sess:
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=25,#101,
+	    n_itr=25,
 	    store_paths=True,
 	    # optimizer= optimizer,
 	    max_path_length=100,
@@ -113,21 +117,4 @@ with tf.Session() as sess:
 
 	algo.train(sess=sess, init_var=False)
 
-	# Write out the episode results
-	# header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-	# for i in range(0,sim.c_num_peds):
-	#     header += 'v_x_ped_' + str(i) + ','
-	#     header += 'v_y_ped_' + str(i) + ','
-	#     header += 'x_ped_' + str(i) + ','
-	#     header += 'y_ped_' + str(i) + ','
-
-	# for i in range(0,sim.c_num_peds):
-	#     header += 'a_x_'  + str(i) + ','
-	#     header += 'a_y_' + str(i) + ','
-	#     header += 'noise_v_x_' + str(i) + ','
-	#     header += 'noise_v_y_' + str(i) + ','
-	#     header += 'noise_x_' + str(i) + ','
-	#     header += 'noise_y_' + str(i) + ','
-
-	# header += 'reward'
-	# example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+	

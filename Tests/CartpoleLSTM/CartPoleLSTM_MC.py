@@ -28,12 +28,12 @@ SEED = 0
 with tf.Session() as sess:
 	# Instantiate the policy
 	env_inner = CartPoleEnv(use_seed=True)
-	data = joblib.load("Data/Train/itr_50.pkl")
+	data = joblib.load("Data/Train/itr_10.pkl")
 	policy_inner = data['policy']
 	reward_function = ASTReward()
 	# sess.run(tf.global_variables_initializer())
 	# Create the environment
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
+	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
 	env = ASTEnv(interactive=True,
 								 simulator=simulator,
 	                             sample_init_state=False,

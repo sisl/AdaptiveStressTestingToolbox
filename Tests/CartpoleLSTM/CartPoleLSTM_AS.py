@@ -19,7 +19,7 @@ np.random.seed(0)
 
 max_path_length = 100
 ec = 100.0
-n = 10
+n = 1
 top_k = 10
 
 with tf.Session() as sess:
@@ -30,7 +30,7 @@ with tf.Session() as sess:
 	reward_function = ASTReward()
 
 	# Create the environment
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
+	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
 	env = ASTEnv(interactive=True,
 								 simulator=simulator,
 	                             sample_init_state=False,

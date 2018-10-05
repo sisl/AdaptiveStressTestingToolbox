@@ -26,6 +26,7 @@ import argparse
 import tensorflow as tf
 import joblib
 import math
+import numpy as np
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -58,7 +59,10 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
+seed = 0
 with tf.Session() as sess:
+	np.random.seed(seed)
+	tf.set_random_seed(seed)
 	# Instantiate the policy
 	env_inner = CartPoleEnv(use_seed=False)
 	ast_spec = EnvSpec(
@@ -78,8 +82,8 @@ with tf.Session() as sess:
 	reward_function = ASTReward()
 
 	# Create the environment
-	# env = TfEnv(ASTEnv(action_only=False,
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
+	max_path_length = 100
+	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
 	env = TfEnv(ASTEnv(interactive=False,
 								 simulator=simulator,
 	                             sample_init_state=False,
@@ -90,22 +94,16 @@ with tf.Session() as sess:
 	# Instantiate the RLLAB objects
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
-	# sampler_cls = ASTSingleSampler
-	# sampler_cls = ASTVectorizedSampler
 	algo = TRPO(
 	    env=env,
 	    policy=policy,
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=25,
+	    n_itr=1,#25,
 	    store_paths=True,
 	    optimizer= optimizer,
-	    max_path_length=100,
-	    # sampler_cls=sampler_cls,
-	    # sampler_args={"sim": sim,
-	    #               "reward_function": reward_function,
-	    #               "interactive": False},
+	    max_path_length=max_path_length,
 	    plot=False,
 	    )
 

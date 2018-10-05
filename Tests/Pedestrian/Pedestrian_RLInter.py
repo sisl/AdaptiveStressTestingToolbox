@@ -59,7 +59,10 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
+seed = 0
 with tf.Session() as sess:
+	np.random.seed(seed)
+	tf.set_random_seed(seed)
 	# Instantiate the policy
 	np.random.seed(0)
 
@@ -69,7 +72,6 @@ with tf.Session() as sess:
 	top_k = 10
 
 	RNG_LENGTH = 2
-	SEED = 0 
 
 
 	reward_function = AVReward()
@@ -100,7 +102,7 @@ with tf.Session() as sess:
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=2,#101,
+	    n_itr=101,
 	    store_paths=True,
 	    optimizer= optimizer,
 	    max_path_length=max_path_length,

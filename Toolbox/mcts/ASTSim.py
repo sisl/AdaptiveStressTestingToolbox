@@ -44,6 +44,7 @@ def nsample(ast,nsamples,print_rate=1):
 	return results
 
 def play_sequence(ast,actions,verbose=True,sleeptime=0.0):
+	print(len(actions))
 	reward2,actions2 = MDP.simulate(ast.transition_model,AcionSequenceInit(actions),action_seq_policy,verbose=verbose,sleeptime=sleeptime)
 	assert actions == actions2
 	return reward2,actions2

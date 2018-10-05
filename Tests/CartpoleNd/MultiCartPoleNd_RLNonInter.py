@@ -84,6 +84,7 @@ with open(osp.join(log_dir, 'cartpole_RLNonInter.csv'), mode='w') as csv_file:
 		else:
 			reuse = True
 		np.random.seed(trial)
+		tf.set_random_seed(trial)
 		with tf.variable_scope("ast",reuse=reuse):
 			# Instantiate the policy
 			env_inner = CartPoleNdEnv(nd=5,use_seed=False)

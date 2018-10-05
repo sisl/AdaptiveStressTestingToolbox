@@ -62,7 +62,8 @@ class PolicySimulator(Simulator):
             action = agent_info["mean"]
         elif "prob" in agent_info:
             action = np.argmax(agent_info["prob"])
-        # action = self.env.action_space.sample()
+        if self.policy.recurrent:
+            self.policy.prev_actions = self.policy.action_space.flatten_n([action])
         o_ast, o, done = self.env.ast_step(action, ast_action)
         self.path_length += 1
         self._is_terminal = (self.path_length >= self.c_max_path_length) or done
@@ -152,6 +153,8 @@ class InnerVecEnvExecutor(object):
             action_n = action_info_n["mean"]
         elif "prob" in action_info_n:
             action_n = np.argmax(action_info_n["prob"],axis=1)
+        if self.policy.recurrent:
+            self.policy.prev_actions = self.policy.action_space.flatten_n(action_n)
         # action = self.env.action_space.sample()
         # results = [np.reshape(env.ast_step(action, ast_action),env.ast_observation_space.shape) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
         results = [env.ast_step(action, ast_action) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]

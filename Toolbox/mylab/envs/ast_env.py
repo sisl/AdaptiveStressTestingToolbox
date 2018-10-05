@@ -95,8 +95,10 @@ class ASTEnv(Env):
         self._action = None
         self._actions = []
         self._first_step = True
+        o = self.simulator.reset(self._init_state)
+
         if self.interactive:
-            return self.simulator.reset(self._init_state)
+            return o
         else:
             return self._init_state
     def seed(self,seed):

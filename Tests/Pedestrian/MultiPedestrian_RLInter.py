@@ -84,6 +84,8 @@ with open(osp.join(log_dir, 'ast'+str(args.n_itr*args.batch_size)+'.csv'), mode=
 			reuse = False
 		else:
 			reuse = True
+		np.random.seed(trial)
+		tf.set_random_seed(trial)
 		with tf.variable_scope("ast",reuse=reuse):
 			# Instantiate the env
 			reward_function = AVReward()

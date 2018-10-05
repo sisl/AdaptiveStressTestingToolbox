@@ -26,6 +26,7 @@ import argparse
 import tensorflow as tf
 import joblib
 import math
+import numpy as np
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -58,7 +59,10 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
+seed = 0
 with tf.Session() as sess:
+	np.random.seed(seed)
+	tf.set_random_seed(seed)
 	# Instantiate the policy
 	env_inner = CartPoleNdEnv(nd=5,use_seed=False)
 	ast_spec = EnvSpec(
@@ -100,7 +104,7 @@ with tf.Session() as sess:
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=2,#101,
+	    n_itr=101,
 	    store_paths=True,
 	    # optimizer= optimizer,
 	    max_path_length=100,
