@@ -126,7 +126,7 @@ def selectAction(dpw, s, verbose=False):
 				print("Iterations completed: ",i)
 				break
 	dpw.f.model.goToState(s)
-	# print("Size of sdict: ", len(dpw.s))
+	print("Size of sdict: ", len(dpw.s))
 	cS = dpw.s[s]
 	A = list(cS.a.keys())
 	nA = len(A)
@@ -138,22 +138,24 @@ def selectAction(dpw, s, verbose=False):
 	return A[i]
 
 def simulate(dpw, s, d, verbose=False):
-	#print("simulate start")
-	#print("s: ",hash(s))
+	# print("simulate start: ",d)
+	# print("s: ",s)
+	# print("s parent: ",s.parent)
 	if (d == 0) | dpw.f.model.isEndState(s):
-		#print("simulate end d==0 or terminal")
+		# print("simulate end d==0 or terminal")
 		return 0.0
 	if not (s in dpw.s):
 		dpw.s[s] = StateNode()
-		#print("rollout")
+		# print("rollout")
 		return rollout(dpw,s,d)
 	dpw.s[s].n += 1
-	if len(dpw.s[s].a) <= dpw.p.k*dpw.s[s].n**dpw.p.alpha:
-		#print("N(s,a): ",len(dpw.s[s].a))
+	if len(dpw.s[s].a) < dpw.p.k*dpw.s[s].n**dpw.p.alpha:
+		# print("new action: ",dpw.p.k*dpw.s[s].n**dpw.p.alpha)
 		a = dpw.f.getNextAction(s,dpw.s,dpw.rng)
 		if not (a in dpw.s[s].a):
 			dpw.s[s].a[a] = StateActionNode()
 	else:
+		# print("old action")
 		cS = dpw.s[s]
 		A = list(cS.a.keys())
 		nA = len(A)
@@ -170,25 +172,30 @@ def simulate(dpw, s, d, verbose=False):
 	qval = dpw.s[s].a[a].q
 	dpw.tracker.push_q_value(qval)
 
-	if len(dpw.s[s].a[a].s) <= dpw.p.kp*dpw.s[s].a[a].n**dpw.p.alphap:
+	if len(dpw.s[s].a[a].s) < dpw.p.kp*dpw.s[s].a[a].n**dpw.p.alphap:
 		sp,r = dpw.f.model.getNextState(s,a,dpw.rng)
+		# print("new sp: ",sp in dpw.s.keys())
 		if not (sp in dpw.s[s].a[a].s):
 			dpw.s[s].a[a].s[sp] = StateActionStateNode()
 			dpw.s[s].a[a].s[sp].r = r
+			dpw.s[s].a[a].s[sp].n = 1
 		else:
 			dpw.s[s].a[a].s[sp].n += 1
 	else:
 		cA = dpw.s[s].a[a]
 		SP = list(cA.s.keys())
-		rn = dpw.rng.random()*cA.n
-		cnt = 0
-		i = 0
-		while True:
-			cnt += cA.s[SP[i]].n
-			if rn <= cnt:
-				sp = SP[i]
-				break
-			i += 1
+		# rn = dpw.rng.random()*cA.n
+		# cnt = 0
+		# i = 0
+		# while True:
+		# 	cnt += cA.s[SP[i]].n
+		# 	if rn <= cnt:
+		# 		sp = SP[i]
+		# 		break
+		# 	i += 1
+		# print("old sp",[cA.s[sn].n for sn in SP]/np.sum([cA.s[sn].n for sn in SP]))
+		sp =np.random.choice(SP,p=[cA.s[sn].n for sn in SP]/np.sum([cA.s[sn].n for sn in SP]))
+		dpw.f.model.goToState(sp)
 		r = dpw.s[s].a[a].s[sp].r
 		dpw.s[s].a[a].s[sp].n += 1
 

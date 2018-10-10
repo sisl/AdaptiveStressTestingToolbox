@@ -25,7 +25,7 @@ def explore_getAction(ast):
 		return ast.explore_action(s,tree)
 	return explore_policy
 
-def stress_test(ast,mcts_params,verbose=True):
+def stress_test(ast,mcts_params,verbose=True,return_tree=False):
 	# dpw_model = MCTSdpw.DPWModel(ast.transition_model,uniform_getAction(ast.rsg),uniform_getAction(ast.rsg))
 	# dpw_model = MCTSdpw.DPWModel(ast.transition_model,uniform_getAction(ast),uniform_getAction(ast))
 	dpw_model = MCTSdpw.DPWModel(ast.transition_model,rollout_getAction(ast),explore_getAction(ast))
@@ -44,9 +44,12 @@ def stress_test(ast,mcts_params,verbose=True):
 	if mcts_reward >= results.rewards[0]:
 		print("mcts_reward = ",mcts_reward," top reward = ",results.rewards[0])
 
-	return results
+	if return_tree:
+		return results,dpw.s
+	else:
+		return results
 
-def stress_test2(ast,mcts_params,verbose=True):
+def stress_test2(ast,mcts_params,verbose=True,return_tree=False):
 	mcts_params.clear_nodes = False
 	mcts_params.n *= ast.params.max_steps
 
@@ -62,5 +65,8 @@ def stress_test2(ast,mcts_params,verbose=True):
 		results.q_values[k] = tr.get_q_values()
 		k += 1
 
-	return results
+	if return_tree:
+		return results,dpw.s
+	else:
+		return results
 
