@@ -46,7 +46,7 @@ with tf.Session() as sess:
 	ast = AST.AdaptiveStressTest(ast_params, env)
 
 	macts_params = MCTSdpw.DPWParams(max_path_length,ec,n,0.5,0.85,1.0,0.0,False,1.0e308,np.uint64(0),top_k)
-	stress_test_num = 1
+	stress_test_num = 2
 	if stress_test_num == 2:
 		result,tree = AST_MCTS.stress_test2(ast,macts_params,False, return_tree=True)
 	else:
@@ -59,7 +59,7 @@ with tf.Session() as sess:
 		print("predic reward: ",result.rewards[i])
 		print("actual reward: ",reward)	
 
-	tree_plot.plot_tree(tree,d=max_path_length,path="Data/tree.png")
+	tree_plot.plot_tree(tree,d=max_path_length,path="Data/tree2.png")
 
 
 
