@@ -23,16 +23,16 @@ class TransitionModel:
 # 	goToState = goToState
 # 	return TransitionModel(getInitialState,getNextState,maxSteps,goToState)
 
-def simulate(model,p,policy,rng=np.random.RandomState(),verbose=False,sleeptime=0.0):
+def simulate(model,p,policy,verbose=False,sleeptime=0.0):
 	cum_reward = 0.0
 	actions = []
-	s = model.getInitialState(rng)
+	s = model.getInitialState()
 	for i in range(model.maxSteps):
 		# if verbose:
 		# 	print("Step: ",i," of ", model.maxSteps)
 		a = policy(p,s)
 		actions.append(a)
-		s,r = model.getNextState(s,a,rng)
+		s,r = model.getNextState(s,a)
 		time.sleep(sleeptime)
 		cum_reward += r
 		if model.isEndState(s):

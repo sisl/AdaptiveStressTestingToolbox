@@ -4,17 +4,13 @@ import mcts.BoundedPriorityQueues as BPQ
 import numpy as np
 
 class DPWParams:
-	def __init__(self, d, ec, n, k, alpha, kp, alphap, clear_nodes, maxtime_s, rng_seed, top_k=10): #like constructor self must be as the first
+	def __init__(self, d, ec, n, k, alpha, clear_nodes, top_k=10): #like constructor self must be as the first
 		self.d = d #search depth
 		self.ec = ec #exploration constant
 		self.n = n #number of iterations
 		self.k = k
 		self.alpha = alpha
-		self.kp = kp
-		self.alphap = alphap
 		self.clear_nodes = clear_nodes
-		self.maxtime_s = maxtime_s
-		self.rng_seed = rng_seed
 		self.top_k = top_k
 
 class DPWModel:
@@ -50,11 +46,10 @@ class StateNode:
 		self.n = 0
 
 class DPW:
-	def __init__(self, s, p, f, rng, tracker, top_paths):
+	def __init__(self, s, p, f, tracker, top_paths):
 		self.s = s #Dict{State,StateNode}
 		self.p = p #DPWParams
 		self.f = f #DPWModel
-		self.rng = rng
 		self.tracker = tracker #MCTSTracker
 		self.top_paths = top_paths #BoundedPriorityQueue
 
@@ -62,10 +57,9 @@ def DPWInit(p,f):
 	s = {}
 	p = p
 	f = f
-	rng = np.random.RandomState(p.rng_seed)
 	tracker = mctstracker.MCTSTrackerInit()
 	top_paths = BPQ.BoundedPriorityQueueInit(p.top_k)
-	return DPW(s,p,f,rng,tracker,top_paths)
+	return DPW(s,p,f,tracker,top_paths)
 
 def saveBackwardState(dpw, old_d, new_d, s_current):
     if not (s_current in old_d):
@@ -121,10 +115,6 @@ def selectAction(dpw, s, verbose=False):
 		R += simulate(dpw, s, d, verbose = verbose)
 		dpw.tracker.combine_q_values()
 		dpw.top_paths.enqueue(dpw.tracker, R, make_copy=True)
-		if time.time()*1e6-starttime_us > dpw.p.maxtime_s * 1e6:
-			if verbose:
-				print("Iterations completed: ",i)
-				break
 	dpw.f.model.goToState(s)
 	print("Size of sdict: ", len(dpw.s))
 	cS = dpw.s[s]
@@ -151,7 +141,7 @@ def simulate(dpw, s, d, verbose=False):
 	dpw.s[s].n += 1
 	if len(dpw.s[s].a) < dpw.p.k*dpw.s[s].n**dpw.p.alpha:
 		# print("new action: ",dpw.p.k*dpw.s[s].n**dpw.p.alpha)
-		a = dpw.f.getNextAction(s,dpw.s,dpw.rng)
+		a = dpw.f.getNextAction(s,dpw.s)
 		if not (a in dpw.s[s].a):
 			dpw.s[s].a[a] = StateActionNode()
 	else:
@@ -172,32 +162,15 @@ def simulate(dpw, s, d, verbose=False):
 	qval = dpw.s[s].a[a].q
 	dpw.tracker.push_q_value(qval)
 
-	if len(dpw.s[s].a[a].s) < dpw.p.kp*dpw.s[s].a[a].n**dpw.p.alphap:
-		sp,r = dpw.f.model.getNextState(s,a,dpw.rng)
-		# print("new sp: ",sp in dpw.s.keys())
-		if not (sp in dpw.s[s].a[a].s):
-			dpw.s[s].a[a].s[sp] = StateActionStateNode()
-			dpw.s[s].a[a].s[sp].r = r
-			dpw.s[s].a[a].s[sp].n = 1
-		else:
-			dpw.s[s].a[a].s[sp].n += 1
+	sp,r = dpw.f.model.getNextState(s,a)
+	# print("new sp: ",sp in dpw.s.keys())
+	if not (sp in dpw.s[s].a[a].s):
+		dpw.s[s].a[a].s[sp] = StateActionStateNode()
+		dpw.s[s].a[a].s[sp].r = r
+		dpw.s[s].a[a].s[sp].n = 1
 	else:
-		cA = dpw.s[s].a[a]
-		SP = list(cA.s.keys())
-		# rn = dpw.rng.random()*cA.n
-		# cnt = 0
-		# i = 0
-		# while True:
-		# 	cnt += cA.s[SP[i]].n
-		# 	if rn <= cnt:
-		# 		sp = SP[i]
-		# 		break
-		# 	i += 1
-		# print("old sp",[cA.s[sn].n for sn in SP]/np.sum([cA.s[sn].n for sn in SP]))
-		sp =np.random.choice(SP,p=[cA.s[sn].n for sn in SP]/np.sum([cA.s[sn].n for sn in SP]))
-		dpw.f.model.goToState(sp)
-		r = dpw.s[s].a[a].s[sp].r
 		dpw.s[s].a[a].s[sp].n += 1
+
 
 	q = r + simulate(dpw,sp,d-1)
 	cA = dpw.s[s].a[a]
@@ -214,9 +187,9 @@ def rollout(dpw, s, d):
 		#print("rollout end d==0 or terminal")
 		return 0.0
 	else:
-		a = dpw.f.getAction(s,dpw.s,dpw.rng)
+		a = dpw.f.getAction(s,dpw.s)
 		dpw.tracker.push_action(a)
-		sp,r = dpw.f.model.getNextState(s,a,dpw.rng)
+		sp,r = dpw.f.model.getNextState(s,a)
 		qval = (r+rollout(dpw,sp,d-1))
 		dpw.tracker.push_q_value2(qval)
 		#print("rollout end, d is ",d)

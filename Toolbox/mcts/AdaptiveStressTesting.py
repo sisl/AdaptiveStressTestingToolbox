@@ -102,13 +102,13 @@ def isequal(w,v):
 		return hash(w) == hash(v)
 
 def transition_model_random_seed(ast):
-	def get_initial_state(rng):
+	def get_initial_state():
 		ast.t_index = 1
 		ast.initialize()
 		s = ASTStateInit(ast.t_index, None, ASTAction(rsg=copy.deepcopy(ast.initial_rsg)))
 		ast.sim_hash = s.hash
 		return s
-	def get_next_state(s0,a0,rng):
+	def get_next_state(s0,a0):
 		assert ast.sim_hash == s0.hash
 		ast.t_index += 1
 		# RNG.set_global(a0.rsg)
@@ -121,11 +121,11 @@ def transition_model_random_seed(ast):
 		assert ast.sim_hash == s.hash
 		return ast.isterminal()
 	def go_to_state(target_state):
-		s = get_initial_state(None)
+		s = get_initial_state()
 		actions = get_action_sequence(target_state)
 		R = 0.0
 		for a in actions:
-			s,r = get_next_state(s, a, None)
+			s,r = get_next_state(s, a)
 			R += r
 		assert s == target_state
 		return R, actions

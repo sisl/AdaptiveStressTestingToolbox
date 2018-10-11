@@ -1,7 +1,6 @@
 import numpy as np
 import mcts.MCTSdpw as MCTSdpw
 import mcts.MDP as MDP
-import mcts.RNGWrapper as RNG
 
 class StressTestResults:
 	def __init__(self,rewards,action_seqs,q_values):
@@ -16,12 +15,12 @@ def StressTestResultsInit(k):
 	return StressTestResults(rewards,action_seqs,q_values)
 
 def rollout_getAction(ast):
-	def rollout_policy(s,tree,rng):
+	def rollout_policy(s,tree):
 		return ast.random_action()
 	return rollout_policy
 
 def explore_getAction(ast):
-	def explore_policy(s,tree,rng):
+	def explore_policy(s,tree):
 		return ast.explore_action(s,tree)
 	return explore_policy
 
@@ -55,7 +54,7 @@ def stress_test2(ast,mcts_params,verbose=True,return_tree=False):
 
 	dpw_model = MCTSdpw.DPWModel(ast.transition_model,rollout_getAction(ast),explore_getAction(ast))
 	dpw = MCTSdpw.DPWInit(mcts_params,dpw_model)
-	s = dpw.f.model.getInitialState(dpw.rng)
+	s = dpw.f.model.getInitialState()
 	MCTSdpw.selectAction(dpw,s,verbose=verbose)
 	results = StressTestResultsInit(mcts_params.top_k)
 	k = 0

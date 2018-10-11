@@ -26,12 +26,16 @@ def add_children(s,s_node,tree,graph,d):
 					graph.add_edge(pydot.Edge(s_node, ns_node))
 					add_children(ns,ns_node,tree,graph,d-1)
 
-def plot_tree(tree,d,path):
+def plot_tree(tree,d,path,format="svg"):
 	graph = pydot.Dot(graph_type='digraph')
 	root = get_root(tree)
 	root_node = s2node(root,tree)
 	graph.add_node(root_node)
 	add_children(root,root_node,tree,graph,d)
-	graph.write_png(path)
+	filename = path+"."+format
+	if format == "svg":
+		graph.write_svg(filename)
+	elif format == "png":
+		graph.write_png(filename)
 
 

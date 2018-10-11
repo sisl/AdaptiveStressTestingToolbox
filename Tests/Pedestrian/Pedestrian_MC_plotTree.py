@@ -14,9 +14,13 @@ import math
 
 np.random.seed(0)
 
-max_path_length = 50
+stress_test_num = 2
+max_path_length = 20#50
 ec = 100.0
 n = 160
+k=0.5
+alpha=0.85
+clear_nodes=False
 top_k = 10
 
 RNG_LENGTH = 2
@@ -38,12 +42,11 @@ env = ASTEnv(interactive=True,
 ast_params = AST.ASTParams(max_path_length,RNG_LENGTH,SEED)
 ast = AST.AdaptiveStressTest(ast_params, env)
 
-macts_params = MCTSdpw.DPWParams(max_path_length,ec,n,0.5,0.85,1.0,0.0,False,1.0e308,np.uint64(0),top_k)
-stress_test_num = 2
+macts_params = MCTSdpw.DPWParams(max_path_length,ec,n,k,alpha,clear_nodes,top_k)
 if stress_test_num == 2:
-	result,tree = AST_MCTS.stress_test2(ast,macts_params,False, return_tree=True)
+	result,tree = AST_MCTS.stress_test2(ast,macts_params,verbose=False, return_tree=True)
 else:
-	result,tree = AST_MCTS.stress_test(ast,macts_params,False, return_tree=True)
+	result,tree = AST_MCTS.stress_test(ast,macts_params,verbose=False, return_tree=True)
 #reward, action_seq = result.rewards[1], result.action_seqs[1]
 print("setp count: ",ast.step_count)
 
@@ -52,4 +55,4 @@ for (i,action_seq) in enumerate(result.action_seqs):
 	print("predic reward: ",result.rewards[i])
 	print("actual reward: ",reward)	
 
-tree_plot.plot_tree(tree,d=max_path_length,path="Data/tree2.png")
+tree_plot.plot_tree(tree,d=max_path_length,path="Data/tree"+str(stress_test_num)+"_"+str(max_path_length),format="png")

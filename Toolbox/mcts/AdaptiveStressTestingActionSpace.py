@@ -73,13 +73,13 @@ class ASTAction:
 		return np.array_equal(self.action, other.action)
 
 def transition_model_action_space(ast):
-	def get_initial_state(rng):
+	def get_initial_state():
 		ast.t_index = 1
 		ast.initialize()
 		s = ASTStateInit(ast.t_index, None, None)
 		ast.sim_hash = s.hash
 		return s
-	def get_next_state(s0,a0,rng):
+	def get_next_state(s0,a0):
 		assert ast.sim_hash == s0.hash
 		ast.t_index += 1
 		ast.update(a0)
@@ -91,11 +91,11 @@ def transition_model_action_space(ast):
 		assert ast.sim_hash == s.hash
 		return ast.isterminal()
 	def go_to_state(target_state):
-		s = get_initial_state(None)
+		s = get_initial_state()
 		actions = get_action_sequence(target_state)
 		R = 0.0
 		for a in actions:
-			s,r = get_next_state(s, a, None)
+			s,r = get_next_state(s, a)
 			R += r
 		assert s == target_state
 		return R, actions
