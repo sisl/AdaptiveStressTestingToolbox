@@ -33,8 +33,8 @@ import csv
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
-parser.add_argument('--n_trial', type=int, default=10)
-parser.add_argument('--n_itr', type=int, default=25)
+parser.add_argument('--n_trial', type=int, default=5)
+parser.add_argument('--n_itr', type=int, default=2500)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
@@ -67,7 +67,10 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.push_prefix("[%s] " % args.exp_name)
 
 top_k = 10
+max_path_length = 100
+interactive = True
 
+tf.set_random_seed(0)
 with open(osp.join(log_dir, 'cartpole_RLInter.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
 	for i in range(top_k):
@@ -84,43 +87,44 @@ with open(osp.join(log_dir, 'cartpole_RLInter.csv'), mode='w') as csv_file:
 		else:
 			reuse = True
 		np.random.seed(trial)
-		tf.set_random_seed(trial)
 		with tf.variable_scope("ast",reuse=reuse):
-			# Instantiate the policy
-			env_inner = CartPoleEnv(use_seed=False)
-			ast_spec = EnvSpec(
-		            	observation_space=to_tf_space(env_inner.ast_observation_space),
-		            	action_space=to_tf_space(env_inner.ast_action_space),
-		        		)
-
-			policy = GaussianMLPPolicy(
-			    name='ast_agent',
-			    env_spec=ast_spec,
-			    # The neural network policy should have two hidden layers, each with 32 hidden units.
-			    hidden_sizes=(64, 32)
-			)
-			sess.run(tf.global_variables_initializer())
-
 			# Instantiate the env
+			env_inner = CartPoleEnv(use_seed=False)
 			data = joblib.load("Data/Train/itr_50.pkl")
 			policy_inner = data['policy']
 			reward_function = ASTReward()
+
+			simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
+			env = TfEnv(ASTEnv(interactive=interactive,
+										 simulator=simulator,
+										 sample_init_state=False,
+										 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+										 reward_function=reward_function,
+										 ))
+
+			# Create policy
+			policy = GaussianMLPPolicy(
+				name='ast_agent',
+				env_spec=env.spec,
+				hidden_sizes=(64, 32)
+			)
+			params = policy.get_params()
+			sess.run(tf.variables_initializer(params))
 
 			# Create the environment
 			# env = TfEnv(ASTEnv(action_only=False,
 			simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
 			env = TfEnv(ASTEnv(interactive=True,
 										 simulator=simulator,
-			                             sample_init_state=False,
-			                             s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-			                             reward_function=reward_function,
-			                             ))
+										 sample_init_state=False,
+										 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+										 reward_function=reward_function,
+										 ))
 
 			# Instantiate the RLLAB objects
 			baseline = LinearFeatureBaseline(env_spec=env.spec)
 			# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
-			# sampler_cls = ASTSingleSampler
-			# sampler_cls = ASTVectorizedSampler
+
 			top_paths = BPQ.BoundedPriorityQueueInit(top_k)
 			algo = TRPO(
 				env=env,
@@ -131,11 +135,7 @@ with open(osp.join(log_dir, 'cartpole_RLInter.csv'), mode='w') as csv_file:
 				n_itr=args.n_itr,
 				store_paths=True,
 				# optimizer= optimizer,
-				max_path_length=100,
-				# sampler_cls=sampler_cls,
-				# sampler_args={"sim": sim,
-				#               "reward_function": reward_function,
-				#               "interactive": True},
+				max_path_length=max_path_length,
 				top_paths = top_paths,
 				plot=False,
 				)

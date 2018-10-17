@@ -18,7 +18,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from Cartpole.cartpole import CartPoleEnv
 
-from mylab.algos.trpo import TRPO
+from mylab.algos.ga import GA
 
 import os.path as osp
 import argparse
@@ -34,11 +34,11 @@ import csv
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=2500)
+parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/RLNonInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAInter')
 
 
 parser.add_argument('--tabular_log_file', type=str, default='tab.txt')
@@ -68,10 +68,10 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 top_k = 10
 max_path_length = 100
-interactive = False
+interactive = True
 
 tf.set_random_seed(0)
-with open(osp.join(log_dir, 'cartpole_RLNonInter.csv'), mode='w') as csv_file:
+with open(osp.join(log_dir, 'cartpole_GAInter.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
 	for i in range(top_k):
 		fieldnames.append('reward '+str(i))
@@ -87,7 +87,6 @@ with open(osp.join(log_dir, 'cartpole_RLNonInter.csv'), mode='w') as csv_file:
 		else:
 			reuse = True
 		np.random.seed(trial)
-		
 		with tf.variable_scope("ast",reuse=reuse):
 			# Instantiate the env
 			env_inner = CartPoleEnv(use_seed=False)
@@ -104,27 +103,28 @@ with open(osp.join(log_dir, 'cartpole_RLNonInter.csv'), mode='w') as csv_file:
 										 ))
 
 			# Create policy
-			policy = GaussianLSTMPolicy(name='lstm_policy',
-										env_spec=ast_spec,
-										hidden_dim=128,
-										use_peepholes=True)
+			policy = GaussianMLPPolicy(
+				name='ast_agent',
+				env_spec=env.spec,
+				hidden_sizes=(64, 32)
+			)
 			params = policy.get_params()
 			sess.run(tf.variables_initializer(params))
 
 			# Instantiate the RLLAB objects
 			baseline = LinearFeatureBaseline(env_spec=env.spec)
-			optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
-
 			top_paths = BPQ.BoundedPriorityQueueInit(top_k)
-			algo = TRPO(
+			algo = GA(
 				env=env,
 				policy=policy,
 				baseline=baseline,
 				batch_size=args.batch_size,
-				step_size=0.1,
+				pop_size = 100,
+				elites = 20,
+				keep_best = 3,
+				step_size=0.01,
 				n_itr=args.n_itr,
-				store_paths=True,
-				optimizer= optimizer,
+				store_paths=False,
 				max_path_length=max_path_length,
 				top_paths = top_paths,
 				plot=False,
@@ -133,7 +133,7 @@ with open(osp.join(log_dir, 'cartpole_RLNonInter.csv'), mode='w') as csv_file:
 			algo.train(sess=sess, init_var=False)
 
 			row_content = dict()
-			row_content['step_count'] = args.n_itr*args.batch_size
+			row_content['step_count'] = args.n_itr*args.batch_size*pop_size
 			i = 0
 			for (r,action_seq) in algo.top_paths:
 				row_content['reward '+str(i)] = r
