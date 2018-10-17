@@ -104,7 +104,7 @@ with open(osp.join(log_dir, 'cartpole_GANonInter.csv'), mode='w') as csv_file:
 
 			# Create policy
 			policy = GaussianLSTMPolicy(name='lstm_policy',
-										env_spec=ast_spec,
+										env_spec=env.spec,
 										hidden_dim=128,
 										use_peepholes=True)
 			params = policy.get_params()
