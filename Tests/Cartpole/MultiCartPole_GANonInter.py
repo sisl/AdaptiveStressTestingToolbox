@@ -70,6 +70,11 @@ top_k = 10
 max_path_length = 100
 interactive = False
 
+pop_size = 100
+elites = 20
+keep_best = 3
+step_size=0.01
+
 tf.set_random_seed(0)
 with open(osp.join(log_dir, 'cartpole_GANonInter.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -118,10 +123,10 @@ with open(osp.join(log_dir, 'cartpole_GANonInter.csv'), mode='w') as csv_file:
 				policy=policy,
 				baseline=baseline,
 				batch_size=args.batch_size,
-				pop_size = 100,
-				elites = 20,
-				keep_best = 3,
-				step_size=0.01,
+				pop_size = pop_size,
+				elites = elites,
+				keep_best = keep_best,
+				step_size= step_size,
 				n_itr=args.n_itr,
 				store_paths=False,
 				max_path_length=max_path_length,
