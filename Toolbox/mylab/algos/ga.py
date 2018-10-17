@@ -38,7 +38,7 @@ class GA(BatchPolopt):
 		self.elites = elites
 		self.fit_f = fit_f
 		self.keep_best = keep_best
-		self.init_param_values = policy.get_param_values()
+		self.init_param_values = policy.get_param_values(trainable=True)
 		super(GA, self).__init__(**kwargs, policy=policy)
 
 	@overrides

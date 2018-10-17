@@ -132,7 +132,7 @@ with open(osp.join(log_dir, 'cartpole_GANonInter.csv'), mode='w') as csv_file:
 			algo.train(sess=sess, init_var=False)
 
 			row_content = dict()
-			row_content['step_count'] = args.n_itr*args.batch_size
+			row_content['step_count'] = args.n_itr*args.batch_size*pop_size
 			i = 0
 			for (r,action_seq) in algo.top_paths:
 				row_content['reward '+str(i)] = r
