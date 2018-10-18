@@ -49,7 +49,7 @@ with tf.Session() as sess:
 								 reward_function=reward_function,
 								 )
 
-	with open('Data/AST/carploe_MCTS.csv', mode='w') as csv_file:
+	with open('Data/AST/cartpole_MCTS.csv', mode='w') as csv_file:
 		fieldnames = ['step_count']
 		for i in range(top_k):
 			fieldnames.append('reward '+str(i))

@@ -27,6 +27,7 @@ dependencies:
     - torchvision==0.1.6
     - mpi4py
     - pandas
+    - graphviz
     - pip:
         - Pillow
         - pyprind
@@ -59,3 +60,5 @@ dependencies:
         - pylru==1.0.9
         - hyperopt
         - polling
+        - pydot
+        - uuid

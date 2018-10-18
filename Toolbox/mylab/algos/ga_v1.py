@@ -38,7 +38,7 @@ class GA(BatchPolopt):
 		self.elites = elites
 		self.fit_f = fit_f
 		self.keep_best = keep_best
-		# self.init_param_values = policy.get_param_values(trainable=True)
+		self.init_param_values = policy.get_param_values(trainable=True)
 		super(GA, self).__init__(**kwargs, policy=policy)
 
 	@overrides
@@ -66,12 +66,19 @@ class GA(BatchPolopt):
 					with logger.prefix('idv #%d | ' % p):
 						logger.log("Updating Params")
 
-						param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
+						param_values = self.init_param_values
 						for i in range(itr+1):
 							# print("seed: ", self.seeds[i,p])
 							if self.seeds[i,p] != 0:
-								np.random.seed(int(self.seeds[i,p]))
-								param_values = param_values + self.step_size*np.random.normal(size=param_values.shape)
+								if i == 0:
+									np.random.seed(int(self.seeds[i,p]))
+									permutation = np.random.permutation(len(param_values))
+									reverse_num = np.random.randint(low=0,high=len(param_values))
+									reverse_indx = permutation[:reverse_num]
+									param_values[reverse_indx] = -param_values[reverse_indx]
+								else:
+									np.random.seed(int(self.seeds[i,p]))
+									param_values = param_values + self.step_size*np.random.normal(size=param_values.shape)
 						self.policy.set_param_values(param_values, trainable=True)
 						# print("param values: ",self.policy.get_param_values(trainable=True))
 

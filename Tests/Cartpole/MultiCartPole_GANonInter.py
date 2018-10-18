@@ -33,7 +33,7 @@ import csv
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
-parser.add_argument('--n_trial', type=int, default=10)
+parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
