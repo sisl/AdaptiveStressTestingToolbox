@@ -70,8 +70,12 @@ class GA(BatchPolopt):
 						for i in range(itr+1):
 							# print("seed: ", self.seeds[i,p])
 							if self.seeds[i,p] != 0:
-								np.random.seed(int(self.seeds[i,p]))
-								param_values = param_values + self.step_size*np.random.normal(size=param_values.shape)
+								if i == 0:
+									np.random.seed(int(self.seeds[i,p]))
+									param_values = param_values + np.random.normal(size=param_values.shape)
+								else:
+									np.random.seed(int(self.seeds[i,p]))
+									param_values = param_values + self.step_size*np.random.normal(size=param_values.shape)
 						self.policy.set_param_values(param_values, trainable=True)
 						# print("param values: ",self.policy.get_param_values(trainable=True))
 
