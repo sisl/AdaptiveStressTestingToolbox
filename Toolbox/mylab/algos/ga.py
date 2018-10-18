@@ -25,7 +25,7 @@ class GA(BatchPolopt):
 			self,
 			policy = None,
 			top_paths = None,
-			step_size=0.002, #serve as the std dev in mutation
+			step_size=0.01, #serve as the std dev in mutation
 			pop_size = 5,
 			elites = 2,
 			keep_best = 1,
