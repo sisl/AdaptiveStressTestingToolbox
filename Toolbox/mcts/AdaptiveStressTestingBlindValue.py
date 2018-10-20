@@ -2,15 +2,17 @@ import copy
 import mcts.MDP as MDP
 import mcts.MCTSdpw as MCTSdpw
 import numpy as np
-from mcts.AdaptiveStressTestingActionSpace import AdaptiveStressTestAS,ASTAction
+from mcts.AdaptiveStressTesting import AdaptiveStressTest,ASTAction
 
 class ASTParams:
-	def __init__(self,max_steps,ec,M=10):
+	def __init__(self,max_steps,ec,M,batch_size,log_tabular):
 		self.max_steps = max_steps
-		self.ec = ec #encourage factor in UCB 
-		self.M = M #generate M samples when selecting new actions
+		self.ec = ec
+		self.M = M
+		self.batch_size = batch_size
+		self.log_tabular = log_tabular
 
-class AdaptiveStressTestBV(AdaptiveStressTestAS):
+class AdaptiveStressTestBV(AdaptiveStressTest):
 	def __init__(self,**kwargs):
 		super(AdaptiveStressTestBV, self).__init__(**kwargs)
 	def explore_action(self,s,tree):

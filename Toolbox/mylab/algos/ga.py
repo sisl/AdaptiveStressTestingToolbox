@@ -93,7 +93,6 @@ class GA(BatchPolopt):
 							fitness[p] = np.max(undiscounted_returns)
 						else:
 							fitness[p] = np.mean(undiscounted_returns)
-						print("fitness: ",fitness[p])
 						logger.log("Logging diagnostics...")
 						self.log_diagnostics(paths)
 						logger.log("Saving snapshot...")
@@ -105,9 +104,17 @@ class GA(BatchPolopt):
 						# logger.record_tabular('Time', time.time() - start_time)
 						# logger.record_tabular('ItrTime', time.time() - itr_start_time)
 						# logger.dump_tabular(with_prefix=False)
+						logger.record_tabular('Itr',itr)
+						logger.record_tabular('Ind',p)
+						logger.record_tabular('StepNum',int(itr*self.batch_size*self.pop_size+self.batch_size*(p+1)))
+						if self.top_paths is not None:
+							for (topi, path) in enumerate(self.top_paths):
+								logger.record_tabular('reward '+str(topi), path[0])
 
-				logger.log("Logging diagnostics...")
-				self.log_diagnostics(paths)
+						logger.dump_tabular(with_prefix=False)
+
+				# logger.log("Logging diagnostics...")
+				# self.log_diagnostics(paths)
 				logger.log("Optimizing Population...")
 				self.optimize_policy(itr, fitness)
 				# logger.log("Saving snapshot...")

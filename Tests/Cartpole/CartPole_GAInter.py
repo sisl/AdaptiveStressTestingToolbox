@@ -31,13 +31,13 @@ import numpy as np
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default='cartpole_exp')
-parser.add_argument('--tabular_log_file', type=str, default='tab.txt')
+parser.add_argument('--tabular_log_file', type=str, default='progress.csv')
 parser.add_argument('--text_log_file', type=str, default='tex.txt')
 parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -60,6 +60,10 @@ logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
 seed = 0
+top_k = 10
+
+import mcts.BoundedPriorityQueues as BPQ
+top_paths = BPQ.BoundedPriorityQueueInit(top_k)å
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -101,6 +105,7 @@ with tf.Session() as sess:
 		store_paths=False,
 		# optimizer= optimizer,
 		max_path_length=100,
+		top_paths=top_paths,
 		plot=False,
 		)
 

@@ -1,4 +1,4 @@
-import mcts.AdaptiveStressTestingBlindValue as AST_BV
+import mcts.AdaptiveStressTestingRandomSeed as AST_RS
 import mcts.ASTSim as ASTSim
 import mcts.MCTSdpw as MCTSdpw
 import mcts.AST_MCTS as AST_MCTS
@@ -30,7 +30,7 @@ parser.add_argument('--n_itr', type=int, default=1200)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTS_BV')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTS_RS')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -40,7 +40,6 @@ interactive = False
 stress_test_num = 2
 max_path_length = 100
 ec = 100.0
-M = 10
 n = args.n_itr
 k=0.5
 alpha=0.85
@@ -48,13 +47,14 @@ clear_nodes=True
 top_k = 10
 RNG_LENGTH = 2
 SEED = 0
+batch_size = 1000
 
 tf.set_random_seed(0)
 sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env_inner = CartPoleEnv(use_seed=False)
+env_inner = CartPoleEnv(use_seed=True)
 data = joblib.load("Data/Train/itr_50.pkl")
 policy_inner = data['policy']
 reward_function = ASTReward()
@@ -98,8 +98,8 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		np.random.seed(trial)
 		SEED = trial
 		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
-		ast_params = AST_BV.ASTParams(max_path_length,ec,M,args.batch_size,log_tabular=True)
-		ast = AST_BV.AdaptiveStressTestBV(p=ast_params, env=env, top_paths=top_paths)
+		ast_params = AST_RS.ASTParams(max_path_length,RNG_LENGTH,SEED,args.batch_size,log_tabular=True)
+		ast = AST_RS.AdaptiveStressTestRS(p=ast_params, env=env, top_paths=top_paths)
 
 		macts_params = MCTSdpw.DPWParams(max_path_length,ec,n,k,alpha,clear_nodes,top_k)
 		stress_test_num = 2

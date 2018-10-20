@@ -31,22 +31,18 @@ import numpy as np
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default='cartpole_exp')
-parser.add_argument('--tabular_log_file', type=str, default='tab.txt')
-parser.add_argument('--text_log_file', type=str, default='tex.txt')
-parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/RLInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/RLInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 # Create the logger
 log_dir = args.log_dir
 
-tabular_log_file = osp.join(log_dir, args.tabular_log_file)
-text_log_file = osp.join(log_dir, args.text_log_file)
-params_log_file = osp.join(log_dir, args.params_log_file)
+tabular_log_file = osp.join(log_dir, 'process.csv')
+text_log_file = osp.join(log_dir, 'text.csv')
+params_log_file = osp.join(log_dir, 'args.txt')
 
 logger.log_parameters_lite(params_log_file, args)
 logger.add_text_output(text_log_file)
@@ -56,10 +52,14 @@ prev_mode = logger.get_snapshot_mode()
 logger.set_snapshot_dir(log_dir)
 logger.set_snapshot_mode(args.snapshot_mode)
 logger.set_snapshot_gap(args.snapshot_gap)
-logger.set_log_tabular_only(args.log_tabular_only)
+logger.set_log_tabular_only(False)
 logger.push_prefix("[%s] " % args.exp_name)
 
 seed = 0
+top_k = 10
+
+import mcts.BoundedPriorityQueues as BPQ
+top_paths = BPQ.BoundedPriorityQueueInit(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -101,6 +101,7 @@ with tf.Session() as sess:
 	    store_paths=True,
 	    # optimizer= optimizer,
 	    max_path_length=100,
+	    top_paths = top_paths,
 	    plot=False,
 	    )
 

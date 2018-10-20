@@ -2,32 +2,24 @@ import copy
 import mcts.MDP as MDP
 import mcts.MCTSdpw as MCTSdpw
 import numpy as np
-import mcts.RNGWrapper as RNG
-
-# DEFAULT_RSGLENGTH = 3
+import rllab.misc.logger as logger
 
 class ASTParams:
-	def __init__(self,max_steps,rsg_length,init_seed):
+	def __init__(self,max_steps,batch_size,log_tabular):
 		self.max_steps = max_steps
-		self.rsg_length = rsg_length
-		self.init_seed = init_seed
-
-# def ASTParamsInit():
-# 	return ASTParams(0,DEFAULT_RSGLENGTH,0,None)
+		self.batch_size = batch_size
+		self.log_tabular = log_tabular
 
 class AdaptiveStressTest:
-	def __init__(self,p,env):
+	def __init__(self,p,env,top_paths):
 		self.params = p
 		self.env = env
 		self.sim_hash = hash(0)
-
-		self.rsg = RNG.RSGInit(p.rsg_length, p.init_seed)
-		self.initial_rsg = copy.deepcopy(self.rsg)
 		self.transition_model = self.transition_model()
-
 		self.step_count = 0
 		self._isterminal = False
 		self._reward = 0.0
+		self.top_paths = top_paths
 
 	def reset_setp_count(self):
 		self.step_count = 0
@@ -37,28 +29,53 @@ class AdaptiveStressTest:
 		return self.env.reset()
 	def update(self,action):
 		self.step_count += 1
-		obs, reward, done, info = self.env.step(action.rsg.state)
+		obs, reward, done, info = self.env.step(action.get())
 		self._isterminal = done
 		self._reward = reward
+		if self.params.log_tabular:
+			if self.step_count%self.params.batch_size == 0:
+				logger.record_tabular('StepNum',self.step_count)
+				for (topi, path) in enumerate(self.top_paths):
+					logger.record_tabular('reward '+str(topi), path[0])
+				logger.dump_tabular(with_prefix=False)
 		return obs, reward, done, info
 	def isterminal(self):
 		return self._isterminal
 	def get_reward(self):
 		return self._reward
-	def transition_model(self):
-		return transition_model_random_seed(self)
-	def reset_rsg1(self):
-		self.rsg = copy.deepcopy(self.initial_rsg)
 	def random_action(self):
-		self.rsg.next1()
-		return ASTAction(rsg=copy.deepcopy(self.rsg))
+		return ASTAction(self.env.action_space.sample())
 	def explore_action(self,s,tree):
-		self.rsg.next1()
-		return ASTAction(rsg=copy.deepcopy(self.rsg))
-
-# def random_action(rsg):
-# 	rsg.next1()
-# 	return ASTAction(rsg=copy.deepcopy(rsg))
+		return ASTAction(self.env.action_space.sample())
+	def transition_model(self):
+		def get_initial_state():
+			self.t_index = 1
+			self.initialize()
+			# s = ASTStateInit(ast.t_index, None, ASTAction(rsg=copy.deepcopy(ast.initial_rsg)))
+			s = ASTStateInit(self.t_index, None, None)
+			self.sim_hash = s.hash
+			return s
+		def get_next_state(s0,a0):
+			assert self.sim_hash == s0.hash
+			self.t_index += 1
+			self.update(a0)
+			s1 = ASTStateInit(self.t_index, s0, a0)
+			self.sim_hash = s1.hash
+			r = self.get_reward()
+			return s1, r
+		def isterminal(s):
+			assert self.sim_hash == s.hash
+			return self.isterminal()
+		def go_to_state(target_state):
+			s = get_initial_state()
+			actions = get_action_sequence(target_state)
+			R = 0.0
+			for a in actions:
+				s,r = get_next_state(s, a)
+				R += r
+			assert s == target_state
+			return R, actions
+		return MDP.TransitionModel(get_initial_state, get_next_state, isterminal, self.params.max_steps, go_to_state)
 
 class ASTState:
 	def __init__(self,t_index,hash,parent,action):
@@ -81,55 +98,14 @@ def ASTStateInit(t_index,parent,action):
 	return obj
 
 class ASTAction:
-	def __init__(self,rsg):
-		self.rsg = rsg
+	def __init__(self,action):
+		self.action = action
 	def __hash__(self):
-		return hash(self.rsg)
+		return hash(tuple(self.action))
 	def __eq__(self,other):
-		return self.rsg == other.rsg
-
-# def ASTActionInit(rsg_length=DEFAULT_RSGLENGTH,seed=0):
-# 	obj = ASTAction(RNG.RSGInit(rsg_length,seed))
-# 	return obj
-
-# def hash_multi_ASTAction(A):
-# 	return hash(tuple(A))
-
-def isequal(w,v):
-	if type(w) == ASTAction:
-		return RNG.isequal(w.rsg,v.rsg)
-	elif type(w) == ASTState:
-		return hash(w) == hash(v)
-
-def transition_model_random_seed(ast):
-	def get_initial_state():
-		ast.t_index = 1
-		ast.initialize()
-		s = ASTStateInit(ast.t_index, None, ASTAction(rsg=copy.deepcopy(ast.initial_rsg)))
-		ast.sim_hash = s.hash
-		return s
-	def get_next_state(s0,a0):
-		assert ast.sim_hash == s0.hash
-		ast.t_index += 1
-		# RNG.set_global(a0.rsg)
-		ast.update(a0)
-		s1 = ASTStateInit(ast.t_index, s0, a0)
-		ast.sim_hash = s1.hash
-		r = ast.get_reward()
-		return s1, r
-	def isterminal(s):
-		assert ast.sim_hash == s.hash
-		return ast.isterminal()
-	def go_to_state(target_state):
-		s = get_initial_state()
-		actions = get_action_sequence(target_state)
-		R = 0.0
-		for a in actions:
-			s,r = get_next_state(s, a)
-			R += r
-		assert s == target_state
-		return R, actions
-	return MDP.TransitionModel(get_initial_state, get_next_state, isterminal, ast.params.max_steps, go_to_state)
+		return np.array_equal(self.action, other.action)
+	def get(self):
+		return self.action
 
 def get_action_sequence(s):
 	actions = []

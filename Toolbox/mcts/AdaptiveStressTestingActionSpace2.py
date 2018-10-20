@@ -30,7 +30,7 @@ class AdaptiveStressTestAS:
 		return self.env.reset()
 	def update(self,action):
 		self.step_count += 1
-		obs, reward, done, info = self.env.step(action.action)
+		obs, reward, done, info = self.env.step(action.get())
 		self._isterminal = done
 		self._reward = reward
 		return obs, reward, done, info
@@ -71,11 +71,14 @@ class ASTAction:
 		return hash(tuple(self.action))
 	def __eq__(self,other):
 		return np.array_equal(self.action, other.action)
+	def get(self):
+		return self.action
 
-def transition_model_action_space(ast):
+def transition_model(ast):
 	def get_initial_state():
 		ast.t_index = 1
 		ast.initialize()
+		# s = ASTStateInit(ast.t_index, None, ASTAction(rsg=copy.deepcopy(ast.initial_rsg)))
 		s = ASTStateInit(ast.t_index, None, None)
 		ast.sim_hash = s.hash
 		return s
