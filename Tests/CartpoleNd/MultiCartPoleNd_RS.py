@@ -1,54 +1,60 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-# from sandbox.rocky.tf.algos.trpo import TRPO
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from sandbox.rocky.tf.envs.base import TfEnv
-from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
-from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from rllab.misc import logger
-
+import mcts.AdaptiveStressTestingRandomSeed as AST_RS
+import mcts.ASTSim as ASTSim
+import mcts.MCTSdpw as MCTSdpw
+import mcts.AST_MCTS as AST_MCTS
+import numpy as np
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
-
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
+import tensorflow as tf
+from rllab.misc import logger
+from sandbox.rocky.tf.envs.base import TfEnv
+import math
 
-from mylab.algos.trpo import TRPO
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 import os.path as osp
 import argparse
-# from example_save_trials import *
-import tensorflow as tf
-import joblib
-import math
-import numpy as np
 
+import joblib
 import mcts.BoundedPriorityQueues as BPQ
 import csv
+
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=2500)
+parser.add_argument('--n_itr', type=int, default=1200)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=500)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/RLInter')
+parser.add_argument('--snapshot_gap', type=int, default=10)
+parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTS_RS')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 top_k = 10
+interactive = False
+
+stress_test_num = 2
 max_path_length = 100
-interactive = True
+ec = 100.0
+n = args.n_itr
+k=0.5
+alpha=0.85
+clear_nodes=True
+top_k = 10
+RNG_LENGTH = 2
+SEED = 0
+batch_size = 1000
 
 tf.set_random_seed(0)
 sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env_inner = CartPoleNdEnv(nd=10,use_seed=False)
+env_inner = CartPoleNdEnv(nd=10,use_seed=True)
 data = joblib.load("Data/Train/itr_50.pkl")
 policy_inner = data['policy']
 reward_function = ASTReward()
@@ -60,13 +66,6 @@ env = TfEnv(ASTEnv(interactive=interactive,
 							 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 							 reward_function=reward_function,
 							 ))
-
-# Create policy
-policy = GaussianMLPPolicy(
-	name='ast_agent',
-	env_spec=env.spec,
-	hidden_sizes=(64, 32)
-)
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -97,33 +96,21 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		logger.push_prefix("["+args.exp_name+'_trial '+str(trial)+"]")
 
 		np.random.seed(trial)
-
-		params = policy.get_params()
-		sess.run(tf.variables_initializer(params))
-		baseline = LinearFeatureBaseline(env_spec=env.spec)
-		# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
-
+		SEED = trial
 		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
-		algo = TRPO(
-			env=env,
-			policy=policy,
-			baseline=baseline,
-			batch_size=args.batch_size,
-			step_size=0.1,
-			n_itr=args.n_itr,
-			store_paths=True,
-			# optimizer= optimizer,
-			max_path_length=max_path_length,
-			top_paths = top_paths,
-			plot=False,
-			)
+		ast_params = AST_RS.ASTParams(max_path_length,RNG_LENGTH,SEED,args.batch_size,log_tabular=True)
+		ast = AST_RS.AdaptiveStressTestRS(p=ast_params, env=env, top_paths=top_paths)
 
-		algo.train(sess=sess, init_var=False)
+		macts_params = MCTSdpw.DPWParams(max_path_length,ec,n,k,alpha,clear_nodes,top_k)
+		stress_test_num = 2
+		if stress_test_num == 2:
+			result = AST_MCTS.stress_test2(ast,macts_params,top_paths,verbose=False, return_tree=False)
+		else:
+			result = AST_MCTS.stress_test(ast,macts_params,top_paths,verbose=False, return_tree=False)
 
 		row_content = dict()
-		row_content['step_count'] = args.n_itr*args.batch_size
-		i = 0
-		for (r,action_seq) in algo.top_paths:
-			row_content['reward '+str(i)] = r
-			i += 1
+		row_content['step_count'] = ast.step_count
+		for j in range(top_k):
+			row_content['reward '+str(j)] = result.rewards[j]
 		writer.writerow(row_content)
+
