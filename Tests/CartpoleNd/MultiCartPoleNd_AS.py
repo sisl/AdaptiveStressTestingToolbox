@@ -38,7 +38,7 @@ top_k = 10
 interactive = False
 
 stress_test_num = 2
-max_path_length = 100
+max_path_length = 10#100
 ec = 100.0
 n = args.n_itr
 k=0.5
@@ -54,7 +54,7 @@ sess.__enter__()
 
 # Instantiate the env
 env_inner = CartPoleNdEnv(nd=10,use_seed=False)
-data = joblib.load("Data/Train/itr_50.pkl")
+data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
 policy_inner = data['policy']
 reward_function = ASTReward()
 
