@@ -8,8 +8,8 @@ top_k = 10
 batch_size = 4000
 max_step = 5e6
 
-date = "Oct21"
-exps = ["cartpole"]
+date = "Oct22"
+exps = ["cartpoleNd"]
 plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
