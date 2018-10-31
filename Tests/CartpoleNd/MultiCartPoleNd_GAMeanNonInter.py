@@ -13,7 +13,7 @@ from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 
-from Cartpole.cartpole import CartPoleEnv
+from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
 from mylab.algos.ga import GA
 
@@ -35,7 +35,7 @@ parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GANonInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAMeanNonInter')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -53,8 +53,8 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env_inner = CartPoleEnv(use_seed=False)
-data = joblib.load("Data/Train/itr_50.pkl")
+env_inner = CartPoleNdEnv(nd=10,use_seed=False)
+data = joblib.load("../Cartpole/Data/Train/itr_50.pkl")
 policy_inner = data['policy']
 reward_function = ASTReward()
 
@@ -117,11 +117,11 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			elites=elites,
 			keep_best=keep_best,
 			step_size=step_size,
+			fit_f = "mean",
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			fit_f = "max",
 			plot=False,
 			)
 

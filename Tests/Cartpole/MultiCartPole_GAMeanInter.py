@@ -35,13 +35,13 @@ parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GANonInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAMeanInter')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 top_k = 10
 max_path_length = 100
-interactive = False
+interactive = True
 
 pop_size = 100
 elites = 20
@@ -67,10 +67,11 @@ env = TfEnv(ASTEnv(interactive=interactive,
 							 ))
 
 # Create policy
-policy = GaussianLSTMPolicy(name='lstm_policy',
-							env_spec=env.spec,
-							hidden_dim=128,
-							use_peepholes=True)
+policy = GaussianMLPPolicy(
+	name='ast_agent',
+	env_spec=env.spec,
+	hidden_sizes=(64, 32)
+)
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -121,7 +122,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			fit_f = "max",
+			fit_f = "mean",
 			plot=False,
 			)
 
@@ -134,4 +135,3 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			row_content['reward '+str(i)] = r
 			i += 1
 		writer.writerow(row_content)
-
