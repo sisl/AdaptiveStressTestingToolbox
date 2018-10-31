@@ -52,7 +52,6 @@ class GA(BatchPolopt):
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		sess.run(tf.global_variables_initializer())
 		self.start_worker()
 		start_time = time.time()
 		self.seeds = np.zeros([self.n_itr, self.pop_size])

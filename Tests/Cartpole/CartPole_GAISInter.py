@@ -18,7 +18,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from Cartpole.cartpole import CartPoleEnv
 
-from mylab.algos.ga import GA
+from mylab.algos.gais import GAIS
 
 import os.path as osp
 import argparse
@@ -61,6 +61,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 seed = 0
 top_k = 10
+max_path_length = 5#100
 
 import mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueueInit(top_k)
@@ -74,7 +75,7 @@ with tf.Session() as sess:
 	policy_inner = data['policy']
 	reward_function = ASTReward()
 
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
+	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
 	env = TfEnv(ASTEnv(interactive=True,
 								 simulator=simulator,
 								 sample_init_state=False,
@@ -83,11 +84,16 @@ with tf.Session() as sess:
 								 ))
 
 	# Create policy
-	policy = GaussianMLPPolicy(
-		name='ast_agent',
-		env_spec=env.spec,
-		hidden_sizes=(64, 32)
-	)
+	# policy = GaussianMLPPolicy(
+	# 	name='ast_agent',
+	# 	env_spec=env.spec,
+	# 	hidden_sizes=(64, 32)
+	# )
+	policy = GaussianLSTMPolicy(name='lstm_policy',
+	                            env_spec=env.spec,
+	                            hidden_dim=5,
+	                            use_peepholes=True)
+
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
 
@@ -95,16 +101,16 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GA(
+	algo = GAIS(
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=4000,
+		batch_size=20,#4000,
 		step_size=0.01,
 		n_itr=25,
 		store_paths=False,
 		# optimizer= optimizer,
-		max_path_length=100,
+		max_path_length=max_path_length,
 		top_paths=top_paths,
 		plot=False,
 		)

@@ -10,7 +10,8 @@ max_step = 5e6
 
 date = "Oct22"
 exps = ["cartpoleNd"]
-plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
+# plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
+plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
 for exp in exps:
@@ -45,5 +46,5 @@ for exp in exps:
     plt.legend(plts,legends)
     plt.xlabel('Step number')
     plt.ylabel('Best reward')        
-    fig.savefig('Data/Plot/'+exp+date+'_top1progress'+'.pdf')
+    fig.savefig('Data/Plot/'+'ga_mean_max'+'.pdf')
     plt.close(fig)
