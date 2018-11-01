@@ -43,7 +43,6 @@ class VectorizedSampler(BaseSampler):
         obses = self.vec_env.reset()
         dones = np.asarray([True] * self.vec_env.num_envs)
         running_paths = [None] * self.vec_env.num_envs
-
         pbar = ProgBarCounter(self.algo.batch_size)
         policy_time = 0
         env_time = 0
@@ -104,5 +103,4 @@ class VectorizedSampler(BaseSampler):
         logger.record_tabular("PolicyExecTime", policy_time)
         logger.record_tabular("EnvExecTime", env_time)
         logger.record_tabular("ProcessExecTime", process_time)
-
         return paths

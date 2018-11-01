@@ -61,7 +61,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 seed = 0
 top_k = 10
-max_path_length = 5#100
+max_path_length = 100#100
 
 import mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueueInit(top_k)
@@ -84,15 +84,15 @@ with tf.Session() as sess:
 								 ))
 
 	# Create policy
-	# policy = GaussianMLPPolicy(
-	# 	name='ast_agent',
-	# 	env_spec=env.spec,
-	# 	hidden_sizes=(64, 32)
-	# )
-	policy = GaussianLSTMPolicy(name='lstm_policy',
-	                            env_spec=env.spec,
-	                            hidden_dim=5,
-	                            use_peepholes=True)
+	policy = GaussianMLPPolicy(
+		name='ast_agent',
+		env_spec=env.spec,
+		hidden_sizes=(64, 32)
+	)
+	# policy = GaussianLSTMPolicy(name='lstm_policy',
+	#                             env_spec=env.spec,
+	#                             hidden_dim=5,
+	#                             use_peepholes=True)
 
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
@@ -105,7 +105,7 @@ with tf.Session() as sess:
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=20,#4000,
+		batch_size=4000,#4000,
 		step_size=0.01,
 		n_itr=25,
 		store_paths=False,
