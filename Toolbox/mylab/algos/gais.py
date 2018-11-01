@@ -203,6 +203,7 @@ class GAIS(BatchPolopt):
 				valid_log_lrs = log_lrs*all_paths[p_key]["valids"] #nan is from -inf*0.0
 				valid_log_lrs[np.isnan(valid_log_lrs)] = 0.0 #set nan to 0.0 so won't influence sum
 				path_lrs = np.exp(np.sum(valid_log_lrs,-1))
+				print("p=",p," p_key=",p_key," lr=",path_lrs)
 
 				rewards = all_paths[p_key]["rewards"]
 				valid_rewards = rewards*all_paths[p_key]["valids"]
@@ -213,7 +214,7 @@ class GAIS(BatchPolopt):
 	@overrides
 	def optimize_policy(self, itr, all_paths):
 		fitness = self.get_fitness(itr, all_paths)
-		print("fitness: ",fitness)
+		# print("fitness: ",fitness)
 		sort_indx = np.flip(np.argsort(fitness),axis=0)
 
 		new_seeds = np.zeros_like(self.seeds)
