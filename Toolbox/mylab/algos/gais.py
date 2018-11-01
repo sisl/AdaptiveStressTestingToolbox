@@ -25,7 +25,6 @@ class GAIS(BatchPolopt):
 
 	def __init__(
 			self,
-			policy = None,
 			top_paths = None,
 			step_size=0.01, #serve as the std dev in mutation
 			pop_size = 5,
@@ -40,8 +39,7 @@ class GAIS(BatchPolopt):
 		self.elites = elites
 		self.fit_f = fit_f
 		self.keep_best = keep_best
-		# self.init_param_values = policy.get_param_values(trainable=True)
-		super(GAIS, self).__init__(**kwargs, policy=policy, sampler_cls=VectorizedISSampler)
+		super(GAIS, self).__init__(**kwargs, sampler_cls=VectorizedISSampler)
 
 	@overrides
 	def init_opt(self):
@@ -202,6 +200,8 @@ class GAIS(BatchPolopt):
 			for p_key in all_paths.keys():
 				log_lrs = np.log(self.get_lr(all_paths[p_key]))
 				valid_log_lrs = log_lrs*all_paths[p_key]["valids"]
+				valid_log_lrs = log_lrs*all_paths[p_key]["valids"] #nan is from -inf*0.0
+				valid_log_lrs[np.isnan(valid_log_lrs)] = 0.0 #set nan to 0.0 so won't influence sum
 				path_lrs = np.exp(np.sum(valid_log_lrs,-1))
 
 				rewards = all_paths[p_key]["rewards"]
@@ -213,7 +213,7 @@ class GAIS(BatchPolopt):
 	@overrides
 	def optimize_policy(self, itr, all_paths):
 		fitness = self.get_fitness(itr, all_paths)
-		print(fitness)
+		print("fitness: ",fitness)
 		sort_indx = np.flip(np.argsort(fitness),axis=0)
 
 		new_seeds = np.zeros_like(self.seeds)
