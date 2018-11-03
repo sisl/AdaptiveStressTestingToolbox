@@ -17,6 +17,7 @@ class GAISN(GAIS):
 		for p in range(self.pop_size):
 			# print("p: ",p)
 			self.set_params(itr,p)
+			self.sum_other_weights[p] = 0.0
 			Path_rewards = np.array([])
 			Log_path_lrs = np.array([])
 			for p_key in all_paths.keys():
@@ -25,6 +26,9 @@ class GAISN(GAIS):
 				# print("log_lrs ",log_lrs)
 				valid_log_lrs = log_lrs*all_paths[p_key]["valids"] #nan is from -inf*0.0
 				valid_log_lrs[np.isnan(valid_log_lrs)] = 0.0 #set nan to 0.0 so won't influence sum
+				path_lrs = np.exp(np.sum(valid_log_lrs,-1))
+				if not p_key == p:
+					self.sum_other_weights[p] += np.sum(path_lrs)
 				# print("valid_log_lrs: ",valid_log_lrs)
 				log_path_lrs = np.sum(valid_log_lrs,-1)
 				# print("log_path_lrs: ",log_path_lrs)
@@ -38,7 +42,7 @@ class GAISN(GAIS):
 			# print("Log_path_lrs: ",Log_path_lrs)
 			lse_lrs = log_sum_exp(Log_path_lrs,0)
 			importance_weights = np.exp(Log_path_lrs - lse_lrs)
-			print("p=",p," importance_weights: ",importance_weights)
+			# print("p=",p," importance_weights: ",importance_weights)
 			fitness[p] += np.sum(Path_rewards*importance_weights)
 		return fitness
 

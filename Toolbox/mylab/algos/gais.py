@@ -39,6 +39,7 @@ class GAIS(BatchPolopt):
 		self.elites = elites
 		self.fit_f = fit_f
 		self.keep_best = keep_best
+		self.sum_other_weights = np.zeros(pop_size)
 		super(GAIS, self).__init__(**kwargs, sampler_cls=VectorizedISSampler)
 
 	@overrides
@@ -170,6 +171,7 @@ class GAIS(BatchPolopt):
 						if self.top_paths is not None:
 							for (topi, path) in enumerate(self.top_paths):
 								logger.record_tabular('reward '+str(topi), path[0])
+						logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
 
 						logger.dump_tabular(with_prefix=False)
 
@@ -197,13 +199,15 @@ class GAIS(BatchPolopt):
 		fitness = np.zeros(self.pop_size)
 		for p in range(self.pop_size):
 			self.set_params(itr,p)
+			self.sum_other_weights[p] = 0.0
 			for p_key in all_paths.keys():
 				log_lrs = np.log(self.get_lr(all_paths[p_key]))
 				valid_log_lrs = log_lrs*all_paths[p_key]["valids"]
 				valid_log_lrs = log_lrs*all_paths[p_key]["valids"] #nan is from -inf*0.0
 				valid_log_lrs[np.isnan(valid_log_lrs)] = 0.0 #set nan to 0.0 so won't influence sum
 				path_lrs = np.exp(np.sum(valid_log_lrs,-1))
-				print("p=",p," p_key=",p_key," lr=",path_lrs)
+				if not p_key == p:
+					self.sum_other_weights[p] += np.sum(path_lrs)
 
 				rewards = all_paths[p_key]["rewards"]
 				valid_rewards = rewards*all_paths[p_key]["valids"]
