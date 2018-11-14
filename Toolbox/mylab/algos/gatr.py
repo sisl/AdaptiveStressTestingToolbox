@@ -194,28 +194,28 @@ class GATR(GA):
 												size = (1, self.pop_size))
 			for i in range(0,self.keep_best):
 				new_seeds[itr+1,i] = 0
-		for p in range(self.pop_size):
-			self.set_params(itr,p)
-			param_values = self.policy.get_param_values(trainable=True)
+			for p in range(self.pop_size):
+				self.set_params(itr,p)
+				param_values = self.policy.get_param_values(trainable=True)
 
-			np.random.seed(int(self.seeds[itr+1,p]))
-			direction = np.random.uniform(size=param_values.shape)
-			direction = direction/np.linalg.norm(direction)
+				np.random.seed(int(self.seeds[itr+1,p]))
+				direction = np.random.uniform(size=param_values.shape)
+				direction = direction/np.linalg.norm(direction)
 
-			samples_data = all_paths[self.parents[p]]
-			all_input_values = self.data2inputs(samples_data)
+				samples_data = all_paths[self.parents[p]]
+				all_input_values = self.data2inputs(samples_data)
 
-			new_magnitudes[itr+1,p] = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
+				new_magnitudes[itr+1,p] = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
 
-		self.seeds=new_seeds
-		self.magnitudes=new_magnitudes
-		for p in range(self.pop_size):
-			self.set_params(itr+1,p)
-			p_key = self.parents[p]
-			all_input_values = self.data2inputs(all_paths[p_key])
-			mean_kl = self.f_mean_kl(*all_input_values)
-			print(mean_kl)
-			self.kls[p] = mean_kl
+			self.seeds=new_seeds
+			self.magnitudes=new_magnitudes
+			# for p in range(self.pop_size):
+			# 	self.set_params(itr+1,p)
+			# 	p_key = self.parents[p]
+			# 	all_input_values = self.data2inputs(all_paths[p_key])
+			# 	mean_kl = self.f_mean_kl(*all_input_values)
+			# 	print(mean_kl)
+			# 	self.kls[p] = mean_kl
 
 		return dict()
 
