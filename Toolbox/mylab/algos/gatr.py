@@ -7,18 +7,51 @@ from sandbox.rocky.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
-from mylab.algos.ga import GA
 
-class GAIS(GA):
+from mylab.algos.ga import GA
+from mylab.optimizers.random_tr_optimizer import RandomTROptimizer
+
+class GATR(GA):
 	"""
-	Genetic Algorithm with Importance Sampling
+	Genetic Algorithm with Trust Region Mutation
 	"""
 
 	def __init__(
 			self,
+			optimizer=None,
 			**kwargs):
 		self.sum_other_weights = np.zeros(kwargs['pop_size'])
-		super(GAIS, self).__init__(**kwargs)
+		self.kls = np.zeros(kwargs['pop_size'])
+		self.magnitudes = np.zeros([kwargs['n_itr'], kwargs['pop_size']])
+		self.parents = np.zeros(kwargs['pop_size'])
+		if optimizer == None:
+			self.optimizer = RandomTROptimizer()
+		else:
+			self.optimizer = optimizer
+		super(GATR, self).__init__(**kwargs)
+
+
+	@overrides
+	def initial(self):
+		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
+											size = (1, self.pop_size))
+		self.magnitudes[0,:] = np.ones(self.pop_size)
+
+	@overrides
+	def set_params(self, itr, p):
+		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
+		for i in range(itr+1):
+			# print("seed: ", self.seeds[i,p])
+			if self.seeds[i,p] != 0:
+				if i == 0:
+					np.random.seed(int(self.seeds[i,p]))
+					param_values = param_values + np.random.normal(size=param_values.shape)
+				else:
+					np.random.seed(int(self.seeds[i,p]))
+					direction = np.random.uniform(size=param_values.shape)
+					direction = direction/np.linalg.norm(direction)
+					param_values = param_values + self.magnitudes[i,p]*direction
+		self.policy.set_param_values(param_values, trainable=True)
 
 	@overrides
 	def init_opt(self):
@@ -83,6 +116,19 @@ class GAIS(GA):
 				outputs=path_lrs,
 				log_name="f_path_lrs",
 			)
+
+		self.f_mean_kl = tensor_utils.compile_function(
+				inputs=input_list,
+				outputs=mean_kl,
+				log_name="f_mean_kl",
+			)
+
+		self.optimizer.update_opt(
+			target=self.policy,
+			leq_constraint=(mean_kl, self.step_size),
+			inputs=input_list,
+			constraint_name="mean_kl"
+		)
 		return dict()
 
 	@overrides
@@ -94,6 +140,7 @@ class GAIS(GA):
 			for (topi, path) in enumerate(self.top_paths):
 				logger.record_tabular('reward '+str(topi), path[0])
 		logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
+		logger.record_tabular('MeanKl',self.kls[p])
 		logger.dump_tabular(with_prefix=False)
 
 	def data2inputs(self, samples_data):
@@ -121,20 +168,54 @@ class GAIS(GA):
 		return all_input_values
 
 	@overrides
-	def get_fitness(self, itr, all_paths):
-		fitness = np.zeros(self.pop_size)
+	def optimize_policy(self, itr, all_paths):
+		#reproduce: copy parents to childs
+		fitness = self.get_fitness(itr, all_paths)
+		# print("fitness: ",fitness)
+		sort_indx = np.flip(np.argsort(fitness),axis=0)
+
+		new_seeds = np.zeros_like(self.seeds)
+		new_magnitudes = np.zeros_like(self.magnitudes)
+		for i in range(0, self.elites):
+			new_seeds[:,i] = self.seeds[:,sort_indx[i]]
+			new_magnitudes[:,i] = self.magnitudes[:,sort_indx[i]]
+			self.parents[i] = sort_indx[i]
+		for i in range(self.elites, self.pop_size):
+			parent_idx = np.random.randint(low=0, high=self.elites)
+			new_seeds[:,i] = new_seeds[:,parent_idx]
+			new_magnitudes[:,i] = new_magnitudes[:,parent_idx]
+			self.parents[i] = self.parents[parent_idx]
+		self.seeds=new_seeds
+		self.magnitudes=new_magnitudes
+
+		#mutation: get new seeds and magnitudes
+		if itr+1 < self.n_itr:
+			new_seeds[itr+1, :] = np.random.randint(low= 0, high = int(2**16),
+												size = (1, self.pop_size))
+			for i in range(0,self.keep_best):
+				new_seeds[itr+1,i] = 0
 		for p in range(self.pop_size):
 			self.set_params(itr,p)
-			self.sum_other_weights[p] = 0.0
-			for p_key in all_paths.keys():
-				all_input_values = self.data2inputs(all_paths[p_key])
-				path_lrs = self.f_path_lrs(*all_input_values)
+			param_values = self.policy.get_param_values(trainable=True)
 
-				if not p_key == p:
-					self.sum_other_weights[p] += np.sum(path_lrs)
+			np.random.seed(int(self.seeds[itr+1,p]))
+			direction = np.random.uniform(size=param_values.shape)
+			direction = direction/np.linalg.norm(direction)
 
-				rewards = all_paths[p_key]["rewards"]
-				valid_rewards = rewards*all_paths[p_key]["valids"]
-				path_rewards = np.sum(valid_rewards,-1)
-				fitness[p] += np.sum(path_lrs*path_rewards)
-		return fitness
+			samples_data = all_paths[self.parents[p]]
+			all_input_values = self.data2inputs(samples_data)
+
+			new_magnitudes[itr+1,p] = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
+
+		self.seeds=new_seeds
+		self.magnitudes=new_magnitudes
+		for p in range(self.pop_size):
+			self.set_params(itr+1,p)
+			p_key = self.parents[p]
+			all_input_values = self.data2inputs(all_paths[p_key])
+			mean_kl = self.f_mean_kl(*all_input_values)
+			print(mean_kl)
+			self.kls[p] = mean_kl
+
+		return dict()
+

@@ -8,7 +8,7 @@ top_k = 10
 batch_size = 4000
 max_step = 5e6
 
-date = "Oct21"
+date = "Lexington"
 exps = ["cartpole"]
 plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
@@ -40,6 +40,6 @@ for exp in exps:
     plt.scatter(range(len(legends)),success_rates)
     ax.set_xticklabels(legends)
     plt.ylabel('success rate')        
-    fig.savefig('Data/Plot/'+exp+'_success_rate.pdf')
+    fig.savefig('Data/Plot/'+'success_rate.pdf')
     plt.close(fig)
 

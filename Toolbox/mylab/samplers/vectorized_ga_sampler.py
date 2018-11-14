@@ -14,10 +14,10 @@ from rllab.algos import util
 import rllab.misc.logger as logger
 
 
-class VectorizedISSampler(BaseSampler):
+class VectorizedGASampler(BaseSampler):
 
     def __init__(self, algo, n_envs=None):
-        super(VectorizedISSampler, self).__init__(algo)
+        super(VectorizedGASampler, self).__init__(algo)
         self.n_envs = n_envs
 
     def start_worker(self):

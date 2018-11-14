@@ -8,10 +8,13 @@ top_k = 10
 batch_size = 4000
 max_step = 5e6
 
-date = "Oct22"
+date = "Lexington"
 exps = ["cartpoleNd"]
-plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
-# plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter","GAISInter","GAISNonInter"]
+# plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
+plolicies = ["GAInter","GAISInter","GAISNInter"]
+plot_name = "GA_IS"
+# plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
+# plot_name = 'GA_max_mean'
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
 for exp in exps:
@@ -46,5 +49,5 @@ for exp in exps:
     plt.legend(plts,legends)
     plt.xlabel('Step number')
     plt.ylabel('Best reward')        
-    fig.savefig('Data/Plot/'+'cartpoleNdOct22_top1progress'+'.pdf')
+    fig.savefig('Data/Plot/'+plot_name+'.pdf')
     plt.close(fig)

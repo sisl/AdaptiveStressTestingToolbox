@@ -16,11 +16,11 @@ import tensorflow as tf
 import pdb
 import numpy as np
 
-from mylab.samplers.vectorized_ga_sampler import VectorizedGASampler
+from mylab.samplers.vectorized_is_sampler import VectorizedGASampler
 
-class GA(BatchPolopt):
+class GAIS(BatchPolopt):
 	"""
-	Genetic Algorithm
+	Genetic Algorithm with Importance Sampling
 	"""
 
 	def __init__(
@@ -39,19 +39,89 @@ class GA(BatchPolopt):
 		self.elites = elites
 		self.fit_f = fit_f
 		self.keep_best = keep_best
-		self.seeds = np.zeros([kwargs['n_itr'], pop_size])
-		super(GA, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
-		
-
-	def initial(self):
-		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
-											size = (1, self.pop_size))
+		self.sum_other_weights = np.zeros(pop_size)
+		super(GAIS, self).__init__(**kwargs, sampler_cls=VectorizedISSampler)
 
 	@overrides
 	def init_opt(self):
+		is_recurrent = int(self.policy.recurrent)
+		obs_var = self.env.observation_space.new_tensor_variable(
+			'obs',
+			extra_dims=1 + is_recurrent,
+		)
+		action_var = self.env.action_space.new_tensor_variable(
+			'action',
+			extra_dims=1 + is_recurrent,
+		)
+		advantage_var = tensor_utils.new_tensor(
+			'advantage',
+			ndim=1 + is_recurrent,
+			dtype=tf.float32,
+		)
+		dist = self.policy.distribution
+
+		old_dist_info_vars = {
+			k: tf.placeholder(tf.float32, shape=[None] * (1 + is_recurrent) + list(shape), name='old_%s' % k)
+			for k, shape in dist.dist_info_specs
+			}
+		old_dist_info_vars_list = [old_dist_info_vars[k] for k in dist.dist_info_keys]
+
+		state_info_vars = {
+			k: tf.placeholder(tf.float32, shape=[None] * (1 + is_recurrent) + list(shape), name=k)
+			for k, shape in self.policy.state_info_specs
+			}
+		state_info_vars_list = [state_info_vars[k] for k in self.policy.state_info_keys]
+
+		if is_recurrent:
+			valid_var = tf.placeholder(tf.float32, shape=[None, None], name="valid")
+		else:
+			valid_var = None
+
+		dist_info_vars = self.policy.dist_info_sym(obs_var, state_info_vars)
+		kl = dist.kl_sym(old_dist_info_vars, dist_info_vars)
+		lr = dist.likelihood_ratio_sym(action_var, old_dist_info_vars, dist_info_vars)
+
+		input_list = [
+						 obs_var,
+						 action_var,
+						 advantage_var,
+					 ] + state_info_vars_list + old_dist_info_vars_list
+
+		if is_recurrent:
+			input_list.append(valid_var)
+
+		self.f_lr = tensor_utils.compile_function(
+				inputs=input_list,
+				outputs=lr,
+				log_name="f_lr",
+			)
 		return dict()
 
 	@overrides
+	def get_lr(self, samples_data):
+		all_input_values = tuple(ext.extract(
+			samples_data,
+			"observations", "actions", "advantages"
+		))
+		agent_infos = samples_data["agent_infos"]
+		state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
+		dist_info_list = [agent_infos[k] for k in self.policy.distribution.dist_info_keys]
+		all_input_values += tuple(state_info_list) + tuple(dist_info_list)
+		# if self.policy.recurrent:
+		all_input_values += (samples_data["valids"],)
+		nenv, max_path_length, _ = all_input_values[0].shape 
+		if not self.policy.recurrent:
+			all_input_values_new = ()
+			for (i,item) in enumerate(all_input_values):
+				assert item.shape[0] == nenv
+				assert item.shape[1] == max_path_length
+				all_input_values_new += (np.reshape(item,(nenv*max_path_length,)+item.shape[2:]),)
+			lr = self.f_lr(*all_input_values_new)
+		else:
+			lr = self.f_lr(*all_input_values)
+		lr = np.reshape(lr,(nenv,max_path_length))
+		return lr
+
 	def train(self, sess=None, init_var=True):
 		created_session = True if (sess is None) else False
 		if sess is None:
@@ -61,8 +131,9 @@ class GA(BatchPolopt):
 			sess.run(tf.global_variables_initializer())
 		self.start_worker()
 		start_time = time.time()
-		self.initial()
-
+		self.seeds = np.zeros([self.n_itr, self.pop_size])
+		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
+											size = (1, self.pop_size))
 		for itr in range(self.n_itr):
 			itr_start_time = time.time()
 			with logger.prefix('itr #%d | ' % itr):
@@ -94,8 +165,15 @@ class GA(BatchPolopt):
 							snap["paths"] = samples_data["paths"]
 						logger.save_itr_params(itr, snap)
 						logger.log("Saved")
+						logger.record_tabular('Itr',itr)
+						logger.record_tabular('Ind',p)
+						logger.record_tabular('StepNum',int(itr*self.batch_size*self.pop_size+self.batch_size*(p+1)))
+						if self.top_paths is not None:
+							for (topi, path) in enumerate(self.top_paths):
+								logger.record_tabular('reward '+str(topi), path[0])
+						logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
 
-						self.record_tabular(itr,p)
+						logger.dump_tabular(with_prefix=False)
 
 				logger.log("Optimizing Population...")
 				self.optimize_policy(itr, all_paths)
@@ -103,16 +181,6 @@ class GA(BatchPolopt):
 		self.shutdown_worker()
 		if created_session:
 			sess.close()
-
-	def record_tabular(self, itr, p):
-		logger.record_tabular('Itr',itr)
-		logger.record_tabular('Ind',p)
-		logger.record_tabular('StepNum',int(itr*self.batch_size*self.pop_size+self.batch_size*(p+1)))
-		if self.top_paths is not None:
-			for (topi, path) in enumerate(self.top_paths):
-				logger.record_tabular('reward '+str(topi), path[0])
-		# logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
-		logger.dump_tabular(with_prefix=False)
 
 	def set_params(self, itr, p):
 		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
@@ -130,13 +198,21 @@ class GA(BatchPolopt):
 	def get_fitness(self, itr, all_paths):
 		fitness = np.zeros(self.pop_size)
 		for p in range(self.pop_size):
-			rewards = all_paths[p]["rewards"]
-			valid_rewards = rewards*all_paths[p]["valids"]
-			path_rewards = np.sum(valid_rewards,-1)
-			if self.fit_f == "max":
-				fitness[p] = np.max(path_rewards)
-			else:
-				fitness[p] = np.mean(path_rewards)
+			self.set_params(itr,p)
+			self.sum_other_weights[p] = 0.0
+			for p_key in all_paths.keys():
+				log_lrs = np.log(self.get_lr(all_paths[p_key]))
+				valid_log_lrs = log_lrs*all_paths[p_key]["valids"]
+				valid_log_lrs = log_lrs*all_paths[p_key]["valids"] #nan is from -inf*0.0
+				valid_log_lrs[np.isnan(valid_log_lrs)] = 0.0 #set nan to 0.0 so won't influence sum
+				path_lrs = np.exp(np.sum(valid_log_lrs,-1))
+				if not p_key == p:
+					self.sum_other_weights[p] += np.sum(path_lrs)
+
+				rewards = all_paths[p_key]["rewards"]
+				valid_rewards = rewards*all_paths[p_key]["valids"]
+				path_rewards = np.sum(valid_rewards,-1)
+				fitness[p] += np.sum(path_lrs*path_rewards)
 		return fitness
 
 	@overrides

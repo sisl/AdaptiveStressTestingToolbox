@@ -18,7 +18,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.gais import GAIS
+from mylab.algos.gais_n import GAISN
 
 import os.path as osp
 import argparse
@@ -37,7 +37,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISNInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -61,7 +61,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 seed = 0
 top_k = 10
-max_path_length = 100#100
+max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueueInit(top_k)
@@ -70,7 +70,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env_inner = CartPoleNdEnv(nd=5,use_seed=False)
+	env_inner = CartPoleNdEnv(nd=10,use_seed=False)
 	data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
 	reward_function = ASTReward()
@@ -101,11 +101,11 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GAIS(
+	algo = GAISN(
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=100,#4000,
+		batch_size=4000,
 		step_size=0.01,
 		n_itr=25,
 		store_paths=False,

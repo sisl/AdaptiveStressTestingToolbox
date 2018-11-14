@@ -62,13 +62,6 @@ class GAIS(GA):
 		kl = dist.kl_sym(old_dist_info_vars, dist_info_vars)
 		lr = dist.likelihood_ratio_sym(action_var, old_dist_info_vars, dist_info_vars)
 
-		mean_kl = tf.reduce_sum(kl * valid_var) / tf.reduce_sum(valid_var)
-		log_lrs = tf.log(lr)
-		valid_log_lrs = log_lrs*valid_var #nan is from -inf*0.0
-		valid_log_lrs = tf.where(tf.is_nan(valid_log_lrs),tf.zeros_like(valid_log_lrs),valid_log_lrs) #set nan to 0.0 so won't influence sum
-		valid_log_lrs = tf.reshape(valid_log_lrs,tf.stack([npath_var[0],-1]))
-		path_lrs = tf.exp(tf.reduce_sum(valid_log_lrs,-1))
-
 		input_list = [
 						 obs_var,
 						 action_var,
@@ -78,6 +71,18 @@ class GAIS(GA):
 		input_list.append(valid_var)
 		input_list.append(npath_var)
 
+		mean_kl = tf.reduce_sum(kl * valid_var) / tf.reduce_sum(valid_var)
+		log_lrs = tf.log(lr)
+		valid_log_lrs = log_lrs*valid_var #nan is from -inf*0.0
+		valid_log_lrs = tf.where(tf.is_nan(valid_log_lrs),tf.zeros_like(valid_log_lrs),valid_log_lrs) #set nan to 0.0 so won't influence sum
+		valid_log_lrs = tf.reshape(valid_log_lrs,tf.stack([npath_var[0],-1]))
+		path_lrs = tf.exp(tf.reduce_sum(valid_log_lrs,-1))
+
+		self.f_lr = tensor_utils.compile_function(
+				inputs=input_list,
+				outputs=lr,
+				log_name="f_lr",
+			)
 		self.f_path_lrs = tensor_utils.compile_function(
 				inputs=input_list,
 				outputs=path_lrs,
@@ -121,15 +126,48 @@ class GAIS(GA):
 		return all_input_values
 
 	@overrides
+	def get_lr(self, samples_data):
+		all_input_values = tuple(ext.extract(
+			samples_data,
+			"observations", "actions", "advantages"
+		))
+		agent_infos = samples_data["agent_infos"]
+		state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
+		dist_info_list = [agent_infos[k] for k in self.policy.distribution.dist_info_keys]
+		all_input_values += tuple(state_info_list) + tuple(dist_info_list)
+		# if self.policy.recurrent:
+		all_input_values += (samples_data["valids"],)
+		npath, max_path_length, _ = all_input_values[0].shape 
+		if not self.policy.recurrent:
+			all_input_values_new = ()
+			for (i,item) in enumerate(all_input_values):
+				assert item.shape[0] == npath
+				assert item.shape[1] == max_path_length
+				all_input_values_new += (np.reshape(item,(npath*max_path_length,)+item.shape[2:]),)
+			all_input_values_new += (np.ones(npath*max_path_length,)*npath,)
+			lr = self.f_lr(*all_input_values_new)
+			lr = np.reshape(lr,(npath,max_path_length))
+		else:
+			all_input_values += (np.ones(npath)*npath,)
+			lr = self.f_lr(*all_input_values)
+		return lr
+
+	@overrides
 	def get_fitness(self, itr, all_paths):
 		fitness = np.zeros(self.pop_size)
 		for p in range(self.pop_size):
 			self.set_params(itr,p)
 			self.sum_other_weights[p] = 0.0
 			for p_key in all_paths.keys():
-				all_input_values = self.data2inputs(all_paths[p_key])
-				path_lrs = self.f_path_lrs(*all_input_values)
+				log_lrs = np.log(self.get_lr(all_paths[p_key]))
+				valid_log_lrs = log_lrs*all_paths[p_key]["valids"] #nan is from -inf*0.0
+				valid_log_lrs[np.isnan(valid_log_lrs)] = 0.0 #set nan to 0.0 so won't influence sum
+				path_lrs = np.exp(np.sum(valid_log_lrs,-1))
 
+				all_input_values = self.data2inputs(all_paths[p_key])
+				path_lrs2 = self.f_path_lrs(*all_input_values)
+				print("path_lrs: ",path_lrs)
+				print("path_lrs2: ",path_lrs2)
 				if not p_key == p:
 					self.sum_other_weights[p] += np.sum(path_lrs)
 
