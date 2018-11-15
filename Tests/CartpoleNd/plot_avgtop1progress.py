@@ -10,12 +10,16 @@ max_step = 5e6
 
 date = "Lexington"
 exps = ["cartpoleNd"]
-# plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","RLNonInter","GAInter","GANonInter"]
-plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
-plot_name = "GA"
+plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
+plot_name = "Total"
+# plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
+# plot_name = "GA"
 # plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
 # plot_name = 'GA_max_mean'
-colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+# colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+colors = []
+for i in range(len(plolicies)):
+    colors.append('C'+str(i))
 
 for exp in exps:
     plts = []

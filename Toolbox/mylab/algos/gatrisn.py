@@ -1,18 +1,27 @@
-from mylab.algos.gais import GAIS
-from mylab.utils.exp_utils import log_sum_exp
-import numpy as np
+import rllab.misc.logger as logger
+import tensorflow as tf
+from rllab.misc import ext
 from rllab.misc.overrides import overrides
+import rllab.misc.logger as logger
+from sandbox.rocky.tf.misc import tensor_utils
+import tensorflow as tf
+import numpy as np
 
-class GAISN(GAIS):
+
+from mylab.algos.gatr import GATR
+from mylab.optimizers.random_tr_optimizer import RandomTROptimizer
+from mylab.utils.exp_utils import log_sum_exp
+
+class GATRISN(GATR):
 	"""
-	Genetic Algorithm with Importance Sampling, normalize IS weights
+	Genetic Algorithm with Trust Region Mutation
 	"""
 
 	def __init__(
 			self,
 			**kwargs):
+		super(GATRISN, self).__init__(**kwargs)
 
-		super(GAISN, self).__init__(**kwargs)
 
 	@overrides
 	def get_fitness(self, itr, all_paths):
