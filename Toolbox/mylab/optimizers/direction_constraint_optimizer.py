@@ -115,7 +115,7 @@ class FiniteDifferenceHvp(object):
         return eval
 
 
-class RandomTROptimizer(Serializable):
+class DirectionConstraintOptimizer(Serializable):
     """
     Performs constrained optimization via line search.
     """
@@ -255,4 +255,4 @@ class RandomTROptimizer(Serializable):
         # logger.log("final magnitude: " + str(-ratio*initial_step_size))
         logger.log("final kl: " + str(constraint_val))
         # logger.log("optimization finished")
-        return -ratio*initial_step_size
+        return -ratio*initial_step_size, constraint_val

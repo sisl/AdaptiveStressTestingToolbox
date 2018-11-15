@@ -9,7 +9,6 @@ import numpy as np
 
 
 from mylab.algos.gatr import GATR
-from mylab.optimizers.random_tr_optimizer import RandomTROptimizer
 from mylab.utils.exp_utils import log_sum_exp
 
 class GATRISN(GATR):

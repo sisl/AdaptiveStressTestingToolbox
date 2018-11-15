@@ -7,9 +7,8 @@ from sandbox.rocky.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
-
 from mylab.algos.ga import GA
-from mylab.optimizers.random_tr_optimizer import RandomTROptimizer
+from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 
 class GATR(GA):
 	"""
@@ -25,7 +24,7 @@ class GATR(GA):
 		self.magnitudes = np.zeros([kwargs['n_itr'], kwargs['pop_size']])
 		self.parents = np.zeros(kwargs['pop_size'])
 		if optimizer == None:
-			self.optimizer = RandomTROptimizer()
+			self.optimizer = DirectionConstraintOptimizer()
 		else:
 			self.optimizer = optimizer
 		super(GATR, self).__init__(**kwargs)
@@ -185,8 +184,8 @@ class GATR(GA):
 			new_seeds[:,i] = new_seeds[:,parent_idx]
 			new_magnitudes[:,i] = new_magnitudes[:,parent_idx]
 			self.parents[i] = self.parents[parent_idx]
-		self.seeds=new_seeds
-		self.magnitudes=new_magnitudes
+		self.seeds=np.copy(new_seeds)
+		self.magnitudes=np.copy(new_magnitudes)
 
 		#mutation: get new seeds and magnitudes
 		if itr+1 < self.n_itr:
@@ -205,7 +204,8 @@ class GATR(GA):
 				samples_data = all_paths[self.parents[p]]
 				all_input_values = self.data2inputs(samples_data)
 
-				new_magnitudes[itr+1,p] = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
+				new_magnitudes[itr+1,p], constraint_val = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
+				self.kls[p] = constraint_val
 
 			self.seeds=new_seeds
 			self.magnitudes=new_magnitudes

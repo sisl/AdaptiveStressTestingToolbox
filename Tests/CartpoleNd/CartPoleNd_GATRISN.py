@@ -7,7 +7,7 @@ from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from mylab.optimizers.random_tr_optimizer import RandomTROptimizer
+from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 from rllab.misc import logger
 from rllab.envs.normalized_env import normalize
 from rllab.envs.env_spec import EnvSpec
@@ -100,7 +100,7 @@ with tf.Session() as sess:
 
 	# Instantiate the RLLAB objects
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
-	# optimizer = RandomTROptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+	# optimizer = DirectionConstraintOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
 	algo = GATRISN(
 		env=env,

@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 pre_path = './Data/AST/Lexington/GAISInter/'
+plot_name = "GAISInter"
 n_trial = 5
 
 fig = plt.figure()
@@ -26,5 +27,5 @@ for i in range(n_trial):
     plt.scatter(iterations,SumOtherWeights,s=0.1,marker=',')
     plt.xlabel('Iteration')
     plt.ylabel('SumOtherWeights')        
-fig.savefig('Data/Plot/'+'SumOtherWeights.pdf')
+fig.savefig('Data/Plot/'+plot_name+'_SumOtherWeights.pdf')
 plt.close(fig)
