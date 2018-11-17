@@ -179,7 +179,8 @@ class DirectionConstraintOptimizer(Serializable):
         else:
             extra_inputs = tuple(extra_inputs)
 
-        constraint_term, constraint_value = leq_constraint
+        # constraint_term, constraint_value = leq_constraint
+        constraint_term = leq_constraint
 
         params = target.get_params(trainable=True)
 
@@ -187,7 +188,8 @@ class DirectionConstraintOptimizer(Serializable):
                                       reg_coeff=self._reg_coeff)
 
         self._target = target
-        self._max_constraint_val = constraint_value
+        # self._max_constraint_val = constraint_value
+        self._max_constraint_val = np.inf
         self._constraint_name = constraint_name
 
         self._opt_fun = ext.lazydict(
@@ -204,7 +206,9 @@ class DirectionConstraintOptimizer(Serializable):
             extra_inputs = tuple()
         return sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
 
-    def get_magnitude(self, direction, inputs, extra_inputs=None, subsample_grouped_inputs=None):
+    def get_magnitude(self, direction, inputs, max_constraint_val=None,extra_inputs=None, subsample_grouped_inputs=None):
+        if max_constraint_val is not None:
+            self._max_constraint_val = max_constraint_val
         prev_param = np.copy(self._target.get_param_values(trainable=True))
         inputs = tuple(inputs)
         if extra_inputs is None:

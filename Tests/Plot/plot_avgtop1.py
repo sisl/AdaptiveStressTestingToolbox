@@ -18,6 +18,7 @@ plot_name = "GA"
 # plot_name = 'GA_max_mean'
 # plolicies = ["GATRInter","GATRISInter","GATRISNInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01"]
 # plot_name = "GA_kl"
+
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
 for i in range(len(plolicies)):

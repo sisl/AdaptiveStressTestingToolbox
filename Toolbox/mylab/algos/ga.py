@@ -27,6 +27,7 @@ class GA(BatchPolopt):
 			self,
 			top_paths = None,
 			step_size=0.01, #serve as the std dev in mutation
+			step_size_anneal=1.0,
 			pop_size = 5,
 			elites = 2,
 			keep_best = 1,
@@ -35,6 +36,7 @@ class GA(BatchPolopt):
 
 		self.top_paths = top_paths
 		self.step_size = step_size
+		self.step_size_anneal = step_size_anneal
 		self.pop_size = pop_size
 		self.elites = elites
 		self.fit_f = fit_f
@@ -101,6 +103,7 @@ class GA(BatchPolopt):
 
 				logger.log("Optimizing Population...")
 				self.optimize_policy(itr, all_paths)
+				self.step_size = self.step_size*self.step_size_anneal
 
 		self.shutdown_worker()
 		if created_session:
@@ -114,6 +117,8 @@ class GA(BatchPolopt):
 			for (topi, path) in enumerate(self.top_paths):
 				logger.record_tabular('reward '+str(topi), path[0])
 		logger.record_tabular('parent',self.parents[p])
+		logger.record_tabular('StepSize',self.step_size)
+		logger.record_tabular('Magnitude',self.magnitudes[itr,p])
 		self.extra_recording(itr, p)
 		logger.dump_tabular(with_prefix=False)
 

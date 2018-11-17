@@ -115,7 +115,8 @@ class GATR(GA):
 
 		self.optimizer.update_opt(
 			target=self.policy,
-			leq_constraint=(mean_kl, self.step_size),
+			# leq_constraint=(mean_kl, self.step_size), 
+			leq_constraint = mean_kl, #input max contraint at run time with annealing
 			inputs=input_list,
 			constraint_name="mean_kl"
 		)
@@ -170,7 +171,8 @@ class GATR(GA):
 			samples_data = all_paths[self.parents[p]]
 			all_input_values = self.data2inputs(samples_data)
 
-			new_magnitudes[itr+1,p], constraint_val = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
+			new_magnitudes[itr+1,p], constraint_val = \
+				self.optimizer.get_magnitude(direction=direction,inputs=all_input_values,max_constraint_val=self.step_size)
 			self.kls[p] = constraint_val
 		return new_seeds, new_magnitudes
 

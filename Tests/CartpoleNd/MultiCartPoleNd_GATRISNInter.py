@@ -35,7 +35,9 @@ parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRISNInter_kl01')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRISNInter_kl05')
+parser.add_argument('--step_size', type=float, default=0.01)
+parser.add_argument('--step_size_anneal', type=float, default=1.0)
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -46,7 +48,9 @@ interactive = True
 pop_size = 100
 elites = 20
 keep_best = 3
-step_size=0.1#0.01
+step_size=args.step_size
+step_size_anneal=args.step_size_anneal
+args.log_dir += ('step'+str(step_size)+'anneal'+str(step_size_anneal))
 
 tf.set_random_seed(0)
 sess = tf.Session()
@@ -118,6 +122,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			elites=elites,
 			keep_best=keep_best,
 			step_size=step_size,
+			step_size_anneal=step_size_anneal,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
