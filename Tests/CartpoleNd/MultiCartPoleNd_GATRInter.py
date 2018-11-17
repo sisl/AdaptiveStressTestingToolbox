@@ -35,7 +35,7 @@ parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRInter_01')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRInter_kl01')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
