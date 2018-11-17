@@ -16,6 +16,8 @@ plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter","GATRI
 plot_name = "GA"
 # plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
 # plot_name = 'GA_max_mean'
+# plolicies = ["GATRInter","GATRISInter","GATRISNInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01"]
+# plot_name = "GA_kl"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
 for i in range(len(plolicies)):
@@ -46,7 +48,11 @@ for exp in exps:
                                 # break
                             if int(row[entry_dict["StepNum"]])%batch_size == 0:
                                 steps.append(int(row[entry_dict["StepNum"]]))
-                                rewards.append(max(0.0,float(row[entry_dict["reward 0"]])))
+                                avg_top = 0.0
+                                for k in range(top_k):
+                                    avg_top += max(0.0,float(row[entry_dict["reward "+str(k)]]))
+                                avg_top /= top_k
+                                rewards.append(avg_top)
             Rewards.append(rewards)
         plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
         plts.append(plot)
@@ -54,6 +60,6 @@ for exp in exps:
 
     plt.legend(plts,legends)
     plt.xlabel('Step number')
-    plt.ylabel('Average Best reward')        
-    fig.savefig(prepath+exp+'/Data/Plot/'+plot_name+'_avgtop1.pdf')
+    plt.ylabel('Average Top '+str(top_k) +' reward')        
+    fig.savefig(prepath+exp+'/Data/Plot/avgtop10/'+plot_name+'_avgtop10.pdf')
     plt.close(fig)

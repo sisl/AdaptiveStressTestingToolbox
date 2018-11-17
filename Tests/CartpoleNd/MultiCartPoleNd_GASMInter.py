@@ -15,7 +15,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.gatr import GATR
+from mylab.algos.gasm import GASM
 
 import os.path as osp
 import argparse
@@ -35,7 +35,7 @@ parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GASM')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -109,7 +109,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
-		algo = GATR(
+		algo = GASM(
 			env=env,
 			policy=policy,
 			baseline=baseline,

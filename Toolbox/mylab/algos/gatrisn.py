@@ -13,7 +13,7 @@ from mylab.utils.exp_utils import log_sum_exp
 
 class GATRISN(GATR):
 	"""
-	Genetic Algorithm with Trust Region Mutation
+	Genetic Algorithm with Trust Region Mutation and self-normalized Importance Sampling
 	"""
 
 	def __init__(

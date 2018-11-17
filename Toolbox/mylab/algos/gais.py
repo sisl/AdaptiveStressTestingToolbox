@@ -86,15 +86,9 @@ class GAIS(GA):
 		return dict()
 
 	@overrides
-	def record_tabular(self, itr, p):
-		logger.record_tabular('Itr',itr)
-		logger.record_tabular('Ind',p)
-		logger.record_tabular('StepNum',int(itr*self.batch_size*self.pop_size+self.batch_size*(p+1)))
-		if self.top_paths is not None:
-			for (topi, path) in enumerate(self.top_paths):
-				logger.record_tabular('reward '+str(topi), path[0])
+	def extra_recording(self, itr, p):
 		logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
-		logger.dump_tabular(with_prefix=False)
+		return None
 
 	def data2inputs(self, samples_data):
 		all_input_values = tuple(ext.extract(

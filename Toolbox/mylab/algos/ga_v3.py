@@ -40,14 +40,13 @@ class GA(BatchPolopt):
 		self.fit_f = fit_f
 		self.keep_best = keep_best
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
-		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
 		self.parents = np.zeros(pop_size,dtype=int)
 		super(GA, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 		
+
 	def initial(self):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
-		self.magnitudes[0,:] = np.ones(self.pop_size)
 
 	@overrides
 	def init_opt(self):
@@ -120,14 +119,17 @@ class GA(BatchPolopt):
 	def extra_recording(self, itr, p):
 		return None
 
-	@overrides
 	def set_params(self, itr, p):
 		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
 		for i in range(itr+1):
 			# print("seed: ", self.seeds[i,p])
 			if self.seeds[i,p] != 0:
-				np.random.seed(int(self.seeds[i,p]))
-				param_values = param_values + self.magnitudes[i,p]*np.random.normal(size=param_values.shape)
+				if i == 0:
+					np.random.seed(int(self.seeds[i,p]))
+					param_values = param_values + np.random.normal(size=param_values.shape)
+				else:
+					np.random.seed(int(self.seeds[i,p]))
+					param_values = param_values + self.step_size*np.random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
 	def get_fitness(self, itr, all_paths):
@@ -148,27 +150,27 @@ class GA(BatchPolopt):
 		self.parents[self.elites:self.pop_size] = \
 				sort_indx[np.random.randint(low=0,high=self.elites,size=self.pop_size-self.elites)]
 
-	def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
+	def mutation(self, itr, new_seeds, all_paths):
 		if itr+1 < self.n_itr:
 			new_seeds[itr+1, :] = np.random.randint(low= 0, high = int(2**16),
 												size = (1, self.pop_size))
-			new_magnitudes[itr+1,: ] = self.step_size
 			for i in range(0,self.keep_best):
 				new_seeds[itr+1,i] = 0
-		return new_seeds, new_magnitudes
+		return new_seeds
 
 	@overrides
 	def optimize_policy(self, itr, all_paths):
 		fitness = self.get_fitness(itr, all_paths)
+		# print('fitness: ',fitness)
+		# print('sort index: ', np.flip(np.argsort(fitness),axis=0))
 		self.select_parents(fitness)
+		# print('seeds: ',self.seeds)
+		# print('parents: ',self.parents)
 		new_seeds = np.zeros_like(self.seeds)
 		new_seeds[:,:] = self.seeds[:,self.parents]
-		new_magnitudes = np.zeros_like(self.magnitudes)
-		new_magnitudes[:,:] = self.magnitudes[:,self.parents]
-		if itr+1 < self.n_itr:
-			new_seeds, new_magnitudes = self.mutation(itr, new_seeds, new_magnitudes, all_paths)
+		new_seeds = self.mutation(itr, new_seeds, all_paths)
+		# print('new_seeds: ',new_seeds)
 		self.seeds=new_seeds
-		self.magnitudes=new_magnitudes
 		return dict()
 
 	@overrides

@@ -12,10 +12,14 @@ prepath = "../"
 exps = ["CartpoleNd"]
 # plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
 # plot_name = "Total"
-plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter","GATRISNInter"]
-plot_name = "GA"
+# plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter","GATRISNInter"]
+# plot_name = "GA"
 # plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
 # plot_name = 'GA_max_mean'
+# plolicies = ["GATRInter","GATRISInter","GATRISNInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01"]
+# plot_name = "GA_kl"
+plolicies = ["GATRISInter_kl01"]
+plot_name = "GA_TRISInter_kl01"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
 for i in range(len(plolicies)):
@@ -53,5 +57,5 @@ for exp in exps:
     plt.legend(plts,legends)
     plt.xlabel('Step number')
     plt.ylabel('Best reward')        
-    fig.savefig(prepath+exp+'/Data/Plot/'+plot_name+'_top1.pdf')
+    fig.savefig(prepath+exp+'/Data/Plot/top1/'+plot_name+'_top1.pdf')
     plt.close(fig)

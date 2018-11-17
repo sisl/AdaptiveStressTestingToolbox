@@ -12,7 +12,7 @@ from mylab.algos.gatr import GATR
 
 class GATRIS(GATR):
 	"""
-	Genetic Algorithm with Trust Region Mutation
+	Genetic Algorithm with Trust Region Mutation and Importance Sampling
 	"""
 
 	def __init__(

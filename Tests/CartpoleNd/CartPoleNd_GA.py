@@ -7,7 +7,6 @@ from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 from rllab.misc import logger
 from rllab.envs.normalized_env import normalize
 from rllab.envs.env_spec import EnvSpec
@@ -19,7 +18,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.gatr import GATR
+from mylab.algos.ga import GA
 
 import os.path as osp
 import argparse
@@ -38,7 +37,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISNInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -100,9 +99,9 @@ with tf.Session() as sess:
 
 	# Instantiate the RLLAB objects
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
-	# optimizer = DirectionConstraintOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GATR(
+	algo = GA(
 		env=env,
 		policy=policy,
 		baseline=baseline,

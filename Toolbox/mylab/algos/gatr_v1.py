@@ -38,7 +38,7 @@ class GATR(GA):
 					param_values = param_values + self.magnitudes[i,p]*np.random.normal(size=param_values.shape)
 				else:
 					np.random.seed(int(self.seeds[i,p]))
-					direction = np.random.normal(size=param_values.shape)
+					direction = np.random.uniform(size=param_values.shape)
 					direction = direction/np.linalg.norm(direction)
 					param_values = param_values + self.magnitudes[i,p]*direction
 		self.policy.set_param_values(param_values, trainable=True)
@@ -164,7 +164,7 @@ class GATR(GA):
 			param_values = self.policy.get_param_values(trainable=True)
 
 			np.random.seed(int(new_seeds[itr+1,p]))
-			direction = np.random.normal(size=param_values.shape)
+			direction = np.random.uniform(size=param_values.shape)
 			direction = direction/np.linalg.norm(direction)
 
 			samples_data = all_paths[self.parents[p]]
@@ -173,27 +173,4 @@ class GATR(GA):
 			new_magnitudes[itr+1,p], constraint_val = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
 			self.kls[p] = constraint_val
 		return new_seeds, new_magnitudes
-
-	# @overrides
-	# def optimize_policy(self, itr, all_paths):
-	# 	fitness = self.get_fitness(itr, all_paths)
-	# 	self.select_parents(fitness)
-	# 	new_seeds = np.zeros_like(self.seeds)
-	# 	new_seeds[:,:] = self.seeds[:,self.parents]
-	# 	new_magnitudes = np.zeros_like(self.magnitudes)
-	# 	new_magnitudes[:,:] = self.magnitudes[:,self.parents]
-	# 	if itr+1 < self.n_itr:
-	# 		new_seeds, new_magnitudes = self.mutation(itr, new_seeds, new_magnitudes, all_paths)
-	# 	self.seeds=new_seeds
-	# 	self.magnitudes=new_magnitudes
-	# 	print(self.seeds)
-	# 	print(self.magnitudes)
-	# 	for p in range(self.pop_size):
-	# 		self.set_params(itr+1,p)
-	# 		p_key = self.parents[p]
-	# 		all_input_values = self.data2inputs(all_paths[p_key])
-	# 		mean_kl = self.f_mean_kl(*all_input_values)
-	# 		print(mean_kl)
-	# 		self.kls[p] = mean_kl
-	# 	return dict()
 

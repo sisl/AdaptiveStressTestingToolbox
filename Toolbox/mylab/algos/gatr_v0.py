@@ -7,7 +7,7 @@ from sandbox.rocky.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
-from mylab.algos.ga import GA
+from mylab.algos.ga_v3 import GA
 from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 
 class GATR(GA):
@@ -21,11 +21,19 @@ class GATR(GA):
 			**kwargs):
 		self.sum_other_weights = np.zeros(kwargs['pop_size'])
 		self.kls = np.zeros(kwargs['pop_size'])
+		self.magnitudes = np.zeros([kwargs['n_itr'], kwargs['pop_size']])
 		if optimizer == None:
 			self.optimizer = DirectionConstraintOptimizer()
 		else:
 			self.optimizer = optimizer
 		super(GATR, self).__init__(**kwargs)
+
+
+	@overrides
+	def initial(self):
+		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
+											size = (1, self.pop_size))
+		self.magnitudes[0,:] = np.ones(self.pop_size)
 
 	@overrides
 	def set_params(self, itr, p):
@@ -35,10 +43,10 @@ class GATR(GA):
 			if self.seeds[i,p] != 0:
 				if i == 0:
 					np.random.seed(int(self.seeds[i,p]))
-					param_values = param_values + self.magnitudes[i,p]*np.random.normal(size=param_values.shape)
+					param_values = param_values + np.random.normal(size=param_values.shape)
 				else:
 					np.random.seed(int(self.seeds[i,p]))
-					direction = np.random.normal(size=param_values.shape)
+					direction = np.random.uniform(size=param_values.shape)
 					direction = direction/np.linalg.norm(direction)
 					param_values = param_values + self.magnitudes[i,p]*direction
 		self.policy.set_param_values(param_values, trainable=True)
@@ -151,49 +159,55 @@ class GATR(GA):
 			all_input_values += (np.ones(npath)*npath,)
 		return all_input_values
 
+
 	@overrides
-	def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
+	def optimize_policy(self, itr, all_paths):
+		fitness = self.get_fitness(itr, all_paths)
+		sort_indx = np.flip(np.argsort(fitness),axis=0)
+
+		new_seeds = np.zeros_like(self.seeds)
+		new_magnitudes = np.zeros_like(self.magnitudes)
+		for i in range(0, self.elites):
+			new_seeds[:,i] = self.seeds[:,sort_indx[i]]
+			new_magnitudes[:,i] = self.magnitudes[:,sort_indx[i]]
+			self.parents[i] = sort_indx[i]
+		for i in range(self.elites, self.pop_size):
+			parent_idx = np.random.randint(low=0, high=self.elites)
+			new_seeds[:,i] = new_seeds[:,parent_idx]
+			new_magnitudes[:,i] = new_magnitudes[:,parent_idx]
+			self.parents[i] = self.parents[parent_idx]
 		self.seeds=np.copy(new_seeds)
 		self.magnitudes=np.copy(new_magnitudes)
-		new_seeds[itr+1, :] = np.random.randint(low= 0, high = int(2**16),
-											size = (1, self.pop_size))
-		for i in range(0,self.keep_best):
-			new_seeds[itr+1,i] = 0
-		for p in range(self.pop_size):
-			self.set_params(itr,p)
-			param_values = self.policy.get_param_values(trainable=True)
 
-			np.random.seed(int(new_seeds[itr+1,p]))
-			direction = np.random.normal(size=param_values.shape)
-			direction = direction/np.linalg.norm(direction)
+		#mutation: get new seeds and magnitudes
+		if itr+1 < self.n_itr:
+			new_seeds[itr+1, :] = np.random.randint(low= 0, high = int(2**16),
+												size = (1, self.pop_size))
+			for i in range(0,self.keep_best):
+				new_seeds[itr+1,i] = 0
+			for p in range(self.pop_size):
+				self.set_params(itr,p)
+				param_values = self.policy.get_param_values(trainable=True)
 
-			samples_data = all_paths[self.parents[p]]
-			all_input_values = self.data2inputs(samples_data)
+				np.random.seed(int(new_seeds[itr+1,p]))
+				direction = np.random.uniform(size=param_values.shape)
+				direction = direction/np.linalg.norm(direction)
 
-			new_magnitudes[itr+1,p], constraint_val = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
-			self.kls[p] = constraint_val
-		return new_seeds, new_magnitudes
+				samples_data = all_paths[self.parents[p]]
+				all_input_values = self.data2inputs(samples_data)
 
-	# @overrides
-	# def optimize_policy(self, itr, all_paths):
-	# 	fitness = self.get_fitness(itr, all_paths)
-	# 	self.select_parents(fitness)
-	# 	new_seeds = np.zeros_like(self.seeds)
-	# 	new_seeds[:,:] = self.seeds[:,self.parents]
-	# 	new_magnitudes = np.zeros_like(self.magnitudes)
-	# 	new_magnitudes[:,:] = self.magnitudes[:,self.parents]
-	# 	if itr+1 < self.n_itr:
-	# 		new_seeds, new_magnitudes = self.mutation(itr, new_seeds, new_magnitudes, all_paths)
-	# 	self.seeds=new_seeds
-	# 	self.magnitudes=new_magnitudes
-	# 	print(self.seeds)
-	# 	print(self.magnitudes)
-	# 	for p in range(self.pop_size):
-	# 		self.set_params(itr+1,p)
-	# 		p_key = self.parents[p]
-	# 		all_input_values = self.data2inputs(all_paths[p_key])
-	# 		mean_kl = self.f_mean_kl(*all_input_values)
-	# 		print(mean_kl)
-	# 		self.kls[p] = mean_kl
-	# 	return dict()
+				new_magnitudes[itr+1,p], constraint_val = self.optimizer.get_magnitude(direction=direction,inputs=all_input_values)
+				self.kls[p] = constraint_val
+
+			self.seeds=new_seeds
+			self.magnitudes=new_magnitudes
+			for p in range(self.pop_size):
+				self.set_params(itr+1,p)
+				p_key = self.parents[p]
+				all_input_values = self.data2inputs(all_paths[p_key])
+				mean_kl = self.f_mean_kl(*all_input_values)
+				print(mean_kl)
+				self.kls[p] = mean_kl
+
+		return dict()
 
