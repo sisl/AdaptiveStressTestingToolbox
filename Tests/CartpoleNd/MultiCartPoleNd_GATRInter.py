@@ -35,7 +35,7 @@ parser.add_argument('--n_itr', type=int, default=25)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRInter_01')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -46,7 +46,7 @@ interactive = True
 pop_size = 100
 elites = 20
 keep_best = 3
-step_size=0.01
+step_size=0.1#0.01
 
 tf.set_random_seed(0)
 sess = tf.Session()
