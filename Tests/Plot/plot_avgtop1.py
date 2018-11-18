@@ -12,12 +12,20 @@ prepath = "../"
 exps = ["CartpoleNd"]
 # plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
 # plot_name = "Total"
-plolicies = ["GAInter","GASMInter","GAISInter","GAISNInter","GATRInter","GATRISInter","GATRISNInter"]
+plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter",\
+                "GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
+                "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
 plot_name = "GA"
 # plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
 # plot_name = 'GA_max_mean'
-# plolicies = ["GATRInter","GATRISInter","GATRISNInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01"]
+# plolicies = ["GATRInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
+#                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
 # plot_name = "GA_kl"
+# plolicies = ["GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
+#                 "GATRInterstep0.5anneal0.95","GATRISInterstep0.5anneal0.95","GATRISNInterstep0.5anneal0.95"]
+# plot_name = "GA_kl_anneal"
+# plolicies = ["GAInter","GASMInter"]
+# plot_name = "GA_SM"
 
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []

@@ -15,7 +15,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from Cartpole.cartpole import CartPoleEnv
 
-from mylab.algos.gais_n import GAISN
+from mylab.algos.gaisn import GAISN
 
 import os.path as osp
 import argparse

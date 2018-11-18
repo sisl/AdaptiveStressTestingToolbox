@@ -50,7 +50,7 @@ elites = 20
 keep_best = 3
 step_size=args.step_size
 step_size_anneal=args.step_size_anneal
-args.log_dir += ('step'+str(step_size)+'anneal'+str(step_size_anneal))
+args.log_dir += ('Step'+str(step_size)+'Anneal'+str(step_size_anneal))
 
 tf.set_random_seed(0)
 sess = tf.Session()
