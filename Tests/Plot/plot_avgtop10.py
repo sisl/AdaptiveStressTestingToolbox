@@ -22,14 +22,17 @@ exps = ["CartpoleNd"]
 #                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
 #                 "GATRInterStep1.0Anneal1.0"]
 # plot_name = "GA_kl"
+plolicies = ["GAInter","GAInterStep0.1Anneal1.0","GAInterStep0.5Anneal1.0","GAInterStep1.0Anneal1.0",\
+                "GATRInter","GATRInter_kl01","GATRInterstep0.5anneal1.0","GATRInterStep1.0Anneal1.0"]
+plot_name = "GA_step"
 # plolicies = ["GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
 #                 "GATRInterstep0.5anneal0.95","GATRISInterstep0.5anneal0.95","GATRISNInterstep0.5anneal0.95"]
 # plot_name = "GA_kl_anneal"
 # plolicies = ["GAInter","GAInterStep0.5Anneal1.0","GASMInter","GASMInterStep0.5Anneal1.0"]
 # plot_name = "GA_SM"
-plolicies = ["GAInter","GAISNInter","GAISNInterStep0.5Anneal1.0",\
-            "GATRInter","GATRInterStep0.5Anneal1.0","GATRInterStep1.0Anneal1.0"]
-plot_name = "GA_best"
+# plolicies = ["GAInter","GAISNInter","GAISNInterStep0.5Anneal1.0",\
+#             "GATRInter","GATRInterStep0.5Anneal1.0","GATRInterStep1.0Anneal1.0"]
+# plot_name = "GA_best"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
 for i in range(len(plolicies)):
