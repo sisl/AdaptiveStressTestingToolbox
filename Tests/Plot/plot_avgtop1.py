@@ -12,10 +12,10 @@ prepath = "../"
 exps = ["CartpoleNd"]
 # plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
 # plot_name = "Total"
-plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter",\
-                "GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
-                "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
-plot_name = "GA"
+# plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter",\
+#                 "GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
+#                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
+# plot_name = "GA"
 # plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
 # plot_name = 'GA_max_mean'
 # plolicies = ["GATRInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\

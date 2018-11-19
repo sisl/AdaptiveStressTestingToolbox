@@ -27,17 +27,9 @@ import numpy as np
 
 import mcts.BoundedPriorityQueues as BPQ
 import csv
-# Logger Params
-parser = argparse.ArgumentParser()
-parser.add_argument('--exp_name', type=str, default="cartpole")
-parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=25)
-parser.add_argument('--batch_size', type=int, default=4000)
-parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISInter')
-parser.add_argument('--args_data', type=str, default=None)
-args = parser.parse_args()
+# Log Params
+from mylab.utils.ga_argparser import get_ga_parser
+args = get_ga_parser(log_dir='./Data/AST/GAISInter')
 
 top_k = 10
 max_path_length = 100
@@ -46,7 +38,8 @@ interactive = True
 pop_size = 100
 elites = 20
 keep_best = 3
-step_size=0.01
+step_size=args.step_size
+step_size_anneal=args.step_size_anneal
 
 tf.set_random_seed(0)
 sess = tf.Session()

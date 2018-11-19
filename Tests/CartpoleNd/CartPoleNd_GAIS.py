@@ -15,13 +15,13 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
+from mylab.utils.ga_argparser import get_ga_parser
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
 from mylab.algos.gais import GAIS
 
 import os.path as osp
-import argparse
 # from example_save_trials import *
 import tensorflow as tf
 import joblib
@@ -29,17 +29,7 @@ import math
 import numpy as np
 
 # Logger Params
-parser = argparse.ArgumentParser()
-parser.add_argument('--exp_name', type=str, default='cartpole_exp')
-parser.add_argument('--tabular_log_file', type=str, default='progress.csv')
-parser.add_argument('--text_log_file', type=str, default='tex.txt')
-parser.add_argument('--params_log_file', type=str, default='args.txt')
-parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISInter/Test')
-parser.add_argument('--args_data', type=str, default=None)
-args = parser.parse_args()
+args = get_ga_parser(log_dir='./Data/AST/GAISInter/Test')
 
 # Create the logger
 log_dir = args.log_dir
@@ -106,12 +96,13 @@ with tf.Session() as sess:
 		policy=policy,
 		baseline=baseline,
 		batch_size=4000,
-		pop_size = 10,
+		pop_size = 5,
 		elites = 3,
 		keep_best = 1,
 		step_size=0.01,
-		n_itr=25,
+		n_itr=2,
 		store_paths=False,
+		fit_f = "max",
 		# optimizer= optimizer,
 		max_path_length=max_path_length,
 		top_paths=top_paths,

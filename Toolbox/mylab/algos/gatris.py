@@ -37,6 +37,10 @@ class GATRIS(GATR):
 				rewards = all_paths[p_key]["rewards"]
 				valid_rewards = rewards*all_paths[p_key]["valids"]
 				path_rewards = np.sum(valid_rewards,-1)
-				fitness[p] += np.sum(path_lrs*path_rewards)
+				if self.fit_f == "mean":
+					fitness[p] += np.sum(path_lrs*path_rewards)
+				else:
+					max_indx = np.argmax(path_rewards)
+					fitness[p] += path_lrs[max_indx]*path_rewards[max_indx]
 		return fitness
 

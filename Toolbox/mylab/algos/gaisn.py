@@ -30,12 +30,19 @@ class GAISN(GAIS):
 					self.sum_other_weights[p] += np.sum(path_lrs)
 
 				log_path_lrs = np.log(path_lrs)
-				Log_path_lrs = np.append(Log_path_lrs,log_path_lrs)
 
 				rewards = all_paths[p_key]["rewards"]
 				valid_rewards = rewards*all_paths[p_key]["valids"]
 				path_rewards = np.sum(valid_rewards,-1)
-				Path_rewards = np.append(Path_rewards, path_rewards)
+
+				if self.fit_f == "mean":
+					Log_path_lrs = np.append(Log_path_lrs,log_path_lrs)
+					Path_rewards = np.append(Path_rewards, path_rewards)
+				else:
+					max_indx = np.argmax(path_rewards)
+					Log_path_lrs = np.append(Log_path_lrs,log_path_lrs[max_indx])
+					Path_rewards = np.append(Path_rewards, path_rewards[max_indx])
+					
 			lse_lrs = log_sum_exp(Log_path_lrs,0)
 			importance_weights = np.exp(Log_path_lrs - lse_lrs)
 			fitness[p] += np.sum(Path_rewards*importance_weights)
