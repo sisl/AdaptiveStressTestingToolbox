@@ -8,7 +8,7 @@ def get_ga_parser(log_dir='./'):
 	parser.add_argument('--batch_size', type=int, default=4000)
 	parser.add_argument('--snapshot_mode', type=str, default="gap")
 	parser.add_argument('--snapshot_gap', type=int, default=10)
-	parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRInter')
+	parser.add_argument('--log_dir', type=str, default=log_dir)
 	parser.add_argument('--step_size', type=float, default=0.01)
 	parser.add_argument('--step_size_anneal', type=float, default=1.0)
 	parser.add_argument('--args_data', type=str, default=None)
