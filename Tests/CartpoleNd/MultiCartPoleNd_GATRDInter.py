@@ -6,6 +6,7 @@ from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from rllab.misc import logger
 
@@ -15,7 +16,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.ga import GA
+from mylab.algos.gatrd import GATRD
 
 import os.path as osp
 import argparse
@@ -29,7 +30,7 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.ga_argparser import get_ga_parser
-args = get_ga_parser(log_dir='./Data/AST/GAInter')
+args = get_ga_parser(log_dir='./Data/AST/GADeterInter')
 
 top_k = 10
 max_path_length = 100
@@ -60,7 +61,7 @@ env = TfEnv(ASTEnv(interactive=interactive,
 							 ))
 
 # Create policy
-policy = GaussianMLPPolicy(
+policy = DeterministicMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
 	hidden_sizes=(64, 32)
@@ -102,7 +103,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
-		algo = GA(
+		algo = GATRD(
 			env=env,
 			policy=policy,
 			baseline=baseline,

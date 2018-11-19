@@ -19,13 +19,29 @@ class GATR(GA):
 			self,
 			optimizer=None,
 			**kwargs):
-		self.sum_other_weights = np.zeros(kwargs['pop_size']) #used for gatr and gatris
+		self.sum_other_weights = np.zeros(kwargs['pop_size'])
 		self.kls = np.zeros(kwargs['pop_size'])
 		if optimizer == None:
 			self.optimizer = DirectionConstraintOptimizer()
 		else:
 			self.optimizer = optimizer
 		super(GATR, self).__init__(**kwargs)
+
+	@overrides
+	def set_params(self, itr, p):
+		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
+		for i in range(itr+1):
+			# print("seed: ", self.seeds[i,p])
+			if self.seeds[i,p] != 0:
+				if i == 0:
+					np.random.seed(int(self.seeds[i,p]))
+					param_values = param_values + self.magnitudes[i,p]*np.random.normal(size=param_values.shape)
+				else:
+					np.random.seed(int(self.seeds[i,p]))
+					direction = np.random.normal(size=param_values.shape)
+					direction = direction/np.linalg.norm(direction)
+					param_values = param_values + self.magnitudes[i,p]*direction
+		self.policy.set_param_values(param_values, trainable=True)
 
 	@overrides
 	def init_opt(self):
@@ -150,6 +166,7 @@ class GATR(GA):
 
 			np.random.seed(int(new_seeds[itr+1,p]))
 			direction = np.random.normal(size=param_values.shape)
+			direction = direction/np.linalg.norm(direction)
 
 			samples_data = all_paths[self.parents[p]]
 			all_input_values = self.data2inputs(samples_data)

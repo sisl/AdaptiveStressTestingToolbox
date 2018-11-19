@@ -165,6 +165,11 @@ class DeterministicLSTMPolicy(Policy, LayersPowered, Serializable):
             agent_info["prev_action"] = np.copy(prev_actions)
         return actions, agent_info
 
+    def get_action_sym(self, obs_var):
+        #need to be implemented
+        #refer to dist_info_sym of Gaussian policy
+        return L.get_output(self.prob_network.output_layer, obs_var)
+
     @property
     @overrides
     def recurrent(self):
@@ -178,3 +183,4 @@ class DeterministicLSTMPolicy(Policy, LayersPowered, Serializable):
             ]
         else:
             return []
+

@@ -10,22 +10,21 @@ import numpy as np
 from mylab.algos.ga import GA
 from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 
-class GATR(GA):
+class GATRD(GA):
 	"""
-	Genetic Algorithm with Trust Region Mutation
+	Genetic Algorithm with Trust Region Mutation on Deterministic Policy
 	"""
 
 	def __init__(
 			self,
 			optimizer=None,
 			**kwargs):
-		self.sum_other_weights = np.zeros(kwargs['pop_size']) #used for gatr and gatris
-		self.kls = np.zeros(kwargs['pop_size'])
+		self.divergences = np.zeros(kwargs['pop_size'])
 		if optimizer == None:
 			self.optimizer = DirectionConstraintOptimizer()
 		else:
 			self.optimizer = optimizer
-		super(GATR, self).__init__(**kwargs)
+		super(GATRD, self).__init__(**kwargs)
 
 	@overrides
 	def init_opt(self):
@@ -43,13 +42,6 @@ class GATR(GA):
 			ndim=1 + is_recurrent,
 			dtype=tf.float32,
 		)
-		dist = self.policy.distribution
-
-		old_dist_info_vars = {
-			k: tf.placeholder(tf.float32, shape=[None] * (1 + is_recurrent) + list(shape), name='old_%s' % k)
-			for k, shape in dist.dist_info_specs
-			}
-		old_dist_info_vars_list = [old_dist_info_vars[k] for k in dist.dist_info_keys]
 
 		state_info_vars = {
 			k: tf.placeholder(tf.float32, shape=[None] * (1 + is_recurrent) + list(shape), name=k)
@@ -65,51 +57,36 @@ class GATR(GA):
 		# npath_var = tf.placeholder(tf.int32, shape=(), name="npath") 
 		npath_var = tf.placeholder(tf.int32, shape=[None], name="npath") #in order to work with sliced_fn
 
-		dist_info_vars = self.policy.dist_info_sym(obs_var, state_info_vars)
-		kl = dist.kl_sym(old_dist_info_vars, dist_info_vars)
-		lr = dist.likelihood_ratio_sym(action_var, old_dist_info_vars, dist_info_vars)
-
-		mean_kl = tf.reduce_sum(kl * valid_var) / tf.reduce_sum(valid_var)
-		log_lrs = tf.log(lr)
-		valid_log_lrs = log_lrs*valid_var #nan is from -inf*0.0
-		valid_log_lrs = tf.where(tf.is_nan(valid_log_lrs),tf.zeros_like(valid_log_lrs),valid_log_lrs) #set nan to 0.0 so won't influence sum
-		valid_log_lrs = tf.reshape(valid_log_lrs,tf.stack([npath_var[0],-1]))
-		path_lrs = tf.exp(tf.reduce_sum(valid_log_lrs,-1))
+		actions = self.policy.get_action_sym(obs_var)
+		divergence = tf.reduce_sum(tf.reduce_sum(tf.square(actions -  action_var),-1)*valid_var)/tf.reduce_sum(valid_var)
 
 		input_list = [
 						 obs_var,
 						 action_var,
 						 advantage_var,
-					 ] + state_info_vars_list + old_dist_info_vars_list
+					 ] + state_info_vars_list
 
 		input_list.append(valid_var)
 		input_list.append(npath_var)
 
-		self.f_path_lrs = tensor_utils.compile_function(
+		self.f_divergence = tensor_utils.compile_function(
 				inputs=input_list,
-				outputs=path_lrs,
-				log_name="f_path_lrs",
-			)
-
-		self.f_mean_kl = tensor_utils.compile_function(
-				inputs=input_list,
-				outputs=mean_kl,
-				log_name="f_mean_kl",
+				outputs=divergence,
+				log_name="f_divergence",
 			)
 
 		self.optimizer.update_opt(
 			target=self.policy,
 			# leq_constraint=(mean_kl, self.step_size), 
-			leq_constraint = mean_kl, #input max contraint at run time with annealing
+			leq_constraint = divergence, #input max contraint at run time with annealing
 			inputs=input_list,
-			constraint_name="mean_kl"
+			constraint_name="divergence"
 		)
 		return dict()
 
 	@overrides
 	def extra_recording(self, itr, p):
-		logger.record_tabular('MeanKl',self.kls[p])
-		logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
+		logger.record_tabular('Divergence',self.divergences[p])
 		return None
 
 	def data2inputs(self, samples_data):
@@ -119,8 +96,7 @@ class GATR(GA):
 		))
 		agent_infos = samples_data["agent_infos"]
 		state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
-		dist_info_list = [agent_infos[k] for k in self.policy.distribution.dist_info_keys]
-		all_input_values += tuple(state_info_list) + tuple(dist_info_list)
+		all_input_values += tuple(state_info_list)
 		# if self.policy.recurrent:
 		all_input_values += (samples_data["valids"],)
 		npath, max_path_length, _ = all_input_values[0].shape 
@@ -156,7 +132,7 @@ class GATR(GA):
 
 			new_magnitudes[itr+1,p], constraint_val = \
 				self.optimizer.get_magnitude(direction=direction,inputs=all_input_values,max_constraint_val=self.step_size)
-			self.kls[p] = constraint_val
+			self.divergences[p] = constraint_val
 		return new_seeds, new_magnitudes
 
 	# @overrides
@@ -171,14 +147,14 @@ class GATR(GA):
 	# 		new_seeds, new_magnitudes = self.mutation(itr, new_seeds, new_magnitudes, all_paths)
 	# 	self.seeds=new_seeds
 	# 	self.magnitudes=new_magnitudes
-	# 	print(self.seeds)
-	# 	print(self.magnitudes)
+	# 	# print(self.seeds)
+	# 	# print(self.magnitudes)
 	# 	for p in range(self.pop_size):
 	# 		self.set_params(itr+1,p)
 	# 		p_key = self.parents[p]
 	# 		all_input_values = self.data2inputs(all_paths[p_key])
-	# 		mean_kl = self.f_mean_kl(*all_input_values)
-	# 		print(mean_kl)
-	# 		self.kls[p] = mean_kl
+	# 		divergence = self.f_divergence(*all_input_values)
+	# 		print(divergence)
+	# 		self.divergences[p] = divergence
 	# 	return dict()
 

@@ -19,7 +19,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.ga import GA
+from mylab.algos.gatrd import GATRD
 
 import os.path as osp
 import argparse
@@ -98,7 +98,7 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GA(
+	algo = GATRD(
 		env=env,
 		policy=policy,
 		baseline=baseline,
@@ -107,7 +107,7 @@ with tf.Session() as sess:
 		elites = 3,
 		keep_best = 1,
 		step_size=0.01,
-		n_itr=1,
+		n_itr=5,
 		store_paths=False,
 		# optimizer= optimizer,
 		max_path_length=max_path_length,
