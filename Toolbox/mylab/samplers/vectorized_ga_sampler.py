@@ -210,7 +210,8 @@ class VectorizedGASampler(BaseSampler):
 
             undiscounted_returns = [sum(path["rewards"]) for path in paths]
 
-            ent = np.sum(self.algo.policy.distribution.entropy(agent_infos) * valids) / np.sum(valids)
+            if hasattr(self.algo.policy, 'distribution'):
+                ent = np.sum(self.algo.policy.distribution.entropy(agent_infos) * valids) / np.sum(valids)
 
             samples_data = dict(
                 observations=obs,
@@ -237,8 +238,9 @@ class VectorizedGASampler(BaseSampler):
         logger.record_tabular('AverageReturn', np.mean(undiscounted_returns))
         logger.record_tabular('ExplainedVariance', ev)
         logger.record_tabular('NumTrajs', len(paths))
-        logger.record_tabular('Entropy', ent)
-        logger.record_tabular('Perplexity', np.exp(ent))
+        if hasattr(self.algo.policy, 'distribution'):
+            logger.record_tabular('Entropy', ent)
+            logger.record_tabular('Perplexity', np.exp(ent))
         logger.record_tabular('StdReturn', np.std(undiscounted_returns))
         logger.record_tabular('MaxReturn', np.max(undiscounted_returns))
         logger.record_tabular('MinReturn', np.min(undiscounted_returns))
