@@ -14,7 +14,7 @@ def get_ga_parser(log_dir='./'):
 	parser.add_argument('--args_data', type=str, default=None)
 	parser.add_argument('--fit_f',type=str, default="max")
 	args = parser.parse_args()
-	if args.step_size_anneal == 1.0
+	if args.step_size_anneal == 1.0:
 		args.log_dir += ('Step'+str(args.step_size)+'F'+args.fit_f)
 	else:
 		args.log_dir += ('Step'+str(args.step_size)+'Anneal'+str(args.step_size_anneal)+'F'+args.fit_f)
