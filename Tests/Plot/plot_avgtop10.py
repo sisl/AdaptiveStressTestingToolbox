@@ -16,15 +16,22 @@ exps = ["CartpoleNd"]
 #                 "GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
 #                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
 # plot_name = "GA"
-# plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
-# plot_name = 'GA_max_mean'
+plolicies = ["GAInter","GAMeanInter","GAISInter","GAISInterStep0.01Fmax",\
+                "GAISNInter","GAISNInterStep0.01Fmax","GATRISInter","GATRISInterStep0.01Fmax",\
+                "GATRISNInter","GATRISNInterStep0.01Fmax"]
+plot_name = 'GA_max_mean'
 # plolicies = ["GATRInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
 #                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
 #                 "GATRInterStep1.0Anneal1.0"]
 # plot_name = "GA_kl"
-plolicies = ["GAInter","GAInterStep0.1Anneal1.0","GAInterStep0.5Anneal1.0","GAInterStep1.0Anneal1.0",\
-                "GATRInter","GATRInter_kl01","GATRInterstep0.5anneal1.0","GATRInterStep1.0Anneal1.0"]
-plot_name = "GA_step"
+# plolicies = ["GAInterStep0.001Fmax","GAInterStep0.005Fmax","GAInter",\
+#             "GAInterStep0.1Anneal1.0","GAInterStep0.5Anneal1.0","GAInterStep1.0Anneal1.0",\
+#             "GAInterStep5.0Fmax","GAInterStep10.0Fmax"]
+# plot_name = "GA_step"
+# plolicies = ["GATRInterStep0.001Fmax","GATRInterStep0.005Fmax","GATRInter",\
+#             "GATRInter_kl01","GATRInterstep0.5Fmax","GATRInterStep1.0Fmax",\
+#             "GATRInterStep5.0Fmax","GATRInterStep10.0Fmax"]
+# plot_name = "GATR_step"
 # plolicies = ["GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
 #                 "GATRInterstep0.5anneal0.95","GATRISInterstep0.5anneal0.95","GATRISNInterstep0.5anneal0.95"]
 # plot_name = "GA_kl_anneal"
@@ -34,9 +41,10 @@ plot_name = "GA_step"
 #             "GATRInter","GATRInterStep0.5Anneal1.0","GATRInterStep1.0Anneal1.0"]
 # plot_name = "GA_best"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
-colors = []
-for i in range(len(plolicies)):
-    colors.append('C'+str(i))
+
+# colors = []
+# for i in range(len(plolicies)):
+#     colors.append('C'+str(i))
 
 for exp in exps:
     plts = []
@@ -69,7 +77,8 @@ for exp in exps:
                                 avg_top /= top_k
                                 rewards.append(avg_top)
             Rewards.append(rewards)
-        plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
+        # plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
+        plot, = plt.plot(steps,np.mean(Rewards,0))
         plts.append(plot)
         legends.append(policy)
 

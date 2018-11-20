@@ -56,7 +56,7 @@ class GA(BatchPolopt):
 		return dict()
 
 	@overrides
-	def train(self, sess=None, init_var=True):
+	def train(self, sess=None, init_var=False):
 		created_session = True if (sess is None) else False
 		if sess is None:
 			sess = tf.Session()
@@ -155,7 +155,7 @@ class GA(BatchPolopt):
 
 	def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
 		if itr+1 < self.n_itr:
-			new_seeds[itr+1, :] = np.random.randint(low= 0, high = int(2**16),
+			new_seeds[itr+1, :] = np.random.randint(low= 0, high = int(2**32),
 												size = (1, self.pop_size))
 			new_magnitudes[itr+1,: ] = self.step_size
 			for i in range(0,self.keep_best):
