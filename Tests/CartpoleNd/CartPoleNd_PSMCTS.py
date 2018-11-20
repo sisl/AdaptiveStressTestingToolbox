@@ -15,7 +15,7 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
-import mcts.tree_plot as tree_plot
+from mylab.utils.tree_plot import plot_tree
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
@@ -108,7 +108,7 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=max_path_length,
 		step_size=0.01,
-		n_itr=2,
+		n_itr=100,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
@@ -119,6 +119,6 @@ with tf.Session() as sess:
 		)
 
 	algo.train(sess=sess, init_var=False)
-	tree_plot.plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree.png")
+	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree.png")
 
 	

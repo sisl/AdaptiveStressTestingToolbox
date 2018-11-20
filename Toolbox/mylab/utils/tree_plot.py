@@ -9,7 +9,8 @@ def get_root(tree):
 
 def s2node(s,tree):
 	if s in tree.keys():
-		return pydot.Node(str(uuid.uuid4()),label='n='+str(tree[s].n))
+		# return pydot.Node(str(uuid.uuid4()),label='n='+str(tree[s].n))
+		return pydot.Node(str(uuid.uuid4()),label=str(tree[s].v))
 	else:
 		return None
 

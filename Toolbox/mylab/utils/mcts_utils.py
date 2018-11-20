@@ -17,9 +17,11 @@ class StateActionNode:
 		self.q = 0.0
 
 class StateNode:
-	def __init__(self, a, n):
+	def __init__(self, a, n, v):
 		self.a = a #Dict{Action,StateActionNode}
 		self.n = n #UInt64
+		self.v = v
 	def __init__(self):
 		self.a = {}
 		self.n = 0
+		self.v = 0.0

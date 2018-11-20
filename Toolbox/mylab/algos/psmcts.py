@@ -26,6 +26,7 @@ class PSMCTS(BatchPolopt):
 		self.alpha = alpha
 		self.top_paths = top_paths
 		self.fit_f = fit_f
+		self.step_size = step_size
 		self.s = {}
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 
@@ -132,7 +133,6 @@ class PSMCTS(BatchPolopt):
 		cA.n += 1
 		cA.q += (q-cA.q)/float(cA.n)
 		self.s[s].a[a] = cA
-
 		return q
 
 	def rollout(self, s):
@@ -144,6 +144,7 @@ class PSMCTS(BatchPolopt):
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 		samples_data = self.process_samples(0, paths)
 		q = self.evaluate(samples_data)
+		self.s[s].v = q
 		self.stepNum += self.batch_size
 		self.record_tabular()
 		return q
