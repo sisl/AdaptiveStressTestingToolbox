@@ -260,3 +260,61 @@ class DirectionConstraintOptimizer(Serializable):
         logger.log("final kl: " + str(constraint_val))
         # logger.log("optimization finished")
         return -ratio*initial_step_size, constraint_val
+
+    def get_magnitudes(self, directions, inputs, max_constraint_val=None,extra_inputs=None, subsample_grouped_inputs=None):
+        if max_constraint_val is not None:
+            self._max_constraint_val = max_constraint_val
+        prev_param = np.copy(self._target.get_param_values(trainable=True))
+        inputs = tuple(inputs)
+        if extra_inputs is None:
+            extra_inputs = tuple()
+
+        if self._subsample_factor < 1:
+            if subsample_grouped_inputs is None:
+                subsample_grouped_inputs = [inputs]
+            subsample_inputs = tuple()
+            for inputs_grouped in subsample_grouped_inputs:
+                n_samples = len(inputs_grouped[0])
+                inds = np.random.choice(
+                    n_samples, int(n_samples * self._subsample_factor), replace=False)
+                subsample_inputs += tuple([x[inds] for x in inputs_grouped])
+        else:
+            subsample_inputs = inputs
+
+        Hx = self._hvp_approach.build_eval(subsample_inputs + extra_inputs)
+
+        magnitudes = []
+        constraint_vals = []
+        for descent_direction in directions:
+            initial_step_size = np.sqrt(
+                2.0 * self._max_constraint_val * (1. / (descent_direction.dot(Hx(descent_direction)) + 1e-8))
+            )
+            if np.isnan(initial_step_size):
+                initial_step_size = 1.
+            flat_descent_step = initial_step_size * descent_direction
+
+            n_iter = 0
+            for n_iter, ratio in enumerate(self._backtrack_ratio ** np.arange(self._max_backtracks)):
+                cur_step = ratio * flat_descent_step
+                cur_param = prev_param - cur_step
+                self._target.set_param_values(cur_param, trainable=True)
+                constraint_val = sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs,extra_inputs)
+                if self._debug_nan and np.isnan(constraint_val):
+                    import ipdb;
+                    ipdb.set_trace()
+                if constraint_val <= self._max_constraint_val:
+                    break
+            if (np.isnan(constraint_val) or constraint_val >= self._max_constraint_val) and not self._accept_violation:
+                logger.log("Line search condition violated. Rejecting the step!")
+                if np.isnan(constraint_val):
+                    logger.log("Violated because constraint %s is NaN" % self._constraint_name)
+                if constraint_val >= self._max_constraint_val:
+                    logger.log("Violated because constraint %s is violated" % self._constraint_name)
+                self._target.set_param_values(prev_param, trainable=True)
+            # logger.log("backtrack iters: %d" % n_iter)
+            # logger.log("final magnitude: " + str(-ratio*initial_step_size))
+            logger.log("final kl: " + str(constraint_val))
+            # logger.log("optimization finished")
+            magnitudes.append(-ratio*initial_step_size)
+            constraint_vals.append(constraint_val)
+        return magnitudes, constraint_vals

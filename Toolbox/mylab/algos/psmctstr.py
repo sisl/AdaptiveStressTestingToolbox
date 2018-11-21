@@ -101,6 +101,7 @@ class PSMCTSTR(PSMCTS):
 			all_input_values += (np.ones(npath)*npath,)
 		return all_input_values
 
+	@overrides
 	def getNextAction(self,s):
 		seed = np.random.randint(low= 0, high = int(2**16))
 		if s.parent is None: #first generation

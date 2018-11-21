@@ -37,12 +37,6 @@ top_k = 10
 max_path_length = 100
 interactive = True
 
-ec = args.ec
-k = args.k
-alpha = args.alpha
-step_size = args.step_size
-step_size_anneal = args.step_size_anneal
-
 tf.set_random_seed(0)
 sess = tf.Session()
 sess.__enter__()
@@ -90,9 +84,9 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		if trial > 0:
 			old_log_dir = args.log_dir+'/'+str(trial-1)
 			logger.pop_prefix()
-			logger.remove_text_output(osp.join(old_log_dir, 'text.txt'))
+			# logger.remove_text_output(osp.join(old_log_dir, 'text.txt'))
 			logger.remove_tabular_output(osp.join(old_log_dir, 'process.csv'))
-		logger.add_text_output(text_log_file)
+		# logger.add_text_output(text_log_file)
 		logger.add_tabular_output(tabular_log_file)
 		logger.push_prefix("["+args.exp_name+'_trial '+str(trial)+"]")
 
@@ -109,17 +103,18 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			step_size=step_size,
-			step_size_anneal=step_size_anneal,
+			step_size=args.step_size,
+			step_size_anneal=args.step_size_anneal,
 			seed=trial,
-			ec=ec,
-			k=k,
-			alpha=alpha,
+			ec=args.ec,
+			k=args.k,
+			alpha=args.alpha,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
 			fit_f=args.fit_f,
+			log_interval=args.log_interval,
 			plot=False,
 			)
 

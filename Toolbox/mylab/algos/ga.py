@@ -32,6 +32,7 @@ class GA(BatchPolopt):
 			elites = 2,
 			keep_best = 1,
 			fit_f = "max",
+			log_interval = 4000,
 			**kwargs):
 
 		self.top_paths = top_paths
@@ -40,6 +41,7 @@ class GA(BatchPolopt):
 		self.pop_size = pop_size
 		self.elites = elites
 		self.fit_f = fit_f
+		self.log_interval = log_interval
 		self.keep_best = keep_best
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
@@ -50,6 +52,7 @@ class GA(BatchPolopt):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
 		self.magnitudes[0,:] = np.ones(self.pop_size)
+		self.stepNum = 0
 
 	@overrides
 	def init_opt(self):
@@ -110,17 +113,18 @@ class GA(BatchPolopt):
 			sess.close()
 
 	def record_tabular(self, itr, p):
-		logger.record_tabular('Itr',itr)
-		logger.record_tabular('Ind',p)
-		logger.record_tabular('StepNum',self.stepNum)
-		if self.top_paths is not None:
-			for (topi, path) in enumerate(self.top_paths):
-				logger.record_tabular('reward '+str(topi), path[0])
-		logger.record_tabular('parent',self.parents[p])
-		logger.record_tabular('StepSize',self.step_size)
-		logger.record_tabular('Magnitude',self.magnitudes[itr,p])
-		self.extra_recording(itr, p)
-		logger.dump_tabular(with_prefix=False)
+		if self.stepNum%self.log_interval == 0:
+			logger.record_tabular('Itr',itr)
+			logger.record_tabular('Ind',p)
+			logger.record_tabular('StepNum',self.stepNum)
+			if self.top_paths is not None:
+				for (topi, path) in enumerate(self.top_paths):
+					logger.record_tabular('reward '+str(topi), path[0])
+			logger.record_tabular('parent',self.parents[p])
+			logger.record_tabular('StepSize',self.step_size)
+			logger.record_tabular('Magnitude',self.magnitudes[itr,p])
+			self.extra_recording(itr, p)
+			logger.dump_tabular(with_prefix=False)
 
 	def extra_recording(self, itr, p):
 		return None
@@ -177,9 +181,9 @@ class GA(BatchPolopt):
 		return dict()
 
 	@overrides
-    def obtain_samples(self, itr):
-    	self.stepNum += self.batch_size
-        return self.sampler.obtain_samples(itr)
+	def obtain_samples(self, itr):
+		self.stepNum += self.batch_size
+		return self.sampler.obtain_samples(itr)
 
 	@overrides
 	def get_itr_snapshot(self, itr, samples_data):

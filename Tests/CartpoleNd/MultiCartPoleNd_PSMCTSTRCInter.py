@@ -13,10 +13,11 @@ from rllab.misc import logger
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
+from mylab.utils.tree_plot import plot_tree
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.gatrd import GATRD
+from mylab.algos.psmctstrc import PSMCTSTRC
 
 import os.path as osp
 import argparse
@@ -29,8 +30,8 @@ import numpy as np
 import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
-from mylab.utils.ga_argparser import get_ga_parser
-args = get_ga_parser(log_dir='./Data/AST/GATRDInter')
+from mylab.utils.psmcts_argparser import get_psmcts_parser
+args = get_psmcts_parser(log_dir='./Data/AST/PSMCTSTRCInter')
 
 top_k = 10
 max_path_length = 100
@@ -97,16 +98,17 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
-		algo = GATRD(
+		algo = PSMCTSTRC(
 			env=env,
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			pop_size=args.pop_size,
-			elites=args.elites,
-			keep_best=args.keep_best,
 			step_size=args.step_size,
 			step_size_anneal=args.step_size_anneal,
+			seed=trial,
+			ec=args.ec,
+			k=args.k,
+			alpha=args.alpha,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
@@ -116,10 +118,12 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			plot=False,
 			)
 
+
 		algo.train(sess=sess, init_var=False)
+		plot_tree(algo.s,d=100,path=osp.join(log_dir, 'tree'),format="png")
 
 		row_content = dict()
-		row_content['step_count'] = args.n_itr*args.batch_size*pop_size
+		row_content['step_count'] = algo.stepNum
 		i = 0
 		for (r,action_seq) in algo.top_paths:
 			row_content['reward '+str(i)] = r

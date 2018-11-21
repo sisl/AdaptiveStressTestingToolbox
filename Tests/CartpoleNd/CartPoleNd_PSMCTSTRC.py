@@ -6,8 +6,8 @@ from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 from rllab.misc import logger
 from rllab.envs.normalized_env import normalize
 from rllab.envs.env_spec import EnvSpec
@@ -16,10 +16,11 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
+from mylab.utils.tree_plot import plot_tree
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.gatr import GATR
+from mylab.algos.psmctstrc import PSMCTSTRC
 
 import os.path as osp
 import argparse
@@ -38,7 +39,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISNInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRCInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -50,7 +51,7 @@ text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
 logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
+# logger.add_text_output(text_log_file)
 logger.add_tabular_output(tabular_log_file)
 prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
@@ -72,7 +73,7 @@ tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
 	env_inner = CartPoleNdEnv(nd=10,use_seed=False)
-	data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
+	data = joblib.load("../Cartpole/Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
 	reward_function = ASTReward()
 
@@ -85,41 +86,37 @@ with tf.Session() as sess:
 								 ))
 
 	# Create policy
-	policy = GaussianMLPPolicy(
+	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
 		hidden_sizes=(64, 32)
 	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=env.spec,
-	#                             hidden_dim=5,
-	#                             use_peepholes=True)
 
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
 
 	# Instantiate the RLLAB objects
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
-	# optimizer = DirectionConstraintOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GATR(
+	algo = PSMCTSTRC(
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=4000,
-		pop_size = 5,
-		elites = 3,
-		keep_best = 1,
-		step_size=100.0,#1.0,#0.01,
-		step_size_anneal=1.0,
-		n_itr=2,
-		store_paths=False,
-		# optimizer= optimizer,
+		batch_size=max_path_length,
+		step_size=0.01,
+		n_itr=10,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
+		seed=0,
+		ec = 100.0,
+		k=0.5,
+		alpha=0.85,
+		log_interval=1,
 		plot=False,
 		)
 
 	algo.train(sess=sess, init_var=False)
+	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
 
 	

@@ -16,6 +16,7 @@ def get_psmcts_parser(log_dir='./'):
 	parser.add_argument('--ec',type=float, default=100.0)
 	parser.add_argument('--k',type=float, default=0.5)
 	parser.add_argument('--alpha',type=float, default=0.85)
+	parser.add_argument('--log_interval', type=int, default=4000)
 	args = parser.parse_args()
 	if args.step_size_anneal == 1.0:
 		args.log_dir += ('Step'+str(args.step_size)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha))
