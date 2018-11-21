@@ -6,6 +6,7 @@ from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from rllab.misc import logger
 from rllab.envs.normalized_env import normalize
@@ -85,15 +86,11 @@ with tf.Session() as sess:
 								 ))
 
 	# Create policy
-	policy = GaussianMLPPolicy(
+	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
 		hidden_sizes=(64, 32)
 	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=env.spec,
-	#                             hidden_dim=5,
-	#                             use_peepholes=True)
 
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
@@ -119,6 +116,6 @@ with tf.Session() as sess:
 		)
 
 	algo.train(sess=sess, init_var=False)
-	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree.png")
+	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
 
 	

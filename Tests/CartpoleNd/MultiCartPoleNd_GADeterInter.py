@@ -112,6 +112,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			elites=elites,
 			keep_best=keep_best,
 			step_size=step_size,
+			step_size_anneal=step_size_anneal,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,

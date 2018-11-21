@@ -112,7 +112,7 @@ class GA(BatchPolopt):
 	def record_tabular(self, itr, p):
 		logger.record_tabular('Itr',itr)
 		logger.record_tabular('Ind',p)
-		logger.record_tabular('StepNum',int(itr*self.batch_size*self.pop_size+self.batch_size*(p+1)))
+		logger.record_tabular('StepNum',self.stepNum)
 		if self.top_paths is not None:
 			for (topi, path) in enumerate(self.top_paths):
 				logger.record_tabular('reward '+str(topi), path[0])
@@ -175,6 +175,11 @@ class GA(BatchPolopt):
 		self.seeds=new_seeds
 		self.magnitudes=new_magnitudes
 		return dict()
+
+	@overrides
+    def obtain_samples(self, itr):
+    	self.stepNum += self.batch_size
+        return self.sampler.obtain_samples(itr)
 
 	@overrides
 	def get_itr_snapshot(self, itr, samples_data):

@@ -20,6 +20,7 @@ class PSMCTS(BatchPolopt):
 			top_paths, #BPQ
 			fit_f = "max",
 			step_size = 0.01,
+			step_size_anneal = 1.0,
 			**kwargs):
 		self.ec = ec 
 		self.k = k
@@ -27,6 +28,7 @@ class PSMCTS(BatchPolopt):
 		self.top_paths = top_paths
 		self.fit_f = fit_f
 		self.step_size = step_size
+		self.step_size_anneal = 1.0
 		self.s = {}
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 
@@ -51,7 +53,7 @@ class PSMCTS(BatchPolopt):
 		return (seed,magnitude)
 
 	def getNextState(self,s,a):
-		assert self.t_index == s.t_index
+		# assert self.t_index == s.t_index
 		self.t_index += 1
 		sp = MCTSStateInit(self.t_index, s, a)
 		r = self.getReward(s,a,sp)
@@ -89,8 +91,10 @@ class PSMCTS(BatchPolopt):
 		self.start_worker()
 		self.initial()
 		for i in range(self.n_itr):
+			self.itr = i
 			s0 = self.getInitialState()
 			self.simulate(s0)
+			self.step_size = self.step_size*self.step_size_anneal
 
 		self.shutdown_worker()
 		if created_session:
@@ -145,11 +149,16 @@ class PSMCTS(BatchPolopt):
 		samples_data = self.process_samples(0, paths)
 		q = self.evaluate(samples_data)
 		self.s[s].v = q
-		self.stepNum += self.batch_size
 		self.record_tabular()
 		return q
 
+	@overrides
+	def obtain_samples(self, itr):
+		self.stepNum += self.batch_size
+		return self.sampler.obtain_samples(itr)
+
 	def record_tabular(self):
+		logger.record_tabular('Itr',self.itr)
 		logger.record_tabular('StepNum',self.stepNum)
 		if self.top_paths is not None:
 			for (topi, path) in enumerate(self.top_paths):
