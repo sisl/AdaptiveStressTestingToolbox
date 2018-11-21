@@ -21,6 +21,7 @@ class PSMCTS(BatchPolopt):
 			fit_f = "max",
 			step_size = 0.01,
 			step_size_anneal = 1.0,
+			log_interval = 4000,
 			**kwargs):
 		self.ec = ec 
 		self.k = k
@@ -29,6 +30,7 @@ class PSMCTS(BatchPolopt):
 		self.fit_f = fit_f
 		self.step_size = step_size
 		self.step_size_anneal = 1.0
+		self.log_interval = log_interval
 		self.s = {}
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 
@@ -158,12 +160,13 @@ class PSMCTS(BatchPolopt):
 		return self.sampler.obtain_samples(itr)
 
 	def record_tabular(self):
-		logger.record_tabular('Itr',self.itr)
-		logger.record_tabular('StepNum',self.stepNum)
-		if self.top_paths is not None:
-			for (topi, path) in enumerate(self.top_paths):
-				logger.record_tabular('reward '+str(topi), path[0])
-		logger.dump_tabular(with_prefix=False)
+		if self.stepNum%self.log_interval == 0:
+			logger.record_tabular('Itr',self.itr)
+			logger.record_tabular('StepNum',self.stepNum)
+			if self.top_paths is not None:
+				for (topi, path) in enumerate(self.top_paths):
+					logger.record_tabular('reward '+str(topi), path[0])
+			logger.dump_tabular(with_prefix=False)
 
 
 class MCTSState:

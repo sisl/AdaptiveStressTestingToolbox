@@ -112,10 +112,15 @@ with tf.Session() as sess:
 		ec = 100.0,
 		k=0.5,
 		alpha=0.85,
+		log_interval=4000,
 		plot=False,
 		)
 
+	import time
+	start_time = time.time()
 	algo.train(sess=sess, init_var=False)
+	end_time = time.time()
+	print("time consumed: ",end_time-start_time)
 	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
 
 	
