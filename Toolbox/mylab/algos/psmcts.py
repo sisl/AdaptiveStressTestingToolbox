@@ -163,6 +163,7 @@ class PSMCTS(BatchPolopt):
 		if self.stepNum%self.log_interval == 0:
 			logger.record_tabular('Itr',self.itr)
 			logger.record_tabular('StepNum',self.stepNum)
+			logger.record_tabular('TreeSize',len(self.s))
 			if self.top_paths is not None:
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])
