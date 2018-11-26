@@ -76,12 +76,10 @@ class PSMCTSTRC(PSMCTSTR):
 		self.s[s].a[a] = cA
 		return q
 
-	def getNextActions(self,s,samples_data=None):
+	def getNextActions(self,s):
 		actions = []
-		self.set_params(s)
-		if samples_data is None:
-			paths = self.obtain_samples(0)
-			samples_data = self.process_samples(0, paths)
+		paths = self.obtain_samples(0)
+		samples_data = self.process_samples(0, paths)
 		all_input_values = self.data2inputs(samples_data)
 		seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
 		if s.parent is None: #first generation
@@ -104,19 +102,3 @@ class PSMCTSTRC(PSMCTSTR):
 			# divergence = self.f_divergence(*all_input_values)
 			# print("divergence: ",divergence)
 		return actions
-
-	@overrides
-	def rollout(self, s):
-		self.set_params(s)
-		paths = self.obtain_samples(0)
-		undiscounted_returns = [sum(path["rewards"]) for path in paths]
-		if not (self.top_paths is None):
-			action_seqs = [path["actions"] for path in paths]
-			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
-		samples_data = self.process_samples(0, paths)
-		assert len(self.s[s].ca) == 0
-		self.s[s].ca = self.getNextActions(s,samples_data)
-		q = self.evaluate(samples_data)
-		self.s[s].v = q
-		self.record_tabular()
-		return q

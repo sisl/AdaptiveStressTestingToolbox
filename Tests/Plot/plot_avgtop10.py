@@ -44,10 +44,12 @@ exps = ["CartpoleNd"]
 # plolicies = ["GADeterInterStep0.01Fmax","GADeterInterStep0.1Fmax","GADeterInterStep1.0Fmax",\
 #                 "GATRDInterStep0.01Fmax","GATRDInterStep0.1Fmax","GATRDInterStep1.0Fmax"]
 # plot_name = "GA_deter"
-plolicies = ["PSMCTSInterStep0.01Ec100.0K0.5A0.85","PSMCTSInterStep0.1Ec100.0K0.5A0.85","PSMCTSInterStep1.0Ec100.0K0.5A0.85",\
-                "PSMCTSTRInterStep0.01Ec100.0K0.5A0.85","PSMCTSTRInterStep0.1Ec100.0K0.5A0.85","PSMCTSTRInterStep1.0Ec100.0K0.5A0.85",\
-                "PSMCTSTRCInterStep0.01Ec100.0K0.5A0.85","PSMCTSTRCInterStep0.1Ec100.0K0.5A0.85","PSMCTSTRCInterStep1.0Ec100.0K0.5A0.85"]
-plot_name = "PSMCTS"
+# plolicies = ["PSMCTSInterStep0.01Ec100.0K0.5A0.85","PSMCTSInterStep0.1Ec100.0K0.5A0.85","PSMCTSInterStep1.0Ec100.0K0.5A0.85",\
+#                 "PSMCTSTRInterStep0.01Ec100.0K0.5A0.85","PSMCTSTRInterStep0.1Ec100.0K0.5A0.85","PSMCTSTRInterStep1.0Ec100.0K0.5A0.85",\
+#                 "PSMCTSTRCInterStep0.01Ec100.0K0.5A0.85","PSMCTSTRCInterStep0.1Ec100.0K0.5A0.85","PSMCTSTRCInterStep1.0Ec100.0K0.5A0.85"]
+# plot_name = "PSMCTS"
+plolicies = ["PSMCTSInterStep0.01Ec100.0K0.5A0.85","PSMCTSInterStep0.01Ec100.0K0.5A0.85InitP100"]
+plot_name = "PSMCTS_initPop"
 
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 

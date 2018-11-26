@@ -105,7 +105,7 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=max_path_length,
 		step_size=0.01,
-		n_itr=10,
+		n_itr=100,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
@@ -114,6 +114,7 @@ with tf.Session() as sess:
 		alpha=0.85,
 		log_interval=1,
 		plot=False,
+		n_ca = 4,
 		)
 
 	algo.train(sess=sess, init_var=False)

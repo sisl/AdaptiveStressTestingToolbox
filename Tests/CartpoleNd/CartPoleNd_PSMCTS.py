@@ -109,7 +109,7 @@ with tf.Session() as sess:
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
-		ec = 100.0,
+		ec = 1.0,
 		k=0.5,
 		alpha=0.85,
 		log_interval=1,
