@@ -13,7 +13,7 @@ from rllab.misc import logger
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
-from mylab.utils.tree_plot import plot_tree
+from mylab.utils.tree_plot import plot_tree, plot_node_num
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
@@ -115,12 +115,15 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			top_paths = top_paths,
 			fit_f=args.fit_f,
 			log_interval=args.log_interval,
+			initial_pop = args.initial_pop,
 			plot=False,
 			)
 
 
 		algo.train(sess=sess, init_var=False)
-		plot_tree(algo.s,d=100,path=osp.join(log_dir, 'tree'),format="png")
+		if args.plot_tree:
+			plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
+		plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
 		row_content = dict()
 		row_content['step_count'] = algo.stepNum

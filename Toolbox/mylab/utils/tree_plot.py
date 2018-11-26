@@ -1,6 +1,7 @@
 import pydot
 import uuid
 import numpy as np
+from matplotlib import pyplot as plt
 
 def get_root(tree):
 	for s in tree.keys():
@@ -28,6 +29,18 @@ def add_children(s,s_node,tree,graph,d):
 					graph.add_edge(pydot.Edge(s_node, ns_node))
 					add_children(ns,ns_node,tree,graph,d-1)
 
+def get_node_num_next(s, tree, depths, nodeNums, d):
+	d = d+1
+	if (len(depths) <= d) and (len(tree[s].a.keys()) > 0):
+		depths.append(d)
+		nodeNums.append(0)
+
+	for a in tree[s].a.keys():
+		for ns in tree[s].a[a].s.keys():
+			nodeNums[d] += 1
+			if ns in tree.keys():
+				get_node_num_next(ns, tree, depths, nodeNums, d)
+
 def plot_tree(tree,d,path,format="svg"):
 	graph = pydot.Dot(graph_type='digraph')
 	root = get_root(tree)
@@ -40,4 +53,17 @@ def plot_tree(tree,d,path,format="svg"):
 	elif format == "png":
 		graph.write_png(filename)
 
+def plot_node_num(tree,path,format="svg"):
+	root = get_root(tree)
+	depths = [0]
+	nodeNums = [1]
+	d = 0
+	get_node_num_next(root, tree, depths, nodeNums, d)
+	filename = path+"."+format
+	fig = plt.figure()
+	plt.plot(depths,nodeNums)
+	plt.xlabel('Depth')
+	plt.ylabel('Node Number')        
+	fig.savefig(filename)
+	plt.close(fig)
 

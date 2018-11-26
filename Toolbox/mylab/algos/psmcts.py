@@ -22,6 +22,7 @@ class PSMCTS(BatchPolopt):
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			log_interval = 4000,
+			initial_pop = 0,
 			**kwargs):
 		self.ec = ec 
 		self.k = k
@@ -32,6 +33,7 @@ class PSMCTS(BatchPolopt):
 		self.step_size_anneal = 1.0
 		self.log_interval = log_interval
 		self.s = {}
+		self.initial_pop = initial_pop
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 
 	@overrides
@@ -107,7 +109,15 @@ class PSMCTS(BatchPolopt):
 			self.s[s] = StateNode()
 			return self.rollout(s)
 		self.s[s].n += 1
-		if len(self.s[s].a) < self.k*self.s[s].n**self.alpha:
+
+		need_new_action = False
+		if (s.parent is None) and (not (self.initial_pop == 0)):
+			if len(self.s[s].a) < self.initial_pop:
+				need_new_action = True
+		elif len(self.s[s].a) < self.k*self.s[s].n**self.alpha:
+			need_new_action = True
+
+		if need_new_action:
 			a = self.getNextAction(s)
 			if not (a in self.s[s].a):
 				self.s[s].a[a] = StateActionNode()

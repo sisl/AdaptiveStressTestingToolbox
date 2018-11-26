@@ -16,7 +16,7 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
-from mylab.utils.tree_plot import plot_tree
+from mylab.utils.tree_plot import plot_tree, plot_node_num
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
@@ -105,22 +105,20 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=max_path_length,
 		step_size=0.01,
-		n_itr=100,
+		n_itr=10,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
 		ec = 100.0,
 		k=0.5,
 		alpha=0.85,
-		log_interval=4000,
+		log_interval=1,
 		plot=False,
+		initial_pop = 0,
 		)
 
-	import time
-	start_time = time.time()
 	algo.train(sess=sess, init_var=False)
-	end_time = time.time()
-	print("time consumed: ",end_time-start_time)
 	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
+	plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
 	

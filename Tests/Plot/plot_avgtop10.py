@@ -28,11 +28,11 @@ exps = ["CartpoleNd"]
 #             "GAInterStep0.1Anneal1.0","GAInterStep0.5Anneal1.0","GAInterStep1.0Anneal1.0",\
 #             "GAInterStep5.0Fmax","GAInterStep10.0Fmax"]
 # plot_name = "GA_step"
-plolicies = ["GATRInterStep0.001Fmax","GATRInterStep0.005Fmax","GATRInter",\
-            "GATRInter_kl01","GATRInterstep0.5Fmax","GATRInterStep1.0Fmax",\
-            "GATRInterStep5.0Fmax","GATRInterStep10.0Fmax",\
-            "GATRInterStep50.0Fmax","GATRInterStep100.0Fmax"]
-plot_name = "GATR_step"
+# plolicies = ["GATRInterStep0.001Fmax","GATRInterStep0.005Fmax","GATRInter",\
+#             "GATRInter_kl01","GATRInterstep0.5Fmax","GATRInterStep1.0Fmax",\
+#             "GATRInterStep5.0Fmax","GATRInterStep10.0Fmax",\
+#             "GATRInterStep50.0Fmax","GATRInterStep100.0Fmax"]
+# plot_name = "GATR_step"
 # plolicies = ["GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
 #                 "GATRInterstep0.5anneal0.95","GATRISInterstep0.5anneal0.95","GATRISNInterstep0.5anneal0.95"]
 # plot_name = "GA_kl_anneal"
@@ -41,6 +41,14 @@ plot_name = "GATR_step"
 # plolicies = ["GAInter","GAISNInter","GAISNInterStep0.5Anneal1.0",\
 #             "GATRInter","GATRInterStep0.5Anneal1.0","GATRInterStep1.0Anneal1.0"]
 # plot_name = "GA_best"
+# plolicies = ["GADeterInterStep0.01Fmax","GADeterInterStep0.1Fmax","GADeterInterStep1.0Fmax",\
+#                 "GATRDInterStep0.01Fmax","GATRDInterStep0.1Fmax","GATRDInterStep1.0Fmax"]
+# plot_name = "GA_deter"
+plolicies = ["PSMCTSInterStep0.01Ec100.0K0.5A0.85","PSMCTSInterStep0.1Ec100.0K0.5A0.85","PSMCTSInterStep1.0Ec100.0K0.5A0.85",\
+                "PSMCTSTRInterStep0.01Ec100.0K0.5A0.85","PSMCTSTRInterStep0.1Ec100.0K0.5A0.85","PSMCTSTRInterStep1.0Ec100.0K0.5A0.85",\
+                "PSMCTSTRCInterStep0.01Ec100.0K0.5A0.85","PSMCTSTRCInterStep0.1Ec100.0K0.5A0.85","PSMCTSTRCInterStep1.0Ec100.0K0.5A0.85"]
+plot_name = "PSMCTS"
+
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
 # colors = []
@@ -54,6 +62,7 @@ for exp in exps:
     for (policy_index,policy) in enumerate(plolicies):
         print(policy)
         Rewards = []
+        min_array_length = np.inf
         for trial in range(n_trial):
             steps = []
             rewards = []
@@ -77,7 +86,13 @@ for exp in exps:
                                     avg_top += max(0.0,float(row[entry_dict["reward "+str(k)]]))
                                 avg_top /= top_k
                                 rewards.append(avg_top)
-            Rewards.append(rewards)
+                print(len(rewards))
+                print(steps[-1])
+                if len(rewards) < min_array_length:
+                    min_array_length = len(rewards) 
+                Rewards.append(rewards)
+        steps = steps[:min_array_length]
+        Rewards = [rewards[:min_array_length] for rewards in Rewards]
         # plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
         plot, = plt.plot(steps,np.mean(Rewards,0))
         plts.append(plot)

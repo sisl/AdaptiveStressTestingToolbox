@@ -120,7 +120,8 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 
 		algo.train(sess=sess, init_var=False)
-		plot_tree(algo.s,d=100,path=osp.join(log_dir, 'tree'),format="png")
+		if args.plot_tree:
+			plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
 
 		row_content = dict()
 		row_content['step_count'] = algo.stepNum
