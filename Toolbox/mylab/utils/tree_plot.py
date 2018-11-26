@@ -60,10 +60,8 @@ def plot_node_num(tree,path,format="svg"):
 	d = 0
 	get_node_num_next(root, tree, depths, nodeNums, d)
 	filename = path+"."+format
-	fig = plt.figure()
 	plt.plot(depths,nodeNums)
 	plt.xlabel('Depth')
 	plt.ylabel('Node Number')        
-	fig.savefig(filename)
-	plt.close(fig)
+	plt.savefig(filename)
 
