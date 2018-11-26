@@ -1,6 +1,8 @@
 import pydot
 import uuid
 import numpy as np
+import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib import pyplot as plt
 
 def get_root(tree):
