@@ -25,5 +25,5 @@ def get_psmcts_parser(log_dir='./'):
 	else:
 		args.log_dir += ('Step'+str(args.step_size)+'Anneal'+str(args.step_size_anneal)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha))
 	if args.initial_pop > 0:
-		args.log_dir += ('InitP',initial_pop)
+		args.log_dir += ('InitP',args.initial_pop)
 	return args
