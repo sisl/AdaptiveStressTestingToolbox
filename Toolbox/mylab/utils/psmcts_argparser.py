@@ -16,6 +16,7 @@ def get_psmcts_parser(log_dir='./'):
 	parser.add_argument('--ec',type=float, default=100.0)
 	parser.add_argument('--k',type=float, default=0.5)
 	parser.add_argument('--alpha',type=float, default=0.85)
+	parser.add_argument('--n_ca',type=int, default=4)
 	parser.add_argument('--initial_pop',type=int, default=0)
 	parser.add_argument('--log_interval', type=int, default=4000)
 	parser.add_argument('--plot_tree', type=bool, default=False)

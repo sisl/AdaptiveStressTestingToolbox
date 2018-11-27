@@ -109,6 +109,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			ec=args.ec,
 			k=args.k,
 			alpha=args.alpha,
+			n_ca =args.n_ca,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
