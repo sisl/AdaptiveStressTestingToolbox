@@ -18,7 +18,7 @@ class PSMCTS(BatchPolopt):
 			k, #progress widening constant
 			alpha, #progress widening constant
 			top_paths, #BPQ
-			fit_f = "mean",
+			fit_f = "max",
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			log_interval = 4000,
@@ -143,10 +143,7 @@ class PSMCTS(BatchPolopt):
 		else:
 			self.s[s].a[a].s[sp].n += 1
 
-		q = self.update(s,a,r,sp)
-		return q
 
-	def update(self, s, a, r, sp):
 		q = r + self.simulate(sp)
 		cA = self.s[s].a[a]
 		cA.n += 1

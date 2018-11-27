@@ -7,6 +7,19 @@ from sandbox.rocky.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
+
+class StateNodeC:
+	def __init__(self, a, ca, n, v):
+		self.a = a #Dict{Action,StateActionNode}
+		self.ca = ca #list of actions
+		self.n = n #UInt64
+		self.v = v
+	def __init__(self):
+		self.a = {}
+		self.ca = []
+		self.n = 0
+		self.v = 0.0
+
 class PSMCTSTRC(PSMCTSTR):
 	"""
 	Policy Space MCTS with Trust Region Mutation and 
@@ -22,13 +35,48 @@ class PSMCTSTRC(PSMCTSTR):
 		super(PSMCTSTRC, self).__init__(**kwargs)
 
 	@overrides
-	def getNextAction(self,s):
-		if len(self.s[s].ca) == 0:
-			self.s[s].ca = self.getCandidateActions(s)
-		a = self.s[s].ca.pop()
-		return a
+	def simulate(self, s, verbose=False):
+		if not (s in self.s):
+			self.s[s] = StateNodeC()
+			return self.rollout(s)
+		self.s[s].n += 1
+		if len(self.s[s].a) < self.k*self.s[s].n**self.alpha:
+			if len(self.s[s].ca) == 0:
+				self.s[s].ca = self.getNextActions(s)
+			a = self.s[s].ca.pop()
+			if not (a in self.s[s].a):
+				self.s[s].a[a] = StateActionNode()
+		else:
+			cS = self.s[s]
+			A = list(cS.a.keys())
+			nA = len(A)
+			UCT = np.zeros(nA)
+			nS = cS.n
+			for i in range(nA):
+				cA = cS.a[A[i]]
+				assert nS > 0
+				assert cA.n > 0
+				UCT[i] = cA.q + self.ec*np.sqrt(np.log(nS)/float(cA.n))
+			a = A[np.argmax(UCT)]
 
-	def getCandidateActions(self,s,samples_data=None):
+		sp,r = self.getNextState(s,a)
+		# print("new sp: ",sp in dpw.s.keys())
+		if not (sp in self.s[s].a[a].s):
+			self.s[s].a[a].s[sp] = StateActionStateNode()
+			self.s[s].a[a].s[sp].r = r
+			self.s[s].a[a].s[sp].n = 1
+		else:
+			self.s[s].a[a].s[sp].n += 1
+
+
+		q = r + self.simulate(sp)
+		cA = self.s[s].a[a]
+		cA.n += 1
+		cA.q += (q-cA.q)/float(cA.n)
+		self.s[s].a[a] = cA
+		return q
+
+	def getNextActions(self,s,samples_data=None):
 		actions = []
 		self.set_params(s)
 		if samples_data is None:
@@ -66,8 +114,8 @@ class PSMCTSTRC(PSMCTSTR):
 			action_seqs = [path["actions"] for path in paths]
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 		samples_data = self.process_samples(0, paths)
-		# assert len(self.s[s].ca) == 0
-		self.s[s].ca = self.getCandidateActions(s,samples_data)
+		assert len(self.s[s].ca) == 0
+		self.s[s].ca = self.getNextActions(s,samples_data)
 		q = self.evaluate(samples_data)
 		self.s[s].v = q
 		self.record_tabular()

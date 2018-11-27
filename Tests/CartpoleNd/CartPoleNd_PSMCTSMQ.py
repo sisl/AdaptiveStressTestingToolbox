@@ -16,11 +16,11 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
-from mylab.utils.tree_plot import plot_tree
+from mylab.utils.tree_plot import plot_tree, plot_node_num
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.psmctstrc import PSMCTSTRC
+from mylab.algos.psmctstrcmq import PSMCTSTRCMQ
 
 import os.path as osp
 import argparse
@@ -39,7 +39,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRCInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -99,7 +99,7 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = PSMCTSTRC(
+	algo = PSMCTSTRCMQ(
 		env=env,
 		policy=policy,
 		baseline=baseline,
@@ -109,15 +109,16 @@ with tf.Session() as sess:
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
-		ec = 100.0,
+		ec = 1.0,
 		k=0.5,
 		alpha=0.85,
 		log_interval=1,
 		plot=False,
-		n_ca = 4,
+		initial_pop = 0,
 		)
 
 	algo.train(sess=sess, init_var=False)
 	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
+	plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
 	
