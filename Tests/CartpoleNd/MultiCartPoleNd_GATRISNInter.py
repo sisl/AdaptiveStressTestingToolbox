@@ -118,7 +118,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		algo.train(sess=sess, init_var=False)
 
 		row_content = dict()
-		row_content['step_count'] = args.n_itr*args.batch_size*pop_size
+		row_content['step_count'] = algo.stepNum
 		i = 0
 		for (r,action_seq) in algo.top_paths:
 			row_content['reward '+str(i)] = r
