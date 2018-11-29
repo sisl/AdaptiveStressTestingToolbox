@@ -28,18 +28,13 @@ import numpy as np
 import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
+# Log Params
 from mylab.utils.ga_argparser import get_ga_parser
 args = get_ga_parser(log_dir='./Data/AST/GATRISInter')
 
 top_k = 10
 max_path_length = 100
 interactive = True
-
-pop_size = 100
-elites = 20
-keep_best = 3
-step_size=args.step_size
-step_size_anneal=args.step_size_anneal
 
 tf.set_random_seed(0)
 sess = tf.Session()
@@ -107,16 +102,17 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			pop_size=pop_size,
-			elites=elites,
-			keep_best=keep_best,
-			step_size=step_size,
-			step_size_anneal=step_size_anneal,
+			pop_size=args.pop_size,
+			elites=args.elites,
+			keep_best=args.keep_best,
+			step_size=args.step_size,
+			step_size_anneal=args.step_size_anneal,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
 			fit_f=args.fit_f,
+			log_interval=args.log_interval,
 			plot=False,
 			)
 

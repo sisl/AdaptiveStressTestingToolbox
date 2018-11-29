@@ -1,5 +1,7 @@
 import csv
 import os.path
+import matplotlib 
+matplotlib.rcParams.update({'font.size': 22})
 from matplotlib import pyplot as plt
 import numpy as np
 
