@@ -16,7 +16,7 @@ class PSMCTSTRMQ(PSMCTSTR):
 	def __init__(
 			self,
 			**kwargs):
-		super(PSMCTSTRCMQ, self).__init__(**kwargs)
+		super(PSMCTSTRMQ, self).__init__(**kwargs)
 
 	@overrides
 	def update(self, s, a, r, sp):
