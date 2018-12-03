@@ -15,7 +15,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.gatris import GATRIS
+from mylab.algos.gatr import GATR
 
 import os.path as osp
 import argparse
