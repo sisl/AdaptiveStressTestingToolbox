@@ -14,7 +14,7 @@ def get_psmcts_parser(log_dir='./'):
 	parser.add_argument('--step_size_anneal', type=float, default=1.0)
 	parser.add_argument('--args_data', type=str, default=None)
 	parser.add_argument('--fit_f',type=str, default="max")
-	parser.add_argument('--ec',type=float, default=np.sqrt(2))
+	parser.add_argument('--ec',type=float, default=1.414)
 	parser.add_argument('--k',type=float, default=0.5)
 	parser.add_argument('--alpha',type=float, default=0.85)
 	parser.add_argument('--n_ca',type=int, default=4)
