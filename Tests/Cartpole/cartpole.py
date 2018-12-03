@@ -41,6 +41,7 @@ class CartPoleEnv(Env):
         self.state = None
 
         self.wind_force_mag = 0.8*self.force_mag #for ast disturbance
+        self.trajectory_pdf = 1.0
 
         self.steps_beyond_done = None
         # Serializable.__init__(self, *args, **kwargs)
@@ -176,6 +177,7 @@ class CartPoleEnv(Env):
     def ast_reset(self, s_0):
         self.state = np.copy(s_0)
         self.steps_beyond_done = None
+        self.trajectory_pdf = 1.0
         # assert self.state == s_0
         return self.ast_get_observation(), self.get_observation()
 
@@ -242,15 +244,17 @@ class CartPoleEnv(Env):
         else:
             dist = np.min([
                             np.min([np.abs(x-(-self.x_threshold)),np.abs(x-self.x_threshold)])/self.x_threshold,
-                            np.min([np.abs(x-(-self.theta_threshold_radians)),np.abs(x-self.theta_threshold_radians)])/self.theta_threshold_radians
+                            np.min([np.abs(theta-(-self.theta_threshold_radians)),np.abs(theta-self.theta_threshold_radians)])/self.theta_threshold_radians
                             ])
         prob = -1/(self.wind_force_mag*self.wind_force_mag)*np.abs(self.ast_action)+1/self.wind_force_mag
         if type(prob) is type(1.0) or type(prob) is type(np.float64(1.0)):
             prob = prob
         else:
             prob = prob[0]
+        self.trajectory_pdf = self.trajectory_pdf*prob
         return dict(
             is_goal = is_goal,
             dist = dist,
-            prob = prob
+            prob = prob,
+            trajectory_pdf = trajectory_pdf,
             )
