@@ -28,7 +28,7 @@ def add_children(s,s_node,tree,graph,d):
 				if ns_node is not None:
 					graph.add_node(ns_node)
 					# graph.add_edge(pydot.Edge(s_node, ns_node, label="n="+str(n)+" q="+str(q)))
-					graph.add_edge(pydot.Edge(s_node, ns_node))
+					graph.add_edge(pydot.Edge(s_node, ns_node,label=str(ns.action[0])))
 					add_children(ns,ns_node,tree,graph,d-1)
 
 def get_node_num_next(s, tree, depths, nodeNums, d):

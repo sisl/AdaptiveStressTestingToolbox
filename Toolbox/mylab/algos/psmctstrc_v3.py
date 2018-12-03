@@ -13,6 +13,8 @@ class PSMCTSTRC(PSMCTSTR):
 	candidate new actions: when adding a new mutation action, instead of just adding one, also adding multiple
 			candidate actions, this is more data efficient since they share the parent trajectory to calculate 
 			divergence.
+	!all version before this are wrong, due to the sharing of random seeds, all nodes (except for root can only
+	have at most 2*n_ca children)
 	"""
 	def __init__(
 			self,
@@ -25,20 +27,21 @@ class PSMCTSTRC(PSMCTSTR):
 	def getNextAction(self,s):
 		if len(self.s[s].ca) == 0:
 			self.s[s].ca = self.getCandidateActions(s)
+			# if not(s.parent is None) and (len(self.s[s].a)>0):
+			# 	print("ca is empty")
+			# 	print("actions are: ",self.s[s].a.keys())
+			# 	print("new actions are: ",self.s[s].ca)
 		a = self.s[s].ca.pop()
 		return a
 
 	def getCandidateActions(self,s,samples_data=None):
 		actions = []
+		self.set_params(s)
 		if samples_data is None:
-			self.set_params(s)
 			paths = self.obtain_samples(0)
 			samples_data = self.process_samples(0, paths)
 		all_input_values = self.data2inputs(samples_data)
-		# seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
-		seeds = []
-		for i in range(self.n_ca):
-			seeds.append(self.get_next_seed())
+		seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
 		if s.parent is None: #first generation
 			magnitudes = np.ones_like(seeds)
 		else:

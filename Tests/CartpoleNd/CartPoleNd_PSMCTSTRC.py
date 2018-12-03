@@ -20,7 +20,7 @@ from mylab.utils.tree_plot import plot_tree
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.psmctstrc import PSMCTSTRC
+from mylab.algos.psmctstrc_v3 import PSMCTSTRC
 
 import os.path as osp
 import argparse
@@ -105,16 +105,16 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=max_path_length,
 		step_size=0.01,
-		n_itr=10,
+		n_itr=200,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
-		ec = 100.0,
+		ec = 1.0,#100.0,
 		k=0.5,
 		alpha=0.85,
 		log_interval=1,
 		plot=False,
-		n_ca = 4,
+		n_ca = 1,
 		)
 
 	algo.train(sess=sess, init_var=False)

@@ -117,6 +117,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			fit_f=args.fit_f,
 			log_interval=args.log_interval,
 			plot=False,
+			initial_seed = trial,
 			)
 
 

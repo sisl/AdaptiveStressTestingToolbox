@@ -112,6 +112,7 @@ with tf.Session() as sess:
 		ec = 1.0,
 		k=0.5,
 		alpha=0.85,
+		f_Q="max",
 		log_interval=1,
 		plot=False,
 		initial_pop = 0,

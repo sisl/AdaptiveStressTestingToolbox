@@ -24,7 +24,6 @@ class PSMCTS(BatchPolopt):
 			step_size_anneal = 1.0,
 			log_interval = 4000,
 			initial_pop = 0,
-			initial_seed = 0,
 			**kwargs):
 		self.ec = ec 
 		self.k = k
@@ -37,18 +36,14 @@ class PSMCTS(BatchPolopt):
 		self.log_interval = log_interval
 		self.s = {}
 		self.initial_pop = initial_pop
-		self.initial_seed = 0
-		self.seed = initial_seed
-		self.stepNum = 0
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
-
-	def get_next_seed(self):
-		self.seed = np.uint32(hash_seed(self.seed))
-		return self.seed
 
 	@overrides
 	def init_opt(self):
 		return dict()
+
+	def initial(self):
+		self.stepNum = 0
 
 	def getInitialState(self):
 		self.t_index = 0
@@ -56,7 +51,7 @@ class PSMCTS(BatchPolopt):
 		return s0
 
 	def getNextAction(self,s):
-		seed = self.get_next_seed()
+		seed = np.random.randint(low= 0, high = int(2**16))
 		if s.parent is None: #first generation
 			magnitude = 1.0
 		else:
@@ -100,7 +95,7 @@ class PSMCTS(BatchPolopt):
 		if init_var:
 			sess.run(tf.global_variables_initializer())
 		self.start_worker()
-		# self.initial()
+		self.initial()
 		for i in range(self.n_itr):
 			self.itr = i
 			s0 = self.getInitialState()

@@ -103,7 +103,7 @@ class PSMCTSTR(PSMCTS):
 
 	@overrides
 	def getNextAction(self,s):
-		seed = self.get_next_seed()
+		seed = np.random.randint(low= 0, high = int(2**16))
 		if s.parent is None: #first generation
 			magnitude = 1.0
 		else:
