@@ -118,6 +118,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			initial_pop = args.initial_pop,
 			plot=False,
 			initial_seed = trial,
+			f_Q=args.f_Q,
 			)
 
 

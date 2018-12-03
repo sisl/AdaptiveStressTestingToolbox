@@ -20,6 +20,7 @@ def get_psmcts_parser(log_dir='./'):
 	parser.add_argument('--initial_pop',type=int, default=0)
 	parser.add_argument('--log_interval', type=int, default=4000)
 	parser.add_argument('--plot_tree', type=bool, default=False)
+	parser.add_argument('--f_Q', type=str, default='max')
 	args = parser.parse_args()
 	if args.step_size_anneal == 1.0:
 		args.log_dir += ('Step'+str(args.step_size)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha))
@@ -27,4 +28,6 @@ def get_psmcts_parser(log_dir='./'):
 		args.log_dir += ('Step'+str(args.step_size)+'Anneal'+str(args.step_size_anneal)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha))
 	if args.initial_pop > 0:
 		args.log_dir += ('InitP'+str(args.initial_pop))
+	if args.f_Q == 'mean':
+		args.log_dir += ('Qmean')
 	return args
