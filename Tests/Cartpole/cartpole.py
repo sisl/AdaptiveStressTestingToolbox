@@ -256,5 +256,5 @@ class CartPoleEnv(Env):
             is_goal = is_goal,
             dist = dist,
             prob = prob,
-            trajectory_pdf = trajectory_pdf,
+            trajectory_pdf = self.trajectory_pdf,
             )
