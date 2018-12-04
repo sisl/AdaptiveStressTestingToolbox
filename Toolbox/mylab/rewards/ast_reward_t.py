@@ -8,7 +8,7 @@ import pdb
 # Define the class, inherit from the base
 class ASTReward(RewardFn):
 	def __init__(self,
-				const1 = 1):
+				const1 = 0.001):
 		self.const1 = const1
 		super().__init__()
 

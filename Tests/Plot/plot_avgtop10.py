@@ -11,7 +11,7 @@ batch_size = 4000
 max_step = np.inf
 
 prepath = "../"
-exps = ["CartpoleNd"]
+exps = ["CartpoleNdRewardt"]
 # policies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter"]
 # plot_name = "MCTS_TRPO_GA"
 # policies = ["GAInter","GAISInterStep0.01Fmax","GAISNInterStep0.01Fmax"]
@@ -82,8 +82,16 @@ exps = ["CartpoleNd"]
 #             "PSMCTSTRMQInterStep10.0Ec1.0K0.5A0.5","PSMCTSTRMQInterStep50.0Ec1.0K0.5A0.5",\
 #             "PSMCTSTRCMQInterStep1.0Ec1.0K0.5A0.5","PSMCTSTRCMQInterStep10.0Ec1.0K0.5A0.5","PSMCTSTRCMQInterStep50.0Ec1.0K0.5A0.5"]
 # plot_name = "PSMCTSMQ_step"
-policies = ["PSMCTSTRMQInterStep10.0Ec1.0K0.5A0.5","GATRDInterStep1.0Fmax"]
-plot_name = "Deter_best"
+# policies = ["PSMCTSInterStep1.0Ec1.0K0.5A0.5","PSMCTSInterStep10.0Ec1.0K0.5A0.5",\
+#             "PSMCTSTRInterStep1.0Ec1.0K0.5A0.5","PSMCTSTRInterStep10.0Ec1.0K0.5A0.5",\
+#             "PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5","PSMCTSTRCInterStep10.0Ec1.0K0.5A0.5"]
+# plot_name = "PSMCTS_Qmax"
+# policies = ["PSMCTSInterStep10.0Ec1.0K0.5A0.5","PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5","GATRDInterStep1.0Fmax"]
+# plot_name = "Deter_best"
+policies = ["MCTS_AS","MCTS_BV","MCTS_RS","RLInter","RLLSTMInter",\
+            "GATRDInterStep1.0Fmax","GATRInterStep10.0Fmax",\
+            "PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
+plot_name = "total"
 
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
