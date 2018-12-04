@@ -18,7 +18,8 @@ class ASTReward(RewardFn):
 	    is_goal = info["is_goal"]
 	    is_terminal = info["is_terminal"]
 	    dist = info["dist"]
-	    trajectory_pdf= info["trajectory_pdf"]
+	    log_trajectory_pdf= info["log_trajectory_pdf"]
+	    trajectory_pdf = np.exp(log_trajectory_pdf)
 	    if (is_goal): # We found a crash
 	        reward = -0.5*self.const1/(self.const1+trajectory_pdf)+1.0
 	    elif (is_terminal): # no crash founded and time out

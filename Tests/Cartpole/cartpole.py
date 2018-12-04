@@ -41,7 +41,7 @@ class CartPoleEnv(Env):
         self.state = None
 
         self.wind_force_mag = 0.8*self.force_mag #for ast disturbance
-        self.trajectory_pdf = 1.0
+        self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
         # Serializable.__init__(self, *args, **kwargs)
@@ -177,7 +177,7 @@ class CartPoleEnv(Env):
     def ast_reset(self, s_0):
         self.state = np.copy(s_0)
         self.steps_beyond_done = None
-        self.trajectory_pdf = 1.0
+        self.log_trajectory_pdf = 0.0
         # assert self.state == s_0
         return self.ast_get_observation(), self.get_observation()
 
@@ -251,10 +251,10 @@ class CartPoleEnv(Env):
             prob = prob
         else:
             prob = prob[0]
-        self.trajectory_pdf = self.trajectory_pdf*prob
+        self.log_trajectory_pdf += np.log(prob)
         return dict(
             is_goal = is_goal,
             dist = dist,
             prob = prob,
-            trajectory_pdf = self.trajectory_pdf,
+            log_trajectory_pdf = self.log_trajectory_pdf,
             )
