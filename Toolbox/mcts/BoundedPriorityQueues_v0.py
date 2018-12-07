@@ -3,8 +3,8 @@ import copy
 import numpy as np
 
 class BoundedPriorityQueue:
-	def __init__(self,N):
-		self.pq = queue.PriorityQueue()
+	def __init__(self,pq,N):
+		self.pq = pq
 		self.N = N
 	def enqueue(self, k, v, make_copy=False):
 		if type(k) == np.ndarray:
@@ -13,7 +13,8 @@ class BoundedPriorityQueue:
 					return
 		elif k in [pair[1] for pair in self.pq.queue]:
 				return
-
+		while v in [pair[0] for pair in self.pq.queue]:
+			v += 1e-4
 		if make_copy:
 			ck = copy.deepcopy(k)
 			self.pq.put((v,ck))
@@ -33,6 +34,9 @@ class BoundedPriorityQueue:
 	def __iter__(self):
 		return start(self)
 
+def BoundedPriorityQueueInit(N):
+	return BoundedPriorityQueue(queue.PriorityQueue(),N)
+
 class BPQIterator:
 	def __init__(self,sorted_pairs,index):
 		self.sorted_pairs = sorted_pairs
@@ -48,6 +52,14 @@ class BPQIterator:
 def start(q):
 	kvs = list(reversed(sorted(q.pq.queue,key=lambda x: x[0])))
 	return BPQIterator(kvs,0)
+
+# def done(q,it):
+# 	return it.index > len(it.sorted_pairs)-1
+
+# def next(q,it):
+# 	item = it.sorted_pairs[it.index]
+# 	it.index += 1
+# 	return item, it
 
 
 			

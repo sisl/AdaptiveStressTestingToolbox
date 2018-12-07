@@ -97,7 +97,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
-		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+		top_paths = BPQ.BoundedPriorityQueue(top_k)
 		algo = PSMCTSTR(
 			env=env,
 			policy=policy,

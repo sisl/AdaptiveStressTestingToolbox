@@ -1,14 +1,14 @@
 import csv
 import os.path
 import matplotlib 
-matplotlib.rcParams.update({'font.size': 15})
+matplotlib.rcParams.update({'font.size': 20})
 from matplotlib import pyplot as plt
 import numpy as np
 
 n_trial = 5
 top_k = 10
 batch_size = 4000
-max_step = np.inf
+max_step = 4000000#np.inf
 
 prepath = "../"
 exps = ["CartpoleNd"]
@@ -86,12 +86,19 @@ exps = ["CartpoleNd"]
 #             "PSMCTSTRInterStep1.0Ec1.0K0.5A0.5","PSMCTSTRInterStep10.0Ec1.0K0.5A0.5",\
 #             "PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5","PSMCTSTRCInterStep10.0Ec1.0K0.5A0.5"]
 # plot_name = "PSMCTS_Qmax"
-policies = ["PSMCTSInterStep10.0Ec1.0K0.5A0.5","PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5","GATRDInterStep1.0Fmax"]
-plot_name = "Deter_best"
+# policies = ["PSMCTSInterStep10.0Ec1.0K0.5A0.5","PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5","GATRDInterStep1.0Fmax"]
+# plot_name = "Deter_best"
 # policies = ["MCTS_AS","MCTS_BV","MCTS_RS","RLInter","RLLSTMInter",\
 #             "GATRDInterStep1.0Fmax","GATRInterStep10.0Fmax",\
 #             "PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
 # plot_name = "total"
+policies = ["PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5","MCTS_BV","RLInter","GATRDInterStep1.0Fmax"]
+plot_name = "cs332report1"
+legends = ["PSMCTS","MCTSBV","TRPO","GA"]
+# policies = ["PSMCTSTRCInterStep1.0Ec1.0K0.5A0.5",\
+#             "PSMCTSInterStep1.0Ec1.0K0.5A0.5","PSMCTSTRInterStep1.0Ec1.0K0.5A0.5"]
+# plot_name = "cs332report2"
+# legends = ["PSMCTS","PSMCTS*","PSMCTS**"]
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
 # colors = []
@@ -100,7 +107,7 @@ plot_name = "Deter_best"
 
 for exp in exps:
     plts = []
-    legends = []
+    # legends = []
     fig = plt.figure(figsize=(10, 10))
 
     for (policy_index,policy) in enumerate(policies):
@@ -141,9 +148,10 @@ for exp in exps:
         # plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
         plot, = plt.plot(steps,np.mean(Rewards,0))
         plts.append(plot)
-        legends.append(policy)
+        # legends.append(policy)
 
-    plt.legend(plts,legends)
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    plt.legend(plts,legends,loc='lower right')
     plt.xlabel('Step Number')
     plt.ylabel('Average Top '+str(top_k) +' Reward')        
     fig.savefig(prepath+exp+'/Data/Plot/avgtop10/'+plot_name+'_avgtop10.pdf')

@@ -246,7 +246,7 @@ class CartPoleEnv(Env):
                             np.min([np.abs(x-(-self.x_threshold)),np.abs(x-self.x_threshold)])/self.x_threshold,
                             np.min([np.abs(theta-(-self.theta_threshold_radians)),np.abs(theta-self.theta_threshold_radians)])/self.theta_threshold_radians
                             ])
-        prob = -1/(self.wind_force_mag*self.wind_force_mag)*np.abs(self.ast_action)+1/self.wind_force_mag
+        prob = -1/(self.wind_force_mag*self.wind_force_mag)*np.abs(self.ast_action)+1/self.wind_force_mag+0.0001
         if type(prob) is type(1.0) or type(prob) is type(np.float64(1.0)):
             prob = prob
         else:
