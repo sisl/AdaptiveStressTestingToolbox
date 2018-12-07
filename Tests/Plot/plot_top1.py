@@ -9,17 +9,10 @@ batch_size = 4000
 # max_step = 5e6
 
 prepath = "../"
-exps = ["CartpoleNd"]
-# plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
-# plot_name = "Total"
-# plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter","GATRISNInter"]
-# plot_name = "GA"
-# plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
-# plot_name = 'GA_max_mean'
-# plolicies = ["GATRInter","GATRISInter","GATRISNInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01"]
-# plot_name = "GA_kl"
-plolicies = ["GATRISInter_kl01"]
-plot_name = "GA_TRISInter_kl01"
+exps = ["CartpoleNdRewardt"]
+policies = ["GATRDInterStep1.0Fmax","PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax",\
+            "PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
+plot_name = "GATRD_PSMCTS"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
 for i in range(len(plolicies)):

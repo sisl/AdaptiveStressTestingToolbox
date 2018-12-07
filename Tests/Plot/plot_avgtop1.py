@@ -11,36 +11,24 @@ batch_size = 4000
 # max_step = 5e6
 
 prepath = "../"
-exps = ["CartpoleNd"]
-# plolicies = ["MCTS_RS","MCTS_AS","MCTS_BV","RLInter","GAInter","GAISInter","GAISNInter","GATRInter","GATRISInter"]
-# plot_name = "Total"
-# plolicies = ["GAInter","GAISInter","GAISNInter","GATRInter",\
-#                 "GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
-#                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
-# plot_name = "GA"
-# plolicies = ["GAInter","GANonInter","GAMeanInter","GAMeanNonInter"]
-# plot_name = 'GA_max_mean'
-# plolicies = ["GATRInter","GATRInter_kl01","GATRISInter_kl01","GATRISNInter_kl01",\
-#                 "GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0"]
-# plot_name = "GA_kl"
-# plolicies = ["GATRInterstep0.5anneal1.0","GATRISInterstep0.5anneal1.0","GATRISNInterstep0.5anneal1.0",\
-#                 "GATRInterstep0.5anneal0.95","GATRISInterstep0.5anneal0.95","GATRISNInterstep0.5anneal0.95"]
-# plot_name = "GA_kl_anneal"
-# plolicies = ["GAInter","GASMInter"]
-# plot_name = "GA_SM"
+exps = ["CartpoleNdRewardt"]
+policies = ["GATRDInterStep1.0Fmax","PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax",\
+            "PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
+plot_name = "GATRD_PSMCTS"
 
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
-for i in range(len(plolicies)):
+for i in range(len(policies)):
     colors.append('C'+str(i))
 
 for exp in exps:
     plts = []
     legends = []
     fig = plt.figure(figsize=(10, 10))
-    for (policy_index,policy) in enumerate(plolicies):
+    for (policy_index,policy) in enumerate(policies):
         print(policy)
         Rewards = []
+        min_array_length = np.inf
         for trial in range(n_trial):
             print(trial)
             steps = []
@@ -60,7 +48,11 @@ for exp in exps:
                             if int(row[entry_dict["StepNum"]])%batch_size == 0:
                                 steps.append(int(row[entry_dict["StepNum"]]))
                                 rewards.append(max(0.0,float(row[entry_dict["reward 0"]])))
+            if len(rewards) < min_array_length:
+                min_array_length = len(rewards) 
             Rewards.append(rewards)
+        steps = steps[:min_array_length]
+        Rewards = [rewards[:min_array_length] for rewards in Rewards]
         plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
         plts.append(plot)
         legends.append(policy)

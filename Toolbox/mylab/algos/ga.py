@@ -95,12 +95,12 @@ class GA(BatchPolopt):
 
 						logger.log("Logging diagnostics...")
 						self.log_diagnostics(paths)
-						logger.log("Saving snapshot...")
-						snap = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
-						if self.store_paths:
-							snap["paths"] = samples_data["paths"]
-						logger.save_itr_params(itr, snap)
-						logger.log("Saved")
+						# logger.log("Saving snapshot...")
+						# snap = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
+						# if self.store_paths:
+						# 	snap["paths"] = samples_data["paths"]
+						# logger.save_itr_params(itr, snap)
+						# logger.log("Saved")
 
 						self.record_tabular(itr,p)
 

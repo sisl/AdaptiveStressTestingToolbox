@@ -65,7 +65,7 @@ top_k = 10
 max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -74,6 +74,7 @@ with tf.Session() as sess:
 	env_inner = CartPoleNdEnv(nd=10,use_seed=False)
 	data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
+	param_before = policy_inner.get_param_values(trainable=True)
 	reward_function = ASTReward()
 
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
@@ -107,7 +108,7 @@ with tf.Session() as sess:
 		elites = 3,
 		keep_best = 1,
 		step_size=0.01,
-		n_itr=5,
+		n_itr= 2,
 		store_paths=False,
 		# optimizer= optimizer,
 		max_path_length=max_path_length,
@@ -116,5 +117,7 @@ with tf.Session() as sess:
 		)
 
 	algo.train(sess=sess, init_var=False)
+	param_after = policy_inner.get_param_values(trainable=True)
+	print(np.array_equal(param_before,param_after))
 
 	
