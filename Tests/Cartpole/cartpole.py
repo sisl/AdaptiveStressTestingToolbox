@@ -14,6 +14,7 @@ from rllab.spaces import Box
 from rllab.envs.base import Step
 from rllab.misc.overrides import overrides
 import rllab.spaces as spaces
+from scipy.stats import norm
 
 class CartPoleEnv(Env):
     metadata = {
@@ -186,7 +187,8 @@ class CartPoleEnv(Env):
             np.random.seed(ast_action)
             ast_action = self.ast_action_space.sample()
         # wind_force = np.clip(ast_action, -self.wind_force_mag, self.wind_force_mag)
-        wind_force = np.tanh(ast_action)*self.wind_force_mag
+        # wind_force = np.tanh(ast_action)*self.wind_force_mag
+        wind_force = ast_action
         self.ast_action = wind_force
 
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
@@ -246,12 +248,15 @@ class CartPoleEnv(Env):
                             np.min([np.abs(x-(-self.x_threshold)),np.abs(x-self.x_threshold)])/self.x_threshold,
                             np.min([np.abs(theta-(-self.theta_threshold_radians)),np.abs(theta-self.theta_threshold_radians)])/self.theta_threshold_radians
                             ])
-        prob = -1/(self.wind_force_mag*self.wind_force_mag)*np.abs(self.ast_action)+1/self.wind_force_mag+0.0001
+        # prob = -1/(self.wind_force_mag*self.wind_force_mag)*np.abs(self.ast_action)+1/self.wind_force_mag
+        prob = norm.pdf(self.ast_action/self.wind_force_mag)
         if type(prob) is type(1.0) or type(prob) is type(np.float64(1.0)):
             prob = prob
         else:
             prob = prob[0]
         self.log_trajectory_pdf += np.log(prob)
+        # print("prob: ",prob)
+        # print("log_t_pdf: ",self.log_trajectory_pdf)
         return dict(
             is_goal = is_goal,
             dist = dist,

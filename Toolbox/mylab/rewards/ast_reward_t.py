@@ -8,8 +8,10 @@ import pdb
 # Define the class, inherit from the base
 class ASTReward(RewardFn):
 	def __init__(self,
-				const1 = 0.001):
+				const1 = 1.0,
+				const2 = 100):
 		self.const1 = const1
+		self.const2 = const2
 		super().__init__()
 
 	def give_reward(self, action, **kwargs):
@@ -19,7 +21,7 @@ class ASTReward(RewardFn):
 	    is_terminal = info["is_terminal"]
 	    dist = info["dist"]
 	    log_trajectory_pdf= info["log_trajectory_pdf"]
-	    trajectory_pdf = np.exp(log_trajectory_pdf)
+	    trajectory_pdf = np.exp(log_trajectory_pdf/self.const2)
 	    if (is_goal): # We found a crash
 	        reward = -0.5*self.const1/(self.const1+trajectory_pdf)+1.0
 	    elif (is_terminal): # no crash founded and time out
