@@ -14,6 +14,7 @@ from rllab.envs.gym_env import GymEnv
 from rllab.envs.normalized_env import normalize
 
 from mylab.algos.psmctstrc import PSMCTSTRC
+from mylab.utils.tree_plot import plot_tree, plot_node_num
 
 import os.path as osp
 import argparse
