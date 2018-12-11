@@ -19,8 +19,8 @@ class DeterministicLSTMPolicy(Policy, LayersPowered, Serializable):
             hidden_dim=32,
             feature_network=None,
             state_include_action=True,
-            hidden_nonlinearity=tf.tanh,
-            output_nonlinearity=None,
+            hidden_nonlinearity=tf.nn.tanh,
+            output_nonlinearity=tf.nn.tanh,
             lstm_layer_cls=L.LSTMLayer,
             use_peepholes=False,
     ):

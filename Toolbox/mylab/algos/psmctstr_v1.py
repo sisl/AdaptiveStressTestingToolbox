@@ -103,15 +103,13 @@ class PSMCTSTR(PSMCTS):
 
 	@overrides
 	def getNextAction(self,s):
-		seed = np.random.randint(low= 0, high = int(2**16))
+		seed = self.get_next_seed()
 		if s.parent is None: #first generation
 			magnitude = 1.0
 		else:
 			self.set_params(s)
 			param_values = self.policy.get_param_values(trainable=True)
 
-			# np.random.seed(seed)
-			# direction = np.random.normal(size=param_values.shape)
 			self.np_random.seed(seed)
 			direction = self.np_random.normal(size=param_values.shape)
 			

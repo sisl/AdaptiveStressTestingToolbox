@@ -27,8 +27,8 @@ class GA(BatchPolopt):
 	def __init__(
 			self,
 			top_paths = None,
-			step_size = 0.01, #serve as the std dev in mutation
-			step_size_anneal = 1.0,
+			step_size=0.01, #serve as the std dev in mutation
+			step_size_anneal=1.0,
 			pop_size = 5,
 			truncation_size = 2,
 			keep_best = 1,
@@ -47,7 +47,6 @@ class GA(BatchPolopt):
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
 		self.parents = np.zeros(pop_size,dtype=int)
-		self.np_random, seed = seeding.np_random() #used in set_params
 		super(GA, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 		
 	def initial(self):
@@ -137,8 +136,8 @@ class GA(BatchPolopt):
 		for i in range(itr+1):
 			# print("seed: ", self.seeds[i,p])
 			if self.seeds[i,p] != 0:
-				self.np_random.seed(int(self.seeds[i,p]))
-				param_values = param_values + self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
+				np.random.seed(int(self.seeds[i,p]))
+				param_values = param_values + self.magnitudes[i,p]*np.random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
 	def get_fitness(self, itr, all_paths):

@@ -65,7 +65,7 @@ top_k = 10
 max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -104,7 +104,7 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size= 100,
 		pop_size = 5,
-		elites = 3,
+		truncation_size = 3,
 		keep_best = 1,
 		step_size=0.01,
 		n_itr=5,

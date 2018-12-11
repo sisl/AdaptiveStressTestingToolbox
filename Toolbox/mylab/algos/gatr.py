@@ -148,8 +148,10 @@ class GATR(GA):
 			self.set_params(itr,p)
 			param_values = self.policy.get_param_values(trainable=True)
 
-			np.random.seed(int(new_seeds[itr+1,p]))
-			direction = np.random.normal(size=param_values.shape)
+			# np.random.seed(int(new_seeds[itr+1,p]))
+			# direction = np.random.normal(size=param_values.shape)
+			self.np_randm.seed(int(new_seeds[itr+1,p]))
+			direction = self.np_random.normal(size=param_values.shape)
 
 			samples_data = all_paths[self.parents[p]]
 			all_input_values = self.data2inputs(samples_data)

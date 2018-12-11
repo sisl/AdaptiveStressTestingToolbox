@@ -10,12 +10,7 @@ from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPP
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from rllab.misc import logger
 
-from mylab.rewards.ast_reward_t import ASTReward
-from mylab.envs.ast_env import ASTEnv
-from mylab.simulators.policy_simulator import PolicySimulator
-from mylab.utils.tree_plot import plot_tree, plot_node_num
-
-from CartpoleNd.cartpole_nd import CartPoleNdEnv
+from Acrobot.acrobot import AcrobotEnv
 
 from mylab.algos.psmcts import PSMCTS
 
@@ -34,7 +29,7 @@ from mylab.utils.psmcts_argparser import get_psmcts_parser
 args = get_psmcts_parser(log_dir='./Data/AST/PSMCTSInter')
 
 top_k = 10
-max_path_length = 100
+max_path_length = 400
 interactive = True
 
 tf.set_random_seed(0)
@@ -42,24 +37,14 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env_inner = CartPoleNdEnv(nd=10,use_seed=False)
-data = joblib.load("../Cartpole/Data/Train/itr_50.pkl")
-policy_inner = data['policy']
-reward_function = ASTReward()
-
-simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-env = TfEnv(ASTEnv(interactive=interactive,
-							 simulator=simulator,
-							 sample_init_state=False,
-							 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-							 reward_function=reward_function,
-							 ))
+env = TfEnv(AcrobotEnv(success_reward = max_path_length))
 
 # Create policy
 policy = DeterministicMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-	hidden_sizes=(64, 32)
+    hidden_sizes=(128, 64, 32),
+    output_nonlinearity=tf.nn.tanh,
 )
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:

@@ -6,7 +6,7 @@ permalink: https://perma.cc/C9ZM-652R
 
 import math
 from .gym import logger
-from mcts import seeding
+from mylab.utils import seeding
 import numpy as np
 from rllab.core.serializable import Serializable
 from rllab.envs.base import Env

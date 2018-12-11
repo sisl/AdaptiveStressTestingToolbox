@@ -8,13 +8,16 @@ import numpy as np
 n_trial = 5
 top_k = 10
 batch_size = 4000
-# max_step = 5e6
+max_step = np.inf
 
 prepath = "../"
 exps = ["CartpoleNdRewardt"]
-policies = ["GATRDInterStep1.0Fmax","PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax",\
-            "PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
-plot_name = "GATRD_PSMCTS"
+# policies = ["GATRDInterStep1.0Fmax","PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax",\
+#             "PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
+# plot_name = "GATRD_PSMCTS"
+policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
+            "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax"]
+plot_name = "PSMCTSTRC"
 
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 colors = []
@@ -43,8 +46,8 @@ for exp in exps:
                             for index in range(len(row)):
                                 entry_dict[row[index]] = index
                         else:
-                            # if int(row[entry_dict["StepNum"]]) > max_step:
-                                # break
+                            if int(row[entry_dict["StepNum"]]) > max_step:
+                                break
                             if int(row[entry_dict["StepNum"]])%batch_size == 0:
                                 steps.append(int(row[entry_dict["StepNum"]]))
                                 rewards.append(max(0.0,float(row[entry_dict["reward 0"]])))

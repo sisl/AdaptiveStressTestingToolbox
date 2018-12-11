@@ -26,6 +26,7 @@ class PSMCTS(BatchPolopt):
 			step_size_anneal = 1.0,
 			log_interval = 4000,
 			initial_pop = 0,
+			initial_seed = 0,
 			**kwargs):
 		self.ec = ec 
 		self.k = k
@@ -39,9 +40,13 @@ class PSMCTS(BatchPolopt):
 		self.s = {}
 		self.initial_pop = initial_pop
 		self.initial_seed = 0
+		self.seed = initial_seed
 		self.stepNum = 0
-		self.np_random, seed = seeding.np_random() #used in set_params
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
+
+	def get_next_seed(self):
+		self.seed = np.uint32(hash_seed(self.seed))
+		return self.seed
 
 	@overrides
 	def init_opt(self):
@@ -53,7 +58,7 @@ class PSMCTS(BatchPolopt):
 		return s0
 
 	def getNextAction(self,s):
-		seed = np.random.randint(low= 0, high = int(2**16))
+		seed = self.get_next_seed()
 		if s.parent is None: #first generation
 			magnitude = 1.0
 		else:
@@ -74,10 +79,8 @@ class PSMCTS(BatchPolopt):
 		actions = get_action_sequence(s)
 		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
 		for (seed,magnitude) in actions:
-			# np.random.seed(int(seed))
-			# param_values = param_values + magnitude*np.random.normal(size=param_values.shape)
-			self.np_random.seed(int(seed))
-			param_values = param_values + magnitude*self.np_random.normal(size=param_values.shape)
+			np.random.seed(int(seed))
+			param_values = param_values + magnitude*np.random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
 	def evaluate(self,samples_data):

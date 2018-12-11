@@ -20,7 +20,7 @@ from mylab.utils.tree_plot import plot_tree
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.psmctstrc_v3 import PSMCTSTRC
+from mylab.algos.psmctstrc import PSMCTSTRC
 
 import os.path as osp
 import argparse
@@ -66,7 +66,7 @@ top_k = 10
 max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -108,13 +108,13 @@ with tf.Session() as sess:
 		n_itr=200,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
-		seed=0,
-		ec = 1.0,#100.0,
+		ec = 0.85,#100.0,
 		k=0.5,
 		alpha=0.85,
 		log_interval=1,
 		plot=False,
 		n_ca = 1,
+		# initial_pop = 2,
 		)
 
 	algo.train(sess=sess, init_var=False)

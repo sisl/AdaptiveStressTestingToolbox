@@ -35,7 +35,10 @@ class PSMCTSTRC(PSMCTSTR):
 			paths = self.obtain_samples(0)
 			samples_data = self.process_samples(0, paths)
 		all_input_values = self.data2inputs(samples_data)
-		seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
+		# seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
+		seeds = []
+		for i in range(self.n_ca):
+			seeds.append(self.get_next_seed())
 		if s.parent is None: #first generation
 			magnitudes = np.ones_like(seeds)
 		else:
@@ -43,10 +46,8 @@ class PSMCTSTRC(PSMCTSTR):
 			param_values = self.policy.get_param_values(trainable=True)
 			directions = []
 			for seed in seeds:
-				# np.random.seed(seed)
-				# direction = np.random.normal(size=param_values.shape)
-				self.np_random.seed(seed)
-				direction = self.np_random.normal(size=param_values.shape)
+				np.random.seed(seed)
+				direction = np.random.normal(size=param_values.shape)
 				directions.append(direction)
 			magnitudes, constraint_vals = \
 					self.optimizer.get_magnitudes(directions=directions,inputs=all_input_values,max_constraint_val=self.step_size)
