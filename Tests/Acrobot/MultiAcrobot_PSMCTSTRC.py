@@ -12,7 +12,7 @@ from rllab.misc import logger
 
 from Acrobot.acrobot import AcrobotEnv
 
-from mylab.algos.gatrd import GATRD
+from mylab.algos.psmctstrc import PSMCTSTRC
 
 import os.path as osp
 import argparse
@@ -25,8 +25,8 @@ import numpy as np
 import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
-from mylab.utils.ga_argparser import get_ga_parser
-args = get_ga_parser(log_dir='./Data/GATRD')
+from mylab.utils.psmcts_argparser import get_psmcts_parser
+args = get_psmcts_parser(log_dir='./Data/PSMCTSTRC')
 
 top_k = 10
 max_path_length = 400
@@ -37,7 +37,8 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(AcrobotEnv(success_reward = max_path_length))
+env = TfEnv(AcrobotEnv(success_reward = max_path_length,
+						success_threshhold = 1.9999,))
 
 # Create policy
 policy = DeterministicMLPPolicy(
@@ -83,16 +84,18 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		algo = GATRD(
+		algo = PSMCTSTRC(
 			env=env,
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			pop_size=args.pop_size,
-			truncation_size=args.truncation_size,
-			keep_best=args.keep_best,
 			step_size=args.step_size,
 			step_size_anneal=args.step_size_anneal,
+			seed=trial,
+			ec=args.ec,
+			k=args.k,
+			alpha=args.alpha,
+			n_ca =args.n_ca,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
@@ -100,9 +103,14 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			fit_f=args.fit_f,
 			log_interval=args.log_interval,
 			plot=False,
+			f_Q=args.f_Q,
 			)
 
+
 		algo.train(sess=sess, init_var=False)
+		if args.plot_tree:
+			plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
+		plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
 		row_content = dict()
 		row_content['step_count'] = algo.stepNum

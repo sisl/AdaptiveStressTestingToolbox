@@ -32,7 +32,8 @@ logger.set_log_tabular_only(False)
 logger.push_prefix("[%s] " % "Acrobot-RL")
 
 max_path_length = 400
-env = TfEnv(AcrobotEnv(success_reward = max_path_length))
+env = TfEnv(AcrobotEnv(success_reward = max_path_length,
+                        success_threshhold = 1.9999,))
 
 # policy = CategoricalMLPPolicy(
 #     name='protagonist',

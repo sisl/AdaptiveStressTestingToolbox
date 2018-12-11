@@ -12,7 +12,7 @@ from rllab.misc import logger
 
 from Acrobot.acrobot import AcrobotEnv
 
-from mylab.algos.psmctstrc import PSMCTSTRC
+from mylab.algos.psmcts import PSMCTS
 
 import os.path as osp
 import argparse
@@ -26,7 +26,7 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.psmcts_argparser import get_psmcts_parser
-args = get_psmcts_parser(log_dir='./Data/PSMCTSTRC')
+args = get_psmcts_parser(log_dir='./Data/PSMCTS')
 
 top_k = 10
 max_path_length = 400
@@ -37,7 +37,8 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(AcrobotEnv(success_reward = max_path_length))
+env = TfEnv(AcrobotEnv(success_reward = max_path_length,
+						success_threshhold = 1.9999,))
 
 # Create policy
 policy = DeterministicMLPPolicy(
@@ -83,7 +84,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		algo = PSMCTSTRC(
+		algo = PSMCTS(
 			env=env,
 			policy=policy,
 			baseline=baseline,
@@ -94,13 +95,13 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			ec=args.ec,
 			k=args.k,
 			alpha=args.alpha,
-			n_ca =args.n_ca,
 			n_itr=args.n_itr,
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
 			fit_f=args.fit_f,
 			log_interval=args.log_interval,
+			initial_pop = args.initial_pop,
 			plot=False,
 			f_Q=args.f_Q,
 			)

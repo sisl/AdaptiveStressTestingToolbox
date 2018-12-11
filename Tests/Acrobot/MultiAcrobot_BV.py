@@ -1,4 +1,4 @@
-import mcts.AdaptiveStressTesting as AST
+import mcts.AdaptiveStressTestingBlindValue as AST_BV
 import mcts.ASTSim as ASTSim
 import mcts.MCTSdpw as MCTSdpw
 import mcts.AST_MCTS as AST_MCTS
@@ -27,7 +27,7 @@ parser.add_argument('--n_itr', type=int, default=1200)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/MCTS_AS')
+parser.add_argument('--log_dir', type=str, default='./Data/MCTS_BV')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -37,6 +37,7 @@ interactive = False
 stress_test_num = 2
 max_path_length = 400
 ec = np.sqrt(2)
+M = 10
 n = args.n_itr
 k=0.5
 alpha=0.85
@@ -50,7 +51,8 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(AcrobotEnv(success_reward = max_path_length))
+env = TfEnv(AcrobotEnv(success_reward = max_path_length,
+						success_threshhold = 1.9999,))
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -83,8 +85,8 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		np.random.seed(trial)
 		SEED = trial
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		ast_params = AST.ASTParams(max_path_length,args.batch_size,log_tabular=True)
-		ast = AST.AdaptiveStressTest(p=ast_params, env=env, top_paths=top_paths)
+		ast_params = AST_BV.ASTParams(max_path_length,ec,M,args.batch_size,log_tabular=True)
+		ast = AST_BV.AdaptiveStressTestBV(p=ast_params, env=env, top_paths=top_paths)
 
 		macts_params = MCTSdpw.DPWParams(max_path_length,ec,n,k,alpha,clear_nodes,top_k)
 		stress_test_num = 2

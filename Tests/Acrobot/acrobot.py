@@ -172,7 +172,7 @@ class AcrobotEnv(Env):
 
     def _terminal(self):
         s = self.state
-        return bool(-np.cos(s[0]) - np.cos(s[1] + s[0]) > self.success_threshhold)
+        return bool(-np.cos(s[0]) - np.cos(s[1] + s[0]) >= self.success_threshhold)
 
     def _dsdt(self, s_augmented, t):
         m1 = self.LINK_MASS_1
