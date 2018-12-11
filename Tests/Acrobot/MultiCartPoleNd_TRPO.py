@@ -6,13 +6,12 @@ from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from rllab.misc import logger
 
 from Acrobot.acrobot import AcrobotEnv
 
-from mylab.algos.gatrd import GATRD
+from mylab.algos.trpo import TRPO
 
 import os.path as osp
 import argparse
@@ -24,9 +23,17 @@ import numpy as np
 
 import mcts.BoundedPriorityQueues as BPQ
 import csv
-# Log Params
-from mylab.utils.ga_argparser import get_ga_parser
-args = get_ga_parser(log_dir='./Data/GATRDInter')
+# Logger Params
+parser = argparse.ArgumentParser()
+parser.add_argument('--exp_name', type=str, default="cartpole")
+parser.add_argument('--n_trial', type=int, default=5)
+parser.add_argument('--n_itr', type=int, default=5000)
+parser.add_argument('--batch_size', type=int, default=4000)
+parser.add_argument('--snapshot_mode', type=str, default="gap")
+parser.add_argument('--snapshot_gap', type=int, default=5000)
+parser.add_argument('--log_dir', type=str, default='./Data/TRPO')
+parser.add_argument('--args_data', type=str, default=None)
+args = parser.parse_args()
 
 top_k = 10
 max_path_length = 400
@@ -40,7 +47,7 @@ sess.__enter__()
 env = TfEnv(AcrobotEnv(success_reward = max_path_length))
 
 # Create policy
-policy = DeterministicMLPPolicy(
+policy = GaussianMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
     hidden_sizes=(128, 64, 32),
@@ -79,33 +86,28 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		params = policy.get_params()
 		sess.run(tf.variables_initializer(params))
-
-		# Instantiate the RLLAB objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
+		# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		algo = GATRD(
+		algo = TRPO(
 			env=env,
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			pop_size=args.pop_size,
-			truncation_size=args.truncation_size,
-			keep_best=args.keep_best,
-			step_size=args.step_size,
-			step_size_anneal=args.step_size_anneal,
+			step_size=0.1,
 			n_itr=args.n_itr,
-			store_paths=False,
+			store_paths=True,
+			# optimizer= optimizer,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			fit_f=args.fit_f,
-			log_interval=args.log_interval,
 			plot=False,
 			)
 
 		algo.train(sess=sess, init_var=False)
 
 		row_content = dict()
-		row_content['step_count'] = algo.stepNum
+		row_content['step_count'] = args.n_itr*args.batch_size
 		i = 0
 		for (r,action_seq) in algo.top_paths:
 			row_content['reward '+str(i)] = r
