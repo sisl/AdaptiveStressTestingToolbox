@@ -99,6 +99,7 @@ class AcrobotEnv(Env):
         self.state = None
         self.torque_noise_max = torque_noise_max
         self.initial_condition_max = initial_condition_max
+        self.success_reward = success_reward
         self.success_threshhold = success_threshhold
         self.seed()
 
@@ -157,7 +158,7 @@ class AcrobotEnv(Env):
         if terminal:
             reward = self.success_reward
         reward = reward/self.success_reward
-        return (self._get_ob(), reward, terminal, {})
+        return self._get_ob(), reward[0], terminal, {}
 
     def _get_ob(self):
         s = self.state
