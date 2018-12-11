@@ -158,7 +158,13 @@ class AcrobotEnv(Env):
         if terminal:
             reward = self.success_reward
         reward = reward/self.success_reward
-        return self._get_ob(), reward[0], terminal, {}
+
+        if (type(reward) is type(1.0)) or (type(reward) is type(np.float64(1.0))):
+            reward = reward
+        else:
+            reward = reward[0]
+
+        return self._get_ob(), reward, terminal, {}
 
     def _get_ob(self):
         s = self.state
