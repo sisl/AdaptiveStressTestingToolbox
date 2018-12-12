@@ -12,6 +12,7 @@ from rllab.misc import logger
 
 from Acrobot.acrobot import AcrobotEnv
 
+from mylab.utils.tree_plot import plot_tree, plot_node_num
 from mylab.algos.psmcts import PSMCTS
 
 import os.path as osp

@@ -137,26 +137,26 @@ class GATRD(GA):
 			self.divergences[p] = constraint_val
 		return new_seeds, new_magnitudes
 
-	@overrides
-	def optimize_policy(self, itr, all_paths):
-		fitness = self.get_fitness(itr, all_paths)
-		self.select_parents(fitness)
-		new_seeds = np.zeros_like(self.seeds)
-		new_seeds[:,:] = self.seeds[:,self.parents]
-		new_magnitudes = np.zeros_like(self.magnitudes)
-		new_magnitudes[:,:] = self.magnitudes[:,self.parents]
-		if itr+1 < self.n_itr:
-			new_seeds, new_magnitudes = self.mutation(itr, new_seeds, new_magnitudes, all_paths)
-		self.seeds=new_seeds
-		self.magnitudes=new_magnitudes
-		# print(self.seeds)
-		# print(self.magnitudes)
-		for p in range(self.pop_size):
-			self.set_params(itr+1,p)
-			p_key = self.parents[p]
-			all_input_values = self.data2inputs(all_paths[p_key])
-			divergence = self.f_divergence(*all_input_values)
-			print(divergence)
-			self.divergences[p] = divergence
-		return dict()
+	# @overrides
+	# def optimize_policy(self, itr, all_paths):
+	# 	fitness = self.get_fitness(itr, all_paths)
+	# 	self.select_parents(fitness)
+	# 	new_seeds = np.zeros_like(self.seeds)
+	# 	new_seeds[:,:] = self.seeds[:,self.parents]
+	# 	new_magnitudes = np.zeros_like(self.magnitudes)
+	# 	new_magnitudes[:,:] = self.magnitudes[:,self.parents]
+	# 	if itr+1 < self.n_itr:
+	# 		new_seeds, new_magnitudes = self.mutation(itr, new_seeds, new_magnitudes, all_paths)
+	# 	self.seeds=new_seeds
+	# 	self.magnitudes=new_magnitudes
+	# 	# print(self.seeds)
+	# 	# print(self.magnitudes)
+	# 	for p in range(self.pop_size):
+	# 		self.set_params(itr+1,p)
+	# 		p_key = self.parents[p]
+	# 		all_input_values = self.data2inputs(all_paths[p_key])
+	# 		divergence = self.f_divergence(*all_input_values)
+	# 		print(divergence)
+	# 		self.divergences[p] = divergence
+	# 	return dict()
 
