@@ -12,11 +12,10 @@ max_step = np.inf
 
 prepath = "../"
 exps = ["CartpoleNdRewardt"]
-# policies = ["GATRDInterStep1.0Fmax","PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax",\
-#             "PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
-# plot_name = "GATRD_PSMCTS"
 policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
-            "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax"]
+            "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax",\
+            "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.8Qmax","PSMCTSTRCInterStep1.0Ec0.1K0.5A0.5Qmax",\
+            "PSMCTSTRCInterStep1.0Ec0.5K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax"]
 plot_name = "PSMCTSTRC"
 
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
