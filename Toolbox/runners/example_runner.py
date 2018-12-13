@@ -5,7 +5,7 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 
 # Import the AST classes
 from mylab.envs.ast_env import ASTEnv
-from mylab.ast_vectorized_sampler import ASTVectorizedSampler
+from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary RLLAB classes
 from sandbox.rocky.tf.algos.trpo import TRPO
@@ -70,7 +70,7 @@ env = TfEnv(normalize(ASTEnv(action_only=True,
 # Instantiate the RLLAB objects
 policy = GaussianLSTMPolicy(name='lstm_policy',
                             env_spec=env.spec,
-                            hidden_dim=256,
+                            hidden_dim=64,
                             use_peepholes=True)
 baseline = LinearFeatureBaseline(env_spec=env.spec)
 optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))

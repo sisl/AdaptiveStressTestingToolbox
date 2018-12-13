@@ -66,9 +66,6 @@ class Simulator(object):
         """
         raise NotImplementedError
 
-    def isterminal(self):
-        return self._is_terminal
-
     def is_goal(self):
         """
         returns whether the current state is in the goal set
