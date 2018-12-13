@@ -1,8 +1,11 @@
+from cached_property import cached_property
+from garage.misc.overrides import overrides
 from garage.envs.base import GarageEnv
 from garage.envs.base import Step
 import numpy as np
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
+from garage.envs.env_spec import EnvSpec
 import pdb
 
 
@@ -38,7 +41,7 @@ class ASTEnv(GarageEnv):
         if self.reward_function is None:
             self.reward_function = ExampleAVReward()
 
-        super().__init__()
+        super().__init__(self)
 
     def step(self, action):
         """
@@ -118,4 +121,25 @@ class ASTEnv(GarageEnv):
     def log(self):
         self.simulator.log()
 
+    @cached_property
+    @overrides
+    def spec(self):
+        """
+        Returns an EnvSpec.
 
+        Returns:
+            spec (garage.envs.EnvSpec)
+        """
+        return EnvSpec(
+            observation_space=self.observation_space,
+            action_space=self.action_space)
+
+    @overrides
+    def _to_garage_space(self, space):
+        """
+        Converts a gym.space to a garage.tf.space.
+
+        Returns:
+            space (garage.tf.spaces)
+        """
+        return space
