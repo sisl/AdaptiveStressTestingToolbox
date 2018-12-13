@@ -1,7 +1,7 @@
 from mylab.simulators.simulator import Simulator
 import numpy as np
 import pickle as pickle
-from sandbox.rocky.tf.misc import tensor_utils
+from garage.tf.misc import tensor_utils
 
 #Define the class
 class PolicySimulator(Simulator):

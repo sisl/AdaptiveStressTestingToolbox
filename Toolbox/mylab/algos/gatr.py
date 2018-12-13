@@ -1,9 +1,9 @@
-import rllab.misc.logger as logger
+import garage.misc.logger as logger
 import tensorflow as tf
-from rllab.misc import ext
-from rllab.misc.overrides import overrides
-import rllab.misc.logger as logger
-from sandbox.rocky.tf.misc import tensor_utils
+from garage.misc import ext
+from garage.misc.overrides import overrides
+import garage.misc.logger as logger
+from garage.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 

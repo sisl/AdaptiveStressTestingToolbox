@@ -8,12 +8,12 @@ import math
 from .gym import logger
 from mylab.utils import seeding
 import numpy as np
-from rllab.core.serializable import Serializable
-from rllab.envs.base import Env
-from rllab.spaces import Box
-from rllab.envs.base import Step
-from rllab.misc.overrides import overrides
-import rllab.spaces as spaces
+from garage.core.serializable import Serializable
+from garage.envs.base import Env
+from garage.spaces import Box
+from garage.envs.base import Step
+from garage.misc.overrides import overrides
+import garage.spaces as spaces
 from scipy.stats import norm
 
 class CartPoleEnv(Env):

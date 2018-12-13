@@ -1,5 +1,5 @@
 # from mylab.spaces.ast_spaces import ASTSpaces
-from rllab.spaces import Box
+from garage.spaces import Box
 import numpy as np
 
 class AVSpaces():

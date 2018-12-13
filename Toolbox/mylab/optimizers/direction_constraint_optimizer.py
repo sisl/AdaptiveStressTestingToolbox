@@ -1,13 +1,13 @@
-from rllab.misc import ext
-from rllab.misc import krylov
-from rllab.misc import logger
-from rllab.core.serializable import Serializable
-# from rllab.misc.ext import flatten_tensor_variables
+from garage.misc import ext
+from garage.misc import krylov
+from garage.misc import logger
+from garage.core.serializable import Serializable
+# from garage.misc.ext import flatten_tensor_variables
 import itertools
 import numpy as np
 import tensorflow as tf
-from sandbox.rocky.tf.misc import tensor_utils
-from rllab.misc.ext import sliced_fun
+from garage.tf.misc import tensor_utils
+from garage.misc.ext import sliced_fun
 
 
 class PerlmutterHvp(object):
@@ -165,7 +165,7 @@ class DirectionConstraintOptimizer(Serializable):
                    **kwargs):
         """
         :param target: A parameterized object to optimize over. It should implement methods of the
-        :class:`rllab.core.paramerized.Parameterized` class.
+        :class:`garage.core.paramerized.Parameterized` class.
         :param leq_constraint: A constraint provided as a tuple (f, epsilon), of the form f(*inputs) <= epsilon.
         :param inputs: A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
         that the first dimension of these inputs should correspond to the number of data points

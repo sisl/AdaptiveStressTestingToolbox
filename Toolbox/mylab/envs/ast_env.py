@@ -1,12 +1,12 @@
-from rllab.envs.base import Env
-from rllab.envs.base import Step
+from garage.envs.base import GarageEnv
+from garage.envs.base import Step
 import numpy as np
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 import pdb
 
 
-class ASTEnv(Env):
+class ASTEnv(GarageEnv):
     def __init__(self,
                  action_only=True,
                  sample_init_state=False,

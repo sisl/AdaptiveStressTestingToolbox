@@ -1,14 +1,14 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
-# from sandbox.rocky.tf.algos.trpo import TRPO
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from sandbox.rocky.tf.envs.base import TfEnv
-from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
-from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from rllab.misc import logger
+# from garage.tf.algos.trpo import TRPO
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.tf.envs.base import TfEnv
+from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+from garage.misc import logger
 
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
@@ -95,7 +95,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		params = policy.get_params()
 		sess.run(tf.variables_initializer(params))
 
-		# Instantiate the RLLAB objects
+		# Instantiate the garage objects
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
 		algo = PSMCTS(

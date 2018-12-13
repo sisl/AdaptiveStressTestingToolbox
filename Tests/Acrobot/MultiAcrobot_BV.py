@@ -5,8 +5,8 @@ import mcts.AST_MCTS as AST_MCTS
 import numpy as np
 from Acrobot.acrobot import AcrobotEnv
 import tensorflow as tf
-from rllab.misc import logger
-from sandbox.rocky.tf.envs.base import TfEnv
+from garage.misc import logger
+from garage.tf.envs.base import TfEnv
 import math
 
 import os

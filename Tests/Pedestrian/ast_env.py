@@ -1,5 +1,5 @@
-from rllab.envs.base import Env
-from rllab.envs.base import Step
+from garage.envs.base import Env
+from garage.envs.base import Step
 import numpy as np
 import pdb
 

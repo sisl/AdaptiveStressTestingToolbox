@@ -1,5 +1,5 @@
 # source activate DRL-AST-temp
-export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox/rllab
+export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox/garage
 export PYTHONPATH=$PYTHONPATH:$PWD/Tests
 export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox
 #pydot from https://github.com/nlhepler/pydot

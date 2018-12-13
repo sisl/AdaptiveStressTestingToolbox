@@ -1,15 +1,15 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
-from sandbox.rocky.tf.algos.trpo import TRPO
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.tf.algos.trpo import TRPO
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from Acrobot.acrobot import AcrobotEnv
-from sandbox.rocky.tf.envs.base import TfEnv
-from sandbox.rocky.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
-from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
-from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
+from garage.tf.envs.base import TfEnv
+from garage.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
+from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 
-from rllab.misc import logger
+from garage.misc import logger
 import os.path as osp
 import tensorflow as tf
 import joblib

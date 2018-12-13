@@ -1,17 +1,17 @@
 import pickle
 
 import tensorflow as tf
-from rllab.sampler.base import BaseSampler
-from sandbox.rocky.tf.envs.parallel_vec_env_executor import ParallelVecEnvExecutor
-from sandbox.rocky.tf.envs.vec_env_executor import VecEnvExecutor
-from rllab.misc import tensor_utils
+from garage.sampler.base import BaseSampler
+from garage.tf.envs.parallel_vec_env_executor import ParallelVecEnvExecutor
+from garage.tf.envs.vec_env_executor import VecEnvExecutor
+from garage.misc import tensor_utils
 import numpy as np
-from rllab.sampler.stateful_pool import ProgBarCounter
-import rllab.misc.logger as logger
+from garage.sampler.stateful_pool import ProgBarCounter
+import garage.misc.logger as logger
 import itertools
-from rllab.misc import special
-from rllab.algos import util
-import rllab.misc.logger as logger
+from garage.misc import special
+from garage.algos import util
+import garage.misc.logger as logger
 
 
 class VectorizedGASampler(BaseSampler):

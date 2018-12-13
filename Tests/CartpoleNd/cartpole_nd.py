@@ -4,9 +4,9 @@ Copied from http://incompleteideas.net/sutton/book/code/pole.c
 permalink: https://perma.cc/C9ZM-652R
 """
 from Cartpole.cartpole import CartPoleEnv
-from rllab.misc.overrides import overrides
+from garage.misc.overrides import overrides
 import numpy as np
-import rllab.spaces as spaces
+import garage.spaces as spaces
 
 class CartPoleNdEnv(CartPoleEnv):
     def __init__(self, nd ,*args, **kwargs):

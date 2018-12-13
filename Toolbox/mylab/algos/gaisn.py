@@ -1,7 +1,7 @@
 from mylab.algos.gais import GAIS
 from mylab.utils.exp_utils import log_sum_exp
 import numpy as np
-from rllab.misc.overrides import overrides
+from garage.misc.overrides import overrides
 
 class GAISN(GAIS):
 	"""

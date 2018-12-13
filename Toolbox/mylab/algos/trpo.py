@@ -1,10 +1,10 @@
-from sandbox.rocky.tf.algos.npo import NPO
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
+from garage.tf.algos.npo import NPO
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
 import time
-import rllab.misc.logger as logger
+import garage.misc.logger as logger
 import tensorflow as tf
-from rllab.sampler.utils import rollout
-from rllab.misc.overrides import overrides
+from garage.sampler.utils import rollout
+from garage.misc.overrides import overrides
 
 class TRPO(NPO):
 	"""

@@ -585,7 +585,7 @@ Now we are ready to calculate the reward. The ``give_reward`` function takes in 
 4 Creating the Spaces
 =====================
 
-This section shows how to create the action space and observation space for rllab to use. The spaces define the limits of what is possible for inputs to and outputs from the policy. The observation space can be used as input if the simulation state is accesible, and can be used to generate intial conditions if they are being sampled from a range. The action space is the output, and controls the size of the output array from the policy. 
+This section shows how to create the action space and observation space for garage to use. The spaces define the limits of what is possible for inputs to and outputs from the policy. The observation space can be used as input if the simulation state is accesible, and can be used to generate intial conditions if they are being sampled from a range. The action space is the output, and controls the size of the output array from the policy.
 
 .. _inheriting-the-base-spaces:
 
@@ -595,12 +595,12 @@ This section shows how to create the action space and observation space for rlla
 Create a file named ``example_av_spaces.py`` in the ``spaces`` folder. Create a class titled ``ExampleAVSpaces`` which inherits from ``ASTSpaces``:
 ::
 	from mylab.spaces.ast_spaces import ASTSpaces
-	from rllab.spaces import Box
+	from garage.spaces import Box
 	import numpy as np
 
 	class ExampleAVSpaces(ASTSpaces):
 
-The base spaces don't take any input, but there are two functions to define: ``action_space`` and ``observation_space``. Both of these functions should return an object that inherits from the ''Space'' class, imported from ``rllab.spaces.base``. There are a few options, and you can implement your own, but the ``Box`` class is used here. A ``Box`` is defined by two arrays, ``low`` and ``high``, of equal length, which specifiy the minium and maximum value of each position in the array. The space is then allows any continuos number between the low and high values.
+The base spaces don't take any input, but there are two functions to define: ``action_space`` and ``observation_space``. Both of these functions should return an object that inherits from the ''Space'' class, imported from ``garage.spaces.base``. There are a few options, and you can implement your own, but the ``Box`` class is used here. A ``Box`` is defined by two arrays, ``low`` and ``high``, of equal length, which specifiy the minium and maximum value of each position in the array. The space is then allows any continuos number between the low and high values.
 
 .. _initializing-the-spaces:
 
@@ -730,7 +730,7 @@ The ``observation_space`` function takes no inputs and returns a child of the ``
 5 Creating a Runner
 ===================
 
-This section explains how to create a file to run the experiment we have been creating. This will use all of the example files we have created, and interface them with the a package for handling RL. The backend framework handling the policy definition and optimization is a package called RLLAB. The project is open-source, so if you would like to understand more about what RLLAB is doing please see the documentation here. 
+This section explains how to create a file to run the experiment we have been creating. This will use all of the example files we have created, and interface them with the a package for handling RL. The backend framework handling the policy definition and optimization is a package called garage. The project is open-source, so if you would like to understand more about what garage is doing please see the documentation here.
 
 .. _setting-up-the-runners:
 
@@ -748,14 +748,14 @@ Create a file called ``example_runner.py`` in your working directory. Add the fo
 	from mylab.envs.ast_env import ASTEnv
 	from mylab.ast_vectorized_sampler import ASTVectorizedSampler
 
-	# Import the necessary RLLAB classes
-	from sandbox.rocky.tf.algos.trpo import TRPO
-	from sandbox.rocky.tf.envs.base import TfEnv
-	from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-	from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-	from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-	from rllab.envs.normalized_env import normalize
-	import rllab.misc.logger as logger
+	# Import the necessary garage classes
+	from garage.tf.algos.trpo import TRPO
+	from garage.tf.envs.base import TfEnv
+	from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+	from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+	from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+	from garage.envs.normalized_env import normalize
+	import garage.misc.logger as logger
 
 	# Useful imports
 	import os.path as osp
@@ -768,7 +768,7 @@ Create a file called ``example_runner.py`` in your working directory. Add the fo
 5.2 Creating a Logger
 ---------------------
 
-It is useful to get some feedback on how the policy training is going. To do that, an rllab ``logger`` is needed. To handle the parameters needed to specifiy the logger, an ``ArgumentParser`` is used, from the ``argparse`` package. This package allows command line arguments to be passed when executing a file, allowing easier automation of experiments. The ``argparse`` flags specified are listed here:
+It is useful to get some feedback on how the policy training is going. To do that, an garage ``logger`` is needed. To handle the parameters needed to specifiy the logger, an ``ArgumentParser`` is used, from the ``argparse`` package. This package allows command line arguments to be passed when executing a file, allowing easier automation of experiments. The ``argparse`` flags specified are listed here:
 
 * **--exp\_name**: Name of the experiment
 * **--tabular\_log\_file**: Name of the log file used to dump the tabular experiment logs
@@ -816,7 +816,7 @@ The code for defning these flags, as well as using them to create the logger, is
 5.3 Specifying the Experiment
 -----------------------------
 
-All of the classes imported earlier will now be used to specify the experiment. The example classes were defined such that every keyword arguement had a default value. These can be changed by passing in a different value, but were left undefined here. The rllab components also have keyword arguements, many of which are specified here. These can be changed as well, but the rllab documentation should be consulted first. Add the following code to your runner file:
+All of the classes imported earlier will now be used to specify the experiment. The example classes were defined such that every keyword arguement had a default value. These can be changed by passing in a different value, but were left undefined here. The garage components also have keyword arguements, many of which are specified here. These can be changed as well, but the garage documentation should be consulted first. Add the following code to your runner file:
 ::
 	# Instantiate the example classes
 	sim = ExampleAVSimulator()
@@ -832,7 +832,7 @@ All of the classes imported earlier will now be used to specify the experiment. 
 		                     spaces=spaces
 		                     )))
 
-	# Instantiate the RLLAB objects
+	# Instantiate the garage objects
 	policy = GaussianLSTMPolicy(name='lstm_policy',
 		                    env_spec=env.spec,
 		                    hidden_dim=256,
@@ -861,7 +861,7 @@ All of the classes imported earlier will now be used to specify the experiment. 
 
 When executing the experiment, only two things need to be done. Create a new tensorflow session, and then pass that to the algorithm training function. However, recording values from the experiment is trickier, since that tensorflow session is needed to unpickle the data. There are ways to save the session for later data retrieval, which can be found in the tensorflow documentation. Here, the data will be processed while the session is still active using the save_trials function. Create a ``save_trials.py`` file and add the following code:
 ::
-	import rllab
+	import garage
 	import joblib
 	import numpy as np
 	import sandbox
@@ -927,7 +927,7 @@ Then add the following code to the runner file:
 6 Running the Example
 =====================
 
-This section explains how to run the program, and what the results should look like. Double check that all of the files created earlier in the tutorial are correct (a correct version of each is already included in the repository). Also check that the conda environment is activated, and that rllab has been added to your ``PYTHONPATH``, as explained in the installation guide.
+This section explains how to run the program, and what the results should look like. Double check that all of the files created earlier in the tutorial are correct (a correct version of each is already included in the repository). Also check that the conda environment is activated, and that garage has been added to your ``PYTHONPATH``, as explained in the installation guide.
 
 6.1 Running from the Command Line
 ---------------------------------
@@ -940,7 +940,7 @@ Since everything has been configured already in the runner file, running the exa
 
 Here we are creating a new directory for the logging results, and passing that to the example runner. The program should run for 101 iterations, unless you have changed it. This may take some time! Afterwards, the ``example_results`` directory should contain the following files:
 
-* ``args.txt``: A file containing a JSON dump of the arguments passed to rllab, for posterity
+* ``args.txt``: A file containing a JSON dump of the arguments passed to garage, for posterity
 * ``tab.txt``: A text file containing csv-formatted optimization results from each iteration of training
 * ``tex.txt``: A text file containing a copy of the text that is output to the terminal during training
 * ``itr_<#>.pkl``: A pickled dictionary containing all of the available policy, optimization, and environment data for an iteration. These are created periodically according to the **--snapshot_gap** parameter for the logger (see Section 5.2)
@@ -949,7 +949,7 @@ Here we are creating a new directory for the logging results, and passing that t
 6.2 Post-Processing Analysis
 ----------------------------
 
-Whille rllab creates some logging output through its internal logger, that may not be sufficient for your needs. An alternative approach is to keep whatever information you need in the ``Simulator`` ``self._info`` that is returned to the environment. These are bundled with some other policy and optimizer data into a dictionary, that is then pickled to file. These objects can be loaded later for further analysis. Shown below is an example function that will pull some data from the files:
+Whille garage creates some logging output through its internal logger, that may not be sufficient for your needs. An alternative approach is to keep whatever information you need in the ``Simulator`` ``self._info`` that is returned to the environment. These are bundled with some other policy and optimizer data into a dictionary, that is then pickled to file. These objects can be loaded later for further analysis. Shown below is an example function that will pull some data from the files:
 ::
 	import joblib
 	import numpy as np
@@ -989,7 +989,7 @@ Here we are grabbing simulation state information, like the postion and velociti
 
 6.3 Example Output
 ------------------
-As you run the program, rllab will output optimization updates to the terminal. When the method runs iteration 100, you should see something that looks like this:
+As you run the program, garage will output optimization updates to the terminal. When the method runs iteration 100, you should see something that looks like this:
 ::
 	| -----------------------  ----------------
 	| PolicyExecTime                0.138965

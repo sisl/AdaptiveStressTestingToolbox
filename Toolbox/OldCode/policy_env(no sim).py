@@ -1,9 +1,9 @@
-from rllab.envs.base import Env
-from rllab.envs.base import Step
+from garage.envs.base import Env
+from garage.envs.base import Step
 import numpy as np
 import pdb
 import pickle as pickle
-from sandbox.rocky.tf.misc import tensor_utils
+from garage.tf.misc import tensor_utils
 
 class PolicyEnv(Env):
     def __init__(self,

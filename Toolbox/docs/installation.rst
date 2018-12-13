@@ -19,9 +19,9 @@ Once the environment has been created, activate it by running:
 ::
 	source activate DRL-AST
 
-More information on Anaconda environments can be found in their documentation. Finally, add rllab to your ``PYTHONPATH`` like shown below:
+More information on Anaconda environments can be found in their documentation. Finally, add garage to your ``PYTHONPATH`` like shown below:
 ::
-	export PYTHONPATH=$PYTHONPATH:<Path-To-Install>/DRL-AST/rllab
+	export PYTHONPATH=$PYTHONPATH:<Path-To-Install>/DRL-AST/garage
 
 To validate your installation, please run the following:
 ::

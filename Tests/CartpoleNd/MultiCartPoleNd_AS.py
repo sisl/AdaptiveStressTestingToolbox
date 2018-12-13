@@ -8,8 +8,8 @@ from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 import tensorflow as tf
-from rllab.misc import logger
-from sandbox.rocky.tf.envs.base import TfEnv
+from garage.misc import logger
+from garage.tf.envs.base import TfEnv
 import math
 
 import os
