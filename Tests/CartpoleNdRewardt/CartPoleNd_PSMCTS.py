@@ -20,7 +20,7 @@ from mylab.utils.tree_plot import plot_tree, plot_node_num
 
 from CartpoleNd.cartpole_nd import CartPoleNdEnv
 
-from mylab.algos.psmcts_v6 import PSMCTS
+from mylab.algos.psmcts import PSMCTS
 
 import os.path as osp
 import argparse

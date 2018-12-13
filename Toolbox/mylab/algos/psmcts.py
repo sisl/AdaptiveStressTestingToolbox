@@ -25,6 +25,7 @@ class PSMCTS(BatchPolopt):
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			log_interval = 4000,
+			initial_mag = 0.3,
 			initial_pop = 0,
 			**kwargs):
 		self.ec = ec 
@@ -38,7 +39,7 @@ class PSMCTS(BatchPolopt):
 		self.log_interval = log_interval
 		self.s = {}
 		self.initial_pop = initial_pop
-		self.initial_seed = 0
+		self.initial_mag = initial_mag
 		self.stepNum = 0
 		self.np_random, seed = seeding.np_random() #used in set_params
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
@@ -55,7 +56,7 @@ class PSMCTS(BatchPolopt):
 	def getNextAction(self,s):
 		seed = np.random.randint(low= 0, high = int(2**16))
 		if s.parent is None: #first generation
-			magnitude = 1.0
+			magnitude = self.initial_mag
 		else:
 			magnitude = self.step_size
 		return (seed,magnitude)
@@ -156,13 +157,15 @@ class PSMCTS(BatchPolopt):
 		q = r + self.simulate(sp)
 		cA = self.s[s].a[a]
 		cA.n += 1
-		cA.q += (q-cA.q)/float(cA.n)
-		self.s[s].a[a] = cA
 		if self.f_Q == "mean":
+			cA.q += (q-cA.q)/float(cA.n)
+			self.s[s].a[a] = cA
 			return q
 		else:
-			qs = [self.s[s].a[a_dummy].q for a_dummy in self.s[s].a.keys()]
-			return np.max(qs)
+			if q > cA.q:
+				cA.q = q
+			self.s[s].a[a] = cA
+			return cA.q
 
 	def rollout(self, s):
 		self.set_params(s)

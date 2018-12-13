@@ -12,18 +12,13 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../MuJoCo/Data/Lexington/"
-exp = "Reacher-v1"
-prepath = prepath+exp
+# prepath = "../MuJoCo/Data/Lexington/"
+prepath = "../Acrobot/Data/AST/Lexington"
+exp = "Acrobot19999"
 
-plot_path = "../MuJoCo/Data/Plot/Avgtop10/"
-policies = ["TRPO","GATRDStep1.0Fmax","PSMCTSTRCStep1.0Ec10.0K0.5A0.5Qmax"]
+plot_path = "../Acrobot/Data/Plot/Avgtop10/"
+policies = ["TRPO","PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax"]
 plot_name = exp
-# policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
-#             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax",\
-#             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.8Qmax","PSMCTSTRCInterStep1.0Ec0.1K0.5A0.5Qmax",\
-#             "PSMCTSTRCInterStep1.0Ec0.5K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax"]
-# plot_name = "PSMCTSTRC"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
 # colors = []

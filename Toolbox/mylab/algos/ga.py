@@ -34,6 +34,7 @@ class GA(BatchPolopt):
 			keep_best = 1,
 			fit_f = "max",
 			log_interval = 4000,
+			initial_mag = 0.3,
 			**kwargs):
 
 		self.top_paths = top_paths
@@ -44,6 +45,8 @@ class GA(BatchPolopt):
 		self.fit_f = fit_f
 		self.log_interval = log_interval
 		self.keep_best = keep_best
+		self.initial_mag = initial_mag
+
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
 		self.parents = np.zeros(pop_size,dtype=int)
@@ -53,7 +56,7 @@ class GA(BatchPolopt):
 	def initial(self):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
-		self.magnitudes[0,:] = np.ones(self.pop_size)
+		self.magnitudes[0,:] = self.initial_mag*np.ones(self.pop_size)
 		self.stepNum = 0
 
 	@overrides
@@ -80,7 +83,7 @@ class GA(BatchPolopt):
 					with logger.prefix('idv #%d | ' % p):
 						logger.log("Updating Params")
 						self.set_params(itr, p)
-
+						print(self.policy.get_param_values(trainable=True))
 						logger.log("Obtaining samples...")
 						paths = self.obtain_samples(itr)
 						logger.log("Processing samples...")
@@ -91,6 +94,7 @@ class GA(BatchPolopt):
 						if not (self.top_paths is None):
 							action_seqs = [path["actions"] for path in paths]
 							[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+							print(self.top_paths.length())
 
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
