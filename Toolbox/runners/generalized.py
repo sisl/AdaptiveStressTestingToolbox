@@ -79,13 +79,15 @@ reward_function = ExampleAVReward()
 spaces = ExampleAVSpaces()
 
 # Create the environment
-env = TfEnv(normalize(ASTEnv(action_only=args.action_only,
+env1 = ASTEnv(action_only=args.action_only,
                              sample_init_state=args.sample_init_state,
                              s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
-                             )))
+                             )
+env2 = normalize(env1)
+env = TfEnv(env2)
 print("Number of policy parameters: ",
       4*(args.hidden_dim**2 + args.hidden_dim*(
           spaces.action_space.flat_dim +
