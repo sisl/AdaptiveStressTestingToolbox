@@ -9,13 +9,12 @@ from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
-from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
-import garage.misc.logger as logger
+from garage.misc import logger
 
 # Useful imports
 import os.path as osp
@@ -60,6 +59,8 @@ log_dir = args.log_dir
 tabular_log_file = osp.join(log_dir, args.tabular_log_file)
 text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
+
+# logger = Logger()
 
 logger.log_parameters_lite(params_log_file, args)
 logger.add_text_output(text_log_file)
