@@ -83,7 +83,7 @@ class GA(BatchPolopt):
 					with logger.prefix('idv #%d | ' % p):
 						logger.log("Updating Params")
 						self.set_params(itr, p)
-						print(self.policy.get_param_values(trainable=True))
+						# print(self.policy.get_param_values(trainable=True))
 						logger.log("Obtaining samples...")
 						paths = self.obtain_samples(itr)
 						logger.log("Processing samples...")

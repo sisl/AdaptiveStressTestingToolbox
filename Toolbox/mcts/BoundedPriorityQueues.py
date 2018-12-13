@@ -10,9 +10,6 @@ class BoundedPriorityQueue:
 		if type(k) == np.ndarray:
 			for pair in self.pq.queue:
 				if np.array_equal(k,pair[1]):
-					print("euqal array!")
-					print(k[:,:])
-					print(pair[1][:,:])
 					return
 		elif k in [pair[1] for pair in self.pq.queue]:
 				return
