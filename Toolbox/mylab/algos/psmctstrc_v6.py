@@ -156,13 +156,15 @@ class PSMCTS(BatchPolopt):
 		q = r + self.simulate(sp)
 		cA = self.s[s].a[a]
 		cA.n += 1
-		cA.q += (q-cA.q)/float(cA.n)
-		self.s[s].a[a] = cA
 		if self.f_Q == "mean":
+			cA.q += (q-cA.q)/float(cA.n)
+			self.s[s].a[a] = cA
 			return q
 		else:
-			qs = [self.s[s].a[a_dummy].q for a_dummy in self.s[s].a.keys()]
-			return np.max(qs)
+			if q > cA.q:
+				cA.q = q
+			self.s[s].a[a] = cA
+			return cA.q
 
 	def rollout(self, s):
 		self.set_params(s)
