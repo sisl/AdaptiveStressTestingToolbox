@@ -30,8 +30,8 @@ parser.add_argument('--exp_name', type=str, default='crosswalk_exp')
 parser.add_argument('--tabular_log_file', type=str, default='tab.txt')
 parser.add_argument('--text_log_file', type=str, default='tex.txt')
 parser.add_argument('--params_log_file', type=str, default='args.txt')
-parser.add_argument('--snapshot_mode', type=str, default="last")
-parser.add_argument('--snapshot_gap', type=int, default=100)
+parser.add_argument('--snapshot_mode', type=str, default="gap")
+parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
 parser.add_argument('--log_dir', type=str, default='.')
 parser.add_argument('--args_data', type=str, default=None)
@@ -50,7 +50,7 @@ parser.add_argument('--load_policy', type=bool, default=False)
 
 # Env Params
 parser.add_argument('--action_only', type=bool, default=True)
-parser.add_argument('--sample_init_state', type=bool, default=False)
+parser.add_argument('--sample_init_state', type=bool, default=True)
 
 # Parse input args
 args = parser.parse_args()
@@ -82,12 +82,12 @@ spaces = ExampleAVSpaces()
 
 # Create the environment
 env = ASTEnv(action_only=args.action_only,
-                             sample_init_state=args.sample_init_state,
-                             s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
-                             simulator=sim,
-                             reward_function=reward_function,
-                             spaces=spaces
-                             )
+             sample_init_state=args.sample_init_state,
+             s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
+             simulator=sim,
+             reward_function=reward_function,
+             spaces=spaces
+             )
 # env = GarageEnv(env)
 env = normalize(env)
 env = TfEnv(env)
@@ -123,30 +123,34 @@ algo = TRPO(
                   "reward_function": reward_function})
 
 saver = tf.train.Saver()
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+with tf.Session(config=config) as sess:
+    with tf.variable_scope('AST', reuse=True):
+        # Run the experiment
+        algo.train(sess=sess)
+        save_path = saver.save(sess, log_dir + '/model.ckpt')
+        print("Model saved in path: %s" % save_path)
 
-with tf.Session() as sess:
-    # Run the experiment
-    algo.train(sess=sess)
-    save_path = saver.save(sess, log_dir + '/model.ckpt')
-    print("Model saved in path: %s" % save_path)
+        # Write out the episode results
+        header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
+        for i in range(0,sim.c_num_peds):
+            header += 'v_x_ped_' + str(i) + ','
+            header += 'v_y_ped_' + str(i) + ','
+            header += 'x_ped_' + str(i) + ','
+            header += 'y_ped_' + str(i) + ','
 
-    # Write out the episode results
-    header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-    for i in range(0,sim.c_num_peds):
-        header += 'v_x_ped_' + str(i) + ','
-        header += 'v_y_ped_' + str(i) + ','
-        header += 'x_ped_' + str(i) + ','
-        header += 'y_ped_' + str(i) + ','
+        for i in range(0,sim.c_num_peds):
+            header += 'a_x_'  + str(i) + ','
+            header += 'a_y_' + str(i) + ','
+            header += 'noise_v_x_' + str(i) + ','
+            header += 'noise_v_y_' + str(i) + ','
+            header += 'noise_x_' + str(i) + ','
+            header += 'noise_y_' + str(i) + ','
 
-    for i in range(0,sim.c_num_peds):
-        header += 'a_x_'  + str(i) + ','
-        header += 'a_y_' + str(i) + ','
-        header += 'noise_v_x_' + str(i) + ','
-        header += 'noise_v_y_' + str(i) + ','
-        header += 'noise_x_' + str(i) + ','
-        header += 'noise_y_' + str(i) + ','
-
-    header += 'reward'
-    example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+        header += 'reward'
+        if args.snapshot_mode != "gap":
+            args.snapshot_gap = args.iters - 1
+        example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
 
 

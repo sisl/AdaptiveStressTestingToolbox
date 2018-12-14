@@ -73,8 +73,9 @@ policy = GaussianLSTMPolicy(name='lstm_policy',
                             hidden_dim=64,
                             use_peepholes=True)
 baseline = LinearFeatureBaseline(env_spec=env.spec)
-optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 sampler_cls = ASTVectorizedSampler
+optimizer = ConjugateGradientOptimizer
+optimizer_args = {'hvp_approach':FiniteDifferenceHvp(base_eps=1e-5)}
 algo = TRPO(
     env=env,
     policy=policy,
@@ -83,7 +84,8 @@ algo = TRPO(
     step_size=0.1,
     n_itr=101,
     store_paths=True,
-    optimizer=ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5)),
+    optimizer=optimizer,
+    optimizer_args=optimizer_args,
     max_path_length=50,
     sampler_cls=sampler_cls,
     sampler_args={"sim": sim,
