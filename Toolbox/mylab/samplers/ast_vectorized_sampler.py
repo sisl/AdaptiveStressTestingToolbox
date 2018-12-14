@@ -23,7 +23,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
         super().__init__(algo)
 
     def obtain_samples(self, itr):
-        pdb.set_trace()
+        # pdb.set_trace()
         paths = super().obtain_samples(itr)
         if not self.interactive:
             for path in paths:
@@ -31,7 +31,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
                 actions = path["actions"]
                 end_idx, info = self.sim.simulate(actions = actions, s_0 = s_0)
                 if end_idx >= 0:
-                    pdb.set_trace()
+                    # pdb.set_trace()
                     self.slice_dict(path, end_idx)
                 rewards = self.reward_function.give_reward(
                     action = path["actions"][end_idx],

@@ -1,5 +1,5 @@
 from mylab.spaces.ast_spaces import ASTSpaces
-from garage.spaces import Box
+from gym.spaces.box import Box
 import numpy as np
 
 class ExampleAVSpaces(ASTSpaces):
@@ -60,7 +60,7 @@ class ExampleAVSpaces(ASTSpaces):
             low = np.hstack((low, np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])))
             high = np.hstack((high, np.array([self.c_x_accel_high, self.c_y_accel_high, 1.0, 1.0, 1.0, 1.0])))
 
-        return Box(low=low, high=high)
+        return Box(low=low, high=high, dtype=np.float32)
 
     @property
     def observation_space(self):
@@ -88,4 +88,4 @@ class ExampleAVSpaces(ASTSpaces):
             high = high + [1.25 * self.c_car_init_x]
 
         # pdb.set_trace()
-        return Box(low=np.array(low), high=np.array(high))
+        return Box(low=np.array(low), high=np.array(high), dtype=np.float32)

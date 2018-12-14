@@ -14,7 +14,7 @@ from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
-import garage.misc.logger as logger
+from garage.misc import logger
 
 # Useful imports
 import os.path as osp

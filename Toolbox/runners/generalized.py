@@ -10,6 +10,7 @@ from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
+from garage.tf.envs.base import GarageEnv
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
@@ -21,6 +22,7 @@ import os.path as osp
 import argparse
 from example_save_trials import *
 import tensorflow as tf
+import pdb
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -28,8 +30,8 @@ parser.add_argument('--exp_name', type=str, default='crosswalk_exp')
 parser.add_argument('--tabular_log_file', type=str, default='tab.txt')
 parser.add_argument('--text_log_file', type=str, default='tex.txt')
 parser.add_argument('--params_log_file', type=str, default='args.txt')
-parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=10)
+parser.add_argument('--snapshot_mode', type=str, default="last")
+parser.add_argument('--snapshot_gap', type=int, default=100)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
 parser.add_argument('--log_dir', type=str, default='.')
 parser.add_argument('--args_data', type=str, default=None)
@@ -79,19 +81,21 @@ reward_function = ExampleAVReward()
 spaces = ExampleAVSpaces()
 
 # Create the environment
-env1 = ASTEnv(action_only=args.action_only,
+env = ASTEnv(action_only=args.action_only,
                              sample_init_state=args.sample_init_state,
                              s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
                              )
-env2 = normalize(env1)
-env = TfEnv(env2)
+# env = GarageEnv(env)
+env = normalize(env)
+env = TfEnv(env)
+# pdb.set_trace()
 print("Number of policy parameters: ",
       4*(args.hidden_dim**2 + args.hidden_dim*(
-          spaces.action_space.flat_dim +
-          spaces.observation_space.flat_dim) +
+          env.action_space.flat_dim +
+          env.observation_space.flat_dim) +
          args.hidden_dim))
 # Instantiate the garage objects
 policy = GaussianLSTMPolicy(name='lstm_policy',
@@ -100,7 +104,8 @@ policy = GaussianLSTMPolicy(name='lstm_policy',
                             use_peepholes=args.use_peepholes)
 
 baseline = LinearFeatureBaseline(env_spec=env.spec)
-optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+optimizer = ConjugateGradientOptimizer
+optimizer_args = {'hvp_approach':FiniteDifferenceHvp(base_eps=1e-5)}
 sampler_cls = ASTVectorizedSampler
 algo = TRPO(
     env=env,
@@ -111,6 +116,7 @@ algo = TRPO(
     n_itr=args.iters,
     store_paths=True,
     optimizer=optimizer,
+    optimizer_args=optimizer_args,
     max_path_length=50,
     sampler_cls=sampler_cls,
     sampler_args={"sim": sim,

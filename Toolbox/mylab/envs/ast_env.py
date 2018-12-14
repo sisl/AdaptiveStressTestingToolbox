@@ -7,9 +7,12 @@ from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 from garage.envs.env_spec import EnvSpec
 import pdb
+import gym
+from garage.core import Serializable
 
 
-class ASTEnv(GarageEnv):
+class ASTEnv(gym.Env, Serializable):
+# class ASTEnv(GarageEnv):
     def __init__(self,
                  action_only=True,
                  sample_init_state=False,
@@ -28,6 +31,8 @@ class ASTEnv(GarageEnv):
         self._action = None
         self._actions = []
         self._first_step = True
+        self.reward_range = (-float('inf'), float('inf'))
+        self.metadata = None
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
@@ -41,7 +46,9 @@ class ASTEnv(GarageEnv):
         if self.reward_function is None:
             self.reward_function = ExampleAVReward()
 
-        super().__init__(self)
+        # super().__init__(self)
+        # Always call Serializable constructor last
+        Serializable.quick_init(self, locals())
 
     def step(self, action):
         """
@@ -85,7 +92,7 @@ class ASTEnv(GarageEnv):
     def simulate(self, actions):
         if self._sample_init_state:
             self._init_state = self.observation_space.sample()
-        self.simulator.simulate(actions)
+        self.simulator.simulate(actions, self._init_state)
 
     def reset(self):
         """
@@ -121,25 +128,31 @@ class ASTEnv(GarageEnv):
     def log(self):
         self.simulator.log()
 
-    @cached_property
-    @overrides
-    def spec(self):
-        """
-        Returns an EnvSpec.
+    def render(self):
+        print('Rendering 8===D :p')
 
-        Returns:
-            spec (garage.envs.EnvSpec)
-        """
-        return EnvSpec(
-            observation_space=self.observation_space,
-            action_space=self.action_space)
+    def log_diagnostics(self, paths):
+        pass
 
-    @overrides
-    def _to_garage_space(self, space):
-        """
-        Converts a gym.space to a garage.tf.space.
-
-        Returns:
-            space (garage.tf.spaces)
-        """
-        return space
+    # @cached_property
+    # @overrides
+    # def spec(self):
+    #     """
+    #     Returns an EnvSpec.
+    #
+    #     Returns:
+    #         spec (garage.envs.EnvSpec)
+    #     """
+    #     return EnvSpec(
+    #         observation_space=self.observation_space,
+    #         action_space=self.action_space)
+    #
+    # @overrides
+    # def _to_garage_space(self, space):
+    #     """
+    #     Converts a gym.space to a garage.tf.space.
+    #
+    #     Returns:
+    #         space (garage.tf.spaces)
+    #     """
+    #     return space
