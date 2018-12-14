@@ -7,14 +7,15 @@ class BoundedPriorityQueue:
 		self.pq = queue.PriorityQueue()
 		self.N = N
 	def enqueue(self, k, v, make_copy=False):
-		if type(k) == np.ndarray:
-			for pair in self.pq.queue:
-				if np.array_equal(k,pair[1]):
+		if self.pq.qsize() >= self.N:
+			if type(k) == np.ndarray:
+				for pair in self.pq.queue:
+					if np.array_equal(k,pair[1]):
+						return
+			elif k in [pair[1] for pair in self.pq.queue]:
 					return
-		elif k in [pair[1] for pair in self.pq.queue]:
-				return
 		while v in [pair[0] for pair in self.pq.queue]:
-			v += 1e-4
+			v += 1e-10
 		if make_copy:
 			ck = copy.deepcopy(k)
 			self.pq.put((v,ck))

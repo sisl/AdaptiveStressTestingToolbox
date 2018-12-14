@@ -25,7 +25,7 @@ class PSMCTS(BatchPolopt):
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			log_interval = 4000,
-			initial_mag = 0.3,
+			initial_mag = 1.0,
 			initial_pop = 0,
 			**kwargs):
 		self.ec = ec 

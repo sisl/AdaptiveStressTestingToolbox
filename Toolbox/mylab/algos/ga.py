@@ -34,7 +34,7 @@ class GA(BatchPolopt):
 			keep_best = 1,
 			fit_f = "max",
 			log_interval = 4000,
-			initial_mag = 0.3,
+			initial_mag = 1.0,
 			**kwargs):
 
 		self.top_paths = top_paths
@@ -94,7 +94,6 @@ class GA(BatchPolopt):
 						if not (self.top_paths is None):
 							action_seqs = [path["actions"] for path in paths]
 							[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
-							print(self.top_paths.length())
 
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
