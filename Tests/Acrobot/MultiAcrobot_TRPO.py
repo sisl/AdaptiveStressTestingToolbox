@@ -36,7 +36,7 @@ parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 top_k = 10
-max_path_length = 400
+max_path_length = 100
 interactive = True
 
 tf.set_random_seed(0)

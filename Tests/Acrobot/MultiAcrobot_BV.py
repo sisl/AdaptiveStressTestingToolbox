@@ -23,7 +23,7 @@ import csv
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=1200)
+parser.add_argument('--n_itr', type=int, default=1000)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
@@ -35,7 +35,7 @@ top_k = 10
 interactive = False
 
 stress_test_num = 2
-max_path_length = 400
+max_path_length = 100
 ec = np.sqrt(2)
 M = 10
 n = args.n_itr

@@ -105,7 +105,8 @@ class PSMCTSTR(PSMCTS):
 	def getNextAction(self,s):
 		seed = np.random.randint(low= 0, high = int(2**16))
 		if s.parent is None: #first generation
-			magnitude = self.initial_mag
+			# magnitude = self.initial_mag
+			magnitude = self.step_size
 		else:
 			self.set_params(s)
 			param_values = self.policy.get_param_values(trainable=True)

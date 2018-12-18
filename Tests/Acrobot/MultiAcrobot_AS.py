@@ -35,7 +35,7 @@ top_k = 10
 interactive = False
 
 stress_test_num = 2
-max_path_length = 400
+max_path_length = 100
 ec = np.sqrt(2)
 n = args.n_itr
 k=0.5

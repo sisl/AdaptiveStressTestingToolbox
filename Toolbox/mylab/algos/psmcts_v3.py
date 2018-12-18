@@ -9,11 +9,11 @@ import numpy as np
 import tensorflow as tf
 
 from mylab.utils import seeding
-from mylab.utils.np_weight_init import init_param_np
 
 class PSMCTS(BatchPolopt):
 	"""
 	Policy Space MCTS
+	v4: use init_param_np
 	"""
 	def __init__(
 			self,
@@ -26,6 +26,7 @@ class PSMCTS(BatchPolopt):
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			log_interval = 4000,
+			initial_mag = 1.0,
 			initial_pop = 0,
 			**kwargs):
 		self.ec = ec 
@@ -39,10 +40,10 @@ class PSMCTS(BatchPolopt):
 		self.log_interval = log_interval
 		self.s = {}
 		self.initial_pop = initial_pop
+		self.initial_mag = initial_mag
 		self.stepNum = 0
 		self.np_random, seed = seeding.np_random() #used in set_params
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
-		self.policy.set_param_values(self.policy.get_param_values())
 
 	@overrides
 	def init_opt(self):
@@ -55,7 +56,10 @@ class PSMCTS(BatchPolopt):
 
 	def getNextAction(self,s):
 		seed = np.random.randint(low= 0, high = int(2**16))
-		magnitude = self.step_size
+		if s.parent is None: #first generation
+			magnitude = self.initial_mag
+		else:
+			magnitude = self.step_size
 		return (seed,magnitude)
 
 	def getNextState(self,s,a):
@@ -71,15 +75,11 @@ class PSMCTS(BatchPolopt):
 	def set_params(self,s):
 		actions = get_action_sequence(s)
 		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
-		for i,(seed,magnitude) in enumerate(actions):
+		for (seed,magnitude) in actions:
+			# np.random.seed(int(seed))
+			# param_values = param_values + magnitude*np.random.normal(size=param_values.shape)
 			self.np_random.seed(int(seed))
-			if i==0 :
-				params = self.policy.get_params()
-				for param in params:
-					init_param_np(param, self.policy, self.np_random)
-				param_values = self.policy.get_param_values(trainable=True)
-			else:
-				param_values = param_values + magnitude*self.np_random.normal(size=param_values.shape)
+			param_values = param_values + magnitude*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
 	def evaluate(self,samples_data):
@@ -143,7 +143,7 @@ class PSMCTS(BatchPolopt):
 			a = A[np.argmax(UCT)]
 
 		sp,r = self.getNextState(s,a)
-
+		# print("new sp: ",sp in dpw.s.keys())
 		if not (sp in self.s[s].a[a].s):
 			self.s[s].a[a].s[sp] = StateActionStateNode()
 			self.s[s].a[a].s[sp].r = r

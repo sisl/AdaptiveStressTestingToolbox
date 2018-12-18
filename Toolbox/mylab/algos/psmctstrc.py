@@ -37,7 +37,8 @@ class PSMCTSTRC(PSMCTSTR):
 		all_input_values = self.data2inputs(samples_data)
 		seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
 		if s.parent is None: #first generation
-			magnitudes = self.initial_mag*np.ones_like(seeds)
+			# magnitudes = self.initial_mag*np.ones_like(seeds)
+			magnitudes = self.step_size*np.ones_like(seeds)
 		else:
 			self.set_params(s)
 			param_values = self.policy.get_param_values(trainable=True)
