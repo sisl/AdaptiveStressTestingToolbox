@@ -46,6 +46,10 @@ class ASTEnv(gym.Env, Serializable):
         if self.reward_function is None:
             self.reward_function = ExampleAVReward()
 
+        if hasattr(self.simulator, "vec_env_executor") and callable(getattr(self.simulator, "vec_env_executor")):
+            self.vectorized = True
+        else:
+            self.vectorized = False
         # super().__init__(self)
         # Always call Serializable constructor last
         Serializable.quick_init(self, locals())
