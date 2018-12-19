@@ -20,9 +20,9 @@ np.random.seed(0)
 
 max_path_length = 100
 ec = 100.0
-n = 10
+n = 2
 top_k = 10
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 with tf.Session() as sess:
 	# Instantiate the policy

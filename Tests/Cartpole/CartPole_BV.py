@@ -25,11 +25,11 @@ import csv
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
-parser.add_argument('--n_itr', type=int, default=1000)
+parser.add_argument('--n_itr', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTS_AS')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTS_BV')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -60,12 +60,12 @@ policy_inner = data['policy']
 reward_function = ASTReward()
 
 simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-env = TfEnv(ASTEnv(interactive=interactive,
+env = ASTEnv(interactive=interactive,
 							 simulator=simulator,
 							 sample_init_state=False,
 							 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 							 reward_function=reward_function,
-							 ))
+							 )
 
 # Create the logger
 log_dir = args.log_dir+'/test'
@@ -85,7 +85,7 @@ logger.push_prefix("["+args.exp_name+"]")
 np.random.seed(0)
 
 SEED = 0
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 ast_params = AST_BV.ASTParams(max_path_length,ec,M,args.batch_size,log_tabular=True)
 ast = AST_BV.AdaptiveStressTestBV(p=ast_params, env=env, top_paths=top_paths)
 

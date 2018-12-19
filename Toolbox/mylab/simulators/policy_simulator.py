@@ -212,3 +212,6 @@ class InnerVecEnvExecutor(object):
 
     def terminate(self):
         pass
+
+    def close(self):
+        pass

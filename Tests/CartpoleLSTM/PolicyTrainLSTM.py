@@ -38,7 +38,8 @@ policy = CategoricalLSTMPolicy(name='protagonist',
                             hidden_dim=128)
 
 baseline = LinearFeatureBaseline(env_spec=env.spec)
-optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+optimizer = ConjugateGradientOptimizer
+optimizer_args = {'hvp_approach':FiniteDifferenceHvp(base_eps=1e-5)}
 
 algo = TRPO(
     env=env,
@@ -50,5 +51,6 @@ algo = TRPO(
     discount=0.99,
     step_size=0.01,
     optimizer=optimizer,
+    optimizer_args=optimizer_args,
 )
 algo.train()

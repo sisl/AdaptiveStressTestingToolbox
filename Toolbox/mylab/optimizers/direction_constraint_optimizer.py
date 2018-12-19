@@ -41,7 +41,7 @@ class PerlmutterHvp(object):
                     Hx_plain_splits[idx] = tf.zeros_like(param)
             return tensor_utils.flatten_tensor_variables(Hx_plain_splits)
 
-        self.opt_fun = ext.lazydict(
+        self.opt_fun = ext.LazyDict(
             f_Hx_plain=lambda: tensor_utils.compile_function(
                 inputs=inputs + xs,
                 outputs=Hx_plain(),
@@ -97,7 +97,7 @@ class FiniteDifferenceHvp(object):
                 hx = (flat_grad_dvplus - flat_grad) / eps
             return hx
 
-        self.opt_fun = ext.lazydict(
+        self.opt_fun = ext.LazyDict(
             f_grad=lambda: tensor_utils.compile_function(
                 inputs=inputs,
                 outputs=flat_grad,
@@ -192,7 +192,7 @@ class DirectionConstraintOptimizer(Serializable):
         self._max_constraint_val = np.inf
         self._constraint_name = constraint_name
 
-        self._opt_fun = ext.lazydict(
+        self._opt_fun = ext.LazyDict(
             f_constraint=lambda: tensor_utils.compile_function(
                 inputs=inputs + extra_inputs,
                 outputs=constraint_term,

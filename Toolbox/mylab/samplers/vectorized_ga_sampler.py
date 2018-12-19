@@ -10,7 +10,7 @@ from garage.sampler.stateful_pool import ProgBarCounter
 import garage.misc.logger as logger
 import itertools
 from garage.misc import special
-from garage.algos import util
+from garage.sampler import utils
 import garage.misc.logger as logger
 
 
@@ -144,10 +144,10 @@ class VectorizedGASampler(BaseSampler):
             agent_infos = tensor_utils.concat_tensor_dict_list([path["agent_infos"] for path in paths])
 
             if self.algo.center_adv:
-                advantages = util.center_advantages(advantages)
+                advantages = utils.center_advantages(advantages)
 
             if self.algo.positive_adv:
-                advantages = util.shift_advantages_to_positive(advantages)
+                advantages = utils.shift_advantages_to_positive(advantages)
 
             average_discounted_return = \
                 np.mean([path["returns"][0] for path in paths])

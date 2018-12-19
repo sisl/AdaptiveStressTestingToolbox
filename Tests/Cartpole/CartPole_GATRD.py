@@ -6,6 +6,7 @@ from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
@@ -17,7 +18,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 
 from Cartpole.cartpole import CartPoleEnv
 
-from mylab.algos.gais import GAIS
+from mylab.algos.gatrd import GATRD
 
 import os.path as osp
 import argparse
@@ -36,7 +37,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAIS/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -48,7 +49,7 @@ text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
 logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
+# logger.add_text_output(text_log_file)
 logger.add_tabular_output(tabular_log_file)
 prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
@@ -60,7 +61,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 seed = 0
 top_k = 10
-max_path_length = 100#100
+max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
@@ -70,7 +71,7 @@ tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
 	env_inner = CartPoleEnv(use_seed=False)
-	data = joblib.load("Data/Train/itr_50.pkl")
+	data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
 	reward_function = ASTReward()
 
@@ -83,15 +84,11 @@ with tf.Session() as sess:
 								 )
 
 	# Create policy
-	policy = GaussianMLPPolicy(
+	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
 		hidden_sizes=(64, 32)
 	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=env.spec,
-	#                             hidden_dim=5,
-	#                             use_peepholes=True)
 
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
@@ -100,11 +97,14 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GAIS(
+	algo = GATRD(
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=4000,#4000,
+		batch_size= 100,
+		pop_size = 5,
+		elites = 3,
+		keep_best = 1,
 		step_size=0.01,
 		n_itr=2,
 		store_paths=False,

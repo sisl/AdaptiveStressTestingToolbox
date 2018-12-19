@@ -6,19 +6,20 @@ from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
-from garage.tf.envs.base import to_tf_space
 
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
+from mylab.utils.tree_plot import plot_tree, plot_node_num
 
 from Cartpole.cartpole import CartPoleEnv
 
-from mylab.algos.trpo import TRPO
+from mylab.algos.psmcts import PSMCTS
 
 import os.path as osp
 import argparse
@@ -26,17 +27,18 @@ import argparse
 import tensorflow as tf
 import joblib
 import math
+import numpy as np
 
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default='cartpole_exp')
-parser.add_argument('--tabular_log_file', type=str, default='tab.txt')
+parser.add_argument('--tabular_log_file', type=str, default='progress.csv')
 parser.add_argument('--text_log_file', type=str, default='tex.txt')
 parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/RLInter')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTS/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -48,7 +50,7 @@ text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
 logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
+# logger.add_text_output(text_log_file)
 logger.add_tabular_output(tabular_log_file)
 prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
@@ -58,76 +60,65 @@ logger.set_snapshot_gap(args.snapshot_gap)
 logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
+seed = 0
+top_k = 10
+max_path_length = 100
+
+import mcts.BoundedPriorityQueues as BPQ
+top_paths = BPQ.BoundedPriorityQueue(top_k)
+
+np.random.seed(seed)
+tf.set_random_seed(seed)
 with tf.Session() as sess:
-	# Instantiate the policy
+	# Create env
 	env_inner = CartPoleEnv(use_seed=False)
-	ast_spec = EnvSpec(
-            	observation_space=to_tf_space(env_inner.ast_observation_space),
-            	action_space=to_tf_space(env_inner.ast_action_space),
-        		)
-
-	policy = GaussianMLPPolicy(
-	    name='ast_agent',
-	    env_spec=ast_spec,
-	    # The neural network policy should have two hidden layers, each with 32 hidden units.
-	    hidden_sizes=(64, 32)
-	)
-	sess.run(tf.global_variables_initializer())
-
-	# Instantiate the env
-	data = joblib.load("Data/Train/itr_10.pkl")
+	data = joblib.load("../Cartpole/Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
 	reward_function = ASTReward()
 
-	# Create the environment
-	# env = TfEnv(ASTEnv(action_only=False,
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
-	env = TfEnv(ASTEnv(interactive=True,
+	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
+	env = ASTEnv(interactive=True,
 								 simulator=simulator,
-	                             sample_init_state=False,
-	                             s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-	                             reward_function=reward_function,
-	                             ))
+								 sample_init_state=False,
+								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+								 reward_function=reward_function,
+								 )
+
+	# Create policy
+	policy = DeterministicMLPPolicy(
+		name='ast_agent',
+		env_spec=env.spec,
+		hidden_sizes=(64, 32)
+	)
+
+	params = policy.get_params()
+	sess.run(tf.variables_initializer(params))
 
 	# Instantiate the garage objects
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
-	# sampler_cls = ASTSingleSampler
-	# sampler_cls = ASTVectorizedSampler
-	algo = TRPO(
-	    env=env,
-	    policy=policy,
-	    baseline=baseline,
-	    batch_size=4000,
-	    step_size=0.1,
-	    n_itr=25,#101,
-	    store_paths=True,
-	    # optimizer= optimizer,
-	    max_path_length=100,
-	    # sampler_cls=sampler_cls,
-	    # sampler_args={"sim": sim,
-	    #               "reward_function": reward_function,
-	    #               "interactive": True},
-	    plot=False,
-	    )
+
+	algo = PSMCTS(
+		env=env,
+		policy=policy,
+		baseline=baseline,
+		batch_size=max_path_length,
+		step_size=0.01,
+		n_itr=10,
+		max_path_length=max_path_length,
+		top_paths=top_paths,
+		seed=0,
+		ec = 1.0,
+		k=0.5,
+		alpha=0.85,
+		f_Q="max",
+		log_interval=1,
+		plot=False,
+		initial_pop = 0,
+		)
 
 	algo.train(sess=sess, init_var=False)
+	plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
+	plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
-	# Write out the episode results
-	# header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-	# for i in range(0,sim.c_num_peds):
-	#     header += 'v_x_ped_' + str(i) + ','
-	#     header += 'v_y_ped_' + str(i) + ','
-	#     header += 'x_ped_' + str(i) + ','
-	#     header += 'y_ped_' + str(i) + ','
-
-	# for i in range(0,sim.c_num_peds):
-	#     header += 'a_x_'  + str(i) + ','
-	#     header += 'a_y_' + str(i) + ','
-	#     header += 'noise_v_x_' + str(i) + ','
-	#     header += 'noise_v_y_' + str(i) + ','
-	#     header += 'noise_x_' + str(i) + ','
-	#     header += 'noise_y_' + str(i) + ','
-
-	# header += 'reward'
-	# example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+	

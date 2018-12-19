@@ -10,7 +10,6 @@ from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientO
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
-from garage.tf.envs.base import to_tf_space
 
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
@@ -37,7 +36,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GAInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GA/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -63,7 +62,7 @@ seed = 0
 top_k = 10
 
 import mcts.BoundedPriorityQueues as BPQ
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -75,12 +74,12 @@ with tf.Session() as sess:
 	reward_function = ASTReward()
 
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
-	env = TfEnv(ASTEnv(interactive=True,
+	env = ASTEnv(interactive=True,
 								 simulator=simulator,
 								 sample_init_state=False,
 								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 								 reward_function=reward_function,
-								 ))
+								 )
 
 	# Create policy
 	policy = GaussianMLPPolicy(
@@ -101,7 +100,7 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=4000,
 		step_size=0.01,
-		n_itr=25,
+		n_itr=2,
 		store_paths=False,
 		# optimizer= optimizer,
 		max_path_length=100,
