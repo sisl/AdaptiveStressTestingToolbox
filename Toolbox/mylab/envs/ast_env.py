@@ -101,8 +101,9 @@ class ASTEnv(Env):
             return o
         else:
             return self._init_state
-    def seed(self,seed):
-        return self.simulator.seed(seed)
+            
+    # def seed(self,seed):
+    #     return self.simulator.seed(seed)
 
     @property
     def action_space(self):

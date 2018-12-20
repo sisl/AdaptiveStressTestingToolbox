@@ -15,7 +15,7 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 
 from Acrobot.acrobot import AcrobotEnv
 
-from mylab.algos.gatrd import GATRD
+from mylab.algos.ga import GA
 
 import os.path as osp
 import argparse
@@ -85,7 +85,7 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GATRD(
+	algo = GA(
 		env=env,
 		policy=policy,
 		baseline=baseline,

@@ -16,7 +16,7 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 from Acrobot.acrobot import AcrobotEnv
 
 from mylab.algos.gatrd import GATRD
-from mylab.utils.np_weight_init import init_param_np
+from mylab.utils.np_weight_init import init_param_np, init_policy_np
 
 import os.path as osp
 import argparse
@@ -25,6 +25,8 @@ import tensorflow as tf
 import joblib
 import math
 import numpy as np
+
+import time
 
 seed = 1
 
@@ -47,12 +49,32 @@ with tf.Session() as sess:
 	sess.run(tf.variables_initializer(params))
 	param_values = policy.get_param_values(trainable=True)
 	policy.set_param_values(param_values, trainable=True)
+
+	# for param in params:
+	# 	print(param.name)
+	# 	print(tf.shape(param).eval())
+	# 	print(sess.run(param))
+
+	start_time = time.time()
 	for param in params:
-		print(param.name)
-		print(tf.shape(param).eval())
-		print(sess.run(param))
 		init_param_np(param, policy, np.random)
-		print(sess.run(param))
+	param_values = policy.get_param_values(trainable=True)
+	print('Time1: ', time.time() - start_time)
+
+	start_time = time.time()
+	param_values = 0.3*np.random.normal(size=param_values.shape)
+	print('Time2: ', time.time() - start_time)
+
+	start_time = time.time()
+	param_values = init_policy_np(policy, np_random=np.random)
+	print('Time3: ', time.time() - start_time)
+
+	policy.set_param_values(param_values, trainable=True)
+	# for param in params:
+	# 	print(param.name)
+	# 	print(tf.shape(param).eval())
+	# 	print(sess.run(param))
+
 
 		
 

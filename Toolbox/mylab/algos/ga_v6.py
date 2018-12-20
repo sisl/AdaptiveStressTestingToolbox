@@ -18,11 +18,12 @@ import numpy as np
 
 from mylab.samplers.vectorized_ga_sampler import VectorizedGASampler
 from mylab.utils import seeding
-from mylab.utils.np_weight_init import init_policy_np
+from mylab.utils.np_weight_init import init_param_np
 
 class GA(BatchPolopt):
 	"""
 	Genetic Algorithm
+	v7: init_policy_np (faster than init_param_np)
 	"""
 
 	def __init__(
@@ -139,11 +140,15 @@ class GA(BatchPolopt):
 
 	@overrides
 	def set_params(self, itr, p):
+		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
 		for i in range(itr+1):
 			# print("seed: ", self.seeds[i,p])
 			self.np_random.seed(int(self.seeds[i,p]))
 			if i == 0: #first generation
-				param_values = init_policy_np(self.policy, self.np_random)
+				params = self.policy.get_params()
+				for param in params:
+					init_param_np(param, self.policy, self.np_random)
+				param_values = self.policy.get_param_values(trainable=True)
 			elif self.seeds[i,p] != 0:
 				param_values = param_values + self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)

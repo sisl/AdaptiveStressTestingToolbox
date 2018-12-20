@@ -9,11 +9,12 @@ import numpy as np
 import tensorflow as tf
 
 from mylab.utils import seeding
-from mylab.utils.np_weight_init import init_policy_np
+from mylab.utils.np_weight_init import init_param_np
 
 class PSMCTS(BatchPolopt):
 	"""
 	Policy Space MCTS
+	v5: init_policy_np (faster than init_param_np)
 	"""
 	def __init__(
 			self,
@@ -74,7 +75,10 @@ class PSMCTS(BatchPolopt):
 		for i,(seed,magnitude) in enumerate(actions):
 			self.np_random.seed(int(seed))
 			if i==0 :
-				param_values = init_policy_np(self.policy, self.np_random)
+				params = self.policy.get_params()
+				for param in params:
+					init_param_np(param, self.policy, self.np_random)
+				param_values = self.policy.get_param_values(trainable=True)
 			else:
 				param_values = param_values + magnitude*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
