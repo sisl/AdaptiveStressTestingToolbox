@@ -13,7 +13,7 @@ from rllab.envs.normalized_env import normalize
 from rllab.envs.env_spec import EnvSpec
 from sandbox.rocky.tf.envs.base import to_tf_space
 
-from Acrobot.acrobot import AcrobotEnv
+from MountainCar.mountaincar import MountainCarEnv
 
 from mylab.algos.gatrd import GATRD
 
@@ -67,9 +67,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env = TfEnv(AcrobotEnv(success_reward = max_path_length,
-							success_threshhold = 1.9999,
-							torque_noise_max = 0.0,))
+	env = TfEnv(MountainCarEnv(success_reward = max_path_length))
 
 	# Create policy
 	policy = DeterministicMLPPolicy(
@@ -90,11 +88,11 @@ with tf.Session() as sess:
 		policy=policy,
 		baseline=baseline,
 		batch_size= max_path_length,
-		pop_size = 5,
-		truncation_size = 3,
-		keep_best = 1,
+		pop_size = 100,
+		truncation_size = 20,
+		keep_best = 3,
 		step_size = 1.0,
-		n_itr = 2,
+		n_itr = 100,
 		store_paths=False,
 		# optimizer= optimizer,
 		max_path_length=max_path_length,

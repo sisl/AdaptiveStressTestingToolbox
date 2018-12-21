@@ -154,15 +154,15 @@ class AcrobotEnv(Env):
         self.state = ns
         terminal = self._terminal()
         # reward = -1. if not terminal else 0.
-        reward = -np.abs(torque)
+        reward = -np.abs(a[0])
         if terminal:
-            reward = self.success_reward
+            reward += self.success_reward
         reward = reward/self.success_reward
 
-        if (type(reward) is type(1.0)) or (type(reward) is type(np.float64(1.0))):
-            reward = reward
-        else:
-            reward = reward[0]
+        # if (type(reward) is type(1.0)) or (type(reward) is type(np.float64(1.0))):
+        #     reward = reward
+        # else:
+        #     reward = reward[0]
 
         return self._get_ob(), reward, terminal, {}
 

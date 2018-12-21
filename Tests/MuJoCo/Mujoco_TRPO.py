@@ -28,7 +28,7 @@ import numpy as np
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default='HalfCheetah-v1')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=10)
+parser.add_argument('--snapshot_gap', type=int, default=1000)
 parser.add_argument('--log_dir', type=str, default='./Data/TRPO/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()

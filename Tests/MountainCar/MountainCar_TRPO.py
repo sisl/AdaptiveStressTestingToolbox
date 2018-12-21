@@ -12,7 +12,7 @@ from rllab.envs.normalized_env import normalize
 from rllab.envs.env_spec import EnvSpec
 from sandbox.rocky.tf.envs.base import to_tf_space
 
-from Acrobot.acrobot import AcrobotEnv
+from MountainCar.mountaincar import MountainCarEnv
 
 from mylab.algos.trpo import TRPO
 
@@ -58,9 +58,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
     # Create env
-    env = TfEnv(AcrobotEnv(success_reward = max_path_length,
-                            success_threshhold = 1.9999,
-                            torque_noise_max = 0.0,))
+    env = TfEnv(MountainCarEnv(success_reward = max_path_length))
     # print(env.observation_space)
     # print(env.action_space)
     # Create policy
@@ -87,7 +85,7 @@ with tf.Session() as sess:
         baseline=baseline,
         batch_size=4000,
         step_size=0.1,
-        n_itr=25,
+        n_itr=250,
         store_paths=True,
         # optimizer= optimizer,
         max_path_length=max_path_length,

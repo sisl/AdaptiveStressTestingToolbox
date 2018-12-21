@@ -5,28 +5,30 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 5
+n_trial = 4
 top_k = 10
 batch_size = 4000
-max_step = 1e7#np.inf
+max_step = 5e6#1e7#np.inf
 max_reward = np.inf
-min_reward = -np.inf
+min_reward = 0.0#-np.inf
 
-# prepath = "../Acrobot/Data/AST/Lexington"
-# exp = "Acrobot19999"
-# plot_path = "../Acrobot/Data/Plot/Avgtop10/"
-# policies = ["TRPO","MCTS_BV","GATRDStep1.0Fmax","PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax"]
-# plot_name = exp
+prepath = "../Acrobot/Data/AST/Lexington"
+exp = "Acrobot"
+plot_path = "../Acrobot/Data/Plot/Avgtop10/"
+policies = ["TRPO","MCTS_BV",\
+        "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
+        "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
+plot_name = exp
 
-prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
-exp = "CartpoleNdRewardt"
-plot_path = "../CartpoleNdRewardt/Data/Plot/Avgtop10/"
-policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
-            "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax",\
-            "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.8Qmax","PSMCTSTRCInterStep1.0Ec0.1K0.5A0.5Qmax",\
-            "PSMCTSTRCInterStep1.0Ec0.5K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax",\
-            "PSMCTSTRCInterStep1.0Ec0.1K0.5A0.3Qmax"]
-plot_name = "PSMCTSTRC"
+# prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
+# exp = "CartpoleNdRewardt"
+# plot_path = "../CartpoleNdRewardt/Data/Plot/Avgtop10/"
+# policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
+#             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax",\
+#             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.8Qmax","PSMCTSTRCInterStep1.0Ec0.1K0.5A0.5Qmax",\
+#             "PSMCTSTRCInterStep1.0Ec0.5K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax",\
+#             "PSMCTSTRCInterStep1.0Ec0.1K0.5A0.3Qmax"]
+# plot_name = "PSMCTSTRC"
 # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
 # colors = []

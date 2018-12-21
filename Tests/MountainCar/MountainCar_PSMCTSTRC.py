@@ -13,9 +13,10 @@ from rllab.envs.normalized_env import normalize
 from rllab.envs.env_spec import EnvSpec
 from sandbox.rocky.tf.envs.base import to_tf_space
 
-from Acrobot.acrobot import AcrobotEnv
+from MountainCar.mountaincar import MountainCarEnv
 
-from mylab.algos.gatrd import GATRD
+from mylab.algos.psmctstrc import PSMCTSTRC
+from mylab.utils.tree_plot import plot_tree
 
 import os.path as osp
 import argparse
@@ -34,7 +35,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GATRD/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRC/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -46,7 +47,7 @@ text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
 logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
+# logger.add_text_output(text_log_file)
 logger.add_tabular_output(tabular_log_file)
 prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
@@ -67,9 +68,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env = TfEnv(AcrobotEnv(success_reward = max_path_length,
-							success_threshhold = 1.9999,
-							torque_noise_max = 0.0,))
+	env = TfEnv(MountainCarEnv(success_reward = max_path_length))
 
 	# Create policy
 	policy = DeterministicMLPPolicy(
@@ -85,23 +84,26 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GATRD(
+	algo = PSMCTSTRC(
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size= max_path_length,
-		pop_size = 5,
-		truncation_size = 3,
-		keep_best = 1,
-		step_size = 1.0,
-		n_itr = 2,
-		store_paths=False,
-		# optimizer= optimizer,
+		batch_size=max_path_length,
+		step_size=1.0,
+		n_itr=10000,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
+		seed=0,
+		ec = 1.0,#100.0,
+		k=0.5,
+		alpha=0.5,
+		log_interval=4000,
 		plot=False,
+		n_ca = 4,
+		initial_pop = 0,
 		)
 
 	algo.train(sess=sess, init_var=False)
+	# plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
 
 	
