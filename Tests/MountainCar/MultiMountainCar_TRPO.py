@@ -9,9 +9,9 @@ from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from rllab.misc import logger
 
-from Acrobot.acrobot import AcrobotEnv
-
 from MountainCar.mountaincar import MountainCarEnv
+
+from mylab.algos.trpo import TRPO
 
 import os.path as osp
 import argparse
