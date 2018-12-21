@@ -29,6 +29,7 @@ class MountainCarEnv(Env):
     def __init__(self,
                 initial_condition_max = 0.,
                 success_reward = 100.0,
+                power = 0.001,
                 ):
         self.min_action = -1.0
         self.max_action = 1.0
@@ -36,7 +37,8 @@ class MountainCarEnv(Env):
         self.max_position = 0.6
         self.max_speed = 0.07
         self.goal_position = 0.45 # was 0.5 in gym, 0.45 in Arnaud de Broissia's version
-        self.power = 0.0015
+        # self.power = 0.0015
+        self.power = power
 
         self.viewer = None
 
