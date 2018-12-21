@@ -15,7 +15,7 @@ from sandbox.rocky.tf.envs.base import to_tf_space
 
 from Acrobot.acrobot import AcrobotEnv
 
-from mylab.algos.ga import GA
+from mylab.algos.gatrd import GATRD
 
 import os.path as osp
 import argparse
@@ -85,16 +85,16 @@ with tf.Session() as sess:
 	baseline = LinearFeatureBaseline(env_spec=env.spec)
 	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo = GA(
+	algo = GATRD(
 		env=env,
 		policy=policy,
 		baseline=baseline,
 		batch_size= max_path_length,
 		pop_size = 100,
-		truncation_size = 20,
-		keep_best = 3,
+		truncation_size = 3,
+		keep_best = 1,
 		step_size = 1.0,
-		n_itr = 1,
+		n_itr = 100,
 		store_paths=False,
 		# optimizer= optimizer,
 		max_path_length=max_path_length,

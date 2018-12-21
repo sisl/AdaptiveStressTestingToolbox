@@ -92,7 +92,7 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=max_path_length,
 		step_size=0.01,
-		n_itr=20,
+		n_itr=500,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,
