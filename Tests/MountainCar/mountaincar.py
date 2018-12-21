@@ -29,7 +29,7 @@ class MountainCarEnv(Env):
     def __init__(self,
                 initial_condition_max = 0.,
                 success_reward = 100.0,
-                power = 0.001,
+                power = 0.00075,
                 ):
         self.min_action = -1.0
         self.max_action = 1.0
