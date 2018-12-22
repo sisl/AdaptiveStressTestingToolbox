@@ -121,8 +121,10 @@ class AcrobotEnv(Env):
         return [seed]
 
     def reset(self):
-        self.state = self.np_random.uniform(low=-self.initial_condition_max,\
-                                             high=self.initial_condition_max, size=(4,))
+        # self.state = self.np_random.uniform(low=-self.initial_condition_max,\
+        #                                      high=self.initial_condition_max, size=(4,))
+        self.state = np.random.uniform(low=-self.initial_condition_max,\
+                                                high=self.initial_condition_max, size=(4,))
         return self._get_ob()
 
     def step(self, a):
@@ -132,7 +134,8 @@ class AcrobotEnv(Env):
 
         # Add noise to the force action
         if self.torque_noise_max > 0:
-            torque += self.np_random.uniform(-self.torque_noise_max, self.torque_noise_max)
+            # torque += self.np_random.uniform(-self.torque_noise_max, self.torque_noise_max)
+            torque += np.random.uniform(-self.torque_noise_max, self.torque_noise_max)
 
         # Now, augment the state with our force action so it can be passed to
         # _dsdt
@@ -154,7 +157,8 @@ class AcrobotEnv(Env):
         self.state = ns
         terminal = self._terminal()
         # reward = -1. if not terminal else 0.
-        reward = -np.abs(a[0])
+        # reward = -np.abs(a[0])
+        reward = -np.abs(torque[0])
         if terminal:
             reward += self.success_reward
         reward = reward/self.success_reward

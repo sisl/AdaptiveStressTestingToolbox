@@ -1,6 +1,7 @@
 from sandbox.rocky.tf.algos.npo import NPO
 from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
 import time
+import numpy as np
 import rllab.misc.logger as logger
 import tensorflow as tf
 from rllab.sampler.utils import rollout
@@ -22,6 +23,8 @@ class TRPO(NPO):
 				optimizer_args = dict()
 			optimizer = ConjugateGradientOptimizer(**optimizer_args)
 		self.top_paths = top_paths
+		self.best_mean = -np.inf
+		self.best_var = 0.0
 		super(TRPO, self).__init__(optimizer=optimizer, **kwargs)
 
 	@overrides
@@ -42,8 +45,11 @@ class TRPO(NPO):
 				logger.log("Processing samples...")
 				samples_data = self.process_samples(itr, paths)
 
+				undiscounted_returns = [sum(path["rewards"]) for path in paths]
+				if np.mean(undiscounted_returns) > self.best_mean:
+					self.best_mean = np.mean(undiscounted_returns)
+					self.best_var = np.var(undiscounted_returns)
 				if not (self.top_paths is None):
-					undiscounted_returns = [sum(path["rewards"]) for path in paths]
 					action_seqs = [path["actions"] for path in paths]
 					[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 
@@ -61,6 +67,8 @@ class TRPO(NPO):
 				# logger.record_tabular('ItrTime', time.time() - itr_start_time)
 				logger.record_tabular('Itr',itr)
 				logger.record_tabular('StepNum',int((itr+1)*self.batch_size))
+				logger.record_tabular('BestMean', self.best_mean)
+				logger.record_tabular('BestVar', self.best_var)
 				if self.top_paths is not None:
 					for (topi, path) in enumerate(self.top_paths):
 						logger.record_tabular('reward '+str(topi), path[0])

@@ -23,24 +23,23 @@ from mylab.utils.np_weight_init import init_policy_np
 class GA(BatchPolopt):
 	"""
 	Genetic Algorithm
+	v8: put top_paths enqueue in obtain_samples
 	"""
 
 	def __init__(
 			self,
-			top_paths = None, 
+			top_paths = None,
 			step_size = 0.01, #serve as the std dev in mutation
 			step_size_anneal = 1.0,
 			pop_size = 5,
 			truncation_size = 2,
 			keep_best = 1,
-			fit_f = "mean",
+			fit_f = "max",
 			log_interval = 4000,
 			initial_mag = 1.0,
 			**kwargs):
 
 		self.top_paths = top_paths
-		self.best_mean = -np.inf
-		self.best_var = 0.0
 		self.step_size = step_size
 		self.step_size_anneal = step_size_anneal
 		self.pop_size = pop_size
@@ -93,6 +92,13 @@ class GA(BatchPolopt):
 						logger.log("Processing samples...")
 						samples_data = self.process_samples(itr, paths)
 
+						undiscounted_returns = [sum(path["rewards"]) for path in paths]
+
+						if not (self.top_paths is None):
+							action_seqs = [path["actions"] for path in paths]
+							# print(action_seqs)
+							[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
 
@@ -123,8 +129,6 @@ class GA(BatchPolopt):
 			if self.top_paths is not None:
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])
-			logger.record_tabular('BestMean', self.best_mean)
-			logger.record_tabular('BestVar', self.best_var)
 			logger.record_tabular('parent',self.parents[p])
 			logger.record_tabular('StepSize',self.step_size)
 			logger.record_tabular('Magnitude',self.magnitudes[itr,p])
@@ -189,15 +193,7 @@ class GA(BatchPolopt):
 	@overrides
 	def obtain_samples(self, itr):
 		self.stepNum += self.batch_size
-		paths = self.sampler.obtain_samples(itr)
-		undiscounted_returns = [sum(path["rewards"]) for path in paths]
-		if np.mean(undiscounted_returns) > self.best_mean:
-			self.best_mean = np.mean(undiscounted_returns)
-			self.best_var = np.var(undiscounted_returns)
-		if not (self.top_paths is None):
-			action_seqs = [path["actions"] for path in paths]
-			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
-		return paths
+		return self.sampler.obtain_samples(itr)
 
 	@overrides
 	def get_itr_snapshot(self, itr, samples_data):

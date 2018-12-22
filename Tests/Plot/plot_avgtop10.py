@@ -5,17 +5,18 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 4
+n_trial = 5
 top_k = 10
 batch_size = 4000
 max_step = 5e6#1e7#np.inf
 max_reward = np.inf
-min_reward = 0.0#-np.inf
+min_reward = -np.inf
 
 prepath = "../Acrobot/Data/AST/Lexington"
 exp = "Acrobot"
 plot_path = "../Acrobot/Data/Plot/Avgtop10/"
 policies = ["TRPO","MCTS_BV",\
+        "GATRDStep1.0Fmax","GATRDStep0.1Fmax","GATRDStep0.01Fmax",\
         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
         "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
 plot_name = exp

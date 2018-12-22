@@ -14,6 +14,7 @@ from mylab.utils.np_weight_init import init_policy_np
 class PSMCTS(BatchPolopt):
 	"""
 	Policy Space MCTS
+	#v6: put top_paths enqueue in obtain_samples
 	"""
 	def __init__(
 			self,
@@ -32,8 +33,6 @@ class PSMCTS(BatchPolopt):
 		self.k = k
 		self.alpha = alpha
 		self.top_paths = top_paths
-		self.best_mean = -np.inf
-		self.best_var = 0.0
 		self.fit_f = fit_f
 		self.f_Q = f_Q
 		self.step_size = step_size
@@ -170,6 +169,10 @@ class PSMCTS(BatchPolopt):
 	def rollout(self, s):
 		self.set_params(s)
 		paths = self.obtain_samples(0)
+		undiscounted_returns = [sum(path["rewards"]) for path in paths]
+		if not (self.top_paths is None):
+			action_seqs = [path["actions"] for path in paths]
+			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 		samples_data = self.process_samples(0, paths)
 		q = self.evaluate(samples_data)
 		self.s[s].v = q
@@ -179,16 +182,7 @@ class PSMCTS(BatchPolopt):
 	@overrides
 	def obtain_samples(self, itr):
 		self.stepNum += self.batch_size
-		paths = self.sampler.obtain_samples(itr)
-		undiscounted_returns = [sum(path["rewards"]) for path in paths]
-		if np.mean(undiscounted_returns) > self.best_mean:
-			self.best_mean = np.mean(undiscounted_returns)
-			self.best_var = np.var(undiscounted_returns)
-		if not (self.top_paths is None):
-			action_seqs = [path["actions"] for path in paths]
-			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
-
-		return paths
+		return self.sampler.obtain_samples(itr)
 
 	def record_tabular(self):
 		if self.stepNum%self.log_interval == 0:
@@ -198,8 +192,6 @@ class PSMCTS(BatchPolopt):
 			if self.top_paths is not None:
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])
-			logger.record_tabular('BestMean', self.best_mean)
-			logger.record_tabular('BestVar', self.best_var)
 			logger.dump_tabular(with_prefix=False)
 
 

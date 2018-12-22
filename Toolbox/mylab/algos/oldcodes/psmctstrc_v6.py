@@ -13,6 +13,7 @@ class PSMCTSTRC(PSMCTSTR):
 	candidate new actions: when adding a new mutation action, instead of just adding one, also adding multiple
 			candidate actions, this is more data efficient since they share the parent trajectory to calculate 
 			divergence.
+	v7: put top_paths enqueue in obtain_samples
 	"""
 	def __init__(
 			self,
@@ -64,6 +65,9 @@ class PSMCTSTRC(PSMCTSTR):
 		self.set_params(s)
 		paths = self.obtain_samples(0)
 		undiscounted_returns = [sum(path["rewards"]) for path in paths]
+		if not (self.top_paths is None):
+			action_seqs = [path["actions"] for path in paths]
+			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 		samples_data = self.process_samples(0, paths)
 		# assert len(self.s[s].ca) == 0
 		self.s[s].ca = self.getCandidateActions(s,samples_data)
