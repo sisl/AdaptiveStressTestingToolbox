@@ -14,17 +14,12 @@ min_reward = 0.0#-np.inf
 
 prepath = "../AcrobotStoch/Data/AST/Lexington"
 exp = "AcrobotStoch"
-plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
+plot_path = "../AcrobotStoch/Data/Plot/BestMean/"
 policies = ["TRPO",\
         "GATRDStep1.0Fmean","GATRDStep0.1Fmean","GATRDStep0.01Fmean",\
         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
         "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
 plot_name = exp
-# policies = ["TRPO","MCTS_BV",\
-#         "GATRDStep1.0Fmax","GATRDStep0.1Fmax","GATRDStep0.01Fmax",\
-#         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
-#         "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
-# plot_name = exp
 
 # prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
 # exp = "CartpoleNdRewardt"
@@ -48,14 +43,14 @@ fig = plt.figure(figsize=(10, 10))
 
 for (policy_index,policy) in enumerate(policies):
     print(policy)
-    Rewards = []
+    Means = []
     min_array_length = np.inf
     for trial in range(n_trial):
         file_path = prepath+'/'+policy+'/'+str(trial)+'/process.csv'
         if os.path.exists(file_path):
             print(trial)
             steps = []
-            rewards = []
+            means = []
             with open(file_path) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 for (i,row) in enumerate(csv_reader):
@@ -68,26 +63,21 @@ for (policy_index,policy) in enumerate(policies):
                             break
                         if int(row[entry_dict["StepNum"]])%batch_size == 0:
                             steps.append(int(row[entry_dict["StepNum"]]))
-                            avg_top = 0.0
-                            for k in range(top_k):
-                                avg_top += np.clip(float(row[entry_dict["reward "+str(k)]]),min_reward,max_reward)
-                            avg_top /= top_k
-                            rewards.append(avg_top)
-            if len(rewards) < min_array_length:
-                min_array_length = len(rewards) 
-            Rewards.append(rewards)
-            # print(len(rewards))
-            # print(steps[-1])
-            # print(min_array_length)
+                            mean = np.clip(float(row[entry_dict["BestMean"]]),min_reward,max_reward)
+                            means.append(mean)
+            print(means[-1]) 
+            if len(means) < min_array_length:
+                min_array_length = len(means)
+            Means.append(means)
     steps = steps[:min_array_length]
-    Rewards = [rewards[:min_array_length] for rewards in Rewards]
+    Means = [means[:min_array_length] for means in Means]
     # plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
-    plot, = plt.plot(steps,np.mean(Rewards,0))
+    plot, = plt.plot(steps,np.mean(Means,0))
     plts.append(plot)
     legends.append(policy)
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
-plt.ylabel('Average Top '+str(top_k) +' Reward')        
-fig.savefig(plot_path+plot_name+'_avgtop10.pdf')
+plt.ylabel('Best Mean')        
+fig.savefig(plot_path+plot_name+'_bestmean.pdf')
 plt.close(fig)
