@@ -39,7 +39,7 @@ parser.add_argument('--args_data', type=str, default=None)
 #Algo Params
 parser.add_argument('--iters', type=int, default=101)
 parser.add_argument('--batch_size', type=int, default=4000)
-parser.add_argument('--step_size', type=float, default=1.0)
+parser.add_argument('--step_size', type=float, default=0.3)
 
 
 # Policy Params
@@ -126,7 +126,7 @@ saver = tf.train.Saver()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 with tf.Session(config=config) as sess:
-    with tf.variable_scope('AST', reuse=True):
+    with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
         # Run the experiment
         algo.train(sess=sess)
         save_path = saver.save(sess, log_dir + '/model.ckpt')
