@@ -126,7 +126,7 @@ saver = tf.train.Saver()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 with tf.Session(config=config) as sess:
-    with tf.variable_scope('AST', reuse=True):
+    with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
         # Run the experiment
         algo.train(sess=sess)
         save_path = saver.save(sess, log_dir + '/model.ckpt')
