@@ -1,7 +1,18 @@
 from cached_property import cached_property
 from garage.misc.overrides import overrides
 from garage.envs.base import GarageEnv
+from garage.envs.env_spec import EnvSpec
 from garage.envs.base import Step
+from garage.tf.spaces import Box
+from garage.tf.spaces import Dict
+from garage.tf.spaces import Discrete
+from garage.tf.spaces import Tuple
+
+from gym.spaces import Box as GymBox
+from gym.spaces import Dict as GymDict
+from gym.spaces import Discrete as GymDiscrete
+from gym.spaces import Tuple as GymTuple
+
 import numpy as np
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
@@ -14,6 +25,7 @@ from garage.core import Serializable
 class ASTEnv(gym.Env, Serializable):
 # class ASTEnv(GarageEnv):
     def __init__(self,
+                 interactive=True,
                  action_only=True,
                  sample_init_state=False,
                  s_0=None,
@@ -21,7 +33,8 @@ class ASTEnv(gym.Env, Serializable):
                  reward_function=None,
                  spaces=None):
         # Constant hyper-params -- set by user
-        self.action_only = action_only
+        self.interactive=interactive
+        self.action_only = action_only #is this redundant?
         self.spaces = spaces
         # These are set by reset, not the user
         self._done = False
@@ -73,7 +86,7 @@ class ASTEnv(gym.Env, Serializable):
         self._actions.append(action)
         # Update simulation step
         obs = self.simulator.step(self._action)
-        if obs is None:
+        if (obs is None) or (self.interactive is False):
             obs = self._init_state
         if self.simulator.is_goal():
             self._done = True
@@ -108,6 +121,12 @@ class ASTEnv(gym.Env, Serializable):
         self._actions = []
         if self._sample_init_state:
             self._init_state = self.observation_space.sample()
+        self._done = False
+        self._reward = 0.0
+        self._info = []
+        self._action = None
+        self._actions = []
+        self._first_step = True
 
         return self.simulator.reset(self._init_state)
 
@@ -116,15 +135,20 @@ class ASTEnv(gym.Env, Serializable):
         """
         Returns a Space object
         """
-        return self.spaces.action_space
+        if self.spaces is None:
+            return self._to_garage_space(self.simulator.action_space)
+        else:
+            return self._to_garage_space(self.spaces.action_space)
 
     @property
     def observation_space(self):
         """
         Returns a Space object
         """
-
-        return self.spaces.observation_space
+        if self.spaces is None:
+            return self._to_garage_space(self.simulator.observation_space)
+        else:
+            return self._to_garage_space(self.spaces.observation_space)
 
     def get_cache_list(self):
         return self._info
@@ -133,30 +157,53 @@ class ASTEnv(gym.Env, Serializable):
         self.simulator.log()
 
     def render(self):
-        print('Rendering 8===D :p')
+        if hasattr(self.simulator, "render") and callable(getattr(self.simulator, "render")):
+            return self.simulator.render()
+        else:
+            return None
+
+    def close(self):
+        if hasattr(self.simulator, "close") and callable(getattr(self.simulator, "close")):
+            self.simulator.close()
+        else:
+            return None
+
+    def vec_env_executor(self, n_envs, max_path_length):
+        return self.simulator.vec_env_executor(n_envs,max_path_length,self.reward_function,
+                                                self._sample_init_state,self._init_state,
+                                                self.interactive)
 
     def log_diagnostics(self, paths):
         pass
 
-    # @cached_property
-    # @overrides
-    # def spec(self):
-    #     """
-    #     Returns an EnvSpec.
-    #
-    #     Returns:
-    #         spec (garage.envs.EnvSpec)
-    #     """
-    #     return EnvSpec(
-    #         observation_space=self.observation_space,
-    #         action_space=self.action_space)
-    #
-    # @overrides
-    # def _to_garage_space(self, space):
-    #     """
-    #     Converts a gym.space to a garage.tf.space.
-    #
-    #     Returns:
-    #         space (garage.tf.spaces)
-    #     """
-    #     return space
+    @cached_property
+    @overrides
+    def spec(self):
+        """
+        Returns an EnvSpec.
+    
+        Returns:
+            spec (garage.envs.EnvSpec)
+        """
+        return EnvSpec(
+            observation_space=self.observation_space,
+            action_space=self.action_space)
+    
+    @overrides
+    def _to_garage_space(self, space):
+        """
+        Converts a gym.space to a garage.tf.space.
+
+        Returns:
+            space (garage.tf.spaces)
+        """
+        if isinstance(space, GymBox):
+            return Box(low=space.low, high=space.high)
+        elif isinstance(space, GymDict):
+            return Dict(space.spaces)
+        elif isinstance(space, GymDiscrete):
+            return Discrete(space.n)
+        elif isinstance(space, GymTuple):
+            return Tuple(list(map(self._to_garage_space, space.spaces)))
+        else:
+            return space

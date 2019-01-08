@@ -150,7 +150,7 @@ class GATR(GA):
 
 			# np.random.seed(int(new_seeds[itr+1,p]))
 			# direction = np.random.normal(size=param_values.shape)
-			self.np_randm.seed(int(new_seeds[itr+1,p]))
+			self.np_random.seed(int(new_seeds[itr+1,p]))
 			direction = self.np_random.normal(size=param_values.shape)
 
 			samples_data = all_paths[self.parents[p]]

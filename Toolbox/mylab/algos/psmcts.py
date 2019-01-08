@@ -98,7 +98,7 @@ class PSMCTS(BatchPolopt):
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		self.start_worker()
+		self.start_worker(sess)
 		# self.initial()
 		for i in range(self.n_itr):
 			self.itr = i

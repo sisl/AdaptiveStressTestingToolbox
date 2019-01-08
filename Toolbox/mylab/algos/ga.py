@@ -68,7 +68,7 @@ class GA(BatchPolopt):
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		self.start_worker()
+		self.start_worker(sess)
 		start_time = time.time()
 		self.initial()
 

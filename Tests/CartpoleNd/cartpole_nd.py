@@ -5,18 +5,20 @@ permalink: https://perma.cc/C9ZM-652R
 """
 from Cartpole.cartpole import CartPoleEnv
 from garage.misc.overrides import overrides
+from garage.core import Serializable
 import numpy as np
-import garage.spaces as spaces
+import gym
 
-class CartPoleNdEnv(CartPoleEnv):
-    def __init__(self, nd ,*args, **kwargs):
+class CartPoleNdEnv(CartPoleEnv, Serializable):
+    def __init__(self, nd, *args, **kwargs):
         self.nd = nd
+        Serializable.quick_init(self, locals())
         super(CartPoleNdEnv, self).__init__(*args, **kwargs)
 
     @property
     def ast_action_space(self):
         high = np.array([self.wind_force_mag for i in range(self.nd)])
-        return spaces.Box(-high,high)
+        return gym.spaces.Box(-high,high)
 
     def ast_step(self, action, ast_action):
         if self.use_seed:

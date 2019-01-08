@@ -5,18 +5,16 @@ permalink: https://perma.cc/C9ZM-652R
 """
 
 import math
-from .gym import logger
-from mylab.utils import seeding
 import numpy as np
-from garage.core.serializable import Serializable
-from garage.envs.base import Env
-from garage.spaces import Box
-from garage.envs.base import Step
-from garage.misc.overrides import overrides
-import garage.spaces as spaces
 from scipy.stats import norm
+import gym
+from gym import logger
+from gym.utils import seeding
+from garage.core import Serializable
+from garage.envs import Step
+from garage.misc.overrides import overrides
 
-class CartPoleEnv(Env):
+class CartPoleEnv(gym.Env, Serializable):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : 50
@@ -45,7 +43,7 @@ class CartPoleEnv(Env):
         self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
-        # Serializable.__init__(self, *args, **kwargs)
+        Serializable.quick_init(self, locals())
 
     @property
     def observation_space(self):
@@ -54,11 +52,11 @@ class CartPoleEnv(Env):
             np.finfo(np.float32).max,
             self.theta_threshold_radians * 2,
             np.finfo(np.float32).max])
-        return spaces.Box(-high, high)
+        return gym.spaces.Box(-high, high, dtype=np.float32)
 
     @property
     def action_space(self):
-        return spaces.Discrete(2)
+        return gym.spaces.Discrete(2)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -117,8 +115,7 @@ class CartPoleEnv(Env):
         cartheight = 30.0
 
         if self.viewer is None:
-            # from gym.envs.classic_control import rendering
-            from .gym import rendering
+            from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
             l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
             axleoffset =cartheight/4.0
@@ -165,12 +162,12 @@ class CartPoleEnv(Env):
             np.finfo(np.float32).max,
             self.theta_threshold_radians * 2,
             np.finfo(np.float32).max])
-        return spaces.Box(-high, high)
+        return gym.spaces.Box(-high, high, dtype=np.float32)
 
     @property
     def ast_action_space(self):
         high = np.array([self.wind_force_mag])
-        return spaces.Box(-high,high)
+        return gym.spaces.Box(-high, high, dtype=np.float32)
 
     def ast_get_observation(self):
         return np.array(self.state)

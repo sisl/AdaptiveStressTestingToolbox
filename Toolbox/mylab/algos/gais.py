@@ -17,8 +17,8 @@ class GAIS(GA):
 	def __init__(
 			self,
 			**kwargs):
-		self.sum_other_weights = np.zeros(kwargs['pop_size'])
 		super(GAIS, self).__init__(**kwargs)
+		self.sum_other_weights = np.zeros(self.pop_size)
 
 	@overrides
 	def init_opt(self):
