@@ -60,9 +60,6 @@ class ExampleAVSimulator(Simulator):
         self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
         self.y = np.random.rand(self.c_num_peds) * 14 - 5
         self.x = np.random.rand(self.c_num_peds) * 4 - 2
-        self.low_start_bounds = [-1.0, -4.25, -1.0, 5.0, 0.0, -6.0, 0.0, 5.0]
-        self.high_start_bounds = [0.0, -3.75, 0.0, 9.0, 1.0, -2.0, 1.0, 9.0]
-        self.v_start = [1.0, -1.0, 1.0, -1.0]
         self._state = None
 
         #initialize the base Simulator

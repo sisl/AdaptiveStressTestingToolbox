@@ -43,8 +43,8 @@ class ExampleAVSpaces(ASTSpaces):
         self.c_car_init_x = car_init_x
         self.c_car_init_y = car_init_y
         self.action_only = action_only
-        self.low_start_bounds = [-1.0, -4.25, -1.0, 5.0, 0.0, -6.0, 0.0, 5.0]
-        self.high_start_bounds = [0.0, -3.75, 0.0, 9.0, 1.0, -2.0, 1.0, 9.0]
+        self.low_start_bounds = [-1.0, -1.0, -1.0, 5.0, 0.0, -6.0, 0.0, 5.0]
+        self.high_start_bounds = [1.0, -6.0, 0.0, 9.0, 1.0, -2.0, 1.0, 9.0]
         self.v_start = [1.0, -1.0, 1.0, -1.0]
         super().__init__()
 
