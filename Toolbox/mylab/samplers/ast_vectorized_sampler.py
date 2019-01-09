@@ -52,4 +52,4 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
             else:
                 in_dict[key][slice_idx + 1:, ...] = np.zeros_like(value[slice_idx + 1:, ...])
 
-            return in_dict
+        return in_dict

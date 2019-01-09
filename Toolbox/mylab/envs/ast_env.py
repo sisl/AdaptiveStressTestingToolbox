@@ -135,24 +135,20 @@ class ASTEnv(gym.Env, Serializable):
         """
         Returns a Space object
         """
-        # if self.spaces is None:
-        #     return self._to_garage_space(self.simulator.action_space)
-        # else:
-        #     return self._to_garage_space(self.spaces.action_space)
-
-        return self._to_garage_space(self.spaces.action_space)
+        if self.spaces is None:
+            return self._to_garage_space(self.simulator.action_space)
+        else:
+            return self.spaces.action_space
 
     @property
     def observation_space(self):
         """
         Returns a Space object
         """
-        # if self.spaces is None:
-        #     return self._to_garage_space(self.simulator.observation_space)
-        # else:
-        #     return self._to_garage_space(self.spaces.observation_space)
-
-        return self._to_garage_space(self.spaces.observation_space)
+        if self.spaces is None:
+            return self._to_garage_space(self.simulator.observation_space)
+        else:
+            return self.spaces.observation_space
 
     def get_cache_list(self):
         return self._info
@@ -185,14 +181,14 @@ class ASTEnv(gym.Env, Serializable):
     def spec(self):
         """
         Returns an EnvSpec.
-    
+
         Returns:
             spec (garage.envs.EnvSpec)
         """
         return EnvSpec(
             observation_space=self.observation_space,
             action_space=self.action_space)
-    
+
     @overrides
     def _to_garage_space(self, space):
         """

@@ -1,12 +1,12 @@
 # import base class
-from mylab.rewards.ast_reward import ASTReward
+from mylab.rewards.base import RewardFn
 
 # useful packages for math and debugging
 import numpy as np
 import pdb
 
 # Define the class, inherit from the base
-class ExampleAVReward(ASTReward):
+class ExampleAVReward(RewardFn):
     def __init__(self,
                  num_peds=1,
                  cov_x=0.1,
