@@ -136,7 +136,8 @@ class ASTEnv(gym.Env, Serializable):
         Returns a Space object
         """
         if self.spaces is None:
-            return self._to_garage_space(self.simulator.action_space)
+            # return self._to_garage_space(self.simulator.action_space)
+            return self.simulator.action_space
         else:
             return self.spaces.action_space
 
@@ -146,7 +147,8 @@ class ASTEnv(gym.Env, Serializable):
         Returns a Space object
         """
         if self.spaces is None:
-            return self._to_garage_space(self.simulator.observation_space)
+            # return self._to_garage_space(self.simulator.observation_space)
+            return self.simulator.observation_space
         else:
             return self.spaces.observation_space
 
@@ -189,21 +191,21 @@ class ASTEnv(gym.Env, Serializable):
             observation_space=self.observation_space,
             action_space=self.action_space)
 
-    @overrides
-    def _to_garage_space(self, space):
-        """
-        Converts a gym.space to a garage.tf.space.
+    # @overrides
+    # def _to_garage_space(self, space):
+    #     """
+    #     Converts a gym.space to a garage.tf.space.
 
-        Returns:
-            space (garage.tf.spaces)
-        """
-        if isinstance(space, GymBox):
-            return Box(low=space.low, high=space.high)
-        elif isinstance(space, GymDict):
-            return Dict(space.spaces)
-        elif isinstance(space, GymDiscrete):
-            return Discrete(space.n)
-        elif isinstance(space, GymTuple):
-            return Tuple(list(map(self._to_garage_space, space.spaces)))
-        else:
-            return space
+    #     Returns:
+    #         space (garage.tf.spaces)
+    #     """
+    #     if isinstance(space, GymBox):
+    #         return Box(low=space.low, high=space.high)
+    #     elif isinstance(space, GymDict):
+    #         return Dict(space.spaces)
+    #     elif isinstance(space, GymDiscrete):
+    #         return Discrete(space.n)
+    #     elif isinstance(space, GymTuple):
+    #         return Tuple(list(map(self._to_garage_space, space.spaces)))
+    #     else:
+    #         return space

@@ -9,7 +9,7 @@ from mylab.simulators.policy_simulator import PolicySimulator
 from Cartpole.cartpole import CartPoleEnv
 import tensorflow as tf
 from garage.misc import logger
-from garage.tf.envs.base import TfEnv
+from mylab.envs.tfenv import TfEnv
 import math
 
 import os
@@ -66,7 +66,7 @@ env = ASTEnv(interactive=interactive,
 							 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 							 reward_function=reward_function,
 							 )
-
+env = TfEnv(env)
 # Create the logger
 log_dir = args.log_dir+'/test'
 

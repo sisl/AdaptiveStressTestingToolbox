@@ -1,4 +1,4 @@
-# source activate DRL-AST-temp
+# conda activate garage
 export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox/garage
 export PYTHONPATH=$PYTHONPATH:$PWD/Tests
 export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox

@@ -37,7 +37,7 @@ class VectorizedGASampler(BaseSampler):
         self.env_spec = self.algo.env.spec
 
     def shutdown_worker(self):
-        self.vec_env.terminate()
+        self.vec_env.close()
 
     def obtain_samples(self, itr):
         logger.log("Obtaining samples for iteration %d..." % itr)

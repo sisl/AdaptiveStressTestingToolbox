@@ -3,7 +3,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.tf.envs.base import TfEnv
+from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
@@ -83,7 +83,7 @@ with tf.Session() as sess:
 								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 								 reward_function=reward_function,
 								 )
-
+	env = TfEnv(env)
 	# Create policy
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',
