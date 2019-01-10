@@ -14,10 +14,10 @@ from garage.envs.env_spec import EnvSpec
 
 from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
-from mylab.simulators.policy_simulator import PolicySimulator
+from Cartpole.cartpole_simulator import CartpoleSimulator
 from mylab.utils.tree_plot import plot_tree, plot_node_num
 
-from Cartpole.cartpole import CartPoleEnv
+
 
 from mylab.algos.psmctstr import PSMCTSTR
 
@@ -71,12 +71,12 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env_inner = CartPoleEnv(use_seed=False)
+	
 	data = joblib.load("../Cartpole/Data/Train/itr_50.pkl")
-	policy_inner = data['policy']
+	sut = data['policy']
 	reward_function = ASTRewardS()
 
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False)
 	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
 								 fixed_init_state=True,

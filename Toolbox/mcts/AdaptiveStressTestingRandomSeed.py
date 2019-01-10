@@ -36,4 +36,5 @@ class ASTAction:
 	def __eq__(self,other):
 		return self.action == other.action
 	def get(self):
-		return self.action.state
+		action = self.action.state
+		return action

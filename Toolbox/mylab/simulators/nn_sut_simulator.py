@@ -4,19 +4,19 @@ import pickle as pickle
 from garage.tf.misc import tensor_utils
 
 #Define the class
-class PolicySimulator(ASTSimulator):
+class NNSUTSimulator(ASTSimulator):
     """
-    Class template for a non-interactive simulator.
+    neural network system under test simulator
     """
-    #Accept parameters for defining the behavior of the system under test[SUT]
+
     def __init__(self,
     			 env,
-    			 policy,
+    			 sut, #system under test, in this case is a NN policy
                  **kwargs):
 
         #initialize the base Simulator
         self.env = env
-        self.policy = policy
+        self.sut = sut
         self.path_length = 0
         super().__init__(**kwargs)
 
@@ -43,7 +43,7 @@ class PolicySimulator(ASTSimulator):
         while (path_length < self.c_max_path_length) and (not done):
             #get the action from the list
             ast_action = actions[path_length]
-            action, agent_info = self.policy.get_action(o)
+            action, agent_info = self.sut.get_action(o)
             o_ast, o, done = self.env.ast_step(action, ast_action)
 
             # check if a crash has occurred. If so return the timestep, otherwise continue
@@ -57,13 +57,13 @@ class PolicySimulator(ASTSimulator):
     def step(self, action):
         ast_action = action
         o = self.env.get_observation()
-        action, agent_info = self.policy.get_action(o)
+        action, agent_info = self.sut.get_action(o)
         if "mean" in agent_info:
             action = agent_info["mean"]
         elif "prob" in agent_info:
             action = np.argmax(agent_info["prob"])
-        if self.policy.recurrent:
-            self.policy.prev_actions = self.policy.action_space.flatten_n([action])
+        if self.sut.recurrent:
+            self.sut.prev_actions = self.sut.action_space.flatten_n([action])
         o_ast, o, done = self.env.ast_step(action, ast_action)
         self.path_length += 1
         self._is_terminal = (self.path_length >= self.c_max_path_length) or done
@@ -76,7 +76,7 @@ class PolicySimulator(ASTSimulator):
         -------
         observation : the initial observation of the space. (Initial reward is assumed to be 0.)
         """
-        self.policy.reset()
+        self.sut.reset()
         o_ast, o = self.env.ast_reset(s_0)
         self.path_length = 0
         self._is_terminal = False
@@ -125,18 +125,18 @@ class PolicySimulator(ASTSimulator):
     def vec_env_executor(self, n_envs, max_path_length, reward_function,
                             sample_init_state, init_state, interactive):
         envs = [pickle.loads(pickle.dumps(self.env)) for _ in range(n_envs)]
-        return InnerVecEnvExecutor(envs, self.policy, reward_function,
+        return InnerVecEnvExecutor(envs, self.sut, reward_function,
                     sample_init_state, init_state,
                     max_path_length, interactive)
 
 class InnerVecEnvExecutor(object):
-    def __init__(self, envs, policy, reward_function, fixed_init_state, init_state, max_path_length, interactive):
+    def __init__(self, envs, sut, reward_function, fixed_init_state, init_state, max_path_length, interactive):
         self.envs = envs
         self._action_space = envs[0].ast_action_space
         self._observation_space = envs[0].ast_observation_space
         self.ts = np.zeros(len(self.envs), dtype='int')
         self.max_path_length = max_path_length
-        self.policy = policy
+        self.sut = sut
         self.reward_function = reward_function
         self._fixed_init_state = fixed_init_state
         self._init_state = init_state
@@ -148,13 +148,13 @@ class InnerVecEnvExecutor(object):
 
         ast_action_n = action_n
         os = [np.reshape(env.get_observation(),env.observation_space.shape) for env in self.envs]
-        action_n, action_info_n = self.policy.get_actions(os)
+        action_n, action_info_n = self.sut.get_actions(os)
         if "mean" in action_info_n:
             action_n = action_info_n["mean"]
         elif "prob" in action_info_n:
             action_n = np.argmax(action_info_n["prob"],axis=1)
-        if self.policy.recurrent:
-            self.policy.prev_actions = self.policy.action_space.flatten_n(action_n)
+        if self.sut.recurrent:
+            self.sut.prev_actions = self.sut.action_space.flatten_n(action_n)
         # action = self.env.action_space.sample()
         # results = [np.reshape(env.ast_step(action, ast_action),env.ast_observation_space.shape) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
         results = [env.ast_step(action, ast_action) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
@@ -185,7 +185,7 @@ class InnerVecEnvExecutor(object):
                 else:
                     obs[i] = self.envs[i].ast_reset(self.observation_space.sample())[0]
                 self.ts[i] = 0
-        self.policy.reset(dones)
+        self.sut.reset(dones)
         return obs, rewards, dones, tensor_utils.stack_tensor_dict_list(env_infos)
 
     def reset(self):
@@ -195,7 +195,7 @@ class InnerVecEnvExecutor(object):
             results = [env.ast_reset(self.observation_space.sample())[0] for env in self.envs]
         self.ts[:] = 0
         dones = np.asarray([True] * len(self.envs))
-        self.policy.reset(dones)
+        self.sut.reset(dones)
         return results
 
     @property

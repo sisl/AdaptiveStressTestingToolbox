@@ -15,4 +15,4 @@ class MCTSRS(MCTS):
 
 	def init(self):
 		ast_params = AST_RS.ASTParams(self.max_path_length,self.rsg_length,self.seed,self.log_interval,self.log_tabular)
-		self.ast = AST_RS.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
+		self.ast = AST_RS.AdaptiveStressTestRS(p=ast_params, env=self.env, top_paths=self.top_paths)

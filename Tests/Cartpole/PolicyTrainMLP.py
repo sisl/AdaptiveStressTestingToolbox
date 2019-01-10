@@ -3,7 +3,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from Cartpole.cartpole import CartPoleEnv
+
 # from gym.envs.classic_control.cartpole import CartPoleEnv
 # from garage.envs.grid_world_env import GridWorldEnv
 from garage.tf.envs.base import TfEnv
