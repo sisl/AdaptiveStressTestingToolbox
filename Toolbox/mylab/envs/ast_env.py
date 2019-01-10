@@ -25,9 +25,9 @@ from garage.core import Serializable
 class ASTEnv(gym.Env, Serializable):
 # class ASTEnv(GarageEnv):
     def __init__(self,
-                 open_loop=False,
+                 open_loop=True,
                  action_only=True,
-                 fixed_init_state=True,
+                 fixed_init_state=False,
                  s_0=None,
                  simulator=None,
                  reward_function=None,

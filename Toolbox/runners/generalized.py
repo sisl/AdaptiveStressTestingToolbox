@@ -50,7 +50,7 @@ parser.add_argument('--load_policy', type=bool, default=False)
 
 # Env Params
 parser.add_argument('--action_only', type=bool, default=True)
-parser.add_argument('--sample_init_state', type=bool, default=True)
+parser.add_argument('--fixed_init_state', type=bool, default=False)
 
 # Parse input args
 args = parser.parse_args()
@@ -82,7 +82,7 @@ spaces = ExampleAVSpaces()
 
 # Create the environment
 env = ASTEnv(action_only=args.action_only,
-             fixed_init_state=args.sample_init_state,
+             fixed_init_state=args.fixed_init_state,
              s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
              simulator=sim,
              reward_function=reward_function,
