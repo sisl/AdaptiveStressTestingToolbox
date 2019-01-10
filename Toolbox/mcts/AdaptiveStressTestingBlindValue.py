@@ -5,11 +5,11 @@ import numpy as np
 from mcts.AdaptiveStressTesting import AdaptiveStressTest,ASTAction
 
 class ASTParams:
-	def __init__(self,max_steps,ec,M,batch_size,log_tabular):
+	def __init__(self,max_steps,ec,M,log_interval,log_tabular):
 		self.max_steps = max_steps
 		self.ec = ec
 		self.M = M
-		self.batch_size = batch_size
+		self.log_interval = log_interval
 		self.log_tabular = log_tabular
 
 class AdaptiveStressTestBV(AdaptiveStressTest):

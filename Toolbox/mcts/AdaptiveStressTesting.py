@@ -5,9 +5,9 @@ import numpy as np
 import garage.misc.logger as logger
 
 class ASTParams:
-	def __init__(self,max_steps,batch_size,log_tabular):
+	def __init__(self,max_steps,log_interval,log_tabular):
 		self.max_steps = max_steps
-		self.batch_size = batch_size
+		self.log_interval = log_interval
 		self.log_tabular = log_tabular
 
 class AdaptiveStressTest:
@@ -33,7 +33,7 @@ class AdaptiveStressTest:
 		self._isterminal = done
 		self._reward = reward
 		if self.params.log_tabular:
-			if self.step_count%self.params.batch_size == 0:
+			if self.step_count%self.params.log_interval == 0:
 				logger.record_tabular('StepNum',self.step_count)
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])

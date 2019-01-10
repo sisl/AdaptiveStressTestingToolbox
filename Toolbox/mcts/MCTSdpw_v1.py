@@ -4,13 +4,14 @@ import mcts.BoundedPriorityQueues as BPQ
 import numpy as np
 
 class DPWParams:
-	def __init__(self, d, ec, n, k, alpha, clear_nodes): #like constructor self must be as the first
+	def __init__(self, d, ec, n, k, alpha, clear_nodes, top_k): #like constructor self must be as the first
 		self.d = d #search depth
 		self.ec = ec #exploration constant
 		self.n = n #number of iterations
 		self.k = k
 		self.alpha = alpha
 		self.clear_nodes = clear_nodes
+		self.top_k = top_k
 
 class DPWModel:
 	def __init__(self, model, getAction, getNextAction):
@@ -57,6 +58,7 @@ def DPWInit(p,f,top_paths):
 	p = p
 	f = f
 	tracker = mctstracker.MCTSTrackerInit()
+	# top_paths = BPQ.BoundedPriorityQueueInit(p.top_k)
 	top_paths = top_paths
 	return DPW(s,p,f,tracker,top_paths)
 

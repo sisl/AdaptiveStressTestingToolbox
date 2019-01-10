@@ -6,11 +6,11 @@ import numpy as np
 import mcts.RNGWrapper as RNG
 
 class ASTParams:
-	def __init__(self,max_steps,rsg_length,init_seed,batch_size,log_tabular):
+	def __init__(self,max_steps,rsg_length,init_seed,log_interval,log_tabular):
 		self.max_steps = max_steps
 		self.rsg_length = rsg_length
 		self.init_seed = init_seed
-		self.batch_size = batch_size
+		self.log_interval = log_interval
 		self.log_tabular = log_tabular
 		
 class AdaptiveStressTestRS(AdaptiveStressTest):
