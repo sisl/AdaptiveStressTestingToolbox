@@ -8,9 +8,9 @@ import numpy as np
 n_trial = 5
 top_k = 10
 batch_size = 4000
-max_step = 5e6#1e7#np.inf
+max_step = np.inf
 max_reward = np.inf
-min_reward = 0.0#-np.inf
+min_reward = -0.05#-np.inf
 
 prepath = "../AcrobotStoch/Data/AST/Lexington"
 exp = "AcrobotStoch"
