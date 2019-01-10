@@ -34,6 +34,7 @@ class PSMCTS(BatchPolopt):
 		self.top_paths = top_paths
 		self.best_mean = -np.inf
 		self.best_var = 0.0
+		self.best_s = None
 		self.fit_f = fit_f
 		self.f_Q = f_Q
 		self.step_size = step_size
@@ -170,6 +171,16 @@ class PSMCTS(BatchPolopt):
 	def rollout(self, s):
 		self.set_params(s)
 		paths = self.obtain_samples(0)
+
+		undiscounted_returns = [sum(path["rewards"]) for path in paths]
+		if np.mean(undiscounted_returns) > self.best_mean:
+			self.best_mean = np.mean(undiscounted_returns)
+			self.best_var = np.var(undiscounted_returns)
+			self.best_s = s
+		if not (self.top_paths is None):
+			action_seqs = [path["actions"] for path in paths]
+			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+
 		samples_data = self.process_samples(0, paths)
 		q = self.evaluate(samples_data)
 		self.s[s].v = q
@@ -180,14 +191,6 @@ class PSMCTS(BatchPolopt):
 	def obtain_samples(self, itr):
 		self.stepNum += self.batch_size
 		paths = self.sampler.obtain_samples(itr)
-		undiscounted_returns = [sum(path["rewards"]) for path in paths]
-		if np.mean(undiscounted_returns) > self.best_mean:
-			self.best_mean = np.mean(undiscounted_returns)
-			self.best_var = np.var(undiscounted_returns)
-		if not (self.top_paths is None):
-			action_seqs = [path["actions"] for path in paths]
-			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
-
 		return paths
 
 	def record_tabular(self):

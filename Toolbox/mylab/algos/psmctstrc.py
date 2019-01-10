@@ -63,6 +63,16 @@ class PSMCTSTRC(PSMCTSTR):
 	def rollout(self, s):
 		self.set_params(s)
 		paths = self.obtain_samples(0)
+
+		undiscounted_returns = [sum(path["rewards"]) for path in paths]
+		if np.mean(undiscounted_returns) > self.best_mean:
+			self.best_mean = np.mean(undiscounted_returns)
+			self.best_var = np.var(undiscounted_returns)
+			self.best_s = s
+		if not (self.top_paths is None):
+			action_seqs = [path["actions"] for path in paths]
+			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+		
 		undiscounted_returns = [sum(path["rewards"]) for path in paths]
 		samples_data = self.process_samples(0, paths)
 		# assert len(self.s[s].ca) == 0
