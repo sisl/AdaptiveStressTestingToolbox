@@ -76,6 +76,7 @@ with tf.Session() as sess:
 	reward_function = ASTReward()
 
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
+<<<<<<< HEAD
 	env = ASTEnv(interactive=True,
 								 simulator=simulator,
 								 sample_init_state=False,
@@ -83,6 +84,15 @@ with tf.Session() as sess:
 								 reward_function=reward_function,
 								 )
 	env = TfEnv(env)
+=======
+	env = ASTEnv(open_loop=True,
+				 simulator=simulator,
+				 fixed_init_state=False,
+				 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+				 reward_function=reward_function,
+				 )
+
+>>>>>>> d6aa19d9525e05f05d7e4668212757ebb8885cfc
 	# Create policy
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',

@@ -1,10 +1,10 @@
-from mylab.simulators.simulator import Simulator
+from mylab.simulators.ast_simulator import ASTSimulator
 import numpy as np
 import pickle as pickle
 from garage.tf.misc import tensor_utils
 
 #Define the class
-class PolicySimulator(Simulator):
+class PolicySimulator(ASTSimulator):
     """
     Class template for a non-interactive simulator.
     """

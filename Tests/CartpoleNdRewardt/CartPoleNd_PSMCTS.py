@@ -79,12 +79,12 @@ with tf.Session() as sess:
 	reward_function = ASTReward()
 
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-	env = TfEnv(ASTEnv(interactive=True,
-								 simulator=simulator,
-								 sample_init_state=False,
-								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-								 reward_function=reward_function,
-								 ))
+	env = TfEnv(ASTEnv(open_loop=True,
+					   simulator=simulator,
+					   fixed_init_state=False,
+					   s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+					   reward_function=reward_function,
+					   ))
 
 	# Create policy
 	policy = DeterministicMLPPolicy(

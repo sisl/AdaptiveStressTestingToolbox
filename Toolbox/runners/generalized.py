@@ -82,7 +82,7 @@ spaces = ExampleAVSpaces()
 
 # Create the environment
 env = ASTEnv(action_only=args.action_only,
-             sample_init_state=args.sample_init_state,
+             fixed_init_state=args.sample_init_state,
              s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
              simulator=sim,
              reward_function=reward_function,

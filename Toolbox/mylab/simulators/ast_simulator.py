@@ -5,7 +5,7 @@ import numpy as np
 
 import pdb
 
-class Simulator(object):
+class ASTSimulator(object):
     """
     Class template for a non-interactive simulator.
     """

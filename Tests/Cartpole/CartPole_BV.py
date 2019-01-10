@@ -60,6 +60,7 @@ policy_inner = data['policy']
 reward_function = ASTReward()
 
 simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
+<<<<<<< HEAD
 env = ASTEnv(interactive=interactive,
 							 simulator=simulator,
 							 sample_init_state=False,
@@ -67,6 +68,15 @@ env = ASTEnv(interactive=interactive,
 							 reward_function=reward_function,
 							 )
 env = TfEnv(env)
+=======
+env = ASTEnv(open_loop=interactive,
+             simulator=simulator,
+             fixed_init_state=False,
+             s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+             reward_function=reward_function,
+             )
+
+>>>>>>> d6aa19d9525e05f05d7e4668212757ebb8885cfc
 # Create the logger
 log_dir = args.log_dir+'/test'
 

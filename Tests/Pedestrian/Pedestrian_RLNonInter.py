@@ -79,12 +79,12 @@ with tf.Session() as sess:
 	sim = AVSimulator(use_seed=False,spaces=spaces,max_path_length=max_path_length)
 
 
-	env = TfEnv(ASTEnv(interactive=False,
-	                             sample_init_state=False,
-	                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-	                             simulator=sim,
-	                             reward_function=reward_function,
-	                             ))
+	env = TfEnv(ASTEnv(open_loop=False,
+					   fixed_init_state=False,
+					   s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+					   simulator=sim,
+					   reward_function=reward_function,
+					   ))
 	policy = GaussianLSTMPolicy(name='lstm_policy',
 	                            env_spec=env.spec,
 	                            hidden_dim=128,
