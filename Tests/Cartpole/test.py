@@ -46,12 +46,12 @@ with tf.Session() as sess:
 	# Create the environment
 	max_path_length = 100
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-	env = TfEnv(ASTEnv(interactive=False,
-								 simulator=simulator,
-	                             sample_init_state=False,
-	                             s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-	                             reward_function=reward_function,
-	                             ))
+	env = TfEnv(ASTEnv(open_loop=False,
+					   simulator=simulator,
+					   fixed_init_state=False,
+					   s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+					   reward_function=reward_function,
+					   ))
 
 	actions = [env.action_space.sample() for i in range(200)]
 	d = False

@@ -25,15 +25,15 @@ from garage.core import Serializable
 class ASTEnv(gym.Env, Serializable):
 # class ASTEnv(GarageEnv):
     def __init__(self,
-                 interactive=True,
+                 open_loop=False,
                  action_only=True,
-                 sample_init_state=False,
+                 fixed_init_state=True,
                  s_0=None,
                  simulator=None,
                  reward_function=None,
                  spaces=None):
         # Constant hyper-params -- set by user
-        self.interactive=interactive
+        self.open_loop=open_loop
         self.action_only = action_only #is this redundant?
         self.spaces = spaces
         # These are set by reset, not the user
@@ -51,7 +51,7 @@ class ASTEnv(gym.Env, Serializable):
             self._init_state = self.observation_space.sample()
         else:
             self._init_state = s_0
-        self._sample_init_state = sample_init_state
+        self._fixed_init_state = fixed_init_state
         self.simulator = simulator
         if self.simulator is None:
             self.simulator = ExampleAVSimulator()
@@ -86,7 +86,7 @@ class ASTEnv(gym.Env, Serializable):
         self._actions.append(action)
         # Update simulation step
         obs = self.simulator.step(self._action)
-        if (obs is None) or (self.interactive is False):
+        if (obs is None) or (self.open_loop is True):
             obs = self._init_state
         if self.simulator.is_goal():
             self._done = True
@@ -107,7 +107,7 @@ class ASTEnv(gym.Env, Serializable):
                     info={'cache': self._info})
 
     def simulate(self, actions):
-        if self._sample_init_state:
+        if not self._fixed_init_state:
             self._init_state = self.observation_space.sample()
         self.simulator.simulate(actions, self._init_state)
 
@@ -119,7 +119,7 @@ class ASTEnv(gym.Env, Serializable):
         observation : the initial observation of the space. (Initial reward is assumed to be 0.)
         """
         self._actions = []
-        if self._sample_init_state:
+        if not self._fixed_init_state:
             self._init_state = self.observation_space.sample()
         self._done = False
         self._reward = 0.0
@@ -169,9 +169,9 @@ class ASTEnv(gym.Env, Serializable):
             return None
 
     def vec_env_executor(self, n_envs, max_path_length):
-        return self.simulator.vec_env_executor(n_envs,max_path_length,self.reward_function,
-                                                self._sample_init_state,self._init_state,
-                                                self.interactive)
+        return self.simulator.vec_env_executor(n_envs, max_path_length, self.reward_function,
+                                               self._fixed_init_state, self._init_state,
+                                               self.open_loop)
 
     def log_diagnostics(self, paths):
         pass

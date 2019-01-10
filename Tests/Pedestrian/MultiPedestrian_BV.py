@@ -29,12 +29,12 @@ spaces = AVSpaces(interactive=True)
 sim = AVSimulator(use_seed=False,spaces=spaces,max_path_length=max_path_length)
 
 
-env = ASTEnv(interactive=True,
-                             sample_init_state=False,
-                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                             simulator=sim,
-                             reward_function=reward_function,
-                             )
+env = ASTEnv(open_loop=True,
+			 fixed_init_state=False,
+			 s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+			 simulator=sim,
+			 reward_function=reward_function,
+			 )
 
 with open('Data/AST/pedestrian_MCTS_BV.csv', mode='w') as csv_file:
 	fieldnames = ['step_count']

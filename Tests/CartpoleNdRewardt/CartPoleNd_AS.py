@@ -33,12 +33,12 @@ with tf.Session() as sess:
 
 	# Create the environment
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=100)
-	env = ASTEnv(interactive=True,
-								 simulator=simulator,
-	                             sample_init_state=False,
-	                             s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-	                             reward_function=reward_function,
-	                             )
+	env = ASTEnv(open_loop=True,
+				 simulator=simulator,
+				 fixed_init_state=False,
+				 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+				 reward_function=reward_function,
+				 )
 
 	ast_params = AST.ASTParams(max_path_length,batch_size=4000,log_tabular=True)
 	ast = AST.AdaptiveStressTest(ast_params, env, top_paths)
