@@ -15,9 +15,9 @@ from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 
 class ASTVectorizedSampler(OnPolicyVectorizedSampler):
-    def __init__(self, algo, interactive = False, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
+    def __init__(self, algo, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
         # pdb.set_trace()
-        self.interactive = interactive
+        self.open_loop = open_loop
         self.sim = sim
         self.reward_function = reward_function
         super().__init__(algo)
@@ -25,7 +25,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
     def obtain_samples(self, itr):
         # pdb.set_trace()
         paths = super().obtain_samples(itr)
-        if not self.interactive:
+        if self.open_loop:
             for path in paths:
                 s_0 = path["observations"][0]
                 actions = path["actions"]
