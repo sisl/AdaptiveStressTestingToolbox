@@ -130,7 +130,7 @@ class PolicySimulator(ASTSimulator):
                     max_path_length, interactive)
 
 class InnerVecEnvExecutor(object):
-    def __init__(self, envs, policy, reward_function, sample_init_state, init_state, max_path_length, interactive):
+    def __init__(self, envs, policy, reward_function, fixed_init_state, init_state, max_path_length, interactive):
         self.envs = envs
         self._action_space = envs[0].ast_action_space
         self._observation_space = envs[0].ast_observation_space
@@ -138,7 +138,7 @@ class InnerVecEnvExecutor(object):
         self.max_path_length = max_path_length
         self.policy = policy
         self.reward_function = reward_function
-        self._sample_init_state = sample_init_state
+        self._fixed_init_state = fixed_init_state
         self._init_state = init_state
         self.interactive = interactive
 
@@ -180,19 +180,19 @@ class InnerVecEnvExecutor(object):
         
         for (i, done) in enumerate(dones):
             if done:
-                if self._sample_init_state:
-                    obs[i] = self.envs[i].ast_reset(self.observation_space.sample())[0]
-                else:
+                if self._fixed_init_state:
                     obs[i] = self.envs[i].ast_reset(self._init_state)[0]
+                else:
+                    obs[i] = self.envs[i].ast_reset(self.observation_space.sample())[0]
                 self.ts[i] = 0
         self.policy.reset(dones)
         return obs, rewards, dones, tensor_utils.stack_tensor_dict_list(env_infos)
 
     def reset(self):
-        if self._sample_init_state:
-            results = [env.ast_reset(self.observation_space.sample())[0] for env in self.envs]
-        else:
+        if self._fixed_init_state:
             results = [env.ast_reset(self._init_state)[0] for env in self.envs]
+        else:
+            results = [env.ast_reset(self.observation_space.sample())[0] for env in self.envs]
         self.ts[:] = 0
         dones = np.asarray([True] * len(self.envs))
         self.policy.reset(dones)

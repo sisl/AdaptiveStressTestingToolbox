@@ -9,7 +9,7 @@ from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 
-from mylab.rewards.ast_reward import ASTReward
+from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 
@@ -51,7 +51,7 @@ sess.__enter__()
 env_inner = CartPoleEnv(use_seed=False)
 data = joblib.load("Data/Train/itr_50.pkl")
 policy_inner = data['policy']
-reward_function = ASTReward()
+reward_function = ASTRewardS()
 
 simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
 env = TfEnv(ASTEnv(open_loop=interactive,

@@ -12,7 +12,7 @@ from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
 
-from mylab.rewards.ast_reward import ASTReward
+from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 
@@ -73,26 +73,16 @@ with tf.Session() as sess:
 	env_inner = CartPoleEnv(use_seed=False)
 	data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
-	reward_function = ASTReward()
+	reward_function = ASTRewardS()
 
 	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-<<<<<<< HEAD
-	env = ASTEnv(interactive=True,
+	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
-								 sample_init_state=False,
+								 fixed_init_state=True,
 								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 								 reward_function=reward_function,
 								 )
 	env = TfEnv(env)
-=======
-	env = ASTEnv(open_loop=True,
-				 simulator=simulator,
-				 fixed_init_state=False,
-				 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-				 reward_function=reward_function,
-				 )
-
->>>>>>> d6aa19d9525e05f05d7e4668212757ebb8885cfc
 	# Create policy
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',

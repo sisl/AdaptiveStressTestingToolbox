@@ -12,7 +12,7 @@ from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
 from garage.tf.envs.base import to_tf_space
 
-from mylab.rewards.ast_reward import ASTReward
+from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 
@@ -41,7 +41,7 @@ with tf.Session() as sess:
 	# Instantiate the env
 	data = joblib.load("Data/Train/itr_50.pkl")
 	policy_inner = data['policy']
-	reward_function = ASTReward()
+	reward_function = ASTRewardS()
 
 	# Create the environment
 	max_path_length = 100

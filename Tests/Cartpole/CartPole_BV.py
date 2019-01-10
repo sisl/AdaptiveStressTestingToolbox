@@ -3,7 +3,7 @@ import mcts.ASTSim as ASTSim
 import mcts.MCTSdpw as MCTSdpw
 import mcts.AST_MCTS as AST_MCTS
 import numpy as np
-from mylab.rewards.ast_reward import ASTReward
+from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 from Cartpole.cartpole import CartPoleEnv
@@ -57,26 +57,16 @@ sess.__enter__()
 env_inner = CartPoleEnv(use_seed=False)
 data = joblib.load("Data/Train/itr_50.pkl")
 policy_inner = data['policy']
-reward_function = ASTReward()
+reward_function = ASTRewardS()
 
 simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-<<<<<<< HEAD
-env = ASTEnv(interactive=interactive,
+env = ASTEnv(open_loop=False,
 							 simulator=simulator,
-							 sample_init_state=False,
+							 fixed_init_state=True,
 							 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 							 reward_function=reward_function,
 							 )
 env = TfEnv(env)
-=======
-env = ASTEnv(open_loop=interactive,
-             simulator=simulator,
-             fixed_init_state=False,
-             s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-             reward_function=reward_function,
-             )
-
->>>>>>> d6aa19d9525e05f05d7e4668212757ebb8885cfc
 # Create the logger
 log_dir = args.log_dir+'/test'
 
