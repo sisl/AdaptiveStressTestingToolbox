@@ -1,10 +1,10 @@
 #import base Simulator class
-from mylab.simulators.simulator import Simulator
+from mylab.simulators.ast_simulator import ASTSimulator
 #Used for math and debugging
 import numpy as np
 import pdb
 #Define the class
-class AVSimulator(Simulator):
+class AVSimulator(ASTSimulator):
     """
     Class template for a non-interactive simulator.
     """

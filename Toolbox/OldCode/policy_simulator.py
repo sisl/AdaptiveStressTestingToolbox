@@ -1,8 +1,8 @@
-from mylab.simulators.simulator import Simulator
+from mylab.simulators.ast_simulator import ASTSimulator
 import numpy as np
 
 #Define the class
-class PolicySimulator(Simulator):
+class PolicySimulator(ASTSimulator):
     """
     Class template for a non-interactive simulator.
     """
