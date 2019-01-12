@@ -28,7 +28,7 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.psmcts_trpo_argparser import get_psmcts_trpo_parser
-args = get_psmcts_trpo_parser(log_dir='./Data/AST/PSMCTSTRC_TRPO')
+args = get_psmcts_trpo_parser(log_dir='./Data/AST/PSMCTSTRC_TRPOmax')
 
 top_k = 10
 max_path_length = 100
@@ -126,20 +126,20 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
 		plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
-		###train best mean
-		best_s_mean = algo.best_s_mean
-		algo.set_params(best_s_mean)
-		best_mean_policy = algo.policy
-		best_mean_param_values = best_mean_policy.prob_network.get_param_values(trainable=True)
-
+		###train best max
+		best_s_max = algo.best_s_max
+		algo.set_params(best_s_max)
+		best_max_policy = algo.policy
+		best_max_param_values = best_max_policy.prob_network.get_param_values(trainable=True)
+		
 		params = policy2.get_params()
 		sess.run(tf.variables_initializer(params))
-		policy2._mean_network.set_param_values(best_mean_param_values,trainable=True)
+		policy2._mean_network.set_param_values(best_max_param_values,trainable=True)
 
 		# check param transfer success
 		# o = env.observation_space.sample()
 		# print("o: ",o)
-		# a1 = best_mean_policy.get_action(o)
+		# a1 = best_max_policy.get_action(o)
 		# print("a1: ",a1)
 		# a2,dist2 = policy2.get_action(o)
 		# print("a2: ",a2)

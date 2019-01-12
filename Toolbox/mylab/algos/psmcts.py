@@ -32,9 +32,13 @@ class PSMCTS(BatchPolopt):
 		self.k = k
 		self.alpha = alpha
 		self.top_paths = top_paths
+
 		self.best_mean = -np.inf
 		self.best_var = 0.0
-		self.best_s = None
+		self.best_return = -np.inf
+		self.best_s_mean = None
+		self.best_s_max = None
+
 		self.fit_f = fit_f
 		self.f_Q = f_Q
 		self.step_size = step_size
@@ -176,7 +180,10 @@ class PSMCTS(BatchPolopt):
 		if np.mean(undiscounted_returns) > self.best_mean:
 			self.best_mean = np.mean(undiscounted_returns)
 			self.best_var = np.var(undiscounted_returns)
-			self.best_s = s
+			self.best_s_mean = s
+		if np.max(undiscounted_returns) > self.best_return:
+			self.best_return = np.max(undiscounted_returns)
+			self.best_s_max = s
 		if not (self.top_paths is None):
 			action_seqs = [path["actions"] for path in paths]
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]

@@ -68,7 +68,10 @@ class PSMCTSTRC(PSMCTSTR):
 		if np.mean(undiscounted_returns) > self.best_mean:
 			self.best_mean = np.mean(undiscounted_returns)
 			self.best_var = np.var(undiscounted_returns)
-			self.best_s = s
+			self.best_s_mean = s
+		if np.max(undiscounted_returns) > self.best_return:
+			self.best_return = np.max(undiscounted_returns)
+			self.best_s_max = s
 		if not (self.top_paths is None):
 			action_seqs = [path["actions"] for path in paths]
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]

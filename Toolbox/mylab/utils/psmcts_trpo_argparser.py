@@ -7,7 +7,7 @@ def get_psmcts_trpo_parser(log_dir='./'):
 	parser.add_argument('--n_trial', type=int, default=5)
 	parser.add_argument('--n_itr', type=int, default=20000)
 	parser.add_argument('--batch_size', type=int, default=1000)
-	parser.add_argument('--snapshot_mode', type=str, default="gap")
+	parser.add_argument('--snapshot_mode', type=str, default="none")
 	parser.add_argument('--snapshot_gap', type=int, default=10)
 	parser.add_argument('--log_dir', type=str, default=log_dir)
 	parser.add_argument('--step_size', type=float, default=0.01)

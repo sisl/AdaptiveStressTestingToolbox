@@ -15,16 +15,16 @@ min_reward = -0.005#-np.inf
 prepath = "../AcrobotStoch/Data/AST/Lexington"
 exp = "AcrobotStoch"
 plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
-policies = ["TRPO",\
-        "GATRDStep1.0Fmean","GATRDStep0.1Fmean","GATRDStep0.01Fmean",\
-        "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
-        "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
-plot_name = exp
-# policies = ["TRPO","MCTS_BV",\
-#         "GATRDStep1.0Fmax","GATRDStep0.1Fmax","GATRDStep0.01Fmax",\
+# policies = ["TRPO",\
+#         "GATRDStep1.0Fmean","GATRDStep0.1Fmean","GATRDStep0.01Fmean",\
 #         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
 #         "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
 # plot_name = exp
+policies = ["PSMCTSTRC_TRPOStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
+plot_name = "PSMCTSTRC_TRPO"
+
 
 # prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
 # exp = "CartpoleNdRewardt"
@@ -73,6 +73,29 @@ for (policy_index,policy) in enumerate(policies):
                                 avg_top += np.clip(float(row[entry_dict["reward "+str(k)]]),min_reward,max_reward)
                             avg_top /= top_k
                             rewards.append(avg_top)
+            ### if process2 exists
+            step1 = steps[-1]
+            file_path2 = prepath+'/'+policy+'/'+str(trial)+'/process2.csv'
+            if os.path.exists(file_path2):
+                print(str(trial)+"_2")
+                with open(file_path) as csv_file:
+                    csv_reader = csv.reader(csv_file, delimiter=',')
+                    for (i,row) in enumerate(csv_reader):
+                        if i == 0:
+                            entry_dict = {}
+                            for index in range(len(row)):
+                                entry_dict[row[index]] = index
+                        else:
+                            if int(row[entry_dict["StepNum"]]) > max_step:
+                                break
+                            if int(row[entry_dict["StepNum"]])%batch_size == 0:
+                                steps.append(int(row[entry_dict["StepNum"]]))
+                                avg_top = 0.0
+                                for k in range(top_k):
+                                    avg_top += np.clip(float(row[entry_dict["reward "+str(k)]]),min_reward,max_reward)
+                                avg_top /= top_k
+                                rewards.append(avg_top)
+            ###
             if len(rewards) < min_array_length:
                 min_array_length = len(rewards) 
             Rewards.append(rewards)
