@@ -2,7 +2,7 @@ from rllab.algos.base import RLAlgorithm
 from rllab.misc.overrides import overrides
 import rllab.misc.logger as logger
 from sandbox.rocky.tf.algos.batch_polopt import BatchPolopt
-from mylab.samplers.vectorized_sampler import VectorizedSampler
+from mylab.samplers.vectorized_ga_sampler import VectorizedGASampler
 from mylab.utils.seeding import hash_seed
 from mylab.utils.mcts_utils import *
 import numpy as np
@@ -14,6 +14,7 @@ from mylab.utils.np_weight_init import init_policy_np
 class PSMCTS(BatchPolopt):
 	"""
 	Policy Space MCTS
+	#v7: use VecterizedSampler
 	"""
 	def __init__(
 			self,
@@ -48,7 +49,7 @@ class PSMCTS(BatchPolopt):
 		self.initial_pop = initial_pop
 		self.stepNum = 0
 		self.np_random, seed = seeding.np_random() #used in set_params
-		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedSampler)
+		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
 		self.policy.set_param_values(self.policy.get_param_values())
 
 	@overrides
@@ -86,11 +87,14 @@ class PSMCTS(BatchPolopt):
 				param_values = param_values + magnitude*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
-	def evaluate(self,undiscounted_returns):
+	def evaluate(self,samples_data):
+		rewards = samples_data["rewards"]
+		valid_rewards = rewards*samples_data["valids"]
+		path_rewards = np.sum(valid_rewards,-1)
 		if self.fit_f == "max":
-			q = np.max(undiscounted_returns)
+			q = np.max(path_rewards)
 		else:
-			q = np.mean(undiscounted_returns)
+			q = np.mean(path_rewards)
 		return q
 
 	@overrides
@@ -186,7 +190,7 @@ class PSMCTS(BatchPolopt):
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 
 		samples_data = self.process_samples(0, paths)
-		q = self.evaluate(undiscounted_returns)
+		q = self.evaluate(samples_data)
 		self.s[s].v = q
 		self.record_tabular()
 		return q

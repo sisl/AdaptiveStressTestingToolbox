@@ -22,7 +22,10 @@ plot_path = "../AcrobotStoch/Data/Plot/BestMean/"
 # plot_name = exp
 policies = ["PSMCTSTRC_TRPOStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
             "PSMCTSTRC_TRPOStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
+            "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOmaxStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOmaxStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
 plot_name = "PSMCTSTRC_TRPO"
 
 # prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
@@ -82,9 +85,9 @@ for (policy_index,policy) in enumerate(policies):
                             for index in range(len(row)):
                                 entry_dict[row[index]] = index
                         else:
-                            if int(row[entry_dict["StepNum"]]) > max_step:
+                            if step1+int(row[entry_dict["StepNum"]]) > max_step:
                                 break
-                            if int(row[entry_dict["StepNum"]])%batch_size == 0:
+                            if (step1+int(row[entry_dict["StepNum"]]))%batch_size == 0:
                                 steps.append(step1+int(row[entry_dict["StepNum"]]))
                                 mean = np.clip(float(row[entry_dict["BestMean"]]),min_reward,max_reward)
                                 means.append(mean)

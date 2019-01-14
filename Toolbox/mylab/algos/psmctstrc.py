@@ -30,17 +30,16 @@ class PSMCTSTRC(PSMCTSTR):
 
 	def getCandidateActions(self,s,samples_data=None):
 		actions = []
-		if samples_data is None:
-			self.set_params(s)
-			paths = self.obtain_samples(0)
-			samples_data = self.process_samples(0, paths)
-		all_input_values = self.data2inputs(samples_data)
 		seeds = np.random.randint(low=0,high=int(2**16),size=self.n_ca)
 		if s.parent is None: #first generation
 			# magnitudes = self.initial_mag*np.ones_like(seeds)
 			magnitudes = self.step_size*np.ones_like(seeds)
 		else:
 			self.set_params(s)
+			if samples_data is None:
+				paths = self.obtain_samples(0)
+				samples_data = self.process_samples(0, paths)
+			all_input_values = self.data2inputs(samples_data)
 			param_values = self.policy.get_param_values(trainable=True)
 			directions = []
 			for seed in seeds:
@@ -75,12 +74,12 @@ class PSMCTSTRC(PSMCTSTR):
 		if not (self.top_paths is None):
 			action_seqs = [path["actions"] for path in paths]
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
-		
+
 		undiscounted_returns = [sum(path["rewards"]) for path in paths]
 		samples_data = self.process_samples(0, paths)
 		# assert len(self.s[s].ca) == 0
 		self.s[s].ca = self.getCandidateActions(s,samples_data)
-		q = self.evaluate(samples_data)
+		q = self.evaluate(undiscounted_returns)
 		self.s[s].v = q
 		self.record_tabular()
 		return q

@@ -22,7 +22,10 @@ plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
 # plot_name = exp
 policies = ["PSMCTSTRC_TRPOStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
             "PSMCTSTRC_TRPOStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
+            "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOmaxStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOmaxStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
+            "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
 plot_name = "PSMCTSTRC_TRPO"
 
 
@@ -75,6 +78,7 @@ for (policy_index,policy) in enumerate(policies):
                             rewards.append(avg_top)
             ### if process2 exists
             step1 = steps[-1]
+            print(step1)
             file_path2 = prepath+'/'+policy+'/'+str(trial)+'/process2.csv'
             if os.path.exists(file_path2):
                 print(str(trial)+"_2")
@@ -86,15 +90,16 @@ for (policy_index,policy) in enumerate(policies):
                             for index in range(len(row)):
                                 entry_dict[row[index]] = index
                         else:
-                            if int(row[entry_dict["StepNum"]]) > max_step:
+                            if step1+int(row[entry_dict["StepNum"]]) > max_step:
                                 break
-                            if int(row[entry_dict["StepNum"]])%batch_size == 0:
-                                steps.append(int(row[entry_dict["StepNum"]]))
+                            if (step1+int(row[entry_dict["StepNum"]]))%batch_size == 0:
+                                steps.append(step1+int(row[entry_dict["StepNum"]]))
                                 avg_top = 0.0
                                 for k in range(top_k):
                                     avg_top += np.clip(float(row[entry_dict["reward "+str(k)]]),min_reward,max_reward)
                                 avg_top /= top_k
                                 rewards.append(avg_top)
+            print(steps[-1])
             ###
             if len(rewards) < min_array_length:
                 min_array_length = len(rewards) 

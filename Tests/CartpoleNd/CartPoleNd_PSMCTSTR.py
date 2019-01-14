@@ -39,7 +39,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTR/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -66,7 +66,7 @@ top_k = 10
 max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
@@ -105,7 +105,8 @@ with tf.Session() as sess:
 		baseline=baseline,
 		batch_size=max_path_length,
 		step_size=0.01,
-		n_itr=20,
+		n_itr=10,
+		initial_pop=1,
 		max_path_length=max_path_length,
 		top_paths=top_paths,
 		seed=0,

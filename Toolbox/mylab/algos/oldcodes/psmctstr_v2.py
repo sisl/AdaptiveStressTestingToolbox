@@ -1,4 +1,4 @@
-from mylab.algos.psmcts import PSMCTS
+from mylab.algos.oldcodes.psmcts_v6 import PSMCTS
 from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
 from rllab.misc.overrides import overrides
 from rllab.misc import ext
@@ -9,6 +9,7 @@ import numpy as np
 class PSMCTSTR(PSMCTS):
 	"""
 	Policy Space MCTS with Trust Region Mutation
+	#v3: use the normal sampler
 	"""
 	def __init__(
 			self,
@@ -45,12 +46,14 @@ class PSMCTSTR(PSMCTS):
 
 		if is_recurrent:
 			valid_var = tf.placeholder(tf.float32, shape=[None, None], name="valid")
+		else:
+			valid_var = tf.placeholder(tf.float32, shape=[None], name="valid")
+
+		# npath_var = tf.placeholder(tf.int32, shape=(), name="npath") 
+		npath_var = tf.placeholder(tf.int32, shape=[None], name="npath") #in order to work with sliced_fn
 
 		actions = self.policy.get_action_sym(obs_var)
-		if is_recurrent:
-			divergence = tf.reduce_sum(tf.reduce_sum(tf.square(actions -  action_var),-1)*valid_var)/tf.reduce_sum(valid_var)
-		else:
-			divergence = tf.reduce_mean(tf.reduce_sum(tf.square(actions -  action_var),-1))
+		divergence = tf.reduce_sum(tf.reduce_sum(tf.square(actions -  action_var),-1)*valid_var)/tf.reduce_sum(valid_var)
 
 		input_list = [
 						 obs_var,
@@ -58,8 +61,8 @@ class PSMCTSTR(PSMCTS):
 						 advantage_var,
 					 ] + state_info_vars_list
 
-		if is_recurrent:
-			input_list.append(valid_var)
+		input_list.append(valid_var)
+		input_list.append(npath_var)
 
 		self.f_divergence = tensor_utils.compile_function(
 				inputs=input_list,
@@ -84,8 +87,19 @@ class PSMCTSTR(PSMCTS):
 		agent_infos = samples_data["agent_infos"]
 		state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
 		all_input_values += tuple(state_info_list)
-		if self.policy.recurrent:
-			all_input_values += (samples_data["valids"],)
+		# if self.policy.recurrent:
+		all_input_values += (samples_data["valids"],)
+		npath, max_path_length, _ = all_input_values[0].shape 
+		if not self.policy.recurrent:
+			all_input_values_new = ()
+			for (i,item) in enumerate(all_input_values):
+				assert item.shape[0] == npath
+				assert item.shape[1] == max_path_length
+				all_input_values_new += (np.reshape(item,(npath*max_path_length,)+item.shape[2:]),)
+			all_input_values_new += (np.ones(npath*max_path_length,)*npath,)
+			return all_input_values_new
+		else:
+			all_input_values += (np.ones(npath)*npath,)
 		return all_input_values
 
 	@overrides

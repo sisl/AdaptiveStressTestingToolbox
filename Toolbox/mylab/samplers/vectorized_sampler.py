@@ -14,11 +14,11 @@ from rllab.algos import util
 import rllab.misc.logger as logger
 
 
-class VectorizedGASampler(BaseSampler):
-    #process all samples into [nenv,path_length,...]
+class VectorizedSampler(BaseSampler):
+    #handle derterministic policy
 
     def __init__(self, algo, n_envs=None):
-        super(VectorizedGASampler, self).__init__(algo)
+        super(VectorizedSampler, self).__init__(algo)
         self.n_envs = n_envs
 
     def start_worker(self):
@@ -134,8 +134,7 @@ class VectorizedGASampler(BaseSampler):
             np.concatenate(returns)
         )
 
-        # if not self.algo.policy.recurrent:
-        if False:
+        if not self.algo.policy.recurrent:
             observations = tensor_utils.concat_tensor_list([path["observations"] for path in paths])
             actions = tensor_utils.concat_tensor_list([path["actions"] for path in paths])
             rewards = tensor_utils.concat_tensor_list([path["rewards"] for path in paths])
@@ -155,7 +154,8 @@ class VectorizedGASampler(BaseSampler):
 
             undiscounted_returns = [sum(path["rewards"]) for path in paths]
 
-            ent = np.mean(self.algo.policy.distribution.entropy(agent_infos))
+            if hasattr(self.algo.policy, 'distribution'):
+                ent = np.mean(self.algo.policy.distribution.entropy(agent_infos))
 
             samples_data = dict(
                 observations=observations,

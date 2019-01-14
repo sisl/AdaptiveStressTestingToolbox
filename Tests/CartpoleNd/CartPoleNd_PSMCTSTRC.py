@@ -39,7 +39,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRCInter/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRC/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -114,7 +114,7 @@ with tf.Session() as sess:
 		log_interval=1,
 		plot=False,
 		n_ca = 1,
-		# initial_pop = 2,
+		# initial_pop = 1,
 		)
 
 	algo.train(sess=sess, init_var=False)
