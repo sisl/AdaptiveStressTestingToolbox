@@ -25,11 +25,11 @@ def get_psmcts_trpo_parser(log_dir='./'):
 	parser.add_argument('--batch_size2',type=int,default=4000)
 	parser.add_argument('--n_itr2', type=int, default=5000)
 	parser.add_argument('--step_size2', type=float, default=0.1)
+	parser.add_argument('--reset_baseline', type=bool, default=False)
 	args = parser.parse_args()
-	if args.step_size_anneal == 1.0:
-		args.log_dir += ('Step'+str(args.step_size)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha)+'SStep'+str(args.step_size2))
-	else:
-		args.log_dir += ('Step'+str(args.step_size)+'Anneal'+str(args.step_size_anneal)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha)+'SStep'+str(args.step_size2))
+	args.log_dir += ('Step'+str(args.step_size)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha)+'SStep'+str(args.step_size2))
+	if args.reset_baseline:
+		args.log_dir += ('ReB')
 	if args.initial_pop > 0:
 		args.log_dir += ('InitP'+str(args.initial_pop))
 	args.log_dir += 'Q'+args.f_Q

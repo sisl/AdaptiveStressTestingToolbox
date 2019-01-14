@@ -147,6 +147,8 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# print("dist2: ",dist2)
 
 		del logger._tabular[:]
+		if args.reset_baseline:
+			baseline = LinearFeatureBaseline(env_spec=env.spec)
 
 		algo2 = TRPO(
 			env=env,
