@@ -1,13 +1,13 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
-# from sandbox.rocky.tf.algos.trpo import TRPO
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from sandbox.rocky.tf.envs.base import TfEnv
-from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
-from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from rllab.misc import logger
+# from garage.tf.algos.trpo import TRPO
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from mylab.envs.tfenv import TfEnv
+from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+from garage.misc import logger
 
 from mylab.rewards.ast_reward_t import ASTReward
 from mylab.envs.ast_env import ASTEnv

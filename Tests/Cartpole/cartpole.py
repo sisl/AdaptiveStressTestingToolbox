@@ -5,18 +5,18 @@ permalink: https://perma.cc/C9ZM-652R
 """
 
 import math
-from .gym import logger
-from mylab.utils import seeding
+from gym import logger
+from gym.utils import seeding
 import numpy as np
-from rllab.core.serializable import Serializable
-from rllab.envs.base import Env
-from rllab.spaces import Box
-from rllab.envs.base import Step
-from rllab.misc.overrides import overrides
-import rllab.spaces as spaces
+from garage.core.serializable import Serializable
+from garage.core import Serializable
+from gym.spaces import Box
+from garage.envs.base import Step
+from garage.misc.overrides import overrides
+import garage.spaces as spaces
 from scipy.stats import norm
 
-class CartPoleEnv(Env):
+class CartPoleEnv(gym.Env, Serializable):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : 50
@@ -45,7 +45,7 @@ class CartPoleEnv(Env):
         self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
-        # Serializable.__init__(self, *args, **kwargs)
+        Serializable.quick_init(self, locals())
 
     @property
     def observation_space(self):
@@ -54,7 +54,7 @@ class CartPoleEnv(Env):
             np.finfo(np.float32).max,
             self.theta_threshold_radians * 2,
             np.finfo(np.float32).max])
-        return spaces.Box(-high, high)
+        return spaces.Box(-high, high, dtype=np.float32)
 
     @property
     def action_space(self):
@@ -165,12 +165,12 @@ class CartPoleEnv(Env):
             np.finfo(np.float32).max,
             self.theta_threshold_radians * 2,
             np.finfo(np.float32).max])
-        return spaces.Box(-high, high)
+        return spaces.Box(-high, high, dtype=np.float32)
 
     @property
     def ast_action_space(self):
         high = np.array([self.wind_force_mag])
-        return spaces.Box(-high,high)
+        return spaces.Box(-high, high, dtype=np.float32)
 
     def ast_get_observation(self):
         return np.array(self.state)

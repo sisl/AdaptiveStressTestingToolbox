@@ -1,6 +1,6 @@
-from rllab.envs.base import Env
-from rllab.envs.base import Step
-from rllab.spaces import Box
+from garage.envs.base import Env
+from garage.envs.base import Step
+from garage.spaces import Box
 import numpy as np
 
 import pdb

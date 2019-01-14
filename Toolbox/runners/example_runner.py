@@ -8,13 +8,13 @@ from mylab.envs.ast_env import ASTEnv
 from mylab.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary RLLAB classes
-from sandbox.rocky.tf.algos.trpo import TRPO
-from sandbox.rocky.tf.envs.base import TfEnv
-from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from rllab.envs.normalized_env import normalize
-import rllab.misc.logger as logger
+from garage.tf.algos.trpo import TRPO
+from mylab.envs.tfenv import TfEnv
+from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.envs.normalized_env import normalize
+import garage.misc.logger as logger
 
 # Useful imports
 import os.path as osp

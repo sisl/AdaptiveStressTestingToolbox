@@ -15,12 +15,12 @@ permalink: https://perma.cc/6Z2N-PFWC
 """
 
 import math
-from rllab.envs.base import Env
-from rllab.spaces import Box
-from mylab.utils import seeding
+from garage.core import Serializable
+from gym.spaces import Box
+from gym.utils import seeding
 import numpy as np
 
-class MountainCarEnv(Env):
+class MountainCarEnv(gym.Env, Serializable):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 30
@@ -47,6 +47,7 @@ class MountainCarEnv(Env):
 
         self.seed()
         self.reset()
+        Serializable.quick_init(self, locals())
 
     @property
     def observation_space(self):
@@ -56,7 +57,7 @@ class MountainCarEnv(Env):
 
     @property
     def action_space(self):
-        return Box(low=self.min_action, high=self.max_action, shape=(1,))
+        return Box(low=self.min_action, high=self.max_action, shape=(1,), dtype=np.float32)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

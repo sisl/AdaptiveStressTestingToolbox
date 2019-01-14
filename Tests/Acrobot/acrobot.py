@@ -1,15 +1,14 @@
 """classic Acrobot task"""
 import math
-from Cartpole.gym import logger
-from mylab.utils import seeding
 import numpy as np
-from rllab.core.serializable import Serializable
-from rllab.envs.base import Env
-from rllab.spaces import Box
-from rllab.envs.base import Step
-from rllab.misc.overrides import overrides
-import rllab.spaces as spaces
 from scipy.stats import norm
+import gym
+from gym import logger
+import gym.spaces as spaces
+from gym.utils import seeding
+from garage.core import Serializable
+from garage.envs import Step
+from garage.misc.overrides import overrides
 
 from numpy import sin, cos, pi
 
@@ -22,7 +21,7 @@ __author__ = "Christoph Dann <cdann@cdann.de>"
 # SOURCE:
 # https://github.com/rlpy/rlpy/blob/master/rlpy/Domains/Acrobot.py
 
-class AcrobotEnv(Env):
+class AcrobotEnv(gym.Env, Serializable):
 
     """
     Acrobot is a 2-link pendulum with only the second joint actuated
@@ -102,19 +101,20 @@ class AcrobotEnv(Env):
         self.success_reward = success_reward
         self.success_threshhold = success_threshhold
         self.seed()
+        Serializable.quick_init(self, locals())
 
     @property
     def observation_space(self):
         high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2])
         low = -high
-        return spaces.Box(low=low, high=high)
+        return spaces.Box(low=low, high=high, dtype=np.float32)
 
     @property
     def action_space(self):
         # return spaces.Discrete(3)
         high = np.array([1.0])
         low = -high
-        return spaces.Box(low=low, high=high)
+        return spaces.Box(low=low, high=high, dtype=np.float32)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

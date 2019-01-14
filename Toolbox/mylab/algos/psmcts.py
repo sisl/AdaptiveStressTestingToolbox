@@ -1,7 +1,7 @@
-from rllab.algos.base import RLAlgorithm
-from rllab.misc.overrides import overrides
-import rllab.misc.logger as logger
-from sandbox.rocky.tf.algos.batch_polopt import BatchPolopt
+from garage.algos.base import RLAlgorithm
+from garage.misc.overrides import overrides
+import garage.misc.logger as logger
+from garage.tf.algos.batch_polopt import BatchPolopt
 from mylab.samplers.vectorized_sampler import VectorizedSampler
 from mylab.utils.seeding import hash_seed
 from mylab.utils.mcts_utils import *
@@ -101,7 +101,7 @@ class PSMCTS(BatchPolopt):
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		self.start_worker()
+		self.start_worker(sess)
 		# self.initial()
 		for i in range(self.n_itr):
 			self.itr = i

@@ -1,41 +1,63 @@
-from sandbox.rocky.tf.algos.npo import NPO
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
+from enum import Enum
+from enum import unique
+from garage.tf.algos import NPO
+from garage.tf.algos.npo import PGLoss
+from garage.tf.optimizers import ConjugateGradientOptimizer
+from garage.tf.optimizers import PenaltyLbfgsOptimizer
 import time
-import numpy as np
-import rllab.misc.logger as logger
+from garage.misc import logger
 import tensorflow as tf
-from rllab.sampler.utils import rollout
-from rllab.misc.overrides import overrides
+from garage.sampler.utils import rollout
+from garage.misc.overrides import overrides
+import numpy as np
+
+@unique
+class KLConstraint(Enum):
+	HARD = "hard"
+	SOFT = "soft"
+
 
 class TRPO(NPO):
 	"""
 	Trust Region Policy Optimization
 	"""
 
-	def __init__(
-			self,
-			optimizer=None,
-			optimizer_args=None,
-			top_paths = None,
-			**kwargs):
-		if optimizer is None:
-			if optimizer_args is None:
-				optimizer_args = dict()
-			optimizer = ConjugateGradientOptimizer(**optimizer_args)
+	def __init__(self,
+				 kl_constraint=KLConstraint.HARD,
+				 optimizer=None,
+				 optimizer_args=None,
+				 top_paths=None,
+				 **kwargs):
+		if not optimizer:
+			if kl_constraint == KLConstraint.HARD:
+				optimizer = ConjugateGradientOptimizer
+			elif kl_constraint == KLConstraint.SOFT:
+				optimizer = PenaltyLbfgsOptimizer
+			else:
+				raise NotImplementedError("Unknown KLConstraint")
+
+		if optimizer_args is None:
+			optimizer_args = dict()
+
 		self.top_paths = top_paths
 		self.best_mean = -np.inf
 		self.best_var = 0.0
-		super(TRPO, self).__init__(optimizer=optimizer, **kwargs)
+		super(TRPO, self).__init__(
+			pg_loss=PGLoss.VANILLA,
+			optimizer=optimizer,
+			optimizer_args=optimizer_args,
+			name="TRPO",
+			**kwargs)
 
 	@overrides
-	def train(self, sess=None, init_var=True):
+	def train(self, sess=None, init_var=False):
 		created_session = True if (sess is None) else False
 		if sess is None:
 			sess = tf.Session()
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		self.start_worker()
+		self.start_worker(sess)
 		start_time = time.time()
 		for itr in range(self.start_itr, self.n_itr):
 			itr_start_time = time.time()
@@ -67,15 +89,13 @@ class TRPO(NPO):
 				# logger.record_tabular('ItrTime', time.time() - itr_start_time)
 				logger.record_tabular('Itr',itr)
 				logger.record_tabular('StepNum',int((itr+1)*self.batch_size))
-				logger.record_tabular('BestMean', self.best_mean)
-				logger.record_tabular('BestVar', self.best_var)
 				if self.top_paths is not None:
 					for (topi, path) in enumerate(self.top_paths):
 						logger.record_tabular('reward '+str(topi), path[0])
 
 				logger.dump_tabular(with_prefix=False)
 				if self.plot:
-					rollout(self.env, self.policy, animated=True, max_path_length=self.max_path_length)
+					self.plotter.update_plot(self.policy, self.max_path_length)
 					if self.pause_for_plot:
 						input("Plotting evaluation run: Press Enter to "
 							  "continue...")

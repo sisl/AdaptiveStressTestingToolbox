@@ -595,7 +595,7 @@ This section shows how to create the action space and observation space for rlla
 Create a file named ``example_av_spaces.py`` in the ``spaces`` folder. Create a class titled ``ExampleAVSpaces`` which inherits from ``ASTSpaces``:
 ::
 	from mylab.spaces.ast_spaces import ASTSpaces
-	from rllab.spaces import Box
+	from garage.spaces import Box
 	import numpy as np
 
 	class ExampleAVSpaces(ASTSpaces):
@@ -749,13 +749,13 @@ Create a file called ``example_runner.py`` in your working directory. Add the fo
 	from mylab.ast_vectorized_sampler import ASTVectorizedSampler
 
 	# Import the necessary RLLAB classes
-	from sandbox.rocky.tf.algos.trpo import TRPO
-	from sandbox.rocky.tf.envs.base import TfEnv
-	from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-	from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-	from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-	from rllab.envs.normalized_env import normalize
-	import rllab.misc.logger as logger
+	from garage.tf.algos.trpo import TRPO
+	from mylab.envs.tfenv import TfEnv
+	from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+	from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+	from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+	from garage.envs.normalized_env import normalize
+	import garage.misc.logger as logger
 
 	# Useful imports
 	import os.path as osp
@@ -861,7 +861,7 @@ All of the classes imported earlier will now be used to specify the experiment. 
 
 When executing the experiment, only two things need to be done. Create a new tensorflow session, and then pass that to the algorithm training function. However, recording values from the experiment is trickier, since that tensorflow session is needed to unpickle the data. There are ways to save the session for later data retrieval, which can be found in the tensorflow documentation. Here, the data will be processed while the session is still active using the save_trials function. Create a ``save_trials.py`` file and add the following code:
 ::
-	import rllab
+	import garage
 	import joblib
 	import numpy as np
 	import sandbox

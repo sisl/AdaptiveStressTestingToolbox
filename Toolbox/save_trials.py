@@ -1,4 +1,4 @@
-import rllab
+import garage
 import joblib
 import numpy as np
 import sandbox

@@ -1,14 +1,14 @@
 import numpy as np
-import sandbox.rocky.tf.core.layers as L
+import garage.tf.core.layers as L
 import tensorflow as tf
-from sandbox.rocky.tf.core.layers_powered import LayersPowered
-from sandbox.rocky.tf.core.network import LSTMNetwork
-from sandbox.rocky.tf.distributions.recurrent_diagonal_gaussian import RecurrentDiagonalGaussian
-from sandbox.rocky.tf.misc import tensor_utils
-from sandbox.rocky.tf.policies.base import StochasticPolicy
+from garage.tf.core.layers_powered import LayersPowered
+from garage.tf.core.network import LSTMNetwork
+from garage.tf.distributions.recurrent_diagonal_gaussian import RecurrentDiagonalGaussian
+from garage.tf.misc import tensor_utils
+from garage.tf.policies.base import StochasticPolicy
 
-from rllab.core.serializable import Serializable
-from rllab.misc.overrides import overrides
+from garage.core.serializable import Serializable
+from garage.misc.overrides import overrides
 
 
 class DeterministicLSTMPolicy(Policy, LayersPowered, Serializable):

@@ -1,14 +1,14 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
-# from sandbox.rocky.tf.algos.trpo import TRPO
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from sandbox.rocky.tf.envs.base import TfEnv
-from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
-from sandbox.rocky.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from sandbox.rocky.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from rllab.misc import logger
+# from garage.tf.algos.trpo import TRPO
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from mylab.envs.tfenv import TfEnv
+from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+from garage.misc import logger
 
 from Acrobot.acrobot import AcrobotEnv
 
@@ -48,18 +48,18 @@ env = TfEnv(AcrobotEnv(success_reward = max_path_length,
 policy = DeterministicMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-    hidden_sizes=(128, 64, 32),
-    hidden_nonlinearity=tf.nn.relu,
-    output_nonlinearity=tf.nn.tanh,
+	hidden_sizes=(128, 64, 32),
+	hidden_nonlinearity=tf.nn.relu,
+	output_nonlinearity=tf.nn.tanh,
 )
 
 policy2 = GaussianMLPPolicy(
 	name='ast_agent2',
 	env_spec=env.spec,
-    hidden_sizes=(128, 64, 32),
-    hidden_nonlinearity=tf.nn.relu,
-    output_nonlinearity=tf.nn.tanh,
-    init_std = 0.03,
+	hidden_sizes=(128, 64, 32),
+	hidden_nonlinearity=tf.nn.relu,
+	output_nonlinearity=tf.nn.tanh,
+	init_std = 0.03,
 )
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:

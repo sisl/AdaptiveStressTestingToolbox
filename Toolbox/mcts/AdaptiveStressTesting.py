@@ -2,7 +2,7 @@ import copy
 import mcts.MDP as MDP
 import mcts.MCTSdpw as MCTSdpw
 import numpy as np
-import rllab.misc.logger as logger
+import garage.misc.logger as logger
 
 class ASTParams:
 	def __init__(self,max_steps,batch_size,log_tabular):

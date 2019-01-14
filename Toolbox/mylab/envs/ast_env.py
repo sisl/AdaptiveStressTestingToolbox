@@ -1,9 +1,10 @@
-from rllab.envs.base import Env
-from rllab.envs.base import Step
+import gym
+from garage.core import Serializable
+from garage.envs.base import Step
 import numpy as np
 import pdb
 
-class ASTEnv(Env):
+class ASTEnv(gym.Env, Serializable):
     def __init__(self,
                  simulator,
                  reward_function,
@@ -35,7 +36,8 @@ class ASTEnv(Env):
         else:
             self.vectorized = False
 
-        super().__init__()
+        # super().__init__()
+        Serializable.quick_init(self, locals())
 
     def step(self, action):
         """

@@ -1,8 +1,8 @@
 from mylab.algos.oldcodes.psmcts_v6 import PSMCTS
 from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
-from rllab.misc.overrides import overrides
-from rllab.misc import ext
-from sandbox.rocky.tf.misc import tensor_utils
+from garage.misc.overrides import overrides
+from garage.misc import ext
+from garage.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
