@@ -12,7 +12,7 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -0.005#-np.inf
 
-prepath = "../AcrobotStoch/Data/AST/Lexington"
+# prepath = "../AcrobotStoch/Data/AST/Lexington"
 exp = "AcrobotStoch"
 plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
 # policies = ["TRPO",\
@@ -20,13 +20,17 @@ plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
 #         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
 #         "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
 # plot_name = exp
-policies = ["PSMCTSTRC_TRPOStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOmaxStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOmaxStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
+# policies = ["PSMCTSTRC_TRPOStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOmaxStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOmaxStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
+# plot_name = "PSMCTSTRC_TRPO"
+prepath = "../AcrobotStoch/Data/AST"
+policies = ["PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
             "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
-plot_name = "PSMCTSTRC_TRPO"
+plot_name = "PSMCTSTRC_TRPO_garage"
 
 
 # prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
@@ -82,7 +86,7 @@ for (policy_index,policy) in enumerate(policies):
             file_path2 = prepath+'/'+policy+'/'+str(trial)+'/process2.csv'
             if os.path.exists(file_path2):
                 print(str(trial)+"_2")
-                with open(file_path) as csv_file:
+                with open(file_path2) as csv_file:
                     csv_reader = csv.reader(csv_file, delimiter=',')
                     for (i,row) in enumerate(csv_reader):
                         if i == 0:

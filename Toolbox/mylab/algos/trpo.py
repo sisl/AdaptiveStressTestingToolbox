@@ -89,6 +89,8 @@ class TRPO(NPO):
 				# logger.record_tabular('ItrTime', time.time() - itr_start_time)
 				logger.record_tabular('Itr',itr)
 				logger.record_tabular('StepNum',int((itr+1)*self.batch_size))
+				logger.record_tabular('BestMean', self.best_mean)
+				logger.record_tabular('BestVar', self.best_var)
 				if self.top_paths is not None:
 					for (topi, path) in enumerate(self.top_paths):
 						logger.record_tabular('reward '+str(topi), path[0])

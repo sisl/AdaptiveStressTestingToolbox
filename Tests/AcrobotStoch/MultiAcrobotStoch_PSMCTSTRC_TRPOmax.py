@@ -145,6 +145,8 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# print("a2: ",a2)
 		# print("dist2: ",dist2)
 
+		del logger._tabular[:]
+
 		algo2 = TRPO(
 			env=env,
 			policy=policy2,

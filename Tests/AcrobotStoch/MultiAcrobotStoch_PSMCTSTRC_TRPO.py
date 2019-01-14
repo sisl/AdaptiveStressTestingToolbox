@@ -28,7 +28,8 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.psmcts_trpo_argparser import get_psmcts_trpo_parser
-args = get_psmcts_trpo_parser(log_dir='./Data/AST/PSMCTSTRC_TRPO')
+# args = get_psmcts_trpo_parser(log_dir='./Data/AST/PSMCTSTRC_TRPO')
+args = get_psmcts_trpo_parser(log_dir='./Data/AST/Test')
 
 top_k = 10
 max_path_length = 100
@@ -136,7 +137,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		sess.run(tf.variables_initializer(params))
 		policy2._mean_network.set_param_values(best_mean_param_values,trainable=True)
 
-		# check param transfer success
+		### check param transfer success
 		# o = env.observation_space.sample()
 		# print("o: ",o)
 		# a1 = best_mean_policy.get_action(o)
@@ -144,6 +145,8 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		# a2,dist2 = policy2.get_action(o)
 		# print("a2: ",a2)
 		# print("dist2: ",dist2)
+
+		del logger._tabular[:]
 
 		algo2 = TRPO(
 			env=env,
