@@ -10,7 +10,7 @@ def get_psmcts_trpo_parser(log_dir='./'):
 	parser.add_argument('--snapshot_mode', type=str, default="none")
 	parser.add_argument('--snapshot_gap', type=int, default=10)
 	parser.add_argument('--log_dir', type=str, default=log_dir)
-	parser.add_argument('--step_size', type=float, default=0.01)
+	parser.add_argument('--step_size', type=float, default=1.0)
 	parser.add_argument('--step_size_anneal', type=float, default=1.0)
 	parser.add_argument('--args_data', type=str, default=None)
 	parser.add_argument('--fit_f',type=str, default="mean")
@@ -25,7 +25,7 @@ def get_psmcts_trpo_parser(log_dir='./'):
 	parser.add_argument('--batch_size2',type=int,default=4000)
 	parser.add_argument('--n_itr2', type=int, default=5000)
 	parser.add_argument('--step_size2', type=float, default=0.1)
-	parser.add_argument('--reset_baseline', type=bool, default=False)
+	parser.add_argument('--reset_baseline', type=bool, default=True)
 	args = parser.parse_args()
 	args.log_dir += ('Step'+str(args.step_size)+'Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha)+'SStep'+str(args.step_size2))
 	if args.reset_baseline:

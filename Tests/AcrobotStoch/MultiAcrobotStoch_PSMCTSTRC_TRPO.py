@@ -28,8 +28,7 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.psmcts_trpo_argparser import get_psmcts_trpo_parser
-# args = get_psmcts_trpo_parser(log_dir='./Data/AST/PSMCTSTRC_TRPO')
-args = get_psmcts_trpo_parser(log_dir='./Data/AST/Test')
+args = get_psmcts_trpo_parser(log_dir='./Data/AST/PSMCTSTRC_TRPO')
 
 top_k = 10
 max_path_length = 100
