@@ -89,7 +89,6 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		params = policy.get_params()
 		sess.run(tf.variables_initializer(params))
-		print(policy.get_param_values(trainable=True))
 		baseline = LinearFeatureBaseline(env_spec=env.spec)
 		# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
