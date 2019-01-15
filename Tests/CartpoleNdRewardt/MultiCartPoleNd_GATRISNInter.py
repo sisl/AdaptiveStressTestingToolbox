@@ -110,7 +110,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			fit_f=args.fit_f,
+			f_F=args.f_F,
 			log_interval=args.log_interval,
 			plot=False,
 			)

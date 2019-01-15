@@ -33,7 +33,7 @@ class GA(BatchPolopt):
 			pop_size = 5,
 			truncation_size = 2,
 			keep_best = 1,
-			fit_f = "max",
+			f_F = "max",
 			log_interval = 4000,
 			initial_mag = 1.0,
 			**kwargs):
@@ -43,7 +43,7 @@ class GA(BatchPolopt):
 		self.step_size_anneal = step_size_anneal
 		self.pop_size = pop_size
 		self.truncation_size = truncation_size
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.log_interval = log_interval
 		self.keep_best = keep_best
 		self.initial_mag = initial_mag
@@ -151,7 +151,7 @@ class GA(BatchPolopt):
 			rewards = all_paths[p]["rewards"]
 			valid_rewards = rewards*all_paths[p]["valids"]
 			path_rewards = np.sum(valid_rewards,-1)
-			if self.fit_f == "max":
+			if self.f_F == "max":
 				fitness[p] = np.max(path_rewards)
 			else:
 				fitness[p] = np.mean(path_rewards)

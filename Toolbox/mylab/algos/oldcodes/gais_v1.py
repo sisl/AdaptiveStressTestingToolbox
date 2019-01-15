@@ -30,14 +30,14 @@ class GAIS(BatchPolopt):
 			pop_size = 5,
 			elites = 2,
 			keep_best = 1,
-			fit_f = "max",
+			f_F = "max",
 			**kwargs):
 
 		self.top_paths = top_paths
 		self.step_size = step_size
 		self.pop_size = pop_size
 		self.elites = elites
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.keep_best = keep_best
 		self.sum_other_weights = np.zeros(pop_size)
 		super(GAIS, self).__init__(**kwargs, sampler_cls=VectorizedISSampler)

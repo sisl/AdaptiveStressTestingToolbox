@@ -4,14 +4,19 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from mylab.envs.tfenv import TfEnv
-from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
-from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.misc import logger
 
 from Acrobot.acrobot import AcrobotEnv
 
-from mylab.algos.trpo import TRPO
+from mylab.utils.tree_plot import plot_tree, plot_node_num
+from mylab.algos.psmctstrc import PSMCTSTRC
+
+from mylab.algos.ddpg import DDPG
+from garage.tf.exploration_strategies import OUStrategy
+from garage.tf.policies import ContinuousMLPPolicy
+from garage.tf.q_functions import ContinuousMLPQFunction
+from garage.replay_buffer import SimpleReplayBuffer
 
 import os.path as osp
 import argparse
@@ -23,13 +28,14 @@ import numpy as np
 
 import mcts.BoundedPriorityQueues as BPQ
 import csv
-# Logger Params
+# Log Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--n_itr', type=int, default=2500)
 parser.add_argument('--batch_size', type=int, default=8000)
-parser.add_argument('--step_size', type=float, default=0.1)
+parser.add_argument('--step_size', type=float, default=0.01)
+parser.add_argument('--n_epoch_cycles', type=int, default=20)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=5000)
 parser.add_argument('--log_dir', type=str, default='./Data/TRPO')
@@ -39,6 +45,7 @@ args = parser.parse_args()
 top_k = 10
 max_path_length = 400
 interactive = True
+
 tf.set_random_seed(0)
 sess = tf.Session()
 sess.__enter__()
@@ -50,12 +57,23 @@ env = TfEnv(AcrobotEnv(success_reward = max_path_length,
 						initial_condition_max = 0.1))
 
 # Create policy
-policy = GaussianMLPPolicy(
+policy = ContinuousMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-    hidden_sizes=(128, 64, 32),
-    output_nonlinearity=tf.nn.tanh,
+	hidden_sizes=(128, 64, 32),
+	hidden_nonlinearity=tf.nn.relu,
+	output_nonlinearity=tf.nn.tanh,
 )
+
+qf = ContinuousMLPQFunction(
+	env_spec=env.spec,
+	hidden_sizes=(128, 64, 32),
+	hidden_nonlinearity=tf.nn.relu)
+
+replay_buffer = SimpleReplayBuffer(
+	env_spec=env.spec, size_in_transitions=int(1e6), time_horizon=100)
+
+action_noise = OUStrategy(env.spec, sigma=0.2)
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -83,35 +101,36 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			logger.remove_tabular_output(osp.join(old_log_dir, 'process.csv'))
 		# logger.add_text_output(text_log_file)
 		logger.add_tabular_output(tabular_log_file)
-		logger.push_prefix("["+args.exp_name+'_trial '+str(trial)+"]")
+		logger.push_prefix("["+args.exp_name+'_trial '+str(trial)+"_1]")
 
 		np.random.seed(trial)
 
-		params = policy.get_params()
-		sess.run(tf.variables_initializer(params))
-		print(policy.get_param_values(trainable=True))
-		baseline = LinearFeatureBaseline(env_spec=env.spec)
-		# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
-
-		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		algo = TRPO(
-			env=env,
-			policy=policy,
-			baseline=baseline,
-			batch_size=args.batch_size,
-			step_size=args.step_size,
-			n_itr=args.n_itr,
-			store_paths=True,
-			# optimizer= optimizer,
-			max_path_length=max_path_length,
-			top_paths = top_paths,
+		algo = DDPG(
+			env,
+			policy=policy2,
+			policy_lr=1e-4,
+			qf_lr=1e-3,
+			qf=qf,
+			replay_buffer=replay_buffer,
 			plot=False,
-			)
+			target_update_tau=1e-2,
+			n_epochs=args.n_itr2,#500,
+			n_epoch_cycles=args.n_epoch_cycles,#20,
+			rollout_batch_size=args.batch_size/max_path_length,#1, #rollout_batch_size is actually n_envs
+			max_path_length=max_path_length,
+			n_train_steps=50,
+			discount=0.9,
+			min_buffer_size=int(1e4),
+			exploration_strategy=action_noise,
+			policy_optimizer=tf.train.AdamOptimizer,
+			qf_optimizer=tf.train.AdamOptimizer,
+			top_paths=top_paths,
+		   )
 
-		algo.train(sess=sess, init_var=False)
+		algo.train(sess=sess, init_var=True)
 
 		row_content = dict()
-		row_content['step_count'] = args.n_itr*args.batch_size
+		row_content['step_count'] = args.batch_size*args.n_itr*args.n_epoch_cycles
 		i = 0
 		for (r,action_seq) in algo.top_paths:
 			row_content['reward '+str(i)] = r

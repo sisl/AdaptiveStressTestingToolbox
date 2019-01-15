@@ -21,7 +21,7 @@ class PSMCTS(BatchPolopt):
 			k, #progress widening constant
 			alpha, #progress widening constant
 			top_paths, #BPQ
-			fit_f = "mean",
+			f_F = "mean",
 			f_Q = "max",
 			step_size = 0.01,
 			step_size_anneal = 1.0,
@@ -39,7 +39,7 @@ class PSMCTS(BatchPolopt):
 		self.best_s_mean = None
 		self.best_s_max = None
 
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.f_Q = f_Q
 		self.step_size = step_size
 		self.step_size_anneal = 1.0
@@ -87,7 +87,7 @@ class PSMCTS(BatchPolopt):
 		self.policy.set_param_values(param_values, trainable=True)
 
 	def evaluate(self,undiscounted_returns):
-		if self.fit_f == "max":
+		if self.f_F == "max":
 			q = np.max(undiscounted_returns)
 		else:
 			q = np.mean(undiscounted_returns)

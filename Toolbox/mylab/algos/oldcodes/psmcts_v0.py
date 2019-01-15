@@ -18,7 +18,7 @@ class PSMCTS(BatchPolopt):
 			k, #progress widening constant
 			alpha, #progress widening constant
 			top_paths, #BPQ
-			fit_f = "max",
+			f_F = "max",
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			log_interval = 4000,
@@ -28,7 +28,7 @@ class PSMCTS(BatchPolopt):
 		self.k = k
 		self.alpha = alpha
 		self.top_paths = top_paths
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.step_size = step_size
 		self.step_size_anneal = 1.0
 		self.log_interval = log_interval
@@ -78,7 +78,7 @@ class PSMCTS(BatchPolopt):
 		rewards = samples_data["rewards"]
 		valid_rewards = rewards*samples_data["valids"]
 		path_rewards = np.sum(valid_rewards,-1)
-		if self.fit_f == "max":
+		if self.f_F == "max":
 			q = np.max(path_rewards)
 		else:
 			q = np.mean(path_rewards)

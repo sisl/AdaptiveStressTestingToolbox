@@ -30,14 +30,14 @@ class GA(BatchPolopt):
 			pop_size = 5,
 			elites = 2,
 			keep_best = 1,
-			fit_f = "max",
+			f_F = "max",
 			**kwargs):
 
 		self.top_paths = top_paths
 		self.step_size = step_size
 		self.pop_size = pop_size
 		self.elites = elites
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.keep_best = keep_best
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.parents = np.zeros(pop_size,dtype=int)
@@ -138,7 +138,7 @@ class GA(BatchPolopt):
 			rewards = all_paths[p]["rewards"]
 			valid_rewards = rewards*all_paths[p]["valids"]
 			path_rewards = np.sum(valid_rewards,-1)
-			if self.fit_f == "max":
+			if self.f_F == "max":
 				fitness[p] = np.max(path_rewards)
 			else:
 				fitness[p] = np.mean(path_rewards)

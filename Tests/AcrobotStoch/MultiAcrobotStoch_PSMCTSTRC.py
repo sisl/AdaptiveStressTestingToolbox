@@ -30,7 +30,7 @@ from mylab.utils.psmcts_argparser import get_psmcts_parser
 args = get_psmcts_parser(log_dir='./Data/PSMCTSTRC')
 
 top_k = 10
-max_path_length = 100
+max_path_length = 400
 interactive = True
 
 tf.set_random_seed(0)
@@ -103,7 +103,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			fit_f=args.fit_f,
+			f_F=args.f_F,
 			log_interval=args.log_interval,
 			plot=False,
 			f_Q=args.f_Q,

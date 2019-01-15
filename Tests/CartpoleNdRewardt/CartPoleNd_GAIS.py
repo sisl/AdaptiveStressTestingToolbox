@@ -102,7 +102,7 @@ with tf.Session() as sess:
 		step_size=0.01,
 		n_itr=2,
 		store_paths=False,
-		fit_f = "max",
+		f_F = "max",
 		# optimizer= optimizer,
 		max_path_length=max_path_length,
 		top_paths=top_paths,

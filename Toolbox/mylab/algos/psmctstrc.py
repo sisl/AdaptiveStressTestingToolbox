@@ -52,6 +52,8 @@ class PSMCTSTRC(PSMCTSTR):
 					self.optimizer.get_magnitudes(directions=directions,inputs=all_input_values,max_constraint_val=self.step_size)
 		for (seed,magnitude) in zip(seeds,magnitudes):
 			actions.append((seed,magnitude))
+
+			# all_input_values = self.data2inputs(samples_data)
 			# sp,r = self.getNextState(s,(seed,magnitude))
 			# self.set_params(sp)
 			# divergence = self.f_divergence(*all_input_values)

@@ -29,14 +29,14 @@ class GA(BatchPolopt):
 			pop_size = 5,
 			elites = 2,
 			keep_best = 1,
-			fit_f = "max",
+			f_F = "max",
 			**kwargs):
 
 		self.top_paths = top_paths
 		self.step_size = step_size
 		self.pop_size = pop_size
 		self.elites = elites
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.keep_best = keep_best
 		# self.init_param_values = policy.get_param_values(trainable=True)
 		super(GA, self).__init__(**kwargs, policy=policy)
@@ -88,7 +88,7 @@ class GA(BatchPolopt):
 							action_seqs = [path["actions"] for path in paths]
 							[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 
-						if self.fit_f == "max":
+						if self.f_F == "max":
 							fitness[p] = np.max(undiscounted_returns)
 						else:
 							fitness[p] = np.mean(undiscounted_returns)

@@ -29,7 +29,7 @@ from mylab.utils.ga_argparser import get_ga_parser
 args = get_ga_parser(log_dir='./Data/GATRD')
 
 top_k = 10
-max_path_length = 3
+max_path_length = 400
 interactive = True
 
 tf.set_random_seed(0)
@@ -100,7 +100,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			fit_f=args.fit_f,
+			f_F=args.f_F,
 			log_interval=args.log_interval,
 			plot=False,
 			)

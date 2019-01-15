@@ -13,8 +13,8 @@ max_reward = np.inf
 min_reward = -0.005#-np.inf
 
 # prepath = "../AcrobotStoch/Data/AST/Lexington"
-exp = "AcrobotStoch"
-plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
+# exp = "AcrobotStoch"
+# plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
 # policies = ["TRPO",\
 #         "GATRDStep1.0Fmean","GATRDStep0.1Fmean","GATRDStep0.01Fmean",\
 #         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
@@ -27,10 +27,22 @@ plot_path = "../AcrobotStoch/Data/Plot/Avgtop10/"
 #             "PSMCTSTRC_TRPOmaxStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
 #             "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
 # plot_name = "PSMCTSTRC_TRPO"
-prepath = "../AcrobotStoch/Data/AST"
-policies = ["PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
-plot_name = "PSMCTSTRC_TRPO_garage"
+# prepath = "../AcrobotStoch/Data/AST"
+# policies = ["PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
+# plot_name = "PSMCTSTRC_TRPO_garage"
+
+# prepath = "../MountainCar/Data/AST/Lexington"
+# exp = "MountainCar"
+# plot_path = "../MountainCar/Data/Plot/"
+prepath = "../Acrobot/Data/AST/Lexington"
+exp = "Acrobot"
+plot_path = "../Acrobot/Data/Plot/"
+policies = ["TRPO","MCTS_BV",\
+        "GATRDStep1.0Fmax","GATRDStep0.01Fmax","GATRDStep0.01Fmax",\
+        "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
+        "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
+plot_name = exp
 
 
 # prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
@@ -103,7 +115,7 @@ for (policy_index,policy) in enumerate(policies):
                                     avg_top += np.clip(float(row[entry_dict["reward "+str(k)]]),min_reward,max_reward)
                                 avg_top /= top_k
                                 rewards.append(avg_top)
-            print(steps[-1])
+                print(steps[-1])
             ###
             if len(rewards) < min_array_length:
                 min_array_length = len(rewards) 
