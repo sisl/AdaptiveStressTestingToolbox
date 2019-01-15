@@ -27,16 +27,17 @@ import csv
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=1250)
+parser.add_argument('--n_itr', type=int, default=5000)
 parser.add_argument('--batch_size', type=int, default=4000)
-parser.add_argument('--snapshot_mode', type=str, default="gap")
+parser.add_argument('--step_size', type=float, default=0.1)
+parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=5000)
 parser.add_argument('--log_dir', type=str, default='./Data/TRPO')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 top_k = 10
-max_path_length = 100
+max_path_length = 400
 interactive = True
 
 tf.set_random_seed(0)
@@ -96,7 +97,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			step_size=0.1,
+			step_size=args.step_size,
 			n_itr=args.n_itr,
 			store_paths=True,
 			# optimizer= optimizer,
