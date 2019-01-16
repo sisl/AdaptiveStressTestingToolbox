@@ -4,6 +4,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from mylab.envs.tfenv import TfEnv
+from mylab.envs.seed_reset_env import SeedResetEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
@@ -25,20 +26,21 @@ import numpy as np
 import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Logger Params
-exp_name = "Reacher-v1"
+exp_name = 'Humanoid-v2'
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default=exp_name)
 parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=2500)
-parser.add_argument('--batch_size', type=int, default=2000)
-parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=500)
+parser.add_argument('--n_itr', type=int, default=5000)
+parser.add_argument('--batch_size', type=int, default=4000)
+parser.add_argument('--step_size', type=float, default=0.1)
+parser.add_argument('--snapshot_mode', type=str, default="none")
+parser.add_argument('--snapshot_gap', type=int, default=5000)
 parser.add_argument('--log_dir', type=str, default='./Data/'+exp_name+'/TRPO/')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 top_k = 10
-max_path_length = 50
+max_path_length = 400
 interactive = True
 
 tf.set_random_seed(0)
@@ -46,13 +48,14 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(normalize(GymEnv(exp_name, record_video=False, record_log=False)))
+env = TfEnv(normalize(SeedResetEnv(gym.make(exp_name),random_reset=False,reset_seed=0)))
 
 # Create policy
 policy = GaussianMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-	hidden_sizes=(128, 64, 32)
+    hidden_sizes=(128, 64, 32),
+    output_nonlinearity=tf.nn.tanh,
 )
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
@@ -96,7 +99,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			step_size=0.1,
+			step_size=args.step_size,
 			n_itr=args.n_itr,
 			store_paths=True,
 			# optimizer= optimizer,

@@ -4,6 +4,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from mylab.envs.tfenv import TfEnv
+from mylab.envs.seed_reset_env import SeedResetEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
@@ -28,11 +29,11 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.psmcts_argparser import get_psmcts_parser
-exp_name = "Reacher-v1"
+exp_name = 'Humanoid-v2'
 args = get_psmcts_parser(log_dir='./Data/'+exp_name+'/PSMCTSTRC')
 
 top_k = 10
-max_path_length = 50
+max_path_length = 400
 interactive = True
 
 tf.set_random_seed(0)
@@ -40,13 +41,14 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(normalize(GymEnv(exp_name, record_video=False, record_log=False)))
+env = TfEnv(normalize(SeedResetEnv(gym.make(exp_name),random_reset=False,reset_seed=0)))
 
 # Create policy
 policy = DeterministicMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-	hidden_sizes=(128, 64, 32)
+    hidden_sizes=(128, 64, 32),
+    output_nonlinearity=tf.nn.tanh,
 )
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
@@ -104,7 +106,6 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			f_F=args.f_F,
 			log_interval=args.log_interval,
 			plot=False,
-			initial_seed = trial,
 			f_Q=args.f_Q,
 			)
 

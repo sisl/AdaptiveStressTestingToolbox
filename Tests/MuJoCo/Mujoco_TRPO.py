@@ -4,6 +4,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from mylab.envs.tfenv import TfEnv
+from mylab.envs.seed_reset_env import SeedResetEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
@@ -55,7 +56,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env = TfEnv(normalize(gym.make('HalfCheetah-v2')))
+	env = TfEnv(normalize(SeedResetEnv(gym.make('Humanoid-v2'),random_reset=False,reset_seed=0)))
 	# print(env.observation_space)
 	# print(env.action_space)
 	# Create policy
@@ -82,7 +83,7 @@ with tf.Session() as sess:
 	    n_itr=1,
 	    store_paths=True,
 	    # optimizer= optimizer,
-	    max_path_length=1000,
+	    max_path_length=400,
 	    plot=False,
 	    )
 
