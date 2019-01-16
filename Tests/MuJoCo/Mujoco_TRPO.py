@@ -60,14 +60,11 @@ with tf.Session() as sess:
 	# print(env.action_space)
 	# Create policy
 	policy = GaussianMLPPolicy(
-	    name='ast_agent',
-	    env_spec=env.spec,
-	    hidden_sizes=(64, 32)
+		name='ast_agent',
+		env_spec=env.spec,
+	    hidden_sizes=(128, 64, 32),
+	    output_nonlinearity=tf.nn.tanh,
 	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=ast_spec,
-	#                             hidden_dim=128,
-	#                             use_peepholes=True)
 	
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
@@ -82,7 +79,7 @@ with tf.Session() as sess:
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=25,
+	    n_itr=1,
 	    store_paths=True,
 	    # optimizer= optimizer,
 	    max_path_length=1000,
