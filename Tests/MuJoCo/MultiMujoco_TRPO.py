@@ -12,6 +12,7 @@ from garage.misc import logger
 
 from garage.envs.normalized_env import normalize
 
+import gym
 from mylab.algos.trpo import TRPO
 
 import os.path as osp

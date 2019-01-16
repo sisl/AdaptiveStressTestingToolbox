@@ -13,6 +13,7 @@ from garage.misc import logger
 
 from garage.envs.normalized_env import normalize
 
+import gym
 from mylab.algos.psmctstrc import PSMCTSTRC
 from mylab.utils.tree_plot import plot_tree, plot_node_num
 

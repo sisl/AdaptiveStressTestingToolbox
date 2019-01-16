@@ -13,6 +13,7 @@ from garage.misc import logger
 
 from garage.envs.normalized_env import normalize
 
+import gym
 from mylab.algos.gatrd import GATRD
 
 import os.path as osp
