@@ -7,7 +7,6 @@ from gym import logger
 import gym.spaces as spaces
 from gym.utils import seeding
 from garage.core import Serializable
-from garage.envs import Step
 from garage.misc.overrides import overrides
 
 from numpy import sin, cos, pi

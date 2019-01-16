@@ -34,7 +34,7 @@ class BoundedPriorityQueue:
 	def __iter__(self):
 		return start(self)
 
-def BoundedPriorityQueueInit(N):
+def BoundedPriorityQueue(N):
 	return BoundedPriorityQueue(queue.PriorityQueue(),N)
 
 class BPQIterator:

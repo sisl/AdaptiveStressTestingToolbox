@@ -84,7 +84,7 @@ logger.push_prefix("["+args.exp_name+"]")
 np.random.seed(0)
 
 SEED = 0
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 ast_params = AST.ASTParams(max_path_length,args.batch_size,log_tabular=True)
 ast = AST.AdaptiveStressTest(p=ast_params, env=env, top_paths=top_paths)
 

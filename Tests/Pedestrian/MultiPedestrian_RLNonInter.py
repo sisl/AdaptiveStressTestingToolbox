@@ -111,7 +111,7 @@ with open(osp.join(log_dir, 'ast'+str(args.n_itr*args.batch_size)+'.csv'), mode=
 			optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 			# sampler_cls = ASTSingleSampler
 			# sampler_cls = ASTVectorizedSampler
-			top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+			top_paths = BPQ.BoundedPriorityQueue(top_k)
 			algo = TRPO(
 				env=env,
 				policy=policy,

@@ -1,6 +1,5 @@
-from garage.envs.base import Env
-from garage.envs.base import Step
-from garage.spaces import Box
+from gym import Env
+from gym.spaces import Box
 import numpy as np
 
 import pdb

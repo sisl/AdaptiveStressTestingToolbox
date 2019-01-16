@@ -64,7 +64,7 @@ def DPWInit(p,f):
 	f = f
 	rng = np.random.RandomState(p.rng_seed)
 	tracker = mctstracker.MCTSTrackerInit()
-	top_paths = BPQ.BoundedPriorityQueueInit(p.top_k)
+	top_paths = BPQ.BoundedPriorityQueue(p.top_k)
 	return DPW(s,p,f,rng,tracker,top_paths)
 
 def saveBackwardState(dpw, old_d, new_d, s_current):

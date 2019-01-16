@@ -58,7 +58,7 @@ def DPWInit(p,f,top_paths):
 	p = p
 	f = f
 	tracker = mctstracker.MCTSTrackerInit()
-	# top_paths = BPQ.BoundedPriorityQueueInit(p.top_k)
+	# top_paths = BPQ.BoundedPriorityQueue(p.top_k)
 	top_paths = top_paths
 	return DPW(s,p,f,tracker,top_paths)
 

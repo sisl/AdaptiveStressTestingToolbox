@@ -97,7 +97,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		np.random.seed(trial)
 		SEED = trial
-		top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+		top_paths = BPQ.BoundedPriorityQueue(top_k)
 		ast_params = AST_RS.ASTParams(max_path_length,RNG_LENGTH,SEED,args.batch_size,log_tabular=True)
 		ast = AST_RS.AdaptiveStressTestRS(p=ast_params, env=env, top_paths=top_paths)
 

@@ -5,15 +5,14 @@ permalink: https://perma.cc/C9ZM-652R
 """
 
 import math
+import gym
 from gym import logger
 from gym.utils import seeding
 import numpy as np
 from garage.core.serializable import Serializable
 from garage.core import Serializable
-from gym.spaces import Box
-from garage.envs.base import Step
 from garage.misc.overrides import overrides
-import garage.spaces as spaces
+import gym.spaces as spaces
 from scipy.stats import norm
 
 class CartPoleEnv(gym.Env, Serializable):
