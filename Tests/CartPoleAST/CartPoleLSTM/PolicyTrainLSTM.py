@@ -2,7 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 from garage.tf.algos.trpo import TRPO
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.baselines.zero_baseline import ZeroBaseline
 from CartPoleAST.CartPole.cartpole import CartPoleEnv
 from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.categorical_lstm_policy import CategoricalLSTMPolicy
@@ -37,7 +37,7 @@ policy = CategoricalLSTMPolicy(name='protagonist',
                             env_spec=env.spec,
                             hidden_dim=128)
 
-baseline = LinearFeatureBaseline(env_spec=env.spec)
+baseline = ZeroBaseline(env_spec=env.spec)
 optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
 algo = TRPO(

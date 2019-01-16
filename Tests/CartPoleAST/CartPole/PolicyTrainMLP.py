@@ -2,7 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 from garage.tf.algos.trpo import TRPO
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.baselines.zero_baseline import ZeroBaseline
 from CartPoleAST.CartPole.cartpole import CartPoleEnv
 from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
@@ -38,7 +38,7 @@ policy = CategoricalMLPPolicy(
     hidden_sizes=(32, 32)
 )
 
-baseline = LinearFeatureBaseline(env_spec=env.spec)
+baseline = ZeroBaseline(env_spec=env.spec)
 
 algo = TRPO(
     env=env,

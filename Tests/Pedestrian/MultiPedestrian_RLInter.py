@@ -2,7 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.baselines.zero_baseline import ZeroBaseline
 from CartPoleAST.CartPole.cartpole import CartPoleEnv
 from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
@@ -107,7 +107,7 @@ with open(osp.join(log_dir, 'ast'+str(args.n_itr*args.batch_size)+'.csv'), mode=
 			sess.run(tf.global_variables_initializer())
 
 			# Instantiate the RLLAB objects
-			baseline = LinearFeatureBaseline(env_spec=env.spec)
+			baseline = ZeroBaseline(env_spec=env.spec)
 			optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 			# sampler_cls = ASTSingleSampler
 			# sampler_cls = ASTVectorizedSampler

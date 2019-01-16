@@ -2,7 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.baselines.zero_baseline import ZeroBaseline
 from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
@@ -99,7 +99,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		params = policy.get_params()
 		sess.run(tf.variables_initializer(params))
-		baseline = LinearFeatureBaseline(env_spec=env.spec)
+		baseline = ZeroBaseline(env_spec=env.spec)
 		optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
