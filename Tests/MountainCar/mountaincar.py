@@ -65,7 +65,7 @@ class MountainCarEnv(gym.Env, Serializable):
         return [seed]
 
     def step(self, action):
-        assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
+        # assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         position = self.state[0]
         velocity = self.state[1]
         force = np.clip(action, -1.0, 1.0)

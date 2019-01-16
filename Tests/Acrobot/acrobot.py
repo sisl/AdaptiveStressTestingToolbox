@@ -127,7 +127,7 @@ class AcrobotEnv(gym.Env, Serializable):
         return self._get_ob()
 
     def step(self, action):
-        assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
+        # assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         s = self.state
         # torque = self.AVAIL_TORQUE[a]
         torque = np.clip(action, -1.0, 1.0)
