@@ -15,6 +15,7 @@ permalink: https://perma.cc/6Z2N-PFWC
 """
 
 import math
+import gym
 from garage.core import Serializable
 from gym.spaces import Box
 from gym.utils import seeding
