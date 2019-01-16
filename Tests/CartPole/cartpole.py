@@ -65,7 +65,7 @@ class CartPoleEnv(gym.Env,Serializable):
         state = self.state
         x, x_dot, theta, theta_dot = state
         # force = self.force_mag if action==1 else -self.force_mag
-        force = self.force_mag*np.clip(action, -1.0, 1.0)
+        force = self.force_mag*np.clip(action[0], -1.0, 1.0)
         costheta = math.cos(theta)
         sintheta = math.sin(theta)
         temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
