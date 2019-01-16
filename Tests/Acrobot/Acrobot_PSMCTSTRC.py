@@ -68,7 +68,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env = TfEnv(AcrobotEnv(success_reward = max_path_length,
+	env = TfEnv(AcrobotEnv(max_path_length = max_path_length,
 							success_threshhold = 1.9999,
 							torque_noise_max = 0.0,))
 

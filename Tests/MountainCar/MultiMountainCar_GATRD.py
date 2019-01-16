@@ -37,7 +37,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(MountainCarEnv(success_reward = max_path_length))
+env = TfEnv(MountainCarEnv(max_path_length = max_path_length))
 
 # Create policy
 policy = DeterministicMLPPolicy(

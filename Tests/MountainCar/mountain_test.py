@@ -15,7 +15,7 @@ import time
 import numpy as np
 
 max_path_length = 100
-env = TfEnv(MountainCarEnv(success_reward = max_path_length))
+env = TfEnv(MountainCarEnv(max_path_length = max_path_length))
 
 with tf.Session() as sess:
     o = env.reset()

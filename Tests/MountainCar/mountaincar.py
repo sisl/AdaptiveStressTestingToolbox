@@ -29,7 +29,7 @@ class MountainCarEnv(gym.Env, Serializable):
 
     def __init__(self,
                 initial_condition_max = 0.,
-                success_reward = 100.0,
+                max_path_length = 100.0,
                 power = 0.0011,
                 ):
         self.min_action = -1.0
@@ -44,7 +44,7 @@ class MountainCarEnv(gym.Env, Serializable):
         self.viewer = None
 
         self.initial_condition_max = initial_condition_max
-        self.success_reward = success_reward
+        self.max_path_length = max_path_length
 
         self.seed()
         self.reset()
@@ -65,10 +65,10 @@ class MountainCarEnv(gym.Env, Serializable):
         return [seed]
 
     def step(self, action):
-
+        assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         position = self.state[0]
         velocity = self.state[1]
-        force = min(max(action[0], -1.0), 1.0)
+        force = np.clip(action, -1.0, 1.0)
 
         velocity += force*self.power -0.0025 * math.cos(3*position)
         if (velocity > self.max_speed): velocity = self.max_speed
@@ -86,8 +86,8 @@ class MountainCarEnv(gym.Env, Serializable):
         # reward-= math.pow(action[0],2)*0.1
         reward = -np.abs(action[0])
         if done:
-            reward += self.success_reward
-        reward = reward/self.success_reward
+            reward += self.max_path_length
+        reward = reward/self.max_path_length
 
         self.state = np.array([position, velocity])
         return self.state, reward, done, {}
@@ -115,7 +115,7 @@ class MountainCarEnv(gym.Env, Serializable):
 
 
         if self.viewer is None:
-            from Cartpole.gym import rendering
+            from CartPoleAST.CartPole.gym import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
             xs = np.linspace(self.min_position, self.max_position, 100)
             ys = self._height(xs)

@@ -13,7 +13,7 @@ max_reward = np.inf
 min_reward = -np.inf
 
 prepath = "../"
-# exp = "CartpoleNd"
+# exp = "CartPoleNd"
 exp = "Acrobot"
 policies = ["TRPO","MCTS_BV","GATRDStep1.0Fmax","PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax"]
 plot_name = exp

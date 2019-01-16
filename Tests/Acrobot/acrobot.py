@@ -90,14 +90,14 @@ class AcrobotEnv(gym.Env, Serializable):
     def __init__(self,
                 torque_noise_max = 0.,
                 initial_condition_max = 0.,
-                success_reward = 100.0,
+                max_path_length = 100.0,
                 success_threshhold = 1.0,
                 ):
         self.viewer = None
         self.state = None
         self.torque_noise_max = torque_noise_max
         self.initial_condition_max = initial_condition_max
-        self.success_reward = success_reward
+        self.max_path_length = max_path_length
         self.success_threshhold = success_threshhold
         self.seed()
         Serializable.quick_init(self, locals())
@@ -126,10 +126,11 @@ class AcrobotEnv(gym.Env, Serializable):
                                                 high=self.initial_condition_max, size=(4,))
         return self._get_ob()
 
-    def step(self, a):
+    def step(self, action):
+        assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         s = self.state
         # torque = self.AVAIL_TORQUE[a]
-        torque = np.clip(a, -1.0, 1.0)
+        torque = np.clip(action, -1.0, 1.0)
 
         # Add noise to the force action
         if self.torque_noise_max > 0:
@@ -157,10 +158,10 @@ class AcrobotEnv(gym.Env, Serializable):
         terminal = self._terminal()
         # reward = -1. if not terminal else 0.
         # reward = -np.abs(a[0])
-        reward = -np.abs(torque[0])
+        reward = -np.abs(action[0])
         if terminal:
-            reward += self.success_reward
-        reward = reward/self.success_reward
+            reward += self.max_path_length
+        reward = reward/self.max_path_length
 
         # if (type(reward) is type(1.0)) or (type(reward) is type(np.float64(1.0))):
         #     reward = reward
@@ -213,7 +214,7 @@ class AcrobotEnv(gym.Env, Serializable):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
 
     def render(self, mode='human'):
-        from Cartpole.gym import rendering
+        from CartPoleAST.CartPole.gym import rendering
 
         s = self.state
 

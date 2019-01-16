@@ -9,7 +9,7 @@ batch_size = 4000
 # max_step = 5e6
 
 prepath = "../"
-exps = ["CartpoleNdRewardt"]
+exps = ["CartPoleNdRewardt"]
 policies = ["GATRDInterStep1.0Fmax","PSMCTSInterStep1.0Ec1.414K0.5A0.5Qmax",\
             "PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax"]
 plot_name = "GATRD_PSMCTS"

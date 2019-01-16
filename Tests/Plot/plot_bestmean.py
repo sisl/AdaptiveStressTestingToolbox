@@ -13,13 +13,13 @@ max_reward = np.inf
 min_reward = -0.05#-np.inf
 
 # prepath = "../AcrobotStoch/Data/AST/Lexington"
-exp = "AcrobotStoch"
+prepath = "../AcrobotStoch/Data/AST/Lexington/400"
+exp = "AcrobotStoch400"
 plot_path = "../AcrobotStoch/Data/Plot/BestMean/"
-# policies = ["TRPO",\
-#         "GATRDStep1.0Fmean","GATRDStep0.1Fmean","GATRDStep0.01Fmean",\
-#         "PSMCTSStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSStep0.01Ec1.414K0.5A0.5Qmax",\
-#         "PSMCTSTRCStep1.0Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.1Ec1.414K0.5A0.5Qmax","PSMCTSTRCStep0.01Ec1.414K0.5A0.5Qmax"]
-# plot_name = exp
+policies = ["TRPO",\
+        "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
+        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
+plot_name = exp
 # policies = ["PSMCTSTRC_TRPOStep0.01Ec1.414K0.5A0.5SStep0.1Qmax",\
 #             "PSMCTSTRC_TRPOStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
 #             "PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
@@ -27,14 +27,14 @@ plot_path = "../AcrobotStoch/Data/Plot/BestMean/"
 #             "PSMCTSTRC_TRPOmaxStep0.1Ec1.414K0.5A0.5SStep0.1Qmax",\
 #             "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
 # plot_name = "PSMCTSTRC_TRPO"
-prepath = "../AcrobotStoch/Data/AST"
-policies = ["PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
-            "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
-plot_name = "PSMCTSTRC_TRPO_garage"
+# prepath = "../AcrobotStoch/Data/AST"
+# policies = ["PSMCTSTRC_TRPOStep1.0Ec1.414K0.5A0.5SStep0.1Qmax",\
+#             "PSMCTSTRC_TRPOmaxStep1.0Ec1.414K0.5A0.5SStep0.1Qmax"]
+# plot_name = "PSMCTSTRC_TRPO_garage"
 
-# prepath = "../CartpoleNdRewardt/Data/AST/Lexington"
-# exp = "CartpoleNdRewardt"
-# plot_path = "../CartpoleNdRewardt/Data/Plot/Avgtop10/"
+# prepath = "../CartPoleNdRewardt/Data/AST/Lexington"
+# exp = "CartPoleNdRewardt"
+# plot_path = "../CartPoleNdRewardt/Data/Plot/Avgtop10/"
 # policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
 #             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax",\
 #             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.8Qmax","PSMCTSTRCInterStep1.0Ec0.1K0.5A0.5Qmax",\

@@ -50,7 +50,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(AcrobotEnv(success_reward = max_path_length,
+env = TfEnv(AcrobotEnv(max_path_length = max_path_length,
 						success_threshhold = 1.9999,))
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
