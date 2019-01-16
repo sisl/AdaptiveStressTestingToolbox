@@ -3,7 +3,6 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.zero_baseline import ZeroBaseline
-from garage.baselines.zero_baseline import ZeroBaseline
 from mylab.envs.tfenv import TfEnv
 from mylab.envs.seed_reset_env import SeedResetEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
