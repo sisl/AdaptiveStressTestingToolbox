@@ -11,7 +11,7 @@ from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientO
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
-from garage.tf.envs.base import to_tf_space
+
 
 from MountainCar.mountaincar import MountainCarEnv
 

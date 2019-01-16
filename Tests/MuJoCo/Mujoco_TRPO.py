@@ -10,10 +10,8 @@ from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientO
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
-from garage.tf.envs.base import to_tf_space
 
-from garage.envs.gym_env import GymEnv
-
+import gym
 from mylab.algos.trpo import TRPO
 
 import os.path as osp
@@ -57,7 +55,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env = TfEnv(normalize(GymEnv(args.exp_name, record_video=False, record_log=False)))
+	env = TfEnv(normalize(gym.make('HalfCheetah-v2')))
 	# print(env.observation_space)
 	# print(env.action_space)
 	# Create policy

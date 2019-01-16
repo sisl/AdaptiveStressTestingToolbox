@@ -11,7 +11,7 @@ from mylab.optimizers.direction_constraint_optimizer import DirectionConstraintO
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
-from garage.tf.envs.base import to_tf_space
+
 
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
