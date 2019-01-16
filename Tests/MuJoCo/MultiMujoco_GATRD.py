@@ -11,7 +11,6 @@ from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 
-from garage.envs.gym_env import GymEnv
 from garage.envs.normalized_env import normalize
 
 from mylab.algos.gatrd import GATRD

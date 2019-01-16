@@ -10,7 +10,6 @@ from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 
-from garage.envs.gym_env import GymEnv
 from garage.envs.normalized_env import normalize
 
 from mylab.algos.trpo import TRPO
