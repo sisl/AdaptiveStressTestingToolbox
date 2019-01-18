@@ -2,18 +2,19 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.baselines.zero_baseline import ZeroBaseline
+from garage.envs.normalized_env import normalize
 from mylab.envs.tfenv import TfEnv
 from mylab.envs.seed_env import SeedEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 
-from garage.envs.normalized_env import normalize
+from BipedalWalker.bipedalwalker import BipedalWalker
 
-import gym
-from mylab.algos.trpo import TRPO
+from mylab.algos.gatrd import GATRD
 
 import os.path as osp
 import argparse
@@ -25,19 +26,9 @@ import numpy as np
 
 import mcts.BoundedPriorityQueues as BPQ
 import csv
-# Logger Params
-exp_name = 'Humanoid-v2'
-parser = argparse.ArgumentParser()
-parser.add_argument('--exp_name', type=str, default=exp_name)
-parser.add_argument('--n_trial', type=int, default=5)
-parser.add_argument('--n_itr', type=int, default=5000)
-parser.add_argument('--batch_size', type=int, default=4000)
-parser.add_argument('--step_size', type=float, default=0.1)
-parser.add_argument('--snapshot_mode', type=str, default="none")
-parser.add_argument('--snapshot_gap', type=int, default=5000)
-parser.add_argument('--log_dir', type=str, default='./Data/'+exp_name+'/TRPO/')
-parser.add_argument('--args_data', type=str, default=None)
-args = parser.parse_args()
+# Log Params
+from mylab.utils.ga_argparser import get_ga_parser
+args = get_ga_parser(log_dir='./Data/GATRD')
 
 top_k = 10
 max_path_length = 400
@@ -48,10 +39,10 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(normalize(SeedEnv(gym.make(exp_name),random_reset=False,reset_seed=0)))
+env = TfEnv(normalize(SeedEnv(BipedalWalker(),random_reset=False,reset_seed=0)))
 
 # Create policy
-policy = GaussianMLPPolicy(
+policy = DeterministicMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
     hidden_sizes=(128, 64, 32),
@@ -90,28 +81,33 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		params = policy.get_params()
 		sess.run(tf.variables_initializer(params))
-		baseline = LinearFeatureBaseline(env_spec=env.spec)
-		# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
+		# Instantiate the RLLAB objects
+		baseline = ZeroBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		algo = TRPO(
+		algo = GATRD(
 			env=env,
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
+			pop_size=args.pop_size,
+			truncation_size=args.truncation_size,
+			keep_best=args.keep_best,
 			step_size=args.step_size,
+			step_size_anneal=args.step_size_anneal,
 			n_itr=args.n_itr,
-			store_paths=True,
-			# optimizer= optimizer,
+			store_paths=False,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
+			f_F=args.f_F,
+			log_interval=args.log_interval,
 			plot=False,
 			)
 
 		algo.train(sess=sess, init_var=False)
 
 		row_content = dict()
-		row_content['step_count'] = args.n_itr*args.batch_size
+		row_content['step_count'] = algo.stepNum
 		i = 0
 		for (r,action_seq) in algo.top_paths:
 			row_content['reward '+str(i)] = r

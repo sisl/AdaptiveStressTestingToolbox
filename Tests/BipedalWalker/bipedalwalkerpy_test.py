@@ -4,7 +4,8 @@ from mylab.envs.tfenv import TfEnv
 from mylab.envs.seed_env import SeedEnv
 import numpy as np
 
-env = TfEnv(normalize(gym.make('Humanoid-v2')))
+from BipedalWalker.bipedalwalker import BipedalWalker
+env = TfEnv(normalize(BipedalWalker()))
 
 # env.seed(0)
 # o01 = env.reset()
@@ -22,21 +23,21 @@ env = TfEnv(normalize(gym.make('Humanoid-v2')))
 # print('reset: ',np.array_equal(o01,o02))
 # print('step: ',np.array_equal(o11,o12))
 
-env2 = TfEnv(normalize(SeedEnv(gym.make('Humanoid-v2'),random_reset=False,reset_seed=0)))
+# env2 = TfEnv(normalize(SeedEnv(BipedalWalker(),random_reset=False,reset_seed=0)))
+env2 = env
 
-env.seed(0)
-o01 = env.reset()
-o02 = env2.reset()
-print(np.array_equal(o01,o02))
-	
-o012 = env.reset()
-o022 = env2.reset()
-print(np.array_equal(o01,o012))
-print(np.array_equal(o02,o022))
+# env2.seed(0)
+# o02 = env2.reset()
+# env2.seed(0)
+# o022 = env2.reset()
+# print(np.array_equal(o02,o022))
 
-o12, r12, d12, _ = env2.step(np.ones_like(env.action_space.sample()))
+env2.seed(0)
 env2.reset()
-o122, r122, d122, _ = env2.step(np.ones_like(env.action_space.sample()))
+o12, r12, d12, _ = env2.step(np.ones_like(env2.action_space.sample()))
+env2.seed(0)
+env2.reset()
+o122, r122, d122, _ = env2.step(np.ones_like(env2.action_space.sample()))
 print(np.array_equal(o12,o122))
 
 
