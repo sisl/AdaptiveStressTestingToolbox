@@ -68,7 +68,7 @@ class MountainCarEnv(gym.Env, Serializable):
         # assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         position = self.state[0]
         velocity = self.state[1]
-        force = np.clip(action, -1.0, 1.0)
+        force = np.clip(action[0], -1.0, 1.0)
 
         velocity += force*self.power -0.0025 * math.cos(3*position)
         if (velocity > self.max_speed): velocity = self.max_speed
@@ -84,7 +84,7 @@ class MountainCarEnv(gym.Env, Serializable):
         # if done:
         #     reward = 100.0
         # reward-= math.pow(action[0],2)*0.1
-        reward = -np.abs(action[0])
+        reward = -np.abs(action[0])/10.0
         if done:
             reward += self.max_path_length
         reward = reward/self.max_path_length

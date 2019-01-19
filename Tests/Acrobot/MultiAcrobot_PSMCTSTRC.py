@@ -30,7 +30,7 @@ from mylab.utils.psmcts_argparser import get_psmcts_parser
 args = get_psmcts_parser(log_dir='./Data/PSMCTSTRC')
 
 top_k = 10
-max_path_length = 400
+max_path_length = 100
 interactive = True
 
 tf.set_random_seed(0)

@@ -19,7 +19,7 @@ class CartPoleEnv(gym.Env,Serializable):
 
     def __init__(self,
                 initial_condition_max = 0.,
-                initial_condition_bias = 0.02,
+                initial_condition_bias = 0.1,#0.02,
                 max_path_length = 100.0,):
         self.gravity = 9.8
         self.masscart = 1.0
@@ -31,8 +31,8 @@ class CartPoleEnv(gym.Env,Serializable):
         self.tau = 0.02  # seconds between state updates
 
         # Angle at which to fail the episode
-        self.theta_threshold_radians = 12 * 2 * math.pi / 360
-        self.x_threshold = 2.4
+        self.theta_threshold_radians = 3 * 2 * math.pi / 360#12 * 2 * math.pi / 360
+        self.x_threshold = 0.6#2.4
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
         high = np.array([
@@ -93,7 +93,7 @@ class CartPoleEnv(gym.Env,Serializable):
         #         logger.warn("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
         #     self.steps_beyond_done += 1
         #     reward = 0.0
-        reward = -np.abs(action[0])
+        reward = -np.abs(action[0])/10.0
         if done:
             reward -= self.max_path_length
         reward = reward/self.max_path_length

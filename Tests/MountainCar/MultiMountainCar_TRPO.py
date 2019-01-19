@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--n_itr', type=int, default=5000)
-parser.add_argument('--batch_size', type=int, default=4000)
+parser.add_argument('--batch_size', type=int, default=1000)
 parser.add_argument('--step_size', type=float, default=0.1)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=5000)
@@ -37,7 +37,7 @@ parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
 top_k = 10
-max_path_length = 400
+max_path_length = 100
 interactive = True
 
 tf.set_random_seed(0)

@@ -130,7 +130,7 @@ class AcrobotEnv(gym.Env, Serializable):
         # assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         s = self.state
         # torque = self.AVAIL_TORQUE[a]
-        torque = np.clip(action, -1.0, 1.0)
+        torque = np.clip(action[0], -1.0, 1.0)
 
         # Add noise to the force action
         if self.torque_noise_max > 0:
@@ -158,7 +158,7 @@ class AcrobotEnv(gym.Env, Serializable):
         terminal = self._terminal()
         # reward = -1. if not terminal else 0.
         # reward = -np.abs(a[0])
-        reward = -np.abs(action[0])
+        reward = -np.abs(action[0])/10.0
         if terminal:
             reward += self.max_path_length
         reward = reward/self.max_path_length
