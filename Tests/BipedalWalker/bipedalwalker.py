@@ -58,7 +58,8 @@ VIEWPORT_W = 600
 VIEWPORT_H = 400
 
 TERRAIN_STEP   = 14/SCALE
-TERRAIN_LENGTH = 200     # in steps
+# TERRAIN_LENGTH = 200     # in steps
+TERRAIN_LENGTH = 100
 TERRAIN_HEIGHT = VIEWPORT_H/SCALE/4
 TERRAIN_GRASS    = 10    # low long are grass spots, in steps
 TERRAIN_STARTPAD = 20    # in steps
@@ -109,7 +110,10 @@ class BipedalWalker(gym.Env,Serializable):
 
     hardcore = False
 
-    def __init__(self):
+    def __init__(self,
+                max_path_length = 100,
+                ):
+        self.max_path_length = max_path_length
         self.seed()
         self.viewer = None
 
@@ -433,17 +437,22 @@ class BipedalWalker(gym.Env,Serializable):
         #     reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
 
-        for a in action:
-            reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
+        # for a in action:
+            # reward -= 0.00035 * MOTORS_TORQUE * np.clip(np.abs(a), 0, 1)
             # normalized to about -50.0 using heuristic, more optimal agent should spend less
 
         done = False
         if self.game_over or pos[0] < 0:
-            reward = -100
+            # reward = -100
             done   = True
         if pos[0] > (TERRAIN_LENGTH-TERRAIN_GRASS)*TERRAIN_STEP:
-            reward += 100 #added by Xiaobai
             done   = True
+
+        for a in action:
+            reward = -np.clip(np.abs(a), 0, 1)/10.0
+        if pos[0] > (TERRAIN_LENGTH-TERRAIN_GRASS)*TERRAIN_STEP:
+            reward += self.max_path_length
+        reward = reward/self.max_path_length
         return np.array(state), reward, done, {}
 
     def render(self, mode='human'):

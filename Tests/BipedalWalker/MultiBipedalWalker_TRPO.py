@@ -47,7 +47,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(normalize(SeedEnv(BipedalWalker(),random_reset=False,reset_seed=0)))
+env = TfEnv(normalize(SeedEnv(BipedalWalker(max_path_length=max_path_length),random_reset=False,reset_seed=0)))
 
 # Create policy
 policy = GaussianMLPPolicy(
