@@ -31,7 +31,7 @@ from mylab.utils.ga_argparser import get_ga_parser
 args = get_ga_parser(log_dir='./Data/GATRD')
 
 top_k = 10
-max_path_length = 400
+max_path_length = 100
 interactive = True
 
 tf.set_random_seed(0)

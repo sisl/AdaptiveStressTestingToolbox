@@ -429,8 +429,8 @@ class BipedalWalker(gym.Env,Serializable):
         shaping -= 5.0*abs(state[0])  # keep head straight, other than that and falling, any behavior is unpunished
 
         reward = 0
-        if self.prev_shaping is not None:
-            reward = shaping - self.prev_shaping
+        # if self.prev_shaping is not None:
+        #     reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
 
         for a in action:
@@ -442,6 +442,7 @@ class BipedalWalker(gym.Env,Serializable):
             reward = -100
             done   = True
         if pos[0] > (TERRAIN_LENGTH-TERRAIN_GRASS)*TERRAIN_STEP:
+            reward += 100 #added by Xiaobai
             done   = True
         return np.array(state), reward, done, {}
 
