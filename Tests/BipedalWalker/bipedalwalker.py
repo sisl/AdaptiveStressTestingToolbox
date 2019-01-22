@@ -59,7 +59,7 @@ VIEWPORT_H = 400
 
 TERRAIN_STEP   = 14/SCALE
 # TERRAIN_LENGTH = 200     # in steps
-TERRAIN_LENGTH = 100
+TERRAIN_LENGTH = 30#100
 TERRAIN_HEIGHT = VIEWPORT_H/SCALE/4
 TERRAIN_GRASS    = 10    # low long are grass spots, in steps
 TERRAIN_STARTPAD = 20    # in steps
@@ -515,7 +515,12 @@ class BipedalWalkerHardcore(BipedalWalker):
 
 if __name__=="__main__":
     # Heurisic: suboptimal, have no notion of balance.
-    env = BipedalWalker()
+    from garage.envs.normalized_env import normalize
+    from mylab.envs.tfenv import TfEnv
+    from mylab.envs.seed_env import SeedEnv
+    max_path_length = 100
+    env = TfEnv(normalize(SeedEnv(BipedalWalker(max_path_length=max_path_length),random_reset=False,reset_seed=0)))
+    # env = BipedalWalker()
     env.reset()
     steps = 0
     total_reward = 0

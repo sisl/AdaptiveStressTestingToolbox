@@ -12,9 +12,9 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../CartPole/Data/AST/Lexington/l100th0612i01"
-exp = "CartPole_l100th0612i01"
-plot_path = "../CartPole/Data/Plot/"
+prepath = "../BipedalWalker/Data/AST/Lexington/L100TL100"
+exp = "BipedalWalker_L100TL100"
+plot_path = "../BipedalWalker/Data/Plot/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
