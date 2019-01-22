@@ -12,13 +12,13 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../BipedalWalker/Data/AST/Lexington/400"
-exp = "BipedalWalker100"
-plot_path = "../BipedalWalker/Data/Plot/"
+prepath = "../CartPole/Data/AST/Lexington/l100th0612i01"
+exp = "CartPole_l100th0612i01"
+plot_path = "../CartPole/Data/Plot/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
-        # "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
-        "PSMCTSTRCK0.5A0.5Ec100.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.01FmeanQmax"]
+        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
+        # "PSMCTSTRCK0.5A0.5Ec100.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.01FmeanQmax"]
 plot_name = exp
 
 
