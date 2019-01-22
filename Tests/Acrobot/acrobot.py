@@ -91,7 +91,7 @@ class AcrobotEnv(gym.Env, Serializable):
                 torque_noise_max = 0.,
                 initial_condition_max = 0.,
                 max_path_length = 100.0,
-                success_threshhold = 1.0,
+                success_threshhold = 1.9,#1.9999,#1.0,
                 ):
         self.viewer = None
         self.state = None

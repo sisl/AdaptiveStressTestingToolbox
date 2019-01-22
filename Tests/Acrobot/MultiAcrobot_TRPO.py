@@ -45,8 +45,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(AcrobotEnv(max_path_length = max_path_length,
-						success_threshhold = 1.9999,))
+env = TfEnv(AcrobotEnv(max_path_length = max_path_length))
 
 # Create policy
 policy = GaussianMLPPolicy(
