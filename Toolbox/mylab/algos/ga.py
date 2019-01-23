@@ -35,7 +35,6 @@ class GA(BatchPolopt):
 			keep_best = 1,
 			f_F = "mean",
 			log_interval = 4000,
-			initial_mag = 1.0,
 			**kwargs):
 
 		self.top_paths = top_paths
@@ -48,7 +47,6 @@ class GA(BatchPolopt):
 		self.f_F = f_F
 		self.log_interval = log_interval
 		self.keep_best = keep_best
-		self.initial_mag = initial_mag
 
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
@@ -59,7 +57,7 @@ class GA(BatchPolopt):
 	def initial(self):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
-		self.magnitudes[0,:] = self.initial_mag*np.ones(self.pop_size)
+		self.magnitudes[0,:] = np.ones(self.pop_size)
 		self.policy.set_param_values(self.policy.get_param_values())
 		self.stepNum = 0
 

@@ -80,11 +80,13 @@ class LunarLander(gym.Env,Serializable):
     def __init__(self,
                 max_path_length=100,
                 dispersion_max=0, #1.0
-                continuous=True
+                continuous=True,
+                initial_x=0.5,
                 ):
-        self.max_path_length=max_path_length
+        self.max_path_length = max_path_length
         self.dispersion_max = dispersion_max
-        self.continuous=continuous
+        self.continuous = continuous
+        self.initial_x = initial_x
         self.seed()
         self.viewer = None
 
@@ -165,7 +167,8 @@ class LunarLander(gym.Env,Serializable):
 
         initial_y = VIEWPORT_H/SCALE
         self.lander = self.world.CreateDynamicBody(
-            position = (VIEWPORT_W/SCALE/2, initial_y),
+            # position = (VIEWPORT_W/SCALE/2, initial_y),
+            position = (VIEWPORT_W/SCALE*self.initial_x, initial_y),
             angle=0.0,
             fixtures = fixtureDef(
                 shape=polygonShape(vertices=[ (x/SCALE,y/SCALE) for x,y in LANDER_POLY ]),
@@ -177,15 +180,20 @@ class LunarLander(gym.Env,Serializable):
                 )
         self.lander.color1 = (0.5,0.4,0.9)
         self.lander.color2 = (0.3,0.3,0.5)
-        self.lander.ApplyForceToCenter( (
-            self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM),
-            self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM)
-            ), True)
+        # self.lander.ApplyForceToCenter( (
+        #     self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM),
+        #     self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM)
+        #     ), True)
+        self.lander.ApplyForceToCenter((
+            0, #initial force to right
+            0, #initial force to up
+            ),True)
 
         self.legs = []
         for i in [-1,+1]:
             leg = self.world.CreateDynamicBody(
-                position = (VIEWPORT_W/SCALE/2 - i*LEG_AWAY/SCALE, initial_y),
+                # position = (VIEWPORT_W/SCALE/2 - i*LEG_AWAY/SCALE, initial_y),
+                position = (VIEWPORT_W/SCALE*self.initial_x - i*LEG_AWAY/SCALE, initial_y),
                 angle = (i*0.05),
                 fixtures = fixtureDef(
                     shape=polygonShape(box=(LEG_W/SCALE, LEG_H/SCALE)),
@@ -320,7 +328,7 @@ class LunarLander(gym.Env,Serializable):
             # reward = +100
 
         for a in action:
-            reward = -np.clip(np.abs(a), 0, 1)/10.0
+            reward -= np.clip(np.abs(a), 0, 1)/10.0
         if not self.lander.awake:
             reward += self.max_path_length
         reward = reward/self.max_path_length
@@ -400,8 +408,13 @@ def heuristic(env, s):
     return a
 
 if __name__=="__main__":
-    #env = LunarLander()
-    env = LunarLander()
+    from garage.envs.normalized_env import normalize
+    from mylab.envs.tfenv import TfEnv
+    from mylab.envs.seed_env import SeedEnv
+    max_path_length = 100
+    env = TfEnv(normalize(SeedEnv(LunarLander(max_path_length=max_path_length),random_reset=False,reset_seed=0)))
+    env.continuous = True
+    # env = LunarLander()
     s = env.reset()
     total_reward = 0
     steps = 0

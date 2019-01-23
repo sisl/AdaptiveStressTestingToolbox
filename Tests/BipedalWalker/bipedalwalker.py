@@ -449,7 +449,7 @@ class BipedalWalker(gym.Env,Serializable):
             done   = True
 
         for a in action:
-            reward = -np.clip(np.abs(a), 0, 1)/10.0
+            reward -= np.clip(np.abs(a), 0, 1)/10.0
         if pos[0] > (TERRAIN_LENGTH-TERRAIN_GRASS)*TERRAIN_STEP:
             reward += self.max_path_length
         reward = reward/self.max_path_length

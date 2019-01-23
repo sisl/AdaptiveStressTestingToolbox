@@ -12,9 +12,9 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../BipedalWalker/Data/AST/Lexington/L100TL100"
-exp = "BipedalWalker_L100TL100"
-plot_path = "../BipedalWalker/Data/Plot/"
+prepath = "../LunarLander/Data/AST/Lexington/100"
+exp = "LunarLander_100"
+plot_path = "../LunarLander/Data/Plot/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
@@ -44,6 +44,7 @@ for (policy_index,policy) in enumerate(policies):
                         for index in range(len(row)):
                             entry_dict[row[index]] = index
                     else:
+                        # print(row[entry_dict["StepNum"]])
                         if int(row[entry_dict["StepNum"]]) > max_step:
                             break
                         if int(row[entry_dict["StepNum"]])%batch_size == 0:
