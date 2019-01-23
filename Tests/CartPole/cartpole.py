@@ -19,7 +19,7 @@ class CartPoleEnv(gym.Env,Serializable):
 
     def __init__(self,
                 initial_condition_max = 0.,
-                initial_condition_bias = 0.2,#0.02,
+                initial_condition_bias = 0.15,#0.2,#0.02,
                 max_path_length = 100.0,):
         self.gravity = 9.8
         self.masscart = 1.0

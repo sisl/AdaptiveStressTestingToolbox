@@ -12,9 +12,9 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../BipedalWalker/Data/AST/Lexington/L100TL30"
-exp = "BipedalWalker_L100TL30"
-plot_path = "../BipedalWalker/Data/Plot/"
+prepath = "../CartPole/Data/AST/Lexington/L100Th0612I02"
+exp = "CartPole_L100Th0612I02"
+plot_path = "../CartPole/Data/Plot/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
@@ -62,9 +62,8 @@ for (policy_index,policy) in enumerate(policies):
             # print(min_array_length)
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
-    # plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
-    plot, = plt.plot(steps,np.mean(Rewards,0))
-    # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=50)
+    # plot, = plt.plot(steps,np.mean(Rewards,0))
+    plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
     legends.append(policy)
 
