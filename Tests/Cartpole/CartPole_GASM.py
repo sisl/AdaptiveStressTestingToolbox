@@ -6,6 +6,7 @@ from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
@@ -14,8 +15,6 @@ from garage.envs.env_spec import EnvSpec
 from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
 from Cartpole.cartpole_simulator import CartpoleSimulator
-
-
 
 from mylab.algos.gasm import GASM
 
@@ -36,7 +35,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='./Data/AST/GASM/Test')
+parser.add_argument('--log_dir', type=str, default='./Data/AST/GAISInter/Test')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
 
@@ -48,7 +47,7 @@ text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
 logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
+# logger.add_text_output(text_log_file)
 logger.add_tabular_output(tabular_log_file)
 prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
@@ -83,15 +82,11 @@ with tf.Session() as sess:
 								 )
 	env = TfEnv(env)
 	# Create policy
-	policy = GaussianMLPPolicy(
+	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
 		hidden_sizes=(64, 32)
 	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=env.spec,
-	#                             hidden_dim=5,
-	#                             use_peepholes=True)
 
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
@@ -104,7 +99,7 @@ with tf.Session() as sess:
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=4000,
+		batch_size= 100,
 		pop_size = 5,
 		elites = 3,
 		keep_best = 1,

@@ -28,8 +28,5 @@ class ASTRewardS(ASTReward):
 	    if (is_goal): # We found a crash
 	        reward += 0.0
 	    elif (is_terminal):
-	        reward += -self.const1 - self.const2 * dist # We reached
-	        # the horizon with no crash
-	    # else:
-	        # reward = np.log(1+prob) # No crash or horizon yet
+	        reward += -self.const1 - self.const2 * dist # We reached the horizon with no crash
 	    return reward

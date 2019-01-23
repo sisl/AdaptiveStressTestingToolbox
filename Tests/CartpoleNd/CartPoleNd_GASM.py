@@ -3,20 +3,18 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.tf.envs.base import TfEnv
+from mylab.envs.tfenv import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 from garage.envs.normalized_env import normalize
 from garage.envs.env_spec import EnvSpec
-from garage.tf.envs.base import to_tf_space
 
-from mylab.rewards.ast_reward import ASTReward
+from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
-from mylab.simulators.policy_simulator import PolicySimulator
-
-from CartpoleNd.cartpole_nd import CartPoleNdEnv
+from Cartpole.cartpole_simulator import CartpoleSimulator
 
 from mylab.algos.gasm import GASM
 
@@ -49,7 +47,7 @@ text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
 logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
+# logger.add_text_output(text_log_file)
 logger.add_tabular_output(tabular_log_file)
 prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
@@ -64,35 +62,31 @@ top_k = 10
 max_path_length = 100
 
 import mcts.BoundedPriorityQueues as BPQ
-top_paths = BPQ.BoundedPriorityQueueInit(top_k)
+top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	env_inner = CartPoleNdEnv(nd=10,use_seed=False)
+	
 	data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
-	policy_inner = data['policy']
-	reward_function = ASTReward()
+	sut = data['policy']
+	reward_function = ASTRewardS()
 
-	simulator = PolicySimulator(env=env_inner,policy=policy_inner,max_path_length=max_path_length)
-	env = TfEnv(ASTEnv(open_loop=True,
-					   simulator=simulator,
-					   fixed_init_state=False,
-					   s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-					   reward_function=reward_function,
-					   ))
-
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=10)
+	env = ASTEnv(open_loop=False,
+								 simulator=simulator,
+								 fixed_init_state=True,
+								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+								 reward_function=reward_function,
+								 )
+	env = TfEnv(env)
 	# Create policy
-	policy = GaussianMLPPolicy(
+	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
 		hidden_sizes=(64, 32)
 	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=env.spec,
-	#                             hidden_dim=5,
-	#                             use_peepholes=True)
 
 	params = policy.get_params()
 	sess.run(tf.variables_initializer(params))
@@ -105,7 +99,7 @@ with tf.Session() as sess:
 		env=env,
 		policy=policy,
 		baseline=baseline,
-		batch_size=4000,
+		batch_size= 100,
 		pop_size = 5,
 		elites = 3,
 		keep_best = 1,

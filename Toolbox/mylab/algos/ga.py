@@ -18,6 +18,7 @@ import numpy as np
 
 from mylab.samplers.vectorized_ga_sampler import VectorizedGASampler
 from mylab.utils import seeding
+from mylab.utils.np_weight_init import init_policy_np
 
 class GA(BatchPolopt):
 	"""
@@ -26,24 +27,27 @@ class GA(BatchPolopt):
 
 	def __init__(
 			self,
-			top_paths = None,
+			top_paths = None, 
 			step_size = 0.01, #serve as the std dev in mutation
 			step_size_anneal = 1.0,
 			pop_size = 5,
 			truncation_size = 2,
 			keep_best = 1,
-			fit_f = "max",
+			f_F = "mean",
 			log_interval = 4000,
 			**kwargs):
 
 		self.top_paths = top_paths
+		self.best_mean = -np.inf
+		self.best_var = 0.0
 		self.step_size = step_size
 		self.step_size_anneal = step_size_anneal
 		self.pop_size = pop_size
 		self.truncation_size = truncation_size
-		self.fit_f = fit_f
+		self.f_F = f_F
 		self.log_interval = log_interval
 		self.keep_best = keep_best
+
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
 		self.parents = np.zeros(pop_size,dtype=int)
@@ -54,6 +58,7 @@ class GA(BatchPolopt):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
 		self.magnitudes[0,:] = np.ones(self.pop_size)
+		self.policy.set_param_values(self.policy.get_param_values())
 		self.stepNum = 0
 
 	@overrides
@@ -80,17 +85,11 @@ class GA(BatchPolopt):
 					with logger.prefix('idv #%d | ' % p):
 						logger.log("Updating Params")
 						self.set_params(itr, p)
-
+						# print(self.policy.get_param_values(trainable=True))
 						logger.log("Obtaining samples...")
 						paths = self.obtain_samples(itr)
 						logger.log("Processing samples...")
 						samples_data = self.process_samples(itr, paths)
-
-						undiscounted_returns = [sum(path["rewards"]) for path in paths]
-
-						if not (self.top_paths is None):
-							action_seqs = [path["actions"] for path in paths]
-							[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
@@ -122,6 +121,8 @@ class GA(BatchPolopt):
 			if self.top_paths is not None:
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])
+			logger.record_tabular('BestMean', self.best_mean)
+			logger.record_tabular('BestVar', self.best_var)
 			logger.record_tabular('parent',self.parents[p])
 			logger.record_tabular('StepSize',self.step_size)
 			logger.record_tabular('Magnitude',self.magnitudes[itr,p])
@@ -133,11 +134,12 @@ class GA(BatchPolopt):
 
 	@overrides
 	def set_params(self, itr, p):
-		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
 		for i in range(itr+1):
 			# print("seed: ", self.seeds[i,p])
-			if self.seeds[i,p] != 0:
-				self.np_random.seed(int(self.seeds[i,p]))
+			self.np_random.seed(int(self.seeds[i,p]))
+			if i == 0: #first generation
+				param_values = init_policy_np(self.policy, self.np_random)
+			elif self.seeds[i,p] != 0:
 				param_values = param_values + self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
@@ -147,7 +149,7 @@ class GA(BatchPolopt):
 			rewards = all_paths[p]["rewards"]
 			valid_rewards = rewards*all_paths[p]["valids"]
 			path_rewards = np.sum(valid_rewards,-1)
-			if self.fit_f == "max":
+			if self.f_F == "max":
 				fitness[p] = np.max(path_rewards)
 			else:
 				fitness[p] = np.mean(path_rewards)
@@ -185,7 +187,15 @@ class GA(BatchPolopt):
 	@overrides
 	def obtain_samples(self, itr):
 		self.stepNum += self.batch_size
-		return self.sampler.obtain_samples(itr)
+		paths = self.sampler.obtain_samples(itr)
+		undiscounted_returns = [sum(path["rewards"]) for path in paths]
+		if np.mean(undiscounted_returns) > self.best_mean:
+			self.best_mean = np.mean(undiscounted_returns)
+			self.best_var = np.var(undiscounted_returns)
+		if not (self.top_paths is None):
+			action_seqs = [path["actions"] for path in paths]
+			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+		return paths
 
 	@overrides
 	def get_itr_snapshot(self, itr, samples_data):

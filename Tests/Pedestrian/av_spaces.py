@@ -21,7 +21,7 @@ class AVSpaces():
                  y_v_high=10.0,
                  car_init_x=35.0,
                  car_init_y=0.0,
-                 interactive = True,
+                 open_loop = False,
                  ):
 
         # Constant hyper-params -- set by user

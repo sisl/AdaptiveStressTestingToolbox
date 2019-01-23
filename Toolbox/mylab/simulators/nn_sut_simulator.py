@@ -123,14 +123,14 @@ class NNSUTSimulator(ASTSimulator):
         return self.env.ast_action_space
 
     def vec_env_executor(self, n_envs, max_path_length, reward_function,
-                            sample_init_state, init_state, interactive):
+                            sample_init_state, init_state, open_loop):
         envs = [pickle.loads(pickle.dumps(self.env)) for _ in range(n_envs)]
         return InnerVecEnvExecutor(envs, self.sut, reward_function,
                     sample_init_state, init_state,
-                    max_path_length, interactive)
+                    max_path_length, open_loop)
 
 class InnerVecEnvExecutor(object):
-    def __init__(self, envs, sut, reward_function, fixed_init_state, init_state, max_path_length, interactive):
+    def __init__(self, envs, sut, reward_function, fixed_init_state, init_state, max_path_length, open_loop):
         self.envs = envs
         self._action_space = envs[0].ast_action_space
         self._observation_space = envs[0].ast_observation_space
@@ -140,10 +140,9 @@ class InnerVecEnvExecutor(object):
         self.reward_function = reward_function
         self._fixed_init_state = fixed_init_state
         self._init_state = init_state
-        self.interactive = interactive
+        self.open_loop = open_loop
 
     def step(self, action_n):
-
         self.ts += 1
 
         ast_action_n = action_n
@@ -158,10 +157,10 @@ class InnerVecEnvExecutor(object):
         # action = self.env.action_space.sample()
         # results = [np.reshape(env.ast_step(action, ast_action),env.ast_observation_space.shape) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
         results = [env.ast_step(action, ast_action) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
-        if self.interactive:
-            obs = [np.reshape(ob,env.ast_observation_space.shape) for (ob,env) in zip(list(zip(*results))[0],self.envs)]
-        else:
+        if self.open_loop:
             obs = [self._init_state for env in self.envs]
+        else:
+            obs = [np.reshape(ob,env.ast_observation_space.shape) for (ob,env) in zip(list(zip(*results))[0],self.envs)]
 
         obs = np.asarray(obs)
         dones = list(zip(*results))[2]

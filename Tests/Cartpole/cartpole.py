@@ -20,8 +20,9 @@ class CartPoleEnv(gym.Env, Serializable):
         'video.frames_per_second' : 50
     }
 
-    def __init__(self, use_seed, *args, **kwargs):
+    def __init__(self, use_seed=False, nd=1, *args, **kwargs):
         self.use_seed = use_seed
+        self.nd = nd
 
         self.gravity = 9.8
         self.masscart = 1.0
@@ -39,8 +40,8 @@ class CartPoleEnv(gym.Env, Serializable):
         self.viewer = None
         self.state = None
 
-        self.wind_force_mag = 0.8*self.force_mag #for ast disturbance
-        self.log_trajectory_pdf = 0.0
+        self.wind_force_mag = 0.8*self.force_mag #std for wind force distribution
+        # self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
         Serializable.quick_init(self, locals())
@@ -166,8 +167,8 @@ class CartPoleEnv(gym.Env, Serializable):
 
     @property
     def ast_action_space(self):
-        high = np.array([self.wind_force_mag])
-        return gym.spaces.Box(-high, high, dtype=np.float32)
+        high = np.array([1.0 for i in range(self.nd)])
+        return gym.spaces.Box(-high,high,dtype=np.float32)
 
     def ast_get_observation(self):
         return np.array(self.state)
@@ -175,18 +176,18 @@ class CartPoleEnv(gym.Env, Serializable):
     def ast_reset(self, s_0):
         self.state = np.copy(s_0)
         self.steps_beyond_done = None
-        self.log_trajectory_pdf = 0.0
+        # self.log_trajectory_pdf = 0.0
         # assert self.state == s_0
         return self.ast_get_observation(), self.get_observation()
 
     def ast_step(self, action, ast_action):
         if self.use_seed:
-            np.random.seed(ast_action)
+            # np.random.seed(ast_action)
+            gym.spaces.np_random.seed(ast_action)
             ast_action = self.ast_action_space.sample()
-        # wind_force = np.clip(ast_action, -self.wind_force_mag, self.wind_force_mag)
-        # wind_force = np.tanh(ast_action)*self.wind_force_mag
-        wind_force = ast_action
-        self.ast_action = wind_force
+        ast_action= np.clip(np.mean(ast_action),-1.0,1.0)
+        self.ast_action = ast_action
+        wind_force = ast_action*self.wind_force_mag
 
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
@@ -245,18 +246,17 @@ class CartPoleEnv(gym.Env, Serializable):
                             np.min([np.abs(x-(-self.x_threshold)),np.abs(x-self.x_threshold)])/self.x_threshold,
                             np.min([np.abs(theta-(-self.theta_threshold_radians)),np.abs(theta-self.theta_threshold_radians)])/self.theta_threshold_radians
                             ])
-        # prob = -1/(self.wind_force_mag*self.wind_force_mag)*np.abs(self.ast_action)+1/self.wind_force_mag
-        prob = norm.pdf(self.ast_action/self.wind_force_mag)
-        if type(prob) is type(1.0) or type(prob) is type(np.float64(1.0)):
-            prob = prob
-        else:
-            prob = prob[0]
-        self.log_trajectory_pdf += np.log(prob)
+        prob = norm.pdf(self.ast_action)
+        # if type(prob) is type(1.0) or type(prob) is type(np.float64(1.0)):
+        #     prob = prob
+        # else:
+        #     prob = prob[0]
+        # self.log_trajectory_pdf += np.log(prob)
         # print("prob: ",prob)
         # print("log_t_pdf: ",self.log_trajectory_pdf)
         return dict(
             is_goal = is_goal,
             dist = dist,
             prob = prob,
-            log_trajectory_pdf = self.log_trajectory_pdf,
+            # log_trajectory_pdf = self.log_trajectory_pdf,
             )

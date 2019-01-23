@@ -67,7 +67,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 
 top_k = 10
 max_path_length = 50
-interactive = True
+open_loop = False
 
 with open(osp.join(log_dir, 'ast'+str(args.n_itr*args.batch_size)+'.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -93,7 +93,7 @@ with open(osp.join(log_dir, 'ast'+str(args.n_itr*args.batch_size)+'.csv'), mode=
 			sim = AVSimulator(use_seed=False,spaces=spaces,max_path_length=max_path_length)
 
 
-			env = TfEnv(ASTEnv(open_loop=True,
+			env = TfEnv(ASTEnv(open_loop=False,
 							   fixed_init_state=False,
 							   s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
 							   simulator=sim,

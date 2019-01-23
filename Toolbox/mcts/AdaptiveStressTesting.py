@@ -34,6 +34,7 @@ class AdaptiveStressTest:
 		self._reward = reward
 		if self.params.log_tabular:
 			if self.step_count%self.params.log_interval == 0:
+				logger.log(' ')
 				logger.record_tabular('StepNum',self.step_count)
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])

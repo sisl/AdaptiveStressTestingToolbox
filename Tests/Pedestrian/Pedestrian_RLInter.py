@@ -79,7 +79,7 @@ with tf.Session() as sess:
 	sim = AVSimulator(use_seed=False,spaces=spaces,max_path_length=max_path_length)
 
 
-	env = TfEnv(ASTEnv(open_loop=True,
+	env = TfEnv(ASTEnv(open_loop=False,
 					   fixed_init_state=False,
 					   s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
 					   simulator=sim,

@@ -29,7 +29,7 @@ spaces = AVSpaces(interactive=True)
 sim = AVSimulator(use_seed=True,spaces=spaces,max_path_length=max_path_length)
 
 
-env = ASTEnv(open_loop=True,
+env = ASTEnv(open_loop=False,
 			 fixed_init_state=False,
 			 s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
 			 simulator=sim,

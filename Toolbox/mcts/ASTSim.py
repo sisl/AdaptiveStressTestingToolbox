@@ -7,12 +7,9 @@ class SampleResults:
 		self.action_seq=action_seq
 
 class AcionSequence:
-	def __init__(self,sequence,index):
+	def __init__(self,sequence,index=0):
 		self.sequence = sequence
 		self.index = index
-
-def AcionSequenceInit(action_seq):
-	return AcionSequence(action_seq,0)
 
 def action_seq_policy_basic(action_seq):
 	action = action_seq.sequence[action_seq.index]
@@ -45,7 +42,7 @@ def nsample(ast,nsamples,print_rate=1):
 
 def play_sequence(ast,actions,verbose=True,sleeptime=0.0):
 	print(len(actions))
-	reward2,actions2 = MDP.simulate(ast.transition_model,AcionSequenceInit(actions),action_seq_policy,verbose=verbose,sleeptime=sleeptime)
+	reward2,actions2 = MDP.simulate(ast.transition_model,AcionSequence(actions),action_seq_policy,verbose=verbose,sleeptime=sleeptime)
 	assert actions == actions2
 	return reward2,actions2
 

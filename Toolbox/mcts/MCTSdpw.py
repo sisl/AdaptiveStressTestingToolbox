@@ -45,20 +45,12 @@ class StateNode:
 		self.n = 0
 
 class DPW:
-	def __init__(self, s, p, f, tracker, top_paths):
+	def __init__(self, p, f, top_paths, s={}, tracker = mctstracker.MCTSTrackerInit()) :
 		self.s = s #Dict{State,StateNode}
 		self.p = p #DPWParams
 		self.f = f #DPWModel
 		self.tracker = tracker #MCTSTracker
 		self.top_paths = top_paths #BoundedPriorityQueue
-
-def DPWInit(p,f,top_paths):
-	s = {}
-	p = p
-	f = f
-	tracker = mctstracker.MCTSTrackerInit()
-	top_paths = top_paths
-	return DPW(s,p,f,tracker,top_paths)
 
 def saveBackwardState(dpw, old_d, new_d, s_current):
     if not (s_current in old_d):
@@ -104,7 +96,7 @@ def selectAction(dpw, s, verbose=False):
 	d = dpw.p.d
 	starttime_us = time.time()*1e6
 	for i in range(dpw.p.n):
-		#print("i: ",i)
+		# print("i: ",i)
 		R, actions = dpw.f.model.goToState(s)
 		dpw.tracker.empty()
 		dpw.tracker.append_actions(actions)
