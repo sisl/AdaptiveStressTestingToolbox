@@ -12,14 +12,15 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../LunarLander/Data/AST/Lexington/L100I05"
-exp = "LunarLander_L100I05"
-plot_path = "../LunarLander/Data/Plot/"
+exp_name = 'CartPole'#'Acrobot'
+exp_param = 'L100Th0612I01'#'L100Th19'
+prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
+plot_path = "../"+exp_name+"/Data/Plot/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
         # "PSMCTSTRCK0.5A0.5Ec100.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.01FmeanQmax"]
-plot_name = exp
+plot_name = exp_name+'_'+exp_param
 
 
 plts = []
@@ -42,7 +43,7 @@ for (policy_index,policy) in enumerate(policies):
                     csv_reader = csv.reader(x.replace('\0', '') for x in csv_file)
                 else:
                     csv_reader = csv.reader(csv_file, delimiter=',')
-                    
+
                 for (i,row) in enumerate(csv_reader):
                     if i == 0:
                         entry_dict = {}
