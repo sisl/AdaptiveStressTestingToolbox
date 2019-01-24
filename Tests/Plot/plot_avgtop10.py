@@ -12,9 +12,9 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../CartPole/Data/AST/Lexington/L100Th0612I02"
-exp = "CartPole_L100Th0612I02"
-plot_path = "../CartPole/Data/Plot/"
+prepath = "../LunarLander/Data/AST/Lexington/L100I05"
+exp = "LunarLander_L100I05"
+plot_path = "../LunarLander/Data/Plot/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
@@ -37,7 +37,12 @@ for (policy_index,policy) in enumerate(policies):
             steps = []
             rewards = []
             with open(file_path) as csv_file:
-                csv_reader = csv.reader(csv_file, delimiter=',')
+                if '\0' in open(file_path).read():
+                    print("you have null bytes in your input file")
+                    csv_reader = csv.reader(x.replace('\0', '') for x in csv_file)
+                else:
+                    csv_reader = csv.reader(csv_file, delimiter=',')
+                    
                 for (i,row) in enumerate(csv_reader):
                     if i == 0:
                         entry_dict = {}
