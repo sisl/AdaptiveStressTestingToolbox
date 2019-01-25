@@ -12,8 +12,8 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'CartPole'#'Acrobot'
-exp_param = 'L100Th0612I01'#'L100Th19'
+exp_name = 'CartPole'#'BipedalWalker'#'Acrobot'
+exp_param = 'L100Th0612I015'#'L100TL25'#'L100Th19'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/"
 policies = ["TRPO",\
