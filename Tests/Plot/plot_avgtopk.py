@@ -6,21 +6,21 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 n_trial = 5
-top_k = 10
+top_k = 1
 batch_size = 4000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'CartPole'#''LunarLander'#BipedalWalker'#'Acrobot'
-exp_param = 'L100Th0612I012'#'L100I06'#'L100TL25'#'L100Th19'
+exp_name = 'LunarLander'#'CartPole'#'MountainCar'#'Acrobot'#'BipedalWalker'#
+exp_param = 'L100I05'#'L100Th0612I015'#'L100P00011'#'L100Th19999'#'L100TL25'#
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
-plot_path = "../"+exp_name+"/Data/Plot/"
+plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
         # "PSMCTSTRCK0.5A0.5Ec100.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.01FmeanQmax"]
-plot_name = exp_name+'_'+exp_param
+plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)
 
 
 plts = []
@@ -76,5 +76,5 @@ for (policy_index,policy) in enumerate(policies):
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
 plt.ylabel('Average Top '+str(top_k) +' Reward')        
-fig.savefig(plot_path+plot_name+'_avgtop10.pdf')
+fig.savefig(plot_path+plot_name)
 plt.close(fig)
