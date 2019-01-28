@@ -12,14 +12,14 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'MountainCar'#'CartPole'#'LunarLander'#'Acrobot'#'BipedalWalker'#
-exp_param = 'L100P00011'#'L100Th0612I01'#'L100I05'#'L100Th19999'#'L100TL25'#
+exp_name = 'MountainCar'#'BipedalWalker'#''Acrobot'#CartPole'#'LunarLander'#
+exp_param = 'L100P00011'#'L100TL30'#'L100Th19'#'L100Th0612I01'#'L100I05'#
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "/Users/xiaobaima/Dropbox/SISL/PSMCTS/IJCAI/Plots/"
 policies = ["TRPO",\
         "GATRDP100T20K3Step1.0Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax"]
-legends = ["TRPO","Neuroevolution","PSMCTS"]
+legends = ["TRPO","Deep GA","PSMCTS"]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)
 
 
@@ -70,6 +70,7 @@ for (policy_index,policy) in enumerate(policies):
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
-plt.ylabel('Average Top '+str(top_k) +' Return')       
-fig.savefig(plot_path+plot_name,format='pdf')
+# plt.ylabel('Average Top '+str(top_k) +' Return')
+plt.ylabel('Best Average Return')       
+fig.savefig(plot_path+plot_name+".pdf",format='pdf')
 plt.close(fig)
