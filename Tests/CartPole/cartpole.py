@@ -19,7 +19,7 @@ class CartPoleEnv(gym.Env,Serializable):
 
     def __init__(self,
                 initial_condition_max = 0.,
-                initial_condition_bias = 0.12,#0.15,#0.2,#0.02,
+                initial_condition_bias = 0.15,#0.12,#0.2,#0.02,
                 max_path_length = 100.0,):
         self.gravity = 9.8
         self.masscart = 1.0
@@ -31,8 +31,8 @@ class CartPoleEnv(gym.Env,Serializable):
         self.tau = 0.02  # seconds between state updates
 
         # Angle at which to fail the episode
-        self.theta_threshold_radians = 7 * 2 * math.pi / 360#6#8#12
-        self.x_threshold = 1.4#1.2#1.6#2.4
+        self.theta_threshold_radians = 8 * 2 * math.pi / 360#6#7#8#12
+        self.x_threshold = 1.6#1.2#1.4#1.6#2.4
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
         high = np.array([
