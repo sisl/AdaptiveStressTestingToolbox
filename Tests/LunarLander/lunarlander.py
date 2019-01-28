@@ -81,12 +81,14 @@ class LunarLander(gym.Env,Serializable):
                 max_path_length=100,
                 dispersion_max=0, #1.0
                 continuous=True,
-                initial_x=0.9,#1.0,#0.8,#0.6,#0.5,
+                initial_x=0.6,#0.9,#1.0,#0.8,#0.6,#0.5,
+                helipad_width=0.5,
                 ):
         self.max_path_length = max_path_length
         self.dispersion_max = dispersion_max
         self.continuous = continuous
         self.initial_x = initial_x
+        self.helipad_width = helipad_width
         self.seed()
         self.viewer = None
 
@@ -141,8 +143,8 @@ class LunarLander(gym.Env,Serializable):
         CHUNKS = 11
         height = self.np_random.uniform(0, H/2, size=(CHUNKS+1,) )
         chunk_x  = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
-        self.helipad_x1 = chunk_x[CHUNKS//2-1]
-        self.helipad_x2 = chunk_x[CHUNKS//2+1]
+        self.helipad_x1 = chunk_x[CHUNKS//2]-self.helipad_width/2 #chunk_x[CHUNKS//2-1] 8.0
+        self.helipad_x2 = chunk_x[CHUNKS//2]+self.helipad_width/2 #chunk_x[CHUNKS//2+1] 12.0
         self.helipad_y  = H/4
         height[CHUNKS//2-2] = self.helipad_y
         height[CHUNKS//2-1] = self.helipad_y
@@ -329,7 +331,7 @@ class LunarLander(gym.Env,Serializable):
 
         for a in action:
             reward -= np.clip(np.abs(a), 0, 1)/10.0
-        if not self.lander.awake:
+        if (not self.lander.awake) and pos.x>self.helipad_x1 and pos.x<self.helipad_x2:
             reward += self.max_path_length
         reward = reward/self.max_path_length
         return np.array(state), reward, done, {}
