@@ -2,23 +2,11 @@ name: AST
 channels:
     - https://conda.anaconda.org/menpo
     - https://conda.anaconda.org/conda-forge
-    - https://conda.anaconda.org/kne 
-    - https://conda.anaconda.org/tlatorre 
-    - https://conda.anaconda.org/cjs14
-    - https://conda.anaconda.org/menpo
-    - jjhelmus
-    - soumith
 dependencies:
     - python==3.6.6
     # Please keep alphabetized
-    - graphviz
-    - h5py
-    - joblib=0.12
     - mkl-service=1.1.2
-    - mkl
-    - mpi4py
-    - opencv3=3.1.0
-    - scikit-learn
+    - mkl==2017.0.4
     # cma requires numpy to install
     - numpy==1.14.5
     # dev dependencies below this line
@@ -30,12 +18,11 @@ dependencies:
         - cached_property
         - cloudpickle
         - cma==1.1.06
-        - Cython
         # dm_control throws an error during install about not being able to
         # find a build dependency (absl-py). Later pip executes the `install`
         # command again and the install succeeds because absl-py has been
         # installed. This is stupid, but harmless.
-        #- git+https://github.com/deepmind/dm_control.git@c24ec9f5f3cb3c25c6571c89c9f60bf3350f5711#egg=dm_control
+        - git+https://github.com/deepmind/dm_control.git@c24ec9f5f3cb3c25c6571c89c9f60bf3350f5711#egg=dm_control
         - flask
         - gym[all]==0.10.8
         - box2d-py>=2.3.4
@@ -43,40 +30,30 @@ dependencies:
         - ipdb
         - ipywidgets
         - jsonmerge
+        - joblib<0.13,>=0.12
         - jupyter
-        - keras==1.2.1
         - git+https://github.com/Lasagne/Lasagne.git@a61b76fd991f84c50acdb7bea02118899b5fefe1#egg=lasagne
         - mako
         - matplotlib
         - memory_profiler
-        - msgpack-python
         - mujoco-py<1.50.2,>=1.50.1
-        - nibabel==2.1.0
-        - numba
-        - numpy-stl==2.2.0
         - pandas
         - path.py
-        - Pillow
         - git+https://github.com/plotly/plotly.py.git@2594076e29584ede2d09f2aa40a8a195b3f3fc66#egg=plotly
         - polling
-        - progressbar2
         - protobuf
         - psutil
-        - pydot
         - pygame
         - pyglet
-        - pylru==1.0.9
         - PyOpenGL
+        - pyplot
         - pyprind
         - python-dateutil
         - pyzmq
-        - redis
         - scipy
         - tensorboard
-        - tensorflow-gpu<1.10,>=1.9.0
+        - tensorflow<1.10,>=1.9.0
         - Theano==1.0.2
-        - tqdm
-        - uuid
         # dev dependencies below this line
         - git+https://github.com/openai/baselines.git@f2729693253c0ef4d4086231d36e0a4307ec1cb3#egg=baselines
         - codacy-coverage
