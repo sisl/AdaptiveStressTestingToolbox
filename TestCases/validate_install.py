@@ -5,7 +5,7 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 
 # Import the AST classes
 from mylab.envs.ast_env import ASTEnv
-from mylab.ast_vectorized_sampler import ASTVectorizedSampler
+from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
@@ -19,7 +19,7 @@ import garage.misc.logger as logger
 # Useful imports
 import os.path as osp
 import argparse
-from save_trials import *
+from example_save_trials import *
 import tensorflow as tf
 
 # Logger Params
@@ -73,7 +73,8 @@ policy = GaussianLSTMPolicy(name='lstm_policy',
                             hidden_dim=256,
                             use_peepholes=True)
 baseline = LinearFeatureBaseline(env_spec=env.spec)
-optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+optimizer = ConjugateGradientOptimizer
+optimizer_args = {'hvp_approach':FiniteDifferenceHvp(base_eps=1e-5)}
 sampler_cls = ASTVectorizedSampler
 algo = TRPO(
     env=env,
@@ -83,7 +84,8 @@ algo = TRPO(
     step_size=0.1,
     n_itr=1,
     store_paths=True,
-    optimizer=ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5)),
+    optimizer=optimizer,
+    optimizer_args=optimizer_args,
     max_path_length=50,
     sampler_cls=sampler_cls,
     sampler_args={"sim": sim,

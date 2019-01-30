@@ -1,0 +1,20 @@
+MuJoCo Pro Trial license activation key, number 133391, type 6.
+
+Issued to Anthony Corso <acorso@stanford.edu>.
+
+Expires February 25, 2019.
+
+This file activates MuJoCo Pro on a single computer with id:
+OSX_35DFE_2B8S017GK0NPSYS3161PSLMA495
+
+Do not modify this file. Its entire content, including the
+plain text section, is used by the activation manager.
+
+fea2324d819b78e75b3a82977d841133c4296e9fc9344e80347b5fd235122871
+f1317d0cb4144252e9483456f62b9b316facc7759d418b984c027475134b5653
+52834a50a2630ba153b320094f65d7f2eba29cd59b28f8fa53ed47517a6fe294
+a98224a721851668479777d44c49d87f4fcecac4a48bafc918fee166fd880e8a
+5cea0c0d900408c7610804cf72c76650882636af456318dad389bd065f780646
+231f8c22b25617519edbe194ca08d060b02a4cb931f0de09415990f3e05ddd19
+5d62de882cb13486a90f190be52e9bb3ff7bc7848d10ace2a045a26ca88ef7b6
+6c7c2972319d8c020989c832bc8c84aae16b099ba9cb96107f94f79ab302b582

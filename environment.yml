@@ -46,7 +46,6 @@ dependencies:
         - pygame
         - pyglet
         - PyOpenGL
-        - pyplot
         - pyprind
         - python-dateutil
         - pyzmq

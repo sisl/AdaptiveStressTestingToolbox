@@ -20,12 +20,12 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION dep1 dep2 ...
-  - conda env create -f environment.yml
-  - source activate AST
+  - cd Toolbox/garage/
+  - ./scripts/setup_linux.sh --mjkey ../../mjkey.txt --modify-bashrc
+  - source ~/miniconda2/bin/activate garage
+  - cd ../..
   - source setup.sh
-  - echo $PYTHONPATH
 
 script:
   # Your test script goes here
-  - echo "Made it here!"
+  - python TestCases/validate_install.py
