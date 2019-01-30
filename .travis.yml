@@ -1,4 +1,5 @@
 language: python
+dist: xenial
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
   - "3.6"
@@ -20,7 +21,6 @@ install:
   - conda info -a
 
   # Install garage and dependencies
-  - sudo apt-get install ffmpeg
   - Toolbox/garage/scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
   - source ~/miniconda2/bin/activate garage
   
