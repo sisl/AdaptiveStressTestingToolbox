@@ -31,8 +31,8 @@ class CartPoleEnv(gym.Env,Serializable):
         self.tau = 0.02  # seconds between state updates
 
         # Angle at which to fail the episode
-        self.theta_threshold_radians = 4 * 2 * math.pi / 360#6#7#8#12
-        self.x_threshold = 0.8#1.2#1.4#1.6#2.4
+        self.theta_threshold_radians = 5 * 2 * math.pi / 360#4#6#7#8#12
+        self.x_threshold = 1.0#0.8#1.2#1.4#1.6#2.4
 
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
         high = np.array([
