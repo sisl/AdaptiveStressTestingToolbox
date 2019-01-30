@@ -21,10 +21,12 @@ install:
   - conda info -a
 
   # Install garage and dependencies
-  - Toolbox/garage/scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
+  - cd Toolbox/garage
+  - ./scripts/setup_linux.sh --mjkey ../../mjkey.txt --modify-bashrc
   - source ~/miniconda2/bin/activate garage
   
   # Run AST setup
+  - cd ../../
   - source setup.sh
 
 script:
