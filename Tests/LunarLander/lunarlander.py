@@ -82,7 +82,7 @@ class LunarLander(gym.Env,Serializable):
                 dispersion_max=0, #1.0
                 continuous=True,
                 initial_x=0.6,#0.9,#1.0,#0.8,#0.6,#0.5,
-                helipad_width=0.5,
+                helipad_width=1.0,#0.5,
                 ):
         self.max_path_length = max_path_length
         self.dispersion_max = dispersion_max
