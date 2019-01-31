@@ -5,15 +5,15 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 5
+n_trial = 2
 top_k = 1
 batch_size = 4000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'LunarLander'#'BipedalWalker'#'MountainCar'#'CartPole'#'Acrobot'#
-exp_param = 'L100Hw05I06'#'L100TL35'#'L100P00015'#'L100Th0816I015'#'L100Th19999'#
+exp_name = 'LunarLander'#'CartPole'#'BipedalWalker'#'MountainCar'#'Acrobot'#
+exp_param = 'L100Hw1I06'#'L100Th0408I01'#'L100TL35'#'L100P00015'#'L100Th19999'#
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = ["TRPO",\
