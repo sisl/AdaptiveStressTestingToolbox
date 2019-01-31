@@ -1,4 +1,4 @@
-import mcts.AdaptiveStressTestingBlindValue as AST_BV
+import mylab.mcts.AdaptiveStressTestingBlindValue as AST_BV
 from mylab.algos.mcts import MCTS
 
 class MCTSBV(MCTS):

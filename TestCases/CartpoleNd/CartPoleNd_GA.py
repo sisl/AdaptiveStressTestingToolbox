@@ -55,7 +55,7 @@ seed = 0
 top_k = 10
 max_path_length = 100
 
-import mcts.BoundedPriorityQueues as BPQ
+import mylab.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)

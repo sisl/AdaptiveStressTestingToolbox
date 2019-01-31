@@ -1,9 +1,9 @@
 import copy
-from mcts.AdaptiveStressTesting import AdaptiveStressTest
-import mcts.MDP as MDP
-import mcts.MCTSdpw as MCTSdpw
+from mylab.mcts.AdaptiveStressTesting import AdaptiveStressTest
+import mylab.mcts.MDP as MDP
+import mylab.mcts.MCTSdpw as MCTSdpw
 import numpy as np
-import mcts.RNGWrapper as RNG
+import mylab.mcts.RNGWrapper as RNG
 
 class ASTParams:
 	def __init__(self,max_steps,rsg_length,init_seed,log_interval,log_tabular):

@@ -22,7 +22,7 @@ import joblib
 import math
 import numpy as np
 
-import mcts.BoundedPriorityQueues as BPQ
+import mylab.mcts.BoundedPriorityQueues as BPQ
 import csv
 # Logger Params
 parser = argparse.ArgumentParser()

@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-import mcts.seeding as seeding
+import mylab.mcts.seeding as seeding
 
 class RSG:
 	def __init__(self,state):

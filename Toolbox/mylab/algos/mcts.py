@@ -1,8 +1,8 @@
-import mcts.AdaptiveStressTesting as AST
-import mcts.ASTSim as ASTSim
-import mcts.MCTSdpw as MCTSdpw
-import mcts.AST_MCTS as AST_MCTS
-from mcts import tree_plot
+import mylab.mcts.AdaptiveStressTesting as AST
+import mylab.mcts.ASTSim as ASTSim
+import mylab.mcts.MCTSdpw as MCTSdpw
+import mylab.mcts.AST_MCTS as AST_MCTS
+from mylab.mcts import tree_plot
 
 class MCTS:
 	"""

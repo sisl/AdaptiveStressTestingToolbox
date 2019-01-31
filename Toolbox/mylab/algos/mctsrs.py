@@ -1,4 +1,4 @@
-import mcts.AdaptiveStressTestingRandomSeed as AST_RS
+import mylab.mcts.AdaptiveStressTestingRandomSeed as AST_RS
 from mylab.algos.mcts import MCTS
 
 class MCTSRS(MCTS):

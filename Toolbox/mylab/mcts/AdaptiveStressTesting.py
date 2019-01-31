@@ -1,6 +1,6 @@
 import copy
-import mcts.MDP as MDP
-import mcts.MCTSdpw as MCTSdpw
+import mylab.mcts.MDP as MDP
+import mylab.mcts.MCTSdpw as MCTSdpw
 import numpy as np
 import garage.misc.logger as logger
 

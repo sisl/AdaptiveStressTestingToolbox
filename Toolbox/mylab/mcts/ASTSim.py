@@ -1,5 +1,5 @@
-import mcts.MDP as MDP
-import mcts.RNGWrapper as RNG
+import mylab.mcts.MDP as MDP
+import mylab.mcts.RNGWrapper as RNG
 
 class SampleResults:
 	def __init__(self,reward,action_seq):

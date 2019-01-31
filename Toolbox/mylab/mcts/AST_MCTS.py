@@ -1,6 +1,6 @@
 import numpy as np
-import mcts.MCTSdpw as MCTSdpw
-import mcts.MDP as MDP
+import mylab.mcts.MCTSdpw as MCTSdpw
+import mylab.mcts.MDP as MDP
 
 class StressTestResults:
 	def __init__(self,rewards,action_seqs,q_values):

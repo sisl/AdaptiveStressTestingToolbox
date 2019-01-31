@@ -55,7 +55,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 seed = 0
 top_k = 10
 
-import mcts.BoundedPriorityQueues as BPQ
+import mylab.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
