@@ -19,9 +19,9 @@ class CartPoleEnv(gym.Env,Serializable):
 
     def __init__(self,
                 initial_condition_max = 0.,
-                initial_condition_bias = 0.25,#0.2,#0.1,#0.15,#0.16#0.12,#0.2,#0.02,
-                theta_threshold_radians = 12 * 2 * math.pi / 360,#2#3#4#5#5.5#6#7#8#9#10#12
-                x_threshold = 2.4,#0.4,#0.6,#0.8,#1.8,#2.0,#1.2,#1.0#0.8#1.2#1.4#1.6#2.4
+                initial_condition_bias = 0.1,#0.25,#0.2,#0.1,#0.15,#0.16#0.12,#0.2
+                theta_threshold_radians = 5 * 2 * math.pi / 360,#2#3#4#5#5.5#6#7#8#9#10#12
+                x_threshold = 1.0,#0.4,#0.6,#0.8,#1.8,#2.0,#1.2,#1.0#0.8#1.2#1.4#1.6#2.4
                 max_path_length = 100.0,):
         self.gravity = 9.8
         self.masscart = 1.0
@@ -105,7 +105,8 @@ class CartPoleEnv(gym.Env,Serializable):
     def reset(self):
         # self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.state = self.np_random.uniform(low=-self.initial_condition_max, high=self.initial_condition_max, size=(4,))
-        self.state += np.ones_like(self.state)*self.initial_condition_bias
+        # self.state += np.ones_like(self.state)*self.initial_condition_bias
+        self.state += np.array([self.initial_condition_bias,0.0,self.initial_condition_bias,0.0])
         self.steps_beyond_done = None
         return np.array(self.state)
 
