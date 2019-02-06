@@ -81,14 +81,18 @@ class LunarLander(gym.Env,Serializable):
                 max_path_length=100,
                 dispersion_max=0, #1.0
                 continuous=True,
-                initial_x=0.6,#0.9,#1.0,#0.8,#0.6,#0.5,
-                helipad_width=3.8,#1.5,#2.0,#2.5,#3.0,#3.0,#2.0,#1.0,#0.5,
+                initial_x=0.5,#0.6,#0.9,#1.0,#0.8,#0.6,#0.5,
+                helipad_width=4.0,#3.8,#1.5,#2.0,#2.5,#3.0,#3.0,#2.0,#1.0,#0.5,
+                initial_force_right=1000,
+                initial_force_up=-1000,
                 ):
         self.max_path_length = max_path_length
         self.dispersion_max = dispersion_max
         self.continuous = continuous
         self.initial_x = initial_x
         self.helipad_width = helipad_width
+        self.initial_force_right=initial_force_right
+        self.initial_force_up=initial_force_up
         self.seed()
         self.viewer = None
 
@@ -187,8 +191,8 @@ class LunarLander(gym.Env,Serializable):
         #     self.np_random.uniform(-INITIAL_RANDOM, INITIAL_RANDOM)
         #     ), True)
         self.lander.ApplyForceToCenter((
-            0, #initial force to right
-            0, #initial force to up
+            self.initial_force_right, #initial force to right
+            self.initial_force_up, #initial force to up
             ),True)
 
         self.legs = []
