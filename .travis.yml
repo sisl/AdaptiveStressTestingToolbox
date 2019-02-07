@@ -22,9 +22,11 @@ install:
 
   # Install garage and dependencies
   - cd Toolbox/garage
-  - ./scripts/setup_linux.sh --mjkey ../../mjkey.txt --modify-bashrc
+  - touch mjkey.txt
+  - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
+  - rm mjkey.txt
   - source ~/miniconda2/bin/activate garage
-  
+
   # Run AST setup
   - cd ../../
   - source setup.sh
