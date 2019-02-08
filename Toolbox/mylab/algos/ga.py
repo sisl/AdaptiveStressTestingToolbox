@@ -28,7 +28,7 @@ class GA(BatchPolopt):
 	def __init__(
 			self,
 			top_paths = None, 
-			step_size = 0.01, #serve as the std dev in mutation
+			step_size = 0.01,
 			step_size_anneal = 1.0,
 			pop_size = 5,
 			truncation_size = 2,
@@ -36,6 +36,17 @@ class GA(BatchPolopt):
 			f_F = "mean",
 			log_interval = 4000,
 			**kwargs):
+        """
+        :param top_paths: a bounded priority queue to store top-rewarded trajectories
+        :param step_size: standard deviation for each mutation
+        :param step_size_anneal: the linear annealing rate of step_size after each iteration
+        :param pop_size: the population size
+        :param truncation_size: the number of top-performed individuals that are chosen as parents
+        :param keep_best: the number of top-performed individuals that remain unchanged for next generation
+        :param f_F: the function used to calculate fitness: 'mean' for the average return, 'max' for the max return
+		:param log_interval: the log interval in terms of environment calls
+        :return: No return value.
+        """
 
 		self.top_paths = top_paths
 		self.best_mean = -np.inf

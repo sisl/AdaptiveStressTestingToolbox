@@ -9,6 +9,11 @@ class MCTSRS(MCTS):
 		seed,
 		rsg_length,
 		**kwargs):
+        """
+        :param seed: the seed used to generate the initial random seed generator.
+        :param rsg_length: the length of the state of teh random seed generator. Set it to higher values for extreme large problems.
+        :return: No return value.
+        """
 		self.seed = seed
 		self.rsg_length = rsg_length
 		super(MCTSRS, self).__init__(**kwargs)

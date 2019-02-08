@@ -19,6 +19,9 @@ class GASM(GA):
 			self,
 			optimizer=None,
 			**kwargs):
+		"""
+		:param step_size: the constraint on the KL divergence of each mutation
+		"""
 		self.divergences = np.zeros(kwargs['pop_size'])
 		if optimizer == None:
 			self.optimizer = DirectionConstraintOptimizer()

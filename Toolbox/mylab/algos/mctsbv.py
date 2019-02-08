@@ -8,6 +8,10 @@ class MCTSBV(MCTS):
 	def __init__(self,
 		M,
 		**kwargs):
+        """
+        :param M: the number of randon decisions generated for the action pool
+        :return: No return value.
+        """
 		self.ec = kwargs['ec']
 		self.M = M
 		super(MCTSBV, self).__init__(**kwargs)
