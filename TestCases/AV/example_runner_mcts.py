@@ -6,6 +6,7 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 # Import the AST classes
 from mylab.envs.ast_env import ASTEnv
 from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
+from mylab.algos.mcts import MCTS
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
@@ -59,59 +60,35 @@ reward_function = ExampleAVReward()
 spaces = ExampleAVSpaces()
 
 # Create the environment
-env = TfEnv(normalize(ASTEnv(action_only=True,
-                             fixed_init_state=False,
+
+seed = 0
+top_k = 10
+
+import mylab.mcts.BoundedPriorityQueues as BPQ
+top_paths = BPQ.BoundedPriorityQueue(top_k)
+
+env = normalize(ASTEnv(action_only=True,
+                             fixed_init_state=True,
                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
-                             )))
+                             ))
+algo = MCTS(
+	    env=env,
+		stress_test_num=2,
+		max_path_length=100,
+		ec=100.0,
+		n_itr=1,
+		k=0.5,
+		alpha=0.85,
+		clear_nodes=True,
+		log_interval=1000,
+	    top_paths=top_paths,
+	    plot_tree=True,
+	    plot_path=args.log_dir+'/tree'
+	    )
 
-# Instantiate the garage objects
-policy = GaussianLSTMPolicy(name='lstm_policy',
-                            env_spec=env.spec,
-                            hidden_dim=64,
-                            use_peepholes=True)
-baseline = LinearFeatureBaseline(env_spec=env.spec)
-sampler_cls = ASTVectorizedSampler
-optimizer = ConjugateGradientOptimizer
-optimizer_args = {'hvp_approach':FiniteDifferenceHvp(base_eps=1e-5)}
-algo = TRPO(
-    env=env,
-    policy=policy,
-    baseline=LinearFeatureBaseline(env_spec=env.spec),
-    batch_size=50000,
-    step_size=0.1,
-    n_itr=101,
-    store_paths=True,
-    optimizer=optimizer,
-    optimizer_args=optimizer_args,
-    max_path_length=50,
-    sampler_cls=sampler_cls,
-    sampler_args={"sim": sim,
-                  "reward_function": reward_function})
-
-with tf.Session() as sess:
-    # Run the experiment
-    algo.train(sess=sess)
-
-    # Write out the episode results
-    header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-    for i in range(0,sim.c_num_peds):
-        header += 'v_x_ped_' + str(i) + ','
-        header += 'v_y_ped_' + str(i) + ','
-        header += 'x_ped_' + str(i) + ','
-        header += 'y_ped_' + str(i) + ','
-
-    for i in range(0,sim.c_num_peds):
-        header += 'a_x_'  + str(i) + ','
-        header += 'a_y_' + str(i) + ','
-        header += 'noise_v_x_' + str(i) + ','
-        header += 'noise_v_y_' + str(i) + ','
-        header += 'noise_x_' + str(i) + ','
-        header += 'noise_y_' + str(i) + ','
-
-    header += 'reward'
-    example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+algo.train()
 
 
