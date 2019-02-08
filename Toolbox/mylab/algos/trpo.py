@@ -24,6 +24,7 @@ class TRPO(NPO):
 
 	def __init__(self,
 				 kl_constraint=KLConstraint.HARD,
+				 step_size=0.1,
 				 optimizer=None,
 				 optimizer_args=None,
 				 top_paths=None,
@@ -47,6 +48,7 @@ class TRPO(NPO):
 			optimizer=optimizer,
 			optimizer_args=optimizer_args,
 			name="TRPO",
+			clip_range=step_size,
 			**kwargs)
 
 	@overrides
