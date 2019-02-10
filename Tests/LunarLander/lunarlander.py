@@ -83,7 +83,7 @@ class LunarLander(gym.Env,Serializable):
                 continuous=True,
                 initial_x=0.5,#0.6,#0.9,#1.0,#0.8,#0.6,#0.5,
                 helipad_width=4.0,#3.8,#1.5,#2.0,#2.5,#3.0,#3.0,#2.0,#1.0,#0.5,
-                initial_force_right=100,#300,#500,#1000,
+                initial_force_right=50,#100,#300,#500,#1000,
                 initial_force_up=0,#-500,#1000,
                 ):
         self.max_path_length = max_path_length
