@@ -13,7 +13,7 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'CartPole'#'LunarLander'#'BipedalWalker'#'MountainCar'#'Acrobot'#
-exp_param = 'L100Th05511It01'#'L100R500U0'#'L100TL35'#'L100P00015'#'L100Th19999'#
+exp_param = 'L100Th0605It01'#'L100R500U0'#'L100TL35'#'L100P00015'#'L100Th19999'#
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = ["TRPO",\
