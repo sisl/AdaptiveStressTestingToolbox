@@ -30,6 +30,7 @@ exp_name = 'Humanoid-v2'
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default=exp_name)
 parser.add_argument('--n_trial', type=int, default=5)
+parser.add_argument('--trial_start', type=int, default=0)
 parser.add_argument('--n_itr', type=int, default=5000)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--step_size', type=float, default=0.1)
@@ -65,7 +66,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 	writer.writeheader()
 
-	for trial in range(args.n_trial):
+	for trial in range(args.trial_start,args.trial_start+args.n_trial):
 		# Create the logger
 		log_dir = args.log_dir+'/'+str(trial)
 
@@ -77,7 +78,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		logger.set_snapshot_mode(args.snapshot_mode)
 		logger.set_snapshot_gap(args.snapshot_gap)
 		logger.log_parameters_lite(params_log_file, args)
-		if trial > 0:
+		if trial > args.trial_start:
 			old_log_dir = args.log_dir+'/'+str(trial-1)
 			logger.pop_prefix()
 			# logger.remove_text_output(osp.join(old_log_dir, 'text.txt'))

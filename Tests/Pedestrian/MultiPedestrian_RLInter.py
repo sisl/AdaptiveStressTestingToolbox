@@ -79,7 +79,7 @@ with open(osp.join(log_dir, 'ast'+str(args.n_itr*args.batch_size)+'.csv'), mode=
 	sess = tf.Session()
 	sess.__enter__()
 
-	for trial in range(args.n_trial):
+	for trial in range(args.trial_start,args.trial_start+args.n_trial):
 		if trial == 0:
 			reuse = False
 		else:
