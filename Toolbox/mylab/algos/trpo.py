@@ -43,12 +43,13 @@ class TRPO(NPO):
 		self.top_paths = top_paths
 		self.best_mean = -np.inf
 		self.best_var = 0.0
+
 		super(TRPO, self).__init__(
-			pg_loss=PGLoss.VANILLA,
+			pg_loss=PGLoss.SURROGATE,
 			optimizer=optimizer,
 			optimizer_args=optimizer_args,
+			max_kl_step=step_size,
 			name="TRPO",
-			clip_range=step_size,
 			**kwargs)
 
 	@overrides
