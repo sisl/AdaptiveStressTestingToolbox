@@ -5,22 +5,28 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 4
+n_trial = 5
 top_k = 1
 batch_size = 4000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'LunarLander'#'CartPole'#'BipedalWalker'#'MountainCar'#'Acrobot'#
-exp_param = 'L100R0U0'#'L100Th0601It01'#'L100TL35'#'L100P00015'#'L100Th19999'#
+exp_name = 'MountainCar'#'CartPole'#'LunarLander'#'BipedalWalker'#'Acrobot'#
+exp_param = 'L100P00015'#'L100Th1124It02'#'L100R0U0'#'L100TL35'#'L100Th19999'#
+extra_name = 'hyper'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
+# policies = ["TRPO",\
+#         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
+#         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
+# policies = ["TRPO",\
+#         "GATRDP100T20K3Step1.0Fmean",\
+#         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax"]
 policies = ["TRPO",\
-        "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
-        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
-        # "PSMCTSTRCK0.5A0.5Ec100.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec100.0Step0.01FmeanQmax"]
-plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)
+        "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
+        "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax"]
+plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
 plts = []
