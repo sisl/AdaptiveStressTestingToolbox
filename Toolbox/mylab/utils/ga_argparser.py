@@ -10,7 +10,7 @@ def get_ga_parser(log_dir='./'):
 	parser.add_argument('--snapshot_mode', type=str, default="none")
 	parser.add_argument('--snapshot_gap', type=int, default=10)
 	parser.add_argument('--log_dir', type=str, default=log_dir)
-	parser.add_argument('--step_size', type=float, default=0.01)
+	parser.add_argument('--step_size', type=float, default=1.0)
 	parser.add_argument('--step_size_anneal', type=float, default=1.0)
 	parser.add_argument('--args_data', type=str, default=None)
 	parser.add_argument('--f_F',type=str, default="mean") #fitness function
