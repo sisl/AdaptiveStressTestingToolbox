@@ -62,7 +62,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	data = joblib.load("Data/Train/itr_50.pkl")
+	data = joblib.load("../Cartpole/control_policy.pkl")
 	sut = data['policy']
 	reward_function = ASTRewardS()
 
@@ -98,7 +98,7 @@ with tf.Session() as sess:
 	    policy=policy,
 	    baseline=baseline,
 	    batch_size=4000,
-	    step_size=0.1,
+	    step_size=1.0,#0.1,
 	    n_itr=5,
 	    store_paths=True,
 	    # optimizer= optimizer,

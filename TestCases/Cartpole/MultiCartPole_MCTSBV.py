@@ -49,7 +49,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-data = joblib.load("Data/Train/itr_50.pkl")
+data = joblib.load("../Cartpole/control_policy.pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 

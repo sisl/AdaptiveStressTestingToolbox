@@ -10,7 +10,7 @@ class MCTS:
 	"""
 	def __init__(
 			self,
-		    env,
+			env,
 			max_path_length,
 			ec,
 			n_itr,
@@ -18,15 +18,15 @@ class MCTS:
 			alpha,
 			clear_nodes,
 			log_interval,
-		    top_paths,
-		    stress_test_num=2,
-		    log_tabular=True,
-		    plot_tree=False,
-		    plot_path=None,
-		    plot_format='png'
+			top_paths,
+			stress_test_num=2,
+			log_tabular=True,
+			plot_tree=False,
+			plot_path=None,
+			plot_format='png'
 			):
-        """
-        :param env: the task environment
+		"""
+		:param env: the task environment
 		:param max_path_length: maximum search depth
 		:param ec: exploration constant used in UCT equation
 		:param n_itr: iteration number, the total numeber of environment call is approximately
@@ -37,8 +37,8 @@ class MCTS:
 		:param log_interval: the log interval in terms of environment calls
 		:param top_paths: a bounded priority queue to store top-rewarded trajectories
 		:param plot_tree, plot_path, plot_format: tree plotting parameters
-        :return: No return value.
-        """
+		:return: No return value.
+		"""
 		self.env = env
 		self.stress_test_num = stress_test_num
 		self.max_path_length = max_path_length

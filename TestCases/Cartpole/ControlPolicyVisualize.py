@@ -18,7 +18,7 @@ import numpy as np
 env = TfEnv(CartPoleEnv(use_seed=False))
 
 with tf.Session() as sess:
-    data = joblib.load("Data/Train/itr_50.pkl")
+    data = joblib.load("../Cartpole/control_policy.pkl")
     agent = data['policy']
 
     o = env.reset()
