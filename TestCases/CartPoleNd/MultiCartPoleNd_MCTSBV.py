@@ -107,7 +107,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			clear_nodes=True,
 			log_interval=args.log_interval,
 		    top_paths=top_paths,
-		    plot_tree=True,
+		    plot_tree=False,
 		    plot_path=args.log_dir+'/tree'
 		    )
 
