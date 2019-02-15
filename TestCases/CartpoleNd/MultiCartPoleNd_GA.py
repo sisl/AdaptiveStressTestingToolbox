@@ -28,7 +28,7 @@ import mylab.mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.ga_argparser import get_ga_parser
-args = get_ga_parser(log_dir='./Data/GA')
+args = get_ga_parser(log_dir='./Data/AST/GA')
 
 top_k = 10
 max_path_length = 100
