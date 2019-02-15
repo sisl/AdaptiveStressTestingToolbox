@@ -12,20 +12,20 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'MountainCar'#'CartPole'#'LunarLander'#'BipedalWalker'#'Acrobot'#
-exp_param = 'L100P00015'#'L100Th1124It02'#'L100R0U0'#'L100TL35'#'L100Th19999'#
-extra_name = 'hyper'
+exp_name = 'LunarLander'#'MountainCar'#'CartPole'#'BipedalWalker'#'Acrobot'#
+exp_param = 'L100R5U0'#'L100P00015'#'L100Th1124It02'#'L100TL35'#'L100Th19999'#
+extra_name = ''
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-# policies = ["TRPO",\
-#         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
-#         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
+policies = ["TRPOStep0.1","TRPOStep1.0",\
+        "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
+        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
 # policies = ["TRPO",\
 #         "GATRDP100T20K3Step1.0Fmean",\
 #         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax"]
-policies = ["TRPO",\
-        "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
-        "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax"]
+# policies = ["TRPOStep0.1","TRPOStep1.0",\
+#         "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
+#         "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax"]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
