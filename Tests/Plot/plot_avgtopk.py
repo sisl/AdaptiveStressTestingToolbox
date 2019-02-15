@@ -12,8 +12,8 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'LunarLander'#'MountainCar'#'CartPole'#'BipedalWalker'#'Acrobot'#
-exp_param = 'L100R5U0'#'L100P00015'#'L100Th1124It02'#'L100TL35'#'L100Th19999'#
+exp_name = 'CartPole'#'LunarLander'#'MountainCar'#'BipedalWalker'#'Acrobot'#
+exp_param = 'L100Th1220It02'#'L100R5U0'#'L100P00015'#'L100TL35'#'L100Th19999'#
 extra_name = ''
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
