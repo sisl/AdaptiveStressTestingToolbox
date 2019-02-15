@@ -28,9 +28,10 @@ parser.add_argument('--exp_name', type=str, default='cartpole_exp')
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--n_itr', type=int, default=25)
+parser.add_argument('--n_itr', type=int, default=500)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTSRS')
 parser.add_argument('--args_data', type=str, default=None)
+parser.add_argument('--log_interval', type=int, default=4000)
 args = parser.parse_args()
 
 top_k = 10
@@ -50,11 +51,11 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-data = joblib.load("../Cartpole/control_policy.pkl")
+data = joblib.load("../CartPole/control_policy.pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 
-simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=True)
+simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=True,nd=1)
 env = TfEnv(ASTEnv(open_loop=open_loop,
 				   simulator=simulator,
 				   fixed_init_state=True,
@@ -106,7 +107,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			seed=trial,
 			rsg_length=rsg_length,
 			clear_nodes=True,
-			log_interval=1000,
+			log_interval=args.log_interval,
 		    top_paths=top_paths,
 		    plot_tree=True,
 		    plot_path=args.log_dir+'/tree'

@@ -30,7 +30,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default="cartpole")
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--n_itr', type=int, default=2500)
-parser.add_argument('--batch_size', type=int, default=4000)
+parser.add_argument('--step_size', type=float, default=0.1)
+parser.add_argument('--batch_size', type=int, default=2000)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=500)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/TRPO')
@@ -46,7 +47,6 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-
 data = joblib.load("../CartPole/control_policy.pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
@@ -63,12 +63,8 @@ env = TfEnv(ASTEnv(open_loop=open_loop,
 policy = GaussianMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-	hidden_sizes=(64, 32)
+	hidden_sizes=(128, 64, 32)
 )
-# policy = GaussianLSTMPolicy(name='lstm_policy',
-#                             env_spec=ast_spec,
-#                             hidden_dim=128,
-#                             use_peepholes=True)
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	fieldnames = ['step_count']
@@ -111,7 +107,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
-			step_size=0.1,
+			step_size=args.step_size,
 			n_itr=args.n_itr,
 			store_paths=True,
 			# optimizer= optimizer,

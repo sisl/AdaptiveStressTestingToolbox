@@ -40,7 +40,7 @@ class CartPoleEnv(gym.Env, Serializable):
         self.viewer = None
         self.state = None
 
-        self.wind_force_mag = 0.8*self.force_mag #std for wind force distribution
+        self.wind_force_mag = 0.6*self.force_mag #0.8
         # self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
