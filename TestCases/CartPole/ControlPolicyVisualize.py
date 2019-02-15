@@ -4,7 +4,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 
-from Cartpole.cartpole import CartPoleEnv
+from CartPole.cartpole import CartPoleEnv
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
 

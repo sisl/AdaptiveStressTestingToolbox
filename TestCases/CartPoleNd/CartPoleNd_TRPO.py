@@ -13,7 +13,7 @@ from garage.envs.env_spec import EnvSpec
 
 from mylab.rewards.ast_reward_standard import ASTRewardS
 from mylab.envs.ast_env import ASTEnv
-from Cartpole.cartpole_simulator import CartpoleSimulator
+from CartPole.cartpole_simulator import CartpoleSimulator
 
 from mylab.algos.trpo import TRPO
 
