@@ -40,7 +40,7 @@ class CartPoleEnv(gym.Env, Serializable):
         self.viewer = None
         self.state = None
 
-        self.wind_force_mag = 0.6*self.force_mag #0.8
+        self.wind_force_mag = 0.8*self.force_mag #0.6
         # self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
@@ -185,7 +185,7 @@ class CartPoleEnv(gym.Env, Serializable):
             # np.random.seed(ast_action)
             gym.spaces.np_random.seed(ast_action)
             ast_action = self.ast_action_space.sample()
-        ast_action= np.clip(np.mean(ast_action),-1.0,1.0)
+        ast_action = np.clip(np.mean(ast_action),-1.0,1.0)
         self.ast_action = ast_action
         wind_force = ast_action*self.wind_force_mag
 
@@ -247,12 +247,8 @@ class CartPoleEnv(gym.Env, Serializable):
                             np.min([np.abs(theta-(-self.theta_threshold_radians)),np.abs(theta-self.theta_threshold_radians)])/self.theta_threshold_radians
                             ])
         prob = norm.pdf(self.ast_action)
-        # if type(prob) is type(1.0) or type(prob) is type(np.float64(1.0)):
-        #     prob = prob
-        # else:
-        #     prob = prob[0]
+        # prob = -np.abs(self.ast_action)+1.0
         # self.log_trajectory_pdf += np.log(prob)
-        # print("prob: ",prob)
         # print("log_t_pdf: ",self.log_trajectory_pdf)
         return dict(
             is_goal = is_goal,

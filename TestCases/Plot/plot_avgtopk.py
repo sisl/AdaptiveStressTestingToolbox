@@ -6,29 +6,21 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 n_trial = 5
-top_k = 10
+top_k = 1
 batch_size = 4000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-prepath = "../MuJoCo/Data/Lexington/"
-exp = "Reacher-v1"
-prepath = prepath+exp
-
-plot_path = "../MuJoCo/Data/Plot/Avgtop10/"
-policies = ["TRPO","GATRDStep1.0Fmax","PSMCTSTRCStep1.0Ec10.0K0.5A0.5Qmax"]
-plot_name = exp
-# policies = ["GATRDInterStep1.0Fmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.5Qmax",\
-#             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.3Qmax","PSMCTSTRCInterStep1.0Ec1.414K0.5A0.1Qmax",\
-#             "PSMCTSTRCInterStep1.0Ec1.414K0.5A0.8Qmax","PSMCTSTRCInterStep1.0Ec0.1K0.5A0.5Qmax",\
-#             "PSMCTSTRCInterStep1.0Ec0.5K0.5A0.5Qmax","PSMCTSTRInterStep1.0Ec1.414K0.5A0.5Qmax"]
-# plot_name = "PSMCTSTRC"
-# colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
-
-# colors = []
-# for i in range(len(policies)):
-#     colors.append('C'+str(i))
+exp_name = 'CartpoleNd'
+exp_param = 'W06'
+extra_name = ''
+prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
+plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
+policies = ["TRPO",\
+            "MCTSRS","MCTSAS","MCTSBV",\
+            "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean"]
+plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
 plts = []
@@ -46,13 +38,19 @@ for (policy_index,policy) in enumerate(policies):
             steps = []
             rewards = []
             with open(file_path) as csv_file:
-                csv_reader = csv.reader(csv_file, delimiter=',')
+                if '\0' in open(file_path).read():
+                    print("you have null bytes in your input file")
+                    csv_reader = csv.reader(x.replace('\0', '') for x in csv_file)
+                else:
+                    csv_reader = csv.reader(csv_file, delimiter=',')
+
                 for (i,row) in enumerate(csv_reader):
                     if i == 0:
                         entry_dict = {}
                         for index in range(len(row)):
                             entry_dict[row[index]] = index
                     else:
+                        # print(row[entry_dict["StepNum"]])
                         if int(row[entry_dict["StepNum"]]) > max_step:
                             break
                         if int(row[entry_dict["StepNum"]])%batch_size == 0:
@@ -70,13 +68,13 @@ for (policy_index,policy) in enumerate(policies):
             # print(min_array_length)
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
-    # plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[policy_index])
     plot, = plt.plot(steps,np.mean(Rewards,0))
+    # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
     legends.append(policy)
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
 plt.ylabel('Average Top '+str(top_k) +' Reward')        
-fig.savefig(plot_path+plot_name+'_avgtop10.pdf')
+fig.savefig(plot_path+plot_name)
 plt.close(fig)
