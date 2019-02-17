@@ -12,20 +12,24 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'CartPole'#'LunarLander'#'MountainCar'#'BipedalWalker'#'Acrobot'#
-exp_param = 'L100Th1220It02'#'L100R5U0'#'L100P00015'#'L100TL35'#'L100Th19999'#
-extra_name = ''
+exp_name = 'MountainCar'#'BipedalWalker'#'Acrobot'#'CartPole'#'LunarLander'#
+exp_param = 'L100P00015'#'L100TL30'#'L100Th19999'#'L100Th1210It02'#'L100R3U0'#
+extra_name = 'hyper'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-policies = ["TRPOStep0.1","TRPOStep1.0",\
-        "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
-        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
-# policies = ["TRPO",\
+# policies = ["TRPOStep0.1","TRPOStep1.0",\
+#         "GATRDP100T20K3Step1.0Fmean","GATRDP100T20K3Step0.1Fmean","GATRDP100T20K3Step0.01Fmean",\
+#         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.1FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step0.01FmeanQmax"]
+# policies = ["TRPOStep0.1",\
 #         "GATRDP100T20K3Step1.0Fmean",\
 #         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax"]
-# policies = ["TRPOStep0.1","TRPOStep1.0",\
-#         "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
-#         "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax"]
+policies = [
+        # "TRPOStep0.1","TRPOStep1.0",\
+        "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
+        "GATRDP500T20K3Step1.0Fmean","GATRDP1000T20K3Step1.0Fmean",\
+        "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.3A0.3Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A1.0Ec1.414Step1.0FmeanQmax"
+        ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
@@ -74,8 +78,8 @@ for (policy_index,policy) in enumerate(policies):
             # print(min_array_length)
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
-    # plot, = plt.plot(steps,np.mean(Rewards,0))
-    plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
+    plot, = plt.plot(steps,np.mean(Rewards,0))
+    # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
     legends.append(policy)
 
