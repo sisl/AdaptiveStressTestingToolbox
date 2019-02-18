@@ -12,9 +12,9 @@ max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'MountainCar'#'BipedalWalker'#'Acrobot'#'CartPole'#'LunarLander'#
-exp_param = 'L100P00015'#'L100TL30'#'L100Th19999'#'L100Th1210It02'#'L100R3U0'#
-extra_name = 'hyper'
+exp_name = 'CartPole'#'LunarLander'#'BipedalWalker'#'Acrobot'#'MountainCar'#
+exp_param = 'L100Th1205It02'#'L100R2U0'#'L100TL30new'#'L100Th19999new'#'L100P00015new'#
+extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 # policies = ["TRPOStep0.1","TRPOStep1.0",\
@@ -23,12 +23,18 @@ plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 # policies = ["TRPOStep0.1",\
 #         "GATRDP100T20K3Step1.0Fmean",\
 #         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax"]
+# policies = [
+#         "TRPOStep0.1","TRPOStep1.0",\
+#         "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
+#         "GATRDP500T20K3Step1.0Fmean","GATRDP1000T20K3Step1.0Fmean",\
+#         "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax",\
+#         "PSMCTSTRCK0.3A0.3Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A1.0Ec1.414Step1.0FmeanQmax"
+#         ]
 policies = [
-        # "TRPOStep0.1","TRPOStep1.0",\
-        "GATRDP50T20K3Step1.0Fmean","GATRDP100T20K3Step1.0Fmean","GATRDP200T20K3Step1.0Fmean",\
-        "GATRDP500T20K3Step1.0Fmean","GATRDP1000T20K3Step1.0Fmean",\
-        "PSMCTSTRCK0.3A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A0.5Ec1.414Step1.0FmeanQmax",\
-        "PSMCTSTRCK0.3A0.3Ec1.414Step1.0FmeanQmax","PSMCTSTRCK1.0A1.0Ec1.414Step1.0FmeanQmax"
+        "TRPOStep0.1","TRPOStep1.0",\
+        "GATRDP100T20K3Step1.0Fmean","GATRDP500T20K3Step1.0Fmean","GATRDP1000T20K3Step1.0Fmean",\
+        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.3A0.3Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.8A0.8Ec1.414Step1.0FmeanQmax"\
         ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 

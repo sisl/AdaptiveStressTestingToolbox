@@ -22,7 +22,7 @@ class CartPoleEnv(gym.Env,Serializable):
                 # initial_condition_bias = 0.1,#0.25,#0.2,#0.1,#0.15,#0.16#0.12,#0.2
                 s_0 = [0.0,0.0,0.2,0.0],
                 theta_threshold_radians = 12.0 * 2 * math.pi / 360,
-                x_threshold = 0.5,
+                x_threshold = 0.3,
                 max_path_length = 100.0,):
         self.gravity = 9.8
         self.masscart = 1.0
