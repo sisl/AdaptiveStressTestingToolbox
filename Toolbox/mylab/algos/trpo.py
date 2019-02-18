@@ -71,7 +71,7 @@ class TRPO(NPO):
 				paths = self.obtain_samples(itr)
 				logger.log("Processing samples...")
 				samples_data = self.process_samples(itr, paths)
-				print([np.mean(path["actions"],-1) for path in paths])
+				# print([np.mean(path["actions"],-1) for path in paths])
 
 				if not (self.top_paths is None):
 					undiscounted_returns = [sum(path["rewards"]) for path in paths]

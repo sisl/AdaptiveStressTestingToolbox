@@ -35,7 +35,7 @@ class GA(BatchPolopt):
 			keep_best = 1,
 			f_F = "mean",
 			log_interval = 4000,
-			init_step = 1.0,
+			init_step = 0.4,
 			**kwargs):
 		"""
 		:param top_paths: a bounded priority queue to store top-rewarded trajectories
@@ -103,6 +103,7 @@ class GA(BatchPolopt):
 						paths = self.obtain_samples(itr)
 						logger.log("Processing samples...")
 						samples_data = self.process_samples(itr, paths)
+						# print([np.mean(path["actions"],-1) for path in paths])
 
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
