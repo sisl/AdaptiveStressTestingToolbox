@@ -13,7 +13,7 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'CartpoleNd'
-exp_param = 'W06'
+exp_param = 'D20W08'
 extra_name = ''
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
