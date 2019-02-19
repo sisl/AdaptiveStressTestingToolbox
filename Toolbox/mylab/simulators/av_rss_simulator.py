@@ -41,14 +41,17 @@ class AVRSSSimulator(ExampleAVSimulator):
 
     def is_goal(self):
         # return super().is_goal() and self._fraction_proper_response() < 0.8
-        if super().is_goal() and self._fraction_proper_response() < 0.8:
-            print("Found Crash!")
-        return super().is_goal()
+        if super().is_goal() and self._fraction_proper_response() < 1:
+            print("Vehicle at fault crash!")
+            return True
+        else:
+            return False
+        # return super().is_goal()
 
     def get_reward_info(self):
         dist = self._peds[:, 2:4] - self._car[2:4]
-        terminal_heuristic = np.min(np.linalg.norm(dist, axis=1))
-        # terminal_heuristic = self._fraction_proper_response()
+        # terminal_heuristic = np.min(np.linalg.norm(dist, axis=1))
+        terminal_heuristic = self._fraction_proper_response()
         return {"terminal_heuristic": terminal_heuristic,
                 "is_goal": self.is_goal(),
                 "is_terminal": self._is_terminal}
@@ -73,7 +76,6 @@ class AVRSSSimulator(ExampleAVSimulator):
     def _fraction_proper_response(self):
         # If we dont have enough data points then assume the response is proper
         if np.size(self.car_traj) == 0:
-            # print("Warning: _fraction_proper_response called on a trajectory of 0")
             return 1
         car_resp, _, _, _ = rss.characterize_response(self.car_traj, self.ped_traj, self.lat_params, self.long_params)
         return np.count_nonzero(car_resp == rss.Response.Proper) / np.size(car_resp)
