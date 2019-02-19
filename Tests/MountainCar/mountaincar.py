@@ -30,7 +30,7 @@ class MountainCarEnv(gym.Env, Serializable):
     def __init__(self,
                 initial_condition_max = 0.,
                 max_path_length = 100.0,
-                power = 0.0015#0.001,#0.002,#0.0011,
+                power = 0.002,#0.0015#0.001,#0.0011,
                 ):
         self.min_action = -1.0
         self.max_action = 1.0
