@@ -7,8 +7,8 @@ def example_save_trials(iters, path, header, sess, save_every_n = 100):
     for i in range(0, iters):
         if (np.mod(i, save_every_n) != 0):
             continue
-        # with tf.variable_scope('',reuse=True):
-        data = joblib.load(path + '/itr_' + str(i) + '.pkl')
+        with tf.variable_scope('',reuse=True):
+            data = joblib.load(path + '/itr_' + str(i) + '.pkl')
         # pdb.set_trace()
         paths = data['paths']
 
