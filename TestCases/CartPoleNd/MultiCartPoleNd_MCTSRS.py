@@ -55,7 +55,7 @@ data = joblib.load("../CartPole/control_policy.pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 
-simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=True,nd=15)
+simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=True,nd=1)
 env = TfEnv(ASTEnv(open_loop=open_loop,
 				   simulator=simulator,
 				   fixed_init_state=True,

@@ -66,7 +66,7 @@ with tf.Session() as sess:
 	sut = data['policy']
 	reward_function = ASTRewardS()
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=15)
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
 	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
 								 fixed_init_state=True,
