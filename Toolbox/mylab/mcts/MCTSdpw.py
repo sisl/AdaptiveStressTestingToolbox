@@ -133,6 +133,7 @@ def simulate(dpw, s, d, verbose=False):
 	if len(dpw.s[s].a) < dpw.p.k*dpw.s[s].n**dpw.p.alpha:
 		# print("new action: ",dpw.p.k*dpw.s[s].n**dpw.p.alpha)
 		a = dpw.f.getNextAction(s,dpw.s)
+		# print("new action: ",a.get())
 		if not (a in dpw.s[s].a):
 			dpw.s[s].a[a] = StateActionNode()
 	else:
@@ -169,13 +170,13 @@ def simulate(dpw, s, d, verbose=False):
 	cA.q += (q-cA.q)/float(cA.n)
 	dpw.s[s].a[a] = cA
 
-	#print("simulate end")
+	# print("simulate end")
 	return q
 
 def rollout(dpw, s, d):
-	#print("rollout start, d is ",d)
+	# print("rollout start, d is ",d)
 	if (d == 0) | dpw.f.model.isEndState(s):
-		#print("rollout end d==0 or terminal")
+		# print("rollout end d==0 or terminal")
 		return 0.0
 	else:
 		a = dpw.f.getAction(s,dpw.s)
@@ -183,7 +184,7 @@ def rollout(dpw, s, d):
 		sp,r = dpw.f.model.getNextState(s,a)
 		qval = (r+rollout(dpw,sp,d-1))
 		dpw.tracker.push_q_value2(qval)
-		#print("rollout end, d is ",d)
+		# print("rollout end, d is ",d)
 		return qval
 
 

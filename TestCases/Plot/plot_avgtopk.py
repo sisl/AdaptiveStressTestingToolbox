@@ -13,13 +13,15 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'CartpoleNd'
-exp_param = 'D10W08'
+exp_param = 'D15W08_init04'
 extra_name = ''
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = ["TRPO",\
             "MCTSRS","MCTSAS","MCTSBV",\
-            "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean"]
+            "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean",\
+            "GAP500T20K3Step1.0Fmean","GASMP500T20K3Step1.0Fmean",\
+            ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 

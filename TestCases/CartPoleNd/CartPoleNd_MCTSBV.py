@@ -73,10 +73,10 @@ with tf.Session() as sess:
 
 	algo = MCTSBV(
 	    env=env,
-		stress_test_num=2,
+		stress_test_num=1,
 		max_path_length=100,
 		ec=100.0,
-		n_itr=1,
+		n_itr=2,
 		k=0.5,
 		alpha=0.85,
 		M=10,

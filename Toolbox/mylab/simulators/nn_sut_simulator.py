@@ -18,6 +18,8 @@ class NNSUTSimulator(ASTSimulator):
         self.env = env
         self.sut = sut
         self.path_length = 0
+        
+        self._is_terminal = False
         super().__init__(**kwargs)
 
     def simulate(self, actions, s_0):
