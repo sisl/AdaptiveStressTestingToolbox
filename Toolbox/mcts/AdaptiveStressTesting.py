@@ -30,6 +30,7 @@ class AdaptiveStressTest:
 	def update(self,action):
 		self.step_count += 1
 		obs, reward, done, info = self.env.step(action.get())
+		# print("step: ",obs, reward, done)
 		self._isterminal = done
 		self._reward = reward
 		if self.params.log_tabular:
@@ -45,6 +46,9 @@ class AdaptiveStressTest:
 	def get_reward(self):
 		return self._reward
 	def random_action(self):
+		# action = self.env.action_space.sample()
+		# print('action: ',action)
+		# return ASTAction(self.env.action_space.sample())
 		return ASTAction(self.env.action_space.sample())
 	def explore_action(self,s,tree):
 		return ASTAction(self.env.action_space.sample())
@@ -79,16 +83,16 @@ class AdaptiveStressTest:
 		return MDP.TransitionModel(get_initial_state, get_next_state, isterminal, self.params.max_steps, go_to_state)
 
 class ASTState:
-	def __init__(self,t_index,hash,parent,action):
+	def __init__(self,t_index,s_hash,parent,action):
 		self.t_index = t_index
-		self.hash = hash
+		self.s_hash = s_hash
 		self.parent = parent
 		self.action = action
 	def __hash__(self):
 		if self.parent is None:
 			return hash((self.t_index,None,hash(self.action)))
 		else:
-			return hash((self.t_index,self.parent.hash,hash(self.action)))
+			return hash((self.t_index,self.parent.s_hash,hash(self.action)))
 	def __eq__(self,other):
 		return hash(self) == hash(other)
 

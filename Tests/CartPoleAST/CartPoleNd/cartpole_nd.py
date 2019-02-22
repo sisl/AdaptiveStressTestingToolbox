@@ -7,6 +7,7 @@ from CartPoleAST.CartPole.cartpole import CartPoleEnv
 from garage.misc.overrides import overrides
 import numpy as np
 import gym.spaces as spaces
+from garage.core.serializable import Serializable
 
 class CartPoleNdEnv(CartPoleEnv):
     def __init__(self, nd ,*args, **kwargs):
