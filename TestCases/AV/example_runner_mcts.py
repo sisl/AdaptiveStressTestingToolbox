@@ -98,17 +98,17 @@ s_0 = [ x[np.mod(args.run_num,2)],
         vc[np.mod(args.run_num//8, 2)],
         xc[np.mod(args.run_num//16, 2)]]
 print(s_0)
-s_0=[-0.0, -2000.0, 1.0, 14.17, -35.0]
-env = normalize(ASTEnv(action_only=True,
+s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
+env = ASTEnv(action_only=True,
                              fixed_init_state=True,
                              s_0=s_0,
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
-                             ))
+                             )
 algo = MCTS(
 	    env=env,
-		stress_test_num=2,
+		stress_test_num=1,
 		max_path_length=50,
 		ec=args.ec,
 		n_itr=int(args.iters*args.batch_size/100**2),

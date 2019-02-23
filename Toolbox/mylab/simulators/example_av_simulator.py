@@ -134,7 +134,35 @@ class ExampleAVSimulator(ASTSimulator):
                         terminal_index should be returned as -1.
 
         """
-        return None
+        # get the action from the list
+        self._action = action
+
+        # move the peds
+        self.update_peds()
+
+        # move the car
+        self._car = self.move_car(self._car, self._car_accel)
+
+        # take new measurements and noise them
+        noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
+        self._measurements = self.sensors(self._car, self._peds, noise)
+
+        # filter out the noise with an alpha-beta tracker
+        self._car_obs = self.tracker(self._car_obs, self._measurements)
+
+        # select the SUT action for the next timestep
+        self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
+
+        # grab simulation state, if interactive
+        obs = self.observe()
+
+        # record step variables
+        self.log()
+
+        self._step += 1
+        if self._step >= self.c_max_path_length:
+            self._is_terminal = True
+        return obs
 
     def reset(self, s_0):
         """

@@ -101,6 +101,13 @@ class ASTEnv(gym.Env, Serializable):
         #     # pdb.set_trace()
         #     self.simulator.simulate(self._actions)
         self._step = self._step + 1
+        if self._done:
+            info = self.simulator.get_reward_info()
+            # info = bundle['info']
+            peds = info["peds"]
+            car = info["car"]
+            dist = peds[:, 2:4] - car[2:4]
+            print(np.min(np.linalg.norm(dist, axis=1)))
 
         return Step(observation=obs,
                     reward=self._reward,
