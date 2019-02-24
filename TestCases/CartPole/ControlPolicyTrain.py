@@ -26,7 +26,7 @@ prev_snapshot_dir = logger.get_snapshot_dir()
 prev_mode = logger.get_snapshot_mode()
 logger.set_snapshot_dir(log_dir)
 logger.set_snapshot_mode("gap")
-logger.set_snapshot_gap(10)
+logger.set_snapshot_gap(1)
 logger.set_log_tabular_only(False)
 logger.push_prefix("[%s] " % "Carpole-RL")
 

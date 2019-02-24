@@ -101,7 +101,7 @@ with tf.Session() as sess:
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=50,
+	    n_itr=5,
 	    store_paths=True,
 	    # optimizer= optimizer,
 	    max_path_length=100,
@@ -112,5 +112,39 @@ with tf.Session() as sess:
 	algo.train(sess=sess, init_var=False)
 
 	# print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))
+
+	from mylab.algos.mcts import MCTS
+	top_paths2 = BPQ.BoundedPriorityQueue(top_k)
+	algo = MCTS(
+	    env=env,
+		stress_test_num=1,
+		max_path_length=100,
+		ec=100.0,
+		n_itr=50,
+		k=0.5,
+		alpha=0.5,#0.85,
+		clear_nodes=False,
+		log_interval=1000,
+	    top_paths=top_paths2,
+	    plot_tree=True,
+	    plot_path=args.log_dir+'/tree'
+	    )
+
+	algo.train()
+
+	import mylab.mcts.AdaptiveStressTesting as AST
+	import mylab.mcts.ASTSim as ASTSim
+
+	# ast_params = AST.ASTParams(100,0,False)
+	# ast = AST.AdaptiveStressTest(p=ast_params, env=env, top_paths=top_paths)
+	print("~~~~~~~~~~~~~~~~~~check TRPO reward consistance~~~~~~~~~~~~~~~")
+
+	for (r,actions) in top_paths:
+		print(np.mean(np.clip(actions,-1.0,1.0)))
+		action_seq = [AST.ASTAction(a) for a in actions]
+		reward, _ = ASTSim.play_sequence(algo.ast,action_seq,sleeptime=0.0)
+		print("predic reward: ",r)
+		print("actual reward: ",reward)	
+
 
 	

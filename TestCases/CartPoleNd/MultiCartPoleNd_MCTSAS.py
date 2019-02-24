@@ -28,7 +28,7 @@ parser.add_argument('--exp_name', type=str, default='cartpole_exp')
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--n_itr', type=int, default=500)
+parser.add_argument('--n_itr', type=int, default=200)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTSAS')
 parser.add_argument('--args_data', type=str, default=None)
 parser.add_argument('--log_interval', type=int, default=4000)
@@ -40,9 +40,9 @@ open_loop = False
 
 stress_test_num=2
 max_path_length=100
-ec=100.0
+ec=10.0
 k=0.5
-alpha=0.85
+alpha=0.5
 
 tf.set_random_seed(0)
 sess = tf.Session()
@@ -53,7 +53,7 @@ data = joblib.load("../CartPole/control_policy.pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 
-simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=False,nd=10)
+simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=False,nd=1)
 env = TfEnv(ASTEnv(open_loop=open_loop,
 				   simulator=simulator,
 				   fixed_init_state=True,
