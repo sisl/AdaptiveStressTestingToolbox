@@ -35,7 +35,7 @@ class GA(BatchPolopt):
 			keep_best = 1,
 			f_F = "mean",
 			log_interval = 4000,
-			init_step = 0.4,
+			init_step = 1.0,
 			**kwargs):
 		"""
 		:param top_paths: a bounded priority queue to store top-rewarded trajectories
