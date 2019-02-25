@@ -20,7 +20,7 @@ def get_ga_parser(log_dir='./'):
 	parser.add_argument('--pop_size', type=int, default=100)
 	parser.add_argument('--truncation_size', type=int, default=20)
 	parser.add_argument('--keep_best', type=int, default=3)
-	parser.add_argument('--log_interval', type=int, default=4000)
+	parser.add_argument('--log_interval', type=int, default=1000)
 	args = parser.parse_args()
 	args.log_dir += ('P'+str(args.pop_size))
 	args.log_dir += ('T'+str(args.truncation_size))
