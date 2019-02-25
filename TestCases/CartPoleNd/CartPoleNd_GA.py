@@ -79,8 +79,8 @@ with tf.Session() as sess:
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
-		hidden_sizes=(64, 32),
-		output_nonlinearity=tf.nn.tanh,
+		hidden_sizes=(128, 64, 32),
+		output_nonlinearity=None,
 	)
 
 	params = policy.get_params()

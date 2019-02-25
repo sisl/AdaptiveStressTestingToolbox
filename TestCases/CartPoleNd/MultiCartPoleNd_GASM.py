@@ -43,7 +43,7 @@ data = joblib.load("../CartPole/ControlPolicy/itr_"+str(args.sut_itr)+".pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 
-simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=False,nd=1)
+simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=False,nd=args.nd)
 env = TfEnv(ASTEnv(open_loop=open_loop,
 				   simulator=simulator,
 				   fixed_init_state=True,
@@ -56,7 +56,7 @@ policy = DeterministicMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
     hidden_sizes=(128, 64, 32),
-    output_nonlinearity=tf.nn.tanh,
+    output_nonlinearity=None,
 )
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
@@ -103,6 +103,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 			pop_size=args.pop_size,
 			truncation_size=args.truncation_size,
 			keep_best=args.keep_best,
+			init_step=args.init_step,
 			step_size=args.step_size,
 			step_size_anneal=args.step_size_anneal,
 			n_itr=args.n_itr,
