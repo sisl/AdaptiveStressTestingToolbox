@@ -33,7 +33,7 @@ parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--n_itr', type=int, default=200)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTSBV')
 parser.add_argument('--args_data', type=str, default=None)
-parser.add_argument('--log_interval', type=int, default=4000)
+parser.add_argument('--log_interval', type=int, default=1000)
 args = parser.parse_args()
 
 top_k = 10
