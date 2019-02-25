@@ -39,7 +39,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-data = joblib.load("../CartPole/control_policy.pkl")
+data = joblib.load("../CartPole/ControlPolicy/itr_"+str(args.sut_itr)+".pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 

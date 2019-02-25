@@ -24,7 +24,9 @@ import mylab.mcts.BoundedPriorityQueues as BPQ
 import csv
 # Logger Params
 parser = argparse.ArgumentParser()
-parser.add_argument('--exp_name', type=str, default='cartpole_exp')
+parser.add_argument('--exp_name', type=str, default='cartpole')
+parser.add_argument('--nd', type=int, default=1)
+parser.add_argument('--sut_itr', type=int, default=5)
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=10)
@@ -50,11 +52,11 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-data = joblib.load("../CartPole/control_policy.pkl")
+data = joblib.load("../CartPole/ControlPolicy/itr_"+str(args.sut_itr)+".pkl")
 sut = data['policy']
 reward_function = ASTRewardS()
 
-simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=False,nd=1)
+simulator = CartpoleSimulator(sut=sut,max_path_length=max_path_length,use_seed=False,nd=args.nd)
 env = TfEnv(ASTEnv(open_loop=open_loop,
 				   simulator=simulator,
 				   fixed_init_state=True,

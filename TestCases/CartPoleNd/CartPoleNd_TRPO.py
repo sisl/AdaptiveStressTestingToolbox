@@ -62,8 +62,7 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	# data = joblib.load("../CartPole/control_policy.pkl")
-	data = joblib.load("../CartPole/Data/Train/itr_5.pkl")
+	data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
 	sut = data['policy']
 	reward_function = ASTRewardS()
 	# sut_param = np.copy(sut.get_param_values(trainable=True))
