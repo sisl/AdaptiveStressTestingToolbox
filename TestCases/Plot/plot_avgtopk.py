@@ -7,22 +7,22 @@ import numpy as np
 
 n_trial = 5
 top_k = 1
-batch_size = 4000
+batch_size = 1000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'CartpoleNd'
-exp_param = 'D1K05A05Ec10'
+exp_param = 'D10SUT5'
 extra_name = ''
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = [
             "TRPO",\
-            # "MCTSRS",\
+            "MCTSRS",\
             "MCTSAS",\
-            # "MCTSBV",\
-            # "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean",\
+            "MCTSBV",\
+            "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean",\
             # "GAP500T20K3Step1.0Fmean","GASMP500T20K3Step1.0Fmean",\
             ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name

@@ -31,6 +31,7 @@ parser.add_argument('--exp_name', type=str, default='cartpole')
 parser.add_argument('--nd', type=int, default=1)
 parser.add_argument('--sut_itr', type=int, default=5)
 parser.add_argument('--n_trial', type=int, default=5)
+parser.add_argument('--trial_start', type=int, default=0)
 parser.add_argument('--n_itr', type=int, default=1000)
 parser.add_argument('--step_size', type=float, default=0.1)
 parser.add_argument('--batch_size', type=int, default=2000)
@@ -75,7 +76,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 	writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 	writer.writeheader()
 
-	for trial in range(args.n_trial):
+	for trial in range(args.trial_start,args.trial_start+args.n_trial):
 		# Create the logger
 		log_dir = args.log_dir+'/'+str(trial)
 
