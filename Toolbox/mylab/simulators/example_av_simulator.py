@@ -55,6 +55,7 @@ class ExampleAVSimulator(ASTSimulator):
         self._reward = 0.0
         self._info = []
         self._step = 0
+        self._path_length = 0
         self._action = None
         self._first_step = True
         self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
@@ -159,9 +160,11 @@ class ExampleAVSimulator(ASTSimulator):
         # record step variables
         self.log()
 
-        self._step += 1
-        if self._step >= self.c_max_path_length:
+        self._path_length += 1
+        if self._path_length >= self.c_max_path_length:
             self._is_terminal = True
+
+        # pdb.set_trace()
         return obs
 
     def reset(self, s_0):
@@ -175,6 +178,7 @@ class ExampleAVSimulator(ASTSimulator):
         # initialize variables
         self._info = []
         self._step = 0
+        self._path_length = 0
         self._is_terminal = False
         self.init_conditions = s_0
         self._first_step = True

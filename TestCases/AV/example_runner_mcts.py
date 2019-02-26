@@ -7,6 +7,8 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 from mylab.envs.ast_env import ASTEnv
 from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 from mylab.algos.mcts import MCTS
+# from mylab.algos.mctsbv import MCTSBV
+from mylab.algos.mctsrs import MCTSRS
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
@@ -50,7 +52,7 @@ parser.add_argument('--action_only', type=bool, default=True)
 parser.add_argument('--fixed_init_state', type=bool, default=False)
 
 # MCTS Params
-parser.add_argument('--alpha', type=float, default=0.85)
+parser.add_argument('--alpha', type=float, default=0.5)
 parser.add_argument('--k', type=float, default=0.5)
 parser.add_argument('--ec', type=float, default=100.0)
 
@@ -83,7 +85,7 @@ spaces = ExampleAVSpaces()
 
 seed = 0
 top_k = 10
-
+np.random.seed(seed)
 import mylab.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
 y = [-2.125,-4.625]
@@ -98,7 +100,7 @@ s_0 = [ x[np.mod(args.run_num,2)],
         vc[np.mod(args.run_num//8, 2)],
         xc[np.mod(args.run_num//16, 2)]]
 print(s_0)
-s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
+# s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
 env = ASTEnv(action_only=True,
                              fixed_init_state=True,
                              s_0=s_0,
@@ -108,7 +110,7 @@ env = ASTEnv(action_only=True,
                              )
 algo = MCTS(
 	    env=env,
-		stress_test_num=1,
+		stress_test_num=2,
 		max_path_length=50,
 		ec=args.ec,
 		n_itr=int(args.iters*args.batch_size/100**2),
@@ -120,6 +122,22 @@ algo = MCTS(
 	    plot_tree=False,
 	    plot_path=args.log_dir+'/tree'
 	    )
+
+# algo = MCTSBV(
+# 	    env=env,
+# 		stress_test_num=2,
+# 		max_path_length=50,
+# 		ec=args.ec,
+# 		n_itr=int(args.iters*args.batch_size/100**2),
+# 		k=args.k,
+# 		alpha=args.alpha,
+# 		clear_nodes=True,
+# 		log_interval=1000,
+# 	    top_paths=top_paths,
+# 	    plot_tree=False,
+# 	    plot_path=args.log_dir+'/tree',
+# 		M=10
+# 	    )
 
 algo.train()
 # n = np.zeros((50,6))

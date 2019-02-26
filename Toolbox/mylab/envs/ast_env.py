@@ -107,7 +107,8 @@ class ASTEnv(gym.Env, Serializable):
             peds = info["peds"]
             car = info["car"]
             dist = peds[:, 2:4] - car[2:4]
-            print(np.min(np.linalg.norm(dist, axis=1)))
+            # print(peds[:, 0:4], car[0:4])
+            # print(np.min(np.linalg.norm(dist, axis=1)))
 
         return Step(observation=obs,
                     reward=self._reward,
