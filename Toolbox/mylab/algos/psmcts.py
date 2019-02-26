@@ -104,6 +104,7 @@ class PSMCTS(BatchPolopt):
 		self.start_worker(sess)
 		# self.initial()
 		for i in range(self.n_itr):
+			# print(self.s.keys())
 			self.itr = i
 			s0 = self.getInitialState()
 			self.simulate(s0)

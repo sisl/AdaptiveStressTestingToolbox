@@ -1,7 +1,7 @@
 import csv
 import os.path
 import matplotlib 
-matplotlib.rcParams.update({'font.size': 15, 'font.family':'Times New Roman',\
+matplotlib.rcParams.update({'font.size': 25, 'font.family':'Times New Roman',\
                             'text.usetex': True})
 from matplotlib import pyplot as plt
 import numpy as np
@@ -13,8 +13,8 @@ max_step = 5e6#np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'BipedalWalker'#'Acrobot'#'MountainCar'#'CartPole'#'LunarLander'#
-exp_param = 'L100TL25new'#'L100Th19new'#'L100P0002new'#'L100Th1203It02'#'L100R1U0'#
+exp_name = 'Acrobot'#'BipedalWalker'#'MountainCar'#'CartPole'#'LunarLander'#
+exp_param = 'L100Th19new'#'L100TL30new'#'L100P0002new'#'L100Th1203It02'#'L100R1U0'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 # plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
@@ -40,13 +40,30 @@ parameters = [["step size 0.1","step size 1.0"],\
                 ["population size 100","population size 500","population size 1000"],\
                 ['$k=\\alpha=0.5$','$k=\\alpha=0.3$','$k=\\alpha=0.8$'],
                 ]
+
+exp_name_f = 'Acrobot'
+            # 'Acrobot',
+            # 'BipedalWalker',
+            # 'MountainCar'
+            
+exp_param_f = '$y_\\mathrm{goal} = 1.9$'
+            # '$y_\\mathrm{goal} = 1.9999$',\
+            # '$y_\\mathrm{goal} = 1.999$',\
+            # '$y_\\mathrm{goal} = 1.99$',\
+            # '$y_\\mathrm{goal} = 1.9$',\
+            # '$x_\\mathrm{goal} = 25$',\
+            # '$x_\\mathrm{goal} = 30$',\
+            # '$p_\\mathrm{car} = 0.002$',\
+            # '$p_\\mathrm{car} = 0.0015$'
+            
+
 colors = ["blue","green","red"]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
 plts = []
 legends = []
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.5, 10))
 
 for (group_index,policies) in enumerate(policy_groups):
     best_policy_index = -1
@@ -102,13 +119,19 @@ for (group_index,policies) in enumerate(policy_groups):
     plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[group_index])
     plt.fill_between(steps,y+yerr,y-yerr,linewidth=0,facecolor=colors[group_index],alpha=0.3)
     plts.append(plot)
-    legends.append(algos[group_index]+' '+parameters[group_index][best_policy_index])
+    # legends.append(algos[group_index]+' '+parameters[group_index][best_policy_index])
+    legends.append(algos[group_index])
 
-plt.legend(plts,legends)
+axes = plt.gca()
+# axes.set_xlim([xmin,xmax])
+axes.set_ylim([-0.15,1.0])
+plt.title(exp_name_f+' '+exp_param_f)
+# plt.legend(plts,legends)
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.xlabel('Step Number')
-plt.ylabel('Average Top '+str(top_k) +' Reward')        
+# plt.ylabel('Average Top '+str(top_k) +' Reward')    
+plt.ylabel('Average Best Return')     
 fig.savefig(plot_path+plot_name+'.pdf', bbox_inches='tight')
-from matplotlib2tikz import save as tikz_save
-tikz_save(plot_path+plot_name+'.tex')
+# from matplotlib2tikz import save as tikz_save
+# tikz_save(plot_path+plot_name+'.tex')
 plt.close(fig)
