@@ -88,7 +88,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		logger.set_snapshot_mode(args.snapshot_mode)
 		logger.set_snapshot_gap(args.snapshot_gap)
 		logger.log_parameters_lite(params_log_file, args)
-		if trial > 0:
+		if trial > args.trial_start:
 			old_log_dir = args.log_dir+'/'+str(trial-1)
 			logger.pop_prefix()
 			logger.remove_text_output(osp.join(old_log_dir, 'text.txt'))
