@@ -33,7 +33,7 @@ parser.add_argument('--sut_itr', type=int, default=5)
 parser.add_argument('--n_trial', type=int, default=10)
 parser.add_argument('--trial_start', type=int, default=0)
 parser.add_argument('--n_itr', type=int, default=1000)
-parser.add_argument('--step_size', type=float, default=1.0)
+parser.add_argument('--step_size', type=float, default=0.1)
 parser.add_argument('--batch_size', type=int, default=2000) #50000
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=500)
