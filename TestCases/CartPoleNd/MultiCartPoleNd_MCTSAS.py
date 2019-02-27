@@ -32,20 +32,23 @@ parser.add_argument('--trial_start', type=int, default=0)
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--n_itr', type=int, default=200)
+parser.add_argument('--ec', type=float, default=10.0)
+parser.add_argument('--k', type=float, default=0.5)
+parser.add_argument('--alpha', type=float, default=0.5)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/MCTSAS')
 parser.add_argument('--args_data', type=str, default=None)
 parser.add_argument('--log_interval', type=int, default=1000)
 args = parser.parse_args()
+args.log_dir += ('Ec'+str(args.ec)+'K'+str(args.k)+'A'+str(args.alpha))
 
 top_k = 10
-max_path_length = 100
 open_loop = False
 
 stress_test_num=2
 max_path_length=100
-ec=10.0
-k=0.5
-alpha=0.5
+ec=args.ec
+k=args.k
+alpha=args.alpha
 
 tf.set_random_seed(0)
 sess = tf.Session()

@@ -33,13 +33,14 @@ parser.add_argument('--sut_itr', type=int, default=5)
 parser.add_argument('--n_trial', type=int, default=5)
 parser.add_argument('--trial_start', type=int, default=0)
 parser.add_argument('--n_itr', type=int, default=1000)
-parser.add_argument('--step_size', type=float, default=0.1)
-parser.add_argument('--batch_size', type=int, default=2000)
+parser.add_argument('--step_size', type=float, default=0.1) #1.0, 3.0, 10.0
+parser.add_argument('--batch_size', type=int, default=2000) #50000
 parser.add_argument('--snapshot_mode', type=str, default="none")
 parser.add_argument('--snapshot_gap', type=int, default=500)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/TRPO')
 parser.add_argument('--args_data', type=str, default=None)
 args = parser.parse_args()
+args.log_dir += ('B'+str(args.batch_size)+'Step'+str(args.step_size))
 
 top_k = 10
 max_path_length = 100

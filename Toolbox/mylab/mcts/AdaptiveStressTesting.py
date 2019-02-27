@@ -57,7 +57,7 @@ class AdaptiveStressTest:
 	def random_action(self):
 		# action = self.env.action_space.sample()
 		# print('action: ',action)
-		# return ASTAction(self.env.action_space.sample())
+		# return ASTAction(action)
 		return ASTAction(self.env.action_space.sample())
 	def explore_action(self,s,tree):
 		return ASTAction(self.env.action_space.sample())
