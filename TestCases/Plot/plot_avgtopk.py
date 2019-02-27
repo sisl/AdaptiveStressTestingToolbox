@@ -13,16 +13,17 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'CartpoleNd'
-exp_param = 'D10SUT5'
-extra_name = ''
+exp_param = 'D1SUT5'
+extra_name = 'MCTS'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = [
-            "TRPO",\
-            "MCTSRS",\
-            "MCTSAS",\
-            "MCTSBV",\
-            "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean",\
+            # "TRPOB2000Step0.1","TRPOB2000Step1.0","TRPOB2000Step5.0",\
+            # "TRPOB50000Step0.1","TRPOB50000Step1.0","TRPOB50000Step5.0",\
+            "MCTSRSEc10.0K0.3A0.3","MCTSRSEc10.0K0.5A0.5","MCTSRSEc10.0K0.8A0.8",\
+            "MCTSASEc10.0K0.3A0.3","MCTSASEc10.0K0.5A0.5","MCTSASEc10.0K0.8A0.8",\
+            "MCTSBVEc10.0K0.3A0.3","MCTSBVEc10.0K0.5A0.5","MCTSBVEc10.0K0.8A0.8",\
+            # "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean",\
             # "GAP500T20K3Step1.0Fmean","GASMP500T20K3Step1.0Fmean",\
             ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
@@ -77,7 +78,7 @@ for (policy_index,policy) in enumerate(policies):
     # plot, = plt.plot(steps,np.mean(np.exp(Rewards),0))
     # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
-    legends.append(policy)
+    legends.append(policy+' '+str(np.mean(Rewards,0)[-1]))
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
