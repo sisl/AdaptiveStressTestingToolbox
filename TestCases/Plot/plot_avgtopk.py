@@ -14,17 +14,17 @@ min_reward = -np.inf
 
 exp_name = 'CartpoleNd'
 exp_param = 'D1SUT5'
-extra_name = 'TRPO'
+extra_name = 'MCTS'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 policies = [
-            "TRPOB2000Step0.1","TRPOB2000Step1.0","TRPOB2000Step5.0",\
-            "TRPOB50000Step0.1","TRPOB50000Step1.0","TRPOB50000Step5.0",\
+            # "TRPOB2000Step0.1","TRPOB2000Step1.0","TRPOB2000Step5.0",\
+            # "TRPOB50000Step0.1","TRPOB50000Step1.0","TRPOB50000Step5.0",\
             # "TRPOLSTMB2000Step0.1","TRPOLSTMB2000Step1.0","TRPOLSTMB2000Step5.0",\
             # "TRPOLSTMB50000Step0.1","TRPOLSTMB50000Step1.0","TRPOLSTMB50000Step5.0",\
-            # "MCTSRSEc10.0K0.3A0.3","MCTSRSEc10.0K0.5A0.5","MCTSRSEc10.0K0.8A0.8",\
-            # "MCTSASEc10.0K0.3A0.3","MCTSASEc10.0K0.5A0.5","MCTSASEc10.0K0.8A0.8",\
-            # "MCTSBVEc10.0K0.3A0.3","MCTSBVEc10.0K0.5A0.5","MCTSBVEc10.0K0.8A0.8",\
+            "MCTSRSEc10.0K0.3A0.3","MCTSRSEc10.0K0.5A0.5","MCTSRSEc10.0K0.8A0.8",\
+            "MCTSASEc10.0K0.3A0.3","MCTSASEc10.0K0.5A0.5","MCTSASEc10.0K0.8A0.8",\
+            "MCTSBVEc10.0K0.3A0.3","MCTSBVEc10.0K0.5A0.5","MCTSBVEc10.0K0.8A0.8",\
             ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
