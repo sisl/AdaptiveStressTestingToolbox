@@ -137,8 +137,9 @@ def simulate(dpw, s, d, verbose=False):
 	dpw.s[s].n += 1
 	if len(dpw.s[s].a) < dpw.p.k*dpw.s[s].n**dpw.p.alpha:
 		# print("new action: ",dpw.p.k*dpw.s[s].n**dpw.p.alpha)
+
 		a = dpw.f.getNextAction(s,dpw.s)
-		# print("new action: ",a in dpw.s[s].a)
+		# print("new action: ",a.get())
 		if not (a in dpw.s[s].a):
 			dpw.s[s].a[a] = StateActionNode()
 	else:

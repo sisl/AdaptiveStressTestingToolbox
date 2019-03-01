@@ -1,12 +1,12 @@
 import csv
 import os.path
 import matplotlib 
-matplotlib.rcParams.update({'font.size': 1, 'font.family':'Times New Roman',\
+matplotlib.rcParams.update({'font.size': 10, 'font.family':'Times New Roman',\
                             'text.usetex': True})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 5
+n_trial = 10
 top_k = 1
 batch_size = 1000
 max_step = np.inf
@@ -22,15 +22,26 @@ plot_path = "/Users/xiaobaima/Dropbox/SISL/ASTToolbox/IROS/plots/"
 
 policy_groups = [
                 [
-                "TRPO",\
+                    # "TRPOB2000Step0.1","TRPOB2000Step1.0",
+                    "TRPOB2000Step5.0",\
+                    # "TRPOB50000Step0.1","TRPOB50000Step1.0","TRPOB50000Step5.0",\
                 ],\
                 [
-                "MCTSAS",\
-                "MCTSRS",\
-                "MCTSBV"]\
+                    # "TRPOLSTMB2000Step0.1",
+                    "TRPOLSTMB2000Step1.0",
+                    # "TRPOLSTMB2000Step5.0",\
+                    # "TRPOLSTMB50000Step0.1","TRPOLSTMB50000Step1.0","TRPOLSTMB50000Step5.0",\
+                ],\
+                [
+                    # "MCTSRSEc10.0K0.3A0.3",
+                    "MCTSRSEc10.0K0.5A0.5",
+                    # "MCTSRSEc10.0K0.8A0.8",\
+                    # "MCTSASEc10.0K0.3A0.3","MCTSASEc10.0K0.5A0.5","MCTSASEc10.0K0.8A0.8",\
+                    # "MCTSBVEc10.0K0.3A0.3","MCTSBVEc10.0K0.5A0.5","MCTSBVEc10.0K0.8A0.8",\
+                ]\
                 ]
 
-algos = ["TRPO","MCTS"]
+algos = ["TRPO, Closed-Loop","TRPO, Open-Loop","MCTS, Open-Loop"]
 parameters = [["step size 0.1"],\
                 ['$k=\\alpha=0.5,ec=10.0$','$k=\\alpha=0.5,ec=10.0$','$k=\\alpha=0.5,ec=10.0$'],
                 ]
@@ -39,7 +50,7 @@ exp_name_f = 'Cartpole'
             
 exp_param_f = ''
 
-colors = ["blue","red"]
+colors = ["blue","green","red"]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
@@ -99,6 +110,7 @@ for (group_index,policies) in enumerate(policy_groups):
     # y = np.mean(Rewards,0)
     # yerr = np.std(Rewards,0)/np.sqrt(n_trial)
     plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[group_index])
+    print(np.max(Rewards))
     # plt.fill_between(steps,y+yerr,y-yerr,linewidth=0,facecolor=colors[group_index],alpha=0.3)
     plts.append(plot)
     # legends.append(algos[group_index]+' '+parameters[group_index][best_policy_index])
@@ -106,15 +118,15 @@ for (group_index,policies) in enumerate(policy_groups):
 
 axes = plt.gca()
 # start, end = axes.get_xlim()
-axes.set_xlim([0,2e6])
-axes.xaxis.set_ticks(np.arange(0, 2e6, int(2e6/4)))
+# axes.set_xlim([0,2e6])
+# axes.xaxis.set_ticks(np.arange(0, 2e6, int(2e6/4)))
 # axes.set_yscale('log')
 # axes.set_xlim([xmin,xmax])
 # axes.set_ylim([-0.15,1.0])
 # plt.title(exp_name_f+' '+exp_param_f)
 plt.legend(plts,legends)
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+# plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 plt.xlabel('Step Number')
 # plt.ylabel('Average Top '+str(top_k) +' Reward')    
 plt.ylabel('Average Best Return')     
