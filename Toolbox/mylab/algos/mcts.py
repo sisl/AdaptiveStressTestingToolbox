@@ -3,6 +3,7 @@ import mylab.mcts.ASTSim as ASTSim
 import mylab.mcts.MCTSdpw as MCTSdpw
 import mylab.mcts.AST_MCTS as AST_MCTS
 from mylab.mcts import tree_plot
+import numpy as np
 
 class MCTS:
 	"""
@@ -19,6 +20,7 @@ class MCTS:
 			clear_nodes,
 			log_interval,
 			top_paths,
+			gamma=1.0,
 			stress_test_num=2,
 			log_tabular=True,
 			plot_tree=False,
@@ -36,13 +38,14 @@ class MCTS:
 						Set it to True for saving memoray. Set it to False to better tree plotting
 		:param log_interval: the log interval in terms of environment calls
 		:param top_paths: a bounded priority queue to store top-rewarded trajectories
+		:param gamma: discount factor
 		:param plot_tree, plot_path, plot_format: tree plotting parameters
 		:return: No return value.
 		"""
 		self.env = env
 		self.stress_test_num = stress_test_num
 		self.max_path_length = max_path_length
-		self.macts_params = MCTSdpw.DPWParams(max_path_length,ec,n_itr,k,alpha,clear_nodes)
+		self.macts_params = MCTSdpw.DPWParams(max_path_length,gamma,ec,n_itr,k,alpha,clear_nodes)
 		self.log_interval = log_interval
 		self.top_paths = top_paths
 		self.log_tabular = log_tabular
@@ -67,9 +70,18 @@ class MCTS:
 			else:
 				result = AST_MCTS.stress_test(self.ast,self.macts_params,self.top_paths,verbose=False, return_tree=False)
 		self.ast.params.log_tabular = False
-		for (i,action_seq) in enumerate(result.action_seqs):
+		print("check reward consistance")
+		# for (i,action_seq) in enumerate(result.action_seqs):
+		# 	actions = [a.get() for a in action_seq]
+		# 	print(np.mean(np.clip(actions,-1.0,1.0)))
+		# 	reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)
+		# 	print("predic reward: ",result.rewards[i])
+		# 	print("actual reward: ",reward)	
+		for (reward_predict,action_seq) in result:
+			actions = [a.get() for a in action_seq]
+			# print(np.mean(np.clip(actions,-1.0,1.0)))
 			reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)
-			print("predic reward: ",result.rewards[i])
+			print("predic reward: ",reward_predict)
 			print("actual reward: ",reward)	
 		if self.plot_tree:
 			tree_plot.plot_tree(tree,d=self.max_path_length,path=self.plot_path,format=self.plot_format)

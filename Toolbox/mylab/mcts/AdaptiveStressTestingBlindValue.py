@@ -20,7 +20,6 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
 		D = s.a.keys()
 		if len(D) == 0.0:
 			return ASTAction(self.env.action_space.sample())
-
 		UCB = self.getUCB(s)
 		sigma_known = np.std([float(UCB[a]) for a in s.a.keys()])
 

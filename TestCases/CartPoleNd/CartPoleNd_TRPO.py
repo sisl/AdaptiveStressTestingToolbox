@@ -62,11 +62,12 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-	data = joblib.load("../CartPole/control_policy.pkl")
+	data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
 	sut = data['policy']
 	reward_function = ASTRewardS()
+	# sut_param = np.copy(sut.get_param_values(trainable=True))
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=10)
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
 	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
 								 fixed_init_state=True,
@@ -99,7 +100,7 @@ with tf.Session() as sess:
 	    baseline=baseline,
 	    batch_size=4000,
 	    step_size=0.1,
-	    n_itr=5,
+	    n_itr=50,
 	    store_paths=True,
 	    # optimizer= optimizer,
 	    max_path_length=100,
@@ -108,5 +109,7 @@ with tf.Session() as sess:
 	    )
 
 	algo.train(sess=sess, init_var=False)
+
+	# print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))
 
 	

@@ -23,8 +23,8 @@ def add_children(s,s_node,tree,graph,d):
 				ns_node = s2node(ns,tree)
 				if ns_node is not None:
 					graph.add_node(ns_node)
-					# graph.add_edge(pydot.Edge(s_node, ns_node, label="n="+str(n)+" q="+str(q)))
-					graph.add_edge(pydot.Edge(s_node, ns_node))
+					graph.add_edge(pydot.Edge(s_node, ns_node, label="n="+str(n)+" a="+str(a.get())+" q="+str(q)))
+					# graph.add_edge(pydot.Edge(s_node, ns_node))
 					add_children(ns,ns_node,tree,graph,d-1)
 
 def plot_tree(tree,d,path,format="svg"):

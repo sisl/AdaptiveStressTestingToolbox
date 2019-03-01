@@ -69,7 +69,7 @@ tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
 	
-	data = joblib.load("../CartPole/control_policy.pkl")
+	data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
 	sut = data['policy']
 	reward_function = ASTRewardS()
 
@@ -85,7 +85,8 @@ with tf.Session() as sess:
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
-		hidden_sizes=(64, 32)
+		hidden_sizes=(128, 64, 32),
+		output_nonlinearity=None,
 	)
 
 	params = policy.get_params()
