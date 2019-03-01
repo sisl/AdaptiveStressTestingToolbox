@@ -7,6 +7,8 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 from mylab.envs.ast_env import ASTEnv
 from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 from mylab.algos.mcts import MCTS
+# from mylab.algos.mctsbv import MCTSBV
+from mylab.algos.mctsrs import MCTSRS
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
@@ -34,6 +36,26 @@ parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
 parser.add_argument('--log_dir', type=str, default='.')
 parser.add_argument('--args_data', type=str, default=None)
+parser.add_argument('--run_num', type=int, default=0)
+
+parser.add_argument('--iters', type=int, default=101)
+parser.add_argument('--batch_size', type=int, default=4000)
+parser.add_argument('--clip_range', type=float, default=0.3)
+# Policy Params
+parser.add_argument('--hidden_dim', type=int, default=64)
+parser.add_argument('--policy', type=str, default="LSTM")
+parser.add_argument('--use_peepholes', type=bool, default=False)
+parser.add_argument('--load_policy', type=bool, default=False)
+
+# Env Params
+parser.add_argument('--action_only', type=bool, default=True)
+parser.add_argument('--fixed_init_state', type=bool, default=False)
+
+# MCTS Params
+parser.add_argument('--alpha', type=float, default=0.5)
+parser.add_argument('--k', type=float, default=0.5)
+parser.add_argument('--ec', type=float, default=100.0)
+
 args = parser.parse_args()
 
 # Create the logger
@@ -63,32 +85,64 @@ spaces = ExampleAVSpaces()
 
 seed = 0
 top_k = 10
-
+np.random.seed(seed)
 import mylab.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
+y = [-2.125,-4.625]
+x = [-0.5, 0.5]
+vp = [0.5, 1.5]
+vc = [9.755, 12.315]
+xc = [-30.625, -39.375]
 
-env = normalize(ASTEnv(action_only=True,
+s_0 = [ x[np.mod(args.run_num,2)],
+        y[np.mod(args.run_num//2, 2)],
+        vp[np.mod(args.run_num//4, 2)],
+        vc[np.mod(args.run_num//8, 2)],
+        xc[np.mod(args.run_num//16, 2)]]
+print(s_0)
+# s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
+env = ASTEnv(action_only=True,
                              fixed_init_state=True,
-                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                             s_0=s_0,
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
-                             ))
+                             )
 algo = MCTS(
 	    env=env,
 		stress_test_num=2,
-		max_path_length=100,
-		ec=100.0,
-		n_itr=1,
-		k=0.5,
-		alpha=0.85,
+		max_path_length=50,
+		ec=args.ec,
+		n_itr=int(args.iters*args.batch_size/100**2),
+		k=args.k,
+		alpha=args.alpha,
 		clear_nodes=True,
 		log_interval=1000,
 	    top_paths=top_paths,
-	    plot_tree=True,
+	    plot_tree=False,
 	    plot_path=args.log_dir+'/tree'
 	    )
 
-algo.train()
+# algo = MCTSBV(
+# 	    env=env,
+# 		stress_test_num=2,
+# 		max_path_length=50,
+# 		ec=args.ec,
+# 		n_itr=int(args.iters*args.batch_size/100**2),
+# 		k=args.k,
+# 		alpha=args.alpha,
+# 		clear_nodes=True,
+# 		log_interval=1000,
+# 	    top_paths=top_paths,
+# 	    plot_tree=False,
+# 	    plot_path=args.log_dir+'/tree',
+# 		M=10
+# 	    )
 
+algo.train()
+# n = np.zeros((50,6))
+# for i in range(50):
+# 	n[i,:] = spaces.action_space.sample()
+#
+# print(np.mean(n, axis=0))
 

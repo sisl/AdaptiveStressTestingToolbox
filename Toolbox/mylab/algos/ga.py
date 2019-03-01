@@ -35,6 +35,7 @@ class GA(BatchPolopt):
 			keep_best = 1,
 			f_F = "mean",
 			log_interval = 4000,
+			init_step = 0.4,
 			**kwargs):
 		"""
 		:param top_paths: a bounded priority queue to store top-rewarded trajectories
@@ -55,9 +56,10 @@ class GA(BatchPolopt):
 		self.step_size_anneal = step_size_anneal
 		self.pop_size = pop_size
 		self.truncation_size = truncation_size
+		self.keep_best = keep_best
 		self.f_F = f_F
 		self.log_interval = log_interval
-		self.keep_best = keep_best
+		self.init_step = init_step
 
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
@@ -68,7 +70,7 @@ class GA(BatchPolopt):
 	def initial(self):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
-		self.magnitudes[0,:] = np.ones(self.pop_size)
+		self.magnitudes[0,:] = self.init_step*np.ones(self.pop_size)
 		self.policy.set_param_values(self.policy.get_param_values())
 		self.stepNum = 0
 
@@ -101,6 +103,7 @@ class GA(BatchPolopt):
 						paths = self.obtain_samples(itr)
 						logger.log("Processing samples...")
 						samples_data = self.process_samples(itr, paths)
+						# print([np.mean(path["actions"],-1) for path in paths])
 
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
@@ -149,7 +152,15 @@ class GA(BatchPolopt):
 			# print("seed: ", self.seeds[i,p])
 			self.np_random.seed(int(self.seeds[i,p]))
 			if i == 0: #first generation
-				param_values = init_policy_np(self.policy, self.np_random)
+				param_values = self.policy.get_param_values(trainable=True)
+				param_values = self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
+
+				# param_values = init_policy_np(self.policy, self.np_random)
+
+				# params = self.policy.get_params()
+				# sess = tf.get_default_session()
+				# sess.run(tf.variables_initializer(params))
+				# param_values = self.policy.get_param_values()
 			elif self.seeds[i,p] != 0:
 				param_values = param_values + self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)

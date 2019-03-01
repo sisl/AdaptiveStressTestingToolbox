@@ -73,6 +73,9 @@ class ASTSimulator(object):
         """
         raise NotImplementedError
 
+    def isterminal(self):
+        return self._is_terminal
+
     def log(self):
         """
         perform any logging steps

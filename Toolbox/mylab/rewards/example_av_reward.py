@@ -33,10 +33,11 @@ class ExampleAVReward(ASTReward):
         if (is_goal): # We found a crash
             reward = 0
         elif (is_terminal):
+            # reward = 0
             reward = -10000 - 1000 * np.min(np.linalg.norm(dist, axis=1)) # We reached
             # the horizon with no crash
         else:
-            reward = -np.log(1 + self.mahalanobis_d(action)) # No crash or horizon yet
+            reward = -self.mahalanobis_d(action) # No crash or horizon yet
 
         return reward
 

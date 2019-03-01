@@ -62,7 +62,7 @@ with tf.Session() as sess:
 	sut = data['policy']
 	reward_function = ASTRewardS()
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=20)
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=10)
 	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
 								 fixed_init_state=True,
@@ -73,16 +73,16 @@ with tf.Session() as sess:
 
 	algo = MCTS(
 	    env=env,
-		stress_test_num=2,
+		stress_test_num=1,
 		max_path_length=100,
 		ec=100.0,
-		n_itr=1,
+		n_itr=2,
 		k=0.5,
 		alpha=0.85,
-		clear_nodes=True,
+		clear_nodes=False,
 		log_interval=1000,
 	    top_paths=top_paths,
-	    plot_tree=True,
+	    plot_tree=False,
 	    plot_path=args.log_dir+'/tree'
 	    )
 
