@@ -34,4 +34,6 @@ class HeuristicReward(ASTReward):
         else:
             reward = self.action_model.log_prob(action) # No crash or horizon yet
 
+        if np.isnan(reward):
+            print("found nan")
         return reward

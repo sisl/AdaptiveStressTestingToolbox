@@ -40,16 +40,11 @@ class AVRSSSimulator(ExampleAVSimulator):
                          min_dist_y, car_init_x, car_init_y, action_only, **kwargs)
 
     def is_goal(self):
-        # return super().is_goal() and self._fraction_proper_response() < 0.8
-        if super().is_goal() and self._fraction_proper_response() < 1:
-            print("Vehicle at fault crash!")
-            return True
-        else:
-            return False
-        # return super().is_goal()
+        super_is_goal = super().is_goal()
+        return super_is_goal and self._fraction_proper_response() < 1
 
     def get_reward_info(self):
-        dist = self._peds[:, 2:4] - self._car[2:4]
+        # dist = self._peds[:, 2:4] - self._car[2:4]
         # terminal_heuristic = np.min(np.linalg.norm(dist, axis=1))
         terminal_heuristic = self._fraction_proper_response()
         return {"terminal_heuristic": terminal_heuristic,

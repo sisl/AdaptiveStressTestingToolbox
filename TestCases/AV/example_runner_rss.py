@@ -86,7 +86,7 @@ long_params = rss.LongitudinalParams(   0, #ρ
 
 
 sim = AVRSSSimulator(lat_params, long_params)
-reward_function = HeuristicReward(PedestrianNoiseGaussian(1, .3, 0.1, .05), np.array([-10000, -1000]))
+reward_function = HeuristicReward(PedestrianNoiseGaussian(1, 1, 0.2, .01), np.array([-10000, -1000]))
 spaces = ExampleAVSpaces()
 
 # Create the environment

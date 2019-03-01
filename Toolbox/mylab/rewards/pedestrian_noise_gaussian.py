@@ -25,4 +25,6 @@ class PedestrianNoiseGaussian(ActionModel):
                                 self.c_cov_sensor_noise, self.c_cov_sensor_noise,
                                 self.c_cov_sensor_noise, self.c_cov_sensor_noise])
         big_cov = np.diagflat(cov)
-        return np.log(multivariate_normal.pdf(action, mean=mean, cov=big_cov))
+        pdf = multivariate_normal.pdf(action, mean=mean, cov=big_cov)
+        logpdf = max(np.log(pdf), -100)
+        return logpdf
