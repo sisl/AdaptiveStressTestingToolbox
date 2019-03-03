@@ -63,11 +63,11 @@ tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
 	
-	data = joblib.load("../CartPole/control_policy.pkl")
+	data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
 	sut = data['policy']
 	reward_function = ASTRewardS()
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=10)
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
 	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
 								 fixed_init_state=True,
@@ -79,8 +79,8 @@ with tf.Session() as sess:
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',
 		env_spec=env.spec,
-		hidden_sizes=(64, 32),
-		output_nonlinearity=tf.nn.tanh,
+		hidden_sizes=(128, 64, 32),
+		output_nonlinearity=None,
 	)
 
 	params = policy.get_params()
@@ -95,10 +95,11 @@ with tf.Session() as sess:
 		policy=policy,
 		baseline=baseline,
 		batch_size= 100,
-		pop_size = 5,
-		elites = 3,
-		keep_best = 1,
+		pop_size = 100,#5,
+		elites = 20,#3,
+		keep_best = 3,#1,
 		step_size=0.01,
+		# init_step = 1.0,
 		n_itr=2,
 		store_paths=False,
 		# optimizer= optimizer,

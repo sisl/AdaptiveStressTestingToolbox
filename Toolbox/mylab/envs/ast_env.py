@@ -97,7 +97,7 @@ class ASTEnv(gym.Env, Serializable):
             info=self.simulator.get_reward_info())
         # Update instance attributes
         # self.log()
-        # if self._step == self.c_max_path_length - 1:
+        # if self._step == self.simulator.c_max_path_length - 1:
         #     # pdb.set_trace()
         #     self.simulator.simulate(self._actions)
         self._step = self._step + 1
@@ -136,6 +136,7 @@ class ASTEnv(gym.Env, Serializable):
         self._action = None
         self._actions = []
         self._first_step = True
+        self._step = 0
 
         return self.simulator.reset(self._init_state)
 

@@ -5,22 +5,26 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 5
+n_trial = 10
 top_k = 1
-batch_size = 4000
+batch_size = 1000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'CartpoleNd'
-exp_param = 'D15W08_init04'
-extra_name = ''
+exp_param = 'D1SUT5'
+extra_name = 'MCTS'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-policies = ["TRPO",\
-            "MCTSRS","MCTSAS","MCTSBV",\
-            "GAP100T20K3Step1.0Fmean","GASMP100T20K3Step1.0Fmean",\
-            "GAP500T20K3Step1.0Fmean","GASMP500T20K3Step1.0Fmean",\
+policies = [
+            # "TRPOB2000Step0.1","TRPOB2000Step1.0","TRPOB2000Step5.0",\
+            # "TRPOB50000Step0.1","TRPOB50000Step1.0","TRPOB50000Step5.0",\
+            # "TRPOLSTMB2000Step0.1","TRPOLSTMB2000Step1.0","TRPOLSTMB2000Step5.0",\
+            # "TRPOLSTMB50000Step0.1","TRPOLSTMB50000Step1.0","TRPOLSTMB50000Step5.0",\
+            "MCTSRSEc10.0K0.3A0.3","MCTSRSEc10.0K0.5A0.5","MCTSRSEc10.0K0.8A0.8",\
+            "MCTSASEc10.0K0.3A0.3","MCTSASEc10.0K0.5A0.5","MCTSASEc10.0K0.8A0.8",\
+            "MCTSBVEc10.0K0.3A0.3","MCTSBVEc10.0K0.5A0.5","MCTSBVEc10.0K0.8A0.8",\
             ]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
@@ -71,9 +75,10 @@ for (policy_index,policy) in enumerate(policies):
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
     plot, = plt.plot(steps,np.mean(Rewards,0))
+    # plot, = plt.plot(steps,np.mean(np.exp(Rewards),0))
     # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
-    legends.append(policy)
+    legends.append(policy+' '+str(np.mean(Rewards,0)[-1]))
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')

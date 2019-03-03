@@ -57,12 +57,14 @@ np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
-
-	data = joblib.load("../CartPole/control_policy.pkl")
+	control_policy_path = "../CartPole/Data/Train/itr_5.pkl"
+	# control_policy_path = "../CartPole/control_policy.pkl"
+	print(control_policy_path)
+	data = joblib.load(control_policy_path)
 	sut = data['policy']
 	reward_function = ASTRewardS()
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=True,nd=10)
+	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=True,nd=1)
 	env = ASTEnv(open_loop=False,
 								 simulator=simulator,
 								 fixed_init_state=True,
@@ -73,18 +75,18 @@ with tf.Session() as sess:
 
 	algo = MCTSRS(
 	    env=env,
-		stress_test_num=1,
+		stress_test_num=2,
 		max_path_length=100,
-		ec=100.0,
-		n_itr=2,
+		ec=10.0,
+		n_itr=100,
 		k=0.5,
-		alpha=0.85,
+		alpha=0.5,
 		seed=0,
 		rsg_length=2,
-		clear_nodes=True,
+		clear_nodes=False,
 		log_interval=1000,
 	    top_paths=top_paths,
-	    plot_tree=True,
+	    plot_tree=False,
 	    plot_path=args.log_dir+'/tree'
 	    )
 
