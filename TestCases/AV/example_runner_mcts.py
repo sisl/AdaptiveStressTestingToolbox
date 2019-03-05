@@ -146,3 +146,14 @@ algo.train()
 #
 # print(np.mean(n, axis=0))
 
+sim = ExampleSimulator(simulatorSettings)
+reward_function = ExampleReward(rewardSettings)
+spaces = ExampleSpaces(limits)
+env = ASTEnv(simulator=sim,
+			 reward_function=reward_function,
+			 spaces=spaces
+			 )
+algo = RLAlgorithm(policy=Policy,
+				   optimizer=Serializable
+	    )
+
