@@ -1,10 +1,10 @@
 # Import the example classes
-from mylab.simulators.av_rss_simulator import AVRSSSimulator
 from mylab.rewards.heuristic_reward import HeuristicReward
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
 from mylab.rewards.pedestrian_noise_gaussian import PedestrianNoiseGaussian
 
-# Imoport RSS stuff
+# Import RSS stuff
+from mylab.simulators.av_rss_simulator import AVRSSSimulator
 import mylab.simulators.rss_metrics as rss
 
 # Import the AST classes

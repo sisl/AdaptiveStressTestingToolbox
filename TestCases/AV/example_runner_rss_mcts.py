@@ -1,7 +1,11 @@
 # Import the example classes
-from mylab.simulators.example_av_simulator import ExampleAVSimulator
-from mylab.rewards.example_av_reward import ExampleAVReward
+from mylab.rewards.heuristic_reward import HeuristicReward
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
+from mylab.rewards.pedestrian_noise_gaussian import PedestrianNoiseGaussian
+
+# Import RSS stuff
+from mylab.simulators.av_rss_simulator import AVRSSSimulator
+import mylab.simulators.rss_metrics as rss
 
 # Import the AST classes
 from mylab.envs.ast_env import ASTEnv
@@ -77,23 +81,40 @@ logger.set_log_tabular_only(args.log_tabular_only)
 logger.push_prefix("[%s] " % args.exp_name)
 
 # Instantiate the example classes
-sim = ExampleAVSimulator()
-reward_function = ExampleAVReward(cov_x=.1,
-                 cov_y=.01,
-                 cov_sensor_noise=0.001)
-spaces = ExampleAVSpaces(x_accel_low=-2.0,
-        y_accel_low=-2,
-        x_accel_high=2,
-        y_accel_high=2,
-		noise_low=-1,
-		noise_high=1)
+# Define the longitudinal and lateral params for rss
+g = 9.8 # acceleration due to gravity
+
+# this is y
+lat_params = rss.LateralParams( 0, #ρ
+                            0.1*g, # a_lat_max_acc
+                            0.05*g, # a_lat_min_brake
+                            1.4 # Buffer distance
+                            )
+
+# this is x
+long_params = rss.LongitudinalParams(   0, #ρ
+                                    0.7*g, #a_max_brake
+                                    0.1*g, # a_max_acc
+                                    0.7*g, # a_min_brake1
+                                    0.7*g, # a_min_brake2
+                                    2.5, # Buffer
+                                    )
+
+
+sim = AVRSSSimulator(lat_params, long_params)
+reward_function = HeuristicReward(PedestrianNoiseGaussian(1, .1, .1, .001), np.array([-10000, -100, 000]))
+spaces = ExampleAVSpaces(x_accel_low=-1,
+        y_accel_low=-1,
+        x_accel_high=1,
+        y_accel_high=1,
+		noise_low=-0,
+		noise_high=0)
 
 # Create the environment
 import time
 seed = int(time.time())
-# seed = 1551833895
 print("seed: ", seed)
-top_k = 10
+top_k = 50
 np.random.seed(seed)
 import mylab.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
@@ -111,7 +132,7 @@ xc = [-30.625, -39.375]
 # print(s_0)
 # s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
 # ped x, ped y, ped vy, vdes (car), x init position (car)
-s_0 = [-0.5, -2.0, 1.0, 11.17, -35.0]
+s_0 = [-0.5, -4.0, 1.0, 11.17, -35.0]
 env = ASTEnv(action_only=True,
                              fixed_init_state=True,
                              s_0=s_0,

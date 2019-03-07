@@ -19,12 +19,21 @@ class PedestrianNoiseGaussian(ActionModel):
         self.c_cov_sensor_noise = cov_sensor_noise
 
     def log_prob(self, action):
-        mean = np.zeros(6 * self.c_num_peds)
+        # Mean action is 0
+        mean = np.zeros((6 * self.c_num_peds, 1))
+        # Assemble the diagonal covariance matrix
         cov = np.zeros((self.c_num_peds, 6))
         cov[:, 0:6] = np.array([self.c_cov_x, self.c_cov_y,
                                 self.c_cov_sensor_noise, self.c_cov_sensor_noise,
                                 self.c_cov_sensor_noise, self.c_cov_sensor_noise])
         big_cov = np.diagflat(cov)
-        pdf = multivariate_normal.pdf(action, mean=mean, cov=big_cov)
-        logpdf = max(np.log(pdf), -100)
-        return logpdf
+
+        # subtract the mean from our actions
+        dif = np.copy(action)
+        dif[::2] -= mean[0, 0]
+        dif[1::2] -= mean[1, 0]
+
+        # calculate the Mahalanobis distance
+        dist = np.dot(np.dot(dif.T, np.linalg.inv(big_cov)), dif)
+
+        return -np.sqrt(dist)
