@@ -30,19 +30,13 @@ define the **Observation Space** and the **Action Space**
 1.2 About this tutorial
 ------------------------
 
-In this tutorial, we will create a simple ring road network, which in the
-absence of autonomous vehicles, experience a phenomena known as "stop-and-go
-waves". An autonomous vehicle in then included into the network and trained
-to attenuate these waves. The remainder of the tutorial is organized as follows:
+In this tutorial, we will test a basic autonomous vehicle's ability to safely navigate a crosswalk. We will find the most-likely pedestrian trajectory that leads to a collision. The remainder of the tutorial is organized as follows:
 
--  In Sections 2, 3, and 4, we create the primary classes needed to run
-   a ring road experiment.
--  In Section 5, we run an experiment in the absence of autonomous
-   vehicles, and witness the performance of the network.
--  In Section 6, we run the experiment with the inclusion of autonomous
-   vehicles, and discuss the changes that take place once the
-   reinforcement learning algorithm has converged.
-
+-  In Section 2, we will interface with a simulator.
+-  In Section 3, we will create a reward function.
+-  In Section 4, we will define the action and state spaces.
+-  In Section 5, we will create a runner file.
+-  In Section 6, we run the experiment.
 
 .. _creating-a-simulator:
 
