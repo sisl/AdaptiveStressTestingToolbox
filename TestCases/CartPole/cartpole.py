@@ -41,6 +41,8 @@ class CartPoleEnv(gym.Env, Serializable):
         self.state = None
 
         self.wind_force_mag = 0.8*self.force_mag #0.6
+
+        self.ast_action_seq = []
         # self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
@@ -167,7 +169,8 @@ class CartPoleEnv(gym.Env, Serializable):
 
     @property
     def ast_action_space(self):
-        high = np.array([1.0 for i in range(self.nd)])
+        # high = np.array([1.0 for i in range(self.nd)])
+        high = np.array([self.wind_force_mag for i in range(self.nd)])
         return gym.spaces.Box(-high,high,dtype=np.float32)
 
     def ast_get_observation(self):
@@ -176,18 +179,24 @@ class CartPoleEnv(gym.Env, Serializable):
     def ast_reset(self, s_0):
         self.state = np.copy(s_0)
         self.steps_beyond_done = None
+        self.ast_action_seq = []
         # self.log_trajectory_pdf = 0.0
         # assert self.state == s_0
         return self.ast_get_observation(), self.get_observation()
 
     def ast_step(self, action, ast_action):
         if self.use_seed:
-            # np.random.seed(ast_action)
             gym.spaces.np_random.seed(ast_action)
             ast_action = self.ast_action_space.sample()
-        ast_action = np.clip(np.mean(ast_action),-1.0,1.0)
-        self.ast_action = ast_action
-        wind_force = ast_action*self.wind_force_mag
+        ast_action = np.mean(ast_action)
+        # ast_action = np.clip(ast_action,-1.0,1.0)
+        ast_action = np.clip(ast_action,-self.wind_force_mag,self.wind_force_mag)
+        # print(ast_action)
+        # wind_force = ast_action*self.wind_force_mag
+        wind_force = ast_action
+
+        self.ast_action = wind_force
+        self.ast_action_seq.append(wind_force)
 
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
@@ -246,7 +255,9 @@ class CartPoleEnv(gym.Env, Serializable):
                             np.min([np.abs(x-(-self.x_threshold)),np.abs(x-self.x_threshold)])/self.x_threshold,
                             np.min([np.abs(theta-(-self.theta_threshold_radians)),np.abs(theta-self.theta_threshold_radians)])/self.theta_threshold_radians
                             ])
-        prob = norm.pdf(self.ast_action)
+        # prob = norm.pdf(self.ast_action)
+        prob = norm.pdf(self.ast_action/self.wind_force_mag)
+        # prob = np.abs(self.ast_action/self.wind_force_mag)
         # prob = -np.abs(self.ast_action)+1.0
         # self.log_trajectory_pdf += np.log(prob)
         # print("log_t_pdf: ",self.log_trajectory_pdf)
@@ -254,5 +265,6 @@ class CartPoleEnv(gym.Env, Serializable):
             is_goal = is_goal,
             dist = dist,
             prob = prob,
+            # ast_action_seq = self.ast_action_seq,
             # log_trajectory_pdf = self.log_trajectory_pdf,
             )

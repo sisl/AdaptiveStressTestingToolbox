@@ -18,4 +18,4 @@ class MCTSBV(MCTS):
 
 	def init(self):
 		ast_params = AST_BV.ASTParams(self.max_path_length,self.ec,self.M,self.log_interval,self.log_tabular)
-		self.ast = AST_BV.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
+		self.ast = AST_BV.AdaptiveStressTestBV(p=ast_params, env=self.env, top_paths=self.top_paths)
