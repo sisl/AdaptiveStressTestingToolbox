@@ -926,11 +926,12 @@ This section explains how to run the program, and what the results should look l
 6.1 Running from the Command Line
 ---------------------------------
 
-Since everything has been configured already in the runner file, running the example is easy. Use the code below in the command line to execute the example program:
+Since everything has been configured already in the runner file, running the example is easy. Use the code below in the command line to execute the example program from the top-level directory:
 ::
+	cd <Path-To-AdaptiveStressTestingToolbox>/AdaptiveStressTestingToolbox
 	mkdir data
 	mkdir data/example_results
-	python runners/example_runner.py --log_dir <Path-To-DRL-AST>/DRL-AST/data/example_results
+	python TestCases/AV/example_runner.py --log_dir ./data/example_results
 
 Here we are creating a new directory for the logging results, and passing that to the example runner. The program should run for 101 iterations, unless you have changed it. This may take some time! Afterwards, the ``example_results`` directory should contain the following files:
 
