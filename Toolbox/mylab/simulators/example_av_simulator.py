@@ -90,7 +90,7 @@ class ExampleAVSimulator(ASTSimulator):
         while path_length < self.c_max_path_length:
             #get the action from the list
             self._action = actions[path_length]
-
+            # pdb.set_trace()
             # move the peds
             self.update_peds()
 

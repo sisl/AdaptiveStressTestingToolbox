@@ -53,8 +53,8 @@ class ExampleAVSpaces(ASTSpaces):
         """
         Returns a Space object
         """
-        low = np.array([self.c_x_accel_low, self.c_y_accel_low, -3.0, -3.0, -3.0, -3.0])
-        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 3.0, 3.0, 3.0, 3.0])
+        low = np.array([self.c_x_accel_low, self.c_y_accel_low, -6.0, -6.0, -6.0, -6.0])
+        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 6.0, 6.0, 6.0, 6.0])
 
         for i in range(1, self.c_num_peds):
             low = np.hstack((low, np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])))

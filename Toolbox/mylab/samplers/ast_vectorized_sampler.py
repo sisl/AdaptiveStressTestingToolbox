@@ -28,13 +28,14 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
         if self.open_loop:
             for path in paths:
                 s_0 = path["observations"][0]
-                actions = path["actions"]
+                actions = path['env_infos']['info']['actions']
+                # pdb.set_trace()
                 end_idx, info = self.sim.simulate(actions = actions, s_0 = s_0)
                 if end_idx >= 0:
                     # pdb.set_trace()
                     self.slice_dict(path, end_idx)
                 rewards = self.reward_function.give_reward(
-                    action = path["actions"][end_idx],
+                    action = actions[end_idx],
                     info = self.sim.get_reward_info()
                 )
                 # pdb.set_trace()

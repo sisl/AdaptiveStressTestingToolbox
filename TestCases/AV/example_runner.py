@@ -81,7 +81,7 @@ algo = TRPO(
     policy=policy,
     baseline=LinearFeatureBaseline(env_spec=env.spec),
     batch_size=50000,
-    step_size=0.1,
+    step_size=3.0,
     n_itr=101,
     store_paths=True,
     optimizer=optimizer,
@@ -91,27 +91,35 @@ algo = TRPO(
     sampler_args={"sim": sim,
                   "reward_function": reward_function})
 
-with tf.Session() as sess:
-    # Run the experiment
-    algo.train(sess=sess)
+saver = tf.train.Saver()
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+with tf.Session(config=config) as sess:
+    with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
+        # Run the experiment
+        algo.train(sess=sess)
+        save_path = saver.save(sess, log_dir + '/model.ckpt')
+        print("Model saved in path: %s" % save_path)
 
-    # Write out the episode results
-    header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-    for i in range(0,sim.c_num_peds):
-        header += 'v_x_ped_' + str(i) + ','
-        header += 'v_y_ped_' + str(i) + ','
-        header += 'x_ped_' + str(i) + ','
-        header += 'y_ped_' + str(i) + ','
+        # Write out the episode results
+        header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
+        for i in range(0,sim.c_num_peds):
+            header += 'v_x_ped_' + str(i) + ','
+            header += 'v_y_ped_' + str(i) + ','
+            header += 'x_ped_' + str(i) + ','
+            header += 'y_ped_' + str(i) + ','
 
-    for i in range(0,sim.c_num_peds):
-        header += 'a_x_'  + str(i) + ','
-        header += 'a_y_' + str(i) + ','
-        header += 'noise_v_x_' + str(i) + ','
-        header += 'noise_v_y_' + str(i) + ','
-        header += 'noise_x_' + str(i) + ','
-        header += 'noise_y_' + str(i) + ','
+        for i in range(0,sim.c_num_peds):
+            header += 'a_x_'  + str(i) + ','
+            header += 'a_y_' + str(i) + ','
+            header += 'noise_v_x_' + str(i) + ','
+            header += 'noise_v_y_' + str(i) + ','
+            header += 'noise_x_' + str(i) + ','
+            header += 'noise_y_' + str(i) + ','
 
-    header += 'reward'
-    example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+        header += 'reward'
+        if args.snapshot_mode != "gap":
+            args.snapshot_gap = args.iters - 1
+        example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
 
 

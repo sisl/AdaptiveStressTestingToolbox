@@ -96,24 +96,13 @@ class ASTEnv(gym.Env, Serializable):
             action=self._action,
             info=self.simulator.get_reward_info())
         # Update instance attributes
-        # self.log()
-        # if self._step == self.simulator.c_max_path_length - 1:
-        #     # pdb.set_trace()
-        #     self.simulator.simulate(self._actions)
         self._step = self._step + 1
-        if self._done:
-            info = self.simulator.get_reward_info()
-            # info = bundle['info']
-            peds = info["peds"]
-            car = info["car"]
-            dist = peds[:, 2:4] - car[2:4]
-            # print(peds[:, 0:4], car[0:4])
-            # print(np.min(np.linalg.norm(dist, axis=1)))
 
         return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
-                    info={'cache': self._info})
+                    info={'cache': self._info,
+                          'actions': self._action})
 
     def simulate(self, actions):
         if not self._fixed_init_state:
@@ -200,22 +189,3 @@ class ASTEnv(gym.Env, Serializable):
         return EnvSpec(
             observation_space=self.observation_space,
             action_space=self.action_space)
-
-    # @overrides
-    # def _to_garage_space(self, space):
-    #     """
-    #     Converts a gym.space to a garage.tf.space.
-
-    #     Returns:
-    #         space (garage.tf.spaces)
-    #     """
-    #     if isinstance(space, GymBox):
-    #         return Box(low=space.low, high=space.high)
-    #     elif isinstance(space, GymDict):
-    #         return Dict(space.spaces)
-    #     elif isinstance(space, GymDiscrete):
-    #         return Discrete(space.n)
-    #     elif isinstance(space, GymTuple):
-    #         return Tuple(list(map(self._to_garage_space, space.spaces)))
-    #     else:
-    #         return space
