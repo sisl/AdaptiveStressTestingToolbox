@@ -85,7 +85,7 @@ class ASTEnv(gym.Env, Serializable):
         self._action = action
         self._actions.append(action)
         # Update simulation step
-        obs = self.simulator.step(self._action)
+        obs = self.simulator.step(self._action, self.open_loop)
         if (obs is None) or (self.open_loop is True):
             obs = self._init_state
         # if self.simulator.is_goal():

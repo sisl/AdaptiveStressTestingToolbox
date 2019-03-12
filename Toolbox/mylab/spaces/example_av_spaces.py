@@ -19,7 +19,7 @@ class ExampleAVSpaces(ASTSpaces):
                  y_v_low=-10.0,
                  x_v_high=10.0,
                  y_v_high=10.0,
-                 car_init_x=35.0,
+                 car_init_x=-35.0,
                  car_init_y=0.0,
                  action_only = True,
                  ):
@@ -53,8 +53,8 @@ class ExampleAVSpaces(ASTSpaces):
         """
         Returns a Space object
         """
-        low = np.array([self.c_x_accel_low, self.c_y_accel_low, -6.0, -6.0, -6.0, -6.0])
-        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 6.0, 6.0, 6.0, 6.0])
+        low = np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])
+        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 1.0, 1.0, 1.0, 1.0])
 
         for i in range(1, self.c_num_peds):
             low = np.hstack((low, np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])))
