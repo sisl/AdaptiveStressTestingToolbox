@@ -162,7 +162,7 @@ class ExampleAVSimulator(ASTSimulator):
 
             # record step variables
             self.log()
-            pdb.set_trace()
+
         else:
             obs = None
 

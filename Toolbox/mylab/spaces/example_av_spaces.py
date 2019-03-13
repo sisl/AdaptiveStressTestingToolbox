@@ -7,10 +7,10 @@ class ExampleAVSpaces(ASTSpaces):
                  num_peds=1,
                  max_path_length = 50,
                  v_des=11.17,
-                 x_accel_low=-1.0,
-                 y_accel_low=-1.0,
-                 x_accel_high=1.0,
-                 y_accel_high=1.0,
+                 x_accel_low=-3.0,
+                 y_accel_low=-3.0,
+                 x_accel_high=3.0,
+                 y_accel_high=3.0,
                  x_boundary_low=-10.0,
                  y_boundary_low=-10.0,
                  x_boundary_high=10.0,
@@ -53,8 +53,8 @@ class ExampleAVSpaces(ASTSpaces):
         """
         Returns a Space object
         """
-        low = np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])
-        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 1.0, 1.0, 1.0, 1.0])
+        low = np.array([self.c_x_accel_low, self.c_y_accel_low, -6.0, -6.0, -6.0, -6.0])
+        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 6.0, 6.0, 6.0, 6.0])
 
         for i in range(1, self.c_num_peds):
             low = np.hstack((low, np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])))

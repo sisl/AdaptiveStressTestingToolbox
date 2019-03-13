@@ -102,12 +102,13 @@ s_0 = [ x[np.mod(args.run_num,2)],
 print(s_0)
 # s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
 env = ASTEnv(action_only=True,
-                             fixed_init_state=True,
-                             s_0=s_0,
-                             simulator=sim,
-                             reward_function=reward_function,
-                             spaces=spaces
-                             )
+             open_loop=False,
+             fixed_init_state=True,
+             s_0=s_0,
+             simulator=sim,
+             reward_function=reward_function,
+             spaces=spaces
+             )
 algo = MCTS(
 	    env=env,
 		stress_test_num=2,
@@ -146,14 +147,4 @@ algo.train()
 #
 # print(np.mean(n, axis=0))
 
-sim = ExampleSimulator(simulatorSettings)
-reward_function = ExampleReward(rewardSettings)
-spaces = ExampleSpaces(limits)
-env = ASTEnv(simulator=sim,
-			 reward_function=reward_function,
-			 spaces=spaces
-			 )
-algo = RLAlgorithm(policy=Policy,
-				   optimizer=Serializable
-	    )
 
