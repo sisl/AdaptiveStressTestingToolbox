@@ -113,13 +113,13 @@ xc = [-30.625, -39.375]
 # ped x, ped y, ped vy, vdes (car), x init position (car)
 s_0 = [-0.5, -2.0, 1.0, 11.17, -35.0]
 env = ASTEnv(action_only=True,
-                             fixed_init_state=True,
-                             s_0=s_0,
-                             simulator=sim,
-                             reward_function=reward_function,
-                             spaces=spaces
-                             )
-# n_itr=int(args.iters*args.batch_size/100**2),
+             open_loop=False,
+             fixed_init_state=True,
+             s_0=s_0,
+             simulator=sim,
+             reward_function=reward_function,
+             spaces=spaces
+             )
 algo = MCTS(
 	    env=env,
 		stress_test_num=2,
@@ -209,6 +209,7 @@ np.savetxt(fname=filename,
 #
 # print(np.mean(n, axis=0))
 
+<<<<<<< HEAD
 # sim = ExampleSimulator(simulatorSettings)
 # reward_function = ExampleReward(rewardSettings)
 # spaces = ExampleSpaces(limits)
@@ -219,4 +220,6 @@ np.savetxt(fname=filename,
 # algo = RLAlgorithm(policy=Policy,
 # 				   optimizer=Serializable
 # 	    )
+=======
+>>>>>>> master
 
