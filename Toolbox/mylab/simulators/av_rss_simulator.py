@@ -3,7 +3,7 @@ from mylab.simulators.example_av_simulator import ExampleAVSimulator
 #Used for math and debugging
 import numpy as np
 import pdb
-import rss_metrics as rss
+import mylab.simulators.rss_metrics as rss
 
 #Define the class
 class AVRSSSimulator(ExampleAVSimulator):
@@ -41,13 +41,14 @@ class AVRSSSimulator(ExampleAVSimulator):
 
     def is_goal(self):
         super_is_goal = super().is_goal()
-        return super_is_goal and self._fraction_proper_response() < 1
+        return super_is_goal
+        # return super_is_goal and self._fraction_proper_response() < 0.9
 
     def get_reward_info(self):
-        # dist = self._peds[:, 2:4] - self._car[2:4]
-        # terminal_heuristic = np.min(np.linalg.norm(dist, axis=1))
-        terminal_heuristic = self._fraction_proper_response()
-        return {"terminal_heuristic": terminal_heuristic,
+        dist = self._peds[:, 2:4] - self._car[2:4]
+        th_d = np.min(np.linalg.norm(dist, axis=1))
+        th_blame = self._fraction_proper_response()
+        return {"terminal_heuristic": np.array([th_d, th_blame]),
                 "is_goal": self.is_goal(),
                 "is_terminal": self._is_terminal}
 
@@ -67,6 +68,12 @@ class AVRSSSimulator(ExampleAVSimulator):
                                           ped_a[1], ped_a[0]))
 
         super().log()
+
+    def move_car(self, car, accel):
+        car[2:4] += self.c_dt * car[0:2]
+        car[0:2] += self.c_dt * accel
+        car[0] = max(0, car[0])
+        return car
 
     def _fraction_proper_response(self):
         # If we dont have enough data points then assume the response is proper

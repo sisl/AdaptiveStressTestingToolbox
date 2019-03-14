@@ -33,7 +33,7 @@ class ASTSimulator(object):
         """
         raise NotImplementedError
 
-    def step(self, action):
+    def step(self, action, open_loop):
         """
         Handle anything that needs to take place at each step, such as a simulation update or write to file
         Input

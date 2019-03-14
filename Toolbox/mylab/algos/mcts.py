@@ -85,3 +85,5 @@ class MCTS:
 			print("actual reward: ",reward)	
 		if self.plot_tree:
 			tree_plot.plot_tree(tree,d=self.max_path_length,path=self.plot_path,format=self.plot_format)
+
+		return result

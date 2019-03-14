@@ -23,7 +23,7 @@ class ExampleAVSimulator(ASTSimulator):
                  d_max = 9.0,
                  min_dist_x = 2.5,
                  min_dist_y = 1.4,
-                 car_init_x = 35.0,
+                 car_init_x = -35.0,
                  car_init_y = 0.0,
                  action_only = True,
                  **kwargs):
@@ -90,7 +90,7 @@ class ExampleAVSimulator(ASTSimulator):
         while path_length < self.c_max_path_length:
             #get the action from the list
             self._action = actions[path_length]
-
+            # pdb.set_trace()
             # move the peds
             self.update_peds()
 
@@ -122,7 +122,7 @@ class ExampleAVSimulator(ASTSimulator):
         self._is_terminal = True
         return -1, np.array(self._info)
 
-    def step(self, action):
+    def step(self, action, open_loop):
         """
         Handle anything that needs to take place at each step, such as a simulation update or write to file
         Input
@@ -135,30 +135,36 @@ class ExampleAVSimulator(ASTSimulator):
                         terminal_index should be returned as -1.
 
         """
+        # return None
+
+        if not open_loop:
         # get the action from the list
-        self._action = action
+            self._action = action
 
-        # move the peds
-        self.update_peds()
+            # move the peds
+            self.update_peds()
 
-        # move the car
-        self._car = self.move_car(self._car, self._car_accel)
+            # move the car
+            self._car = self.move_car(self._car, self._car_accel)
 
-        # take new measurements and noise them
-        noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
-        self._measurements = self.sensors(self._car, self._peds, noise)
+            # take new measurements and noise them
+            noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
+            self._measurements = self.sensors(self._car, self._peds, noise)
 
-        # filter out the noise with an alpha-beta tracker
-        self._car_obs = self.tracker(self._car_obs, self._measurements)
+            # filter out the noise with an alpha-beta tracker
+            self._car_obs = self.tracker(self._car_obs, self._measurements)
 
-        # select the SUT action for the next timestep
-        self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
+            # select the SUT action for the next timestep
+            self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
 
-        # grab simulation state, if interactive
-        obs = self.observe()
+            # grab simulation state, if interactive
+            obs = self.observe()
 
-        # record step variables
-        self.log()
+            # record step variables
+            self.log()
+
+        else:
+            obs = None
 
         self._path_length += 1
         if self._path_length >= self.c_max_path_length:
