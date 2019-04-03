@@ -28,6 +28,7 @@ install:
   - rm mjkey.txt
   - source ~/miniconda2/bin/activate garage
   - pip install glfw
+  - pip install gym
 
   # Run AST setup
   - cd ../../
