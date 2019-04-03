@@ -27,8 +27,7 @@ install:
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
   - rm mjkey.txt
   - source ~/miniconda2/bin/activate garage
-  - pip install glfw
-  - pip install gym
+  - pip install glfw gym dateutil 
 
   # Run AST setup
   - cd ../../
