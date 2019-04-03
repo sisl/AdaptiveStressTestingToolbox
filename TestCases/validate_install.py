@@ -70,7 +70,7 @@ env = TfEnv(normalize(ASTEnv(action_only=True,
 # Instantiate the garage objects
 policy = GaussianLSTMPolicy(name='lstm_policy',
                             env_spec=env.spec,
-                            hidden_dim=256,
+                            hidden_dim=64,
                             use_peepholes=True)
 baseline = LinearFeatureBaseline(env_spec=env.spec)
 optimizer = ConjugateGradientOptimizer
