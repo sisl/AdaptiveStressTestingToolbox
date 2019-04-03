@@ -19,6 +19,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
+  - pip install glfw
 
   # Install garage and dependencies
   - cd Toolbox/garage
