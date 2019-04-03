@@ -57,17 +57,12 @@ class ExampleAVSpaces(ASTSpaces):
         """
         Returns a Space object
         """
-<<<<<<< HEAD
         low = np.array([self.c_x_accel_low, self.c_y_accel_low, self.c_noise_low, self.c_noise_low, self.c_noise_low, self.c_noise_low])
         high = np.array([self.c_x_accel_high, self.c_y_accel_high, self.c_noise_high, self.c_noise_high, self.c_noise_high, self.c_noise_high])
-=======
-        low = np.array([self.c_x_accel_low, self.c_y_accel_low, -6.0, -6.0, -6.0, -6.0])
-        high = np.array([self.c_x_accel_high, self.c_y_accel_high, 6.0, 6.0, 6.0, 6.0])
->>>>>>> master
 
         for i in range(1, self.c_num_peds):
-            low = np.hstack((low, np.array([self.c_x_accel_low, self.c_y_accel_low, 0.0, 0.0, 0.0, 0.0])))
-            high = np.hstack((high, np.array([self.c_x_accel_high, self.c_y_accel_high, 1.0, 1.0, 1.0, 1.0])))
+            low = np.hstack((low, np.array([self.c_x_accel_low, self.c_y_accel_low, self.c_noise_low, self.c_noise_low, self.c_noise_low, self.c_noise_low])))
+            high = np.hstack((high, np.array([self.c_x_accel_high, self.c_y_accel_high, self.c_noise_high, self.c_noise_high, self.c_noise_high, self.c_noise_high])))
 
         return Box(low=low, high=high, dtype=np.float32)
 
