@@ -19,7 +19,6 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - pip install glfw
 
   # Install garage and dependencies
   - cd Toolbox/garage
@@ -28,6 +27,7 @@ install:
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
   - rm mjkey.txt
   - source ~/miniconda2/bin/activate garage
+  - pip install glfw
 
   # Run AST setup
   - cd ../../
