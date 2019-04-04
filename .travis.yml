@@ -21,13 +21,13 @@ install:
   - conda info -a
 
   # Install garage and dependencies
+  - cp environment.yml Toolbox/garage/
   - cd Toolbox/garage
   - touch mjkey.txt
   - echo "hello" > mjkey.txt
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
   - rm mjkey.txt
   - source ~/miniconda2/bin/activate garage
-  - pip install glfw gym python-dateutil joblib
 
   # Run AST setup
   - cd ../../
