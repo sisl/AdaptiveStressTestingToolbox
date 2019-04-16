@@ -3,3 +3,4 @@ Data
 *DS_Store
 *.pyc
 *.dat
+*MUJOCO_LOG.TXT
