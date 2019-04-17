@@ -110,6 +110,11 @@ class PSMCTS(BatchPolopt):
 			self.simulate(s0)
 			self.step_size = self.step_size*self.step_size_anneal
 
+			logger.log("Saving snapshot...")
+			params = self.get_itr_snapshot(i)
+			logger.save_itr_params(i, params)
+			logger.log("Saved")
+
 		self.shutdown_worker()
 		if created_session:
 			sess.close()
@@ -209,6 +214,15 @@ class PSMCTS(BatchPolopt):
 			logger.record_tabular('BestMean', self.best_mean)
 			logger.record_tabular('BestVar', self.best_var)
 			logger.dump_tabular(with_prefix=False)
+
+	@overrides
+	def get_itr_snapshot(self, itr):
+		self.set_params(self.best_s_mean)
+		return dict(
+			itr=itr,
+			policy=self.policy,
+			env=self.env,
+		)
 
 
 class MCTSState:

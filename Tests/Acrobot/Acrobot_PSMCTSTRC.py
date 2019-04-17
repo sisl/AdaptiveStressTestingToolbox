@@ -32,7 +32,7 @@ parser.add_argument('--exp_name', type=str, default='cartpole_exp')
 parser.add_argument('--tabular_log_file', type=str, default='progress.csv')
 parser.add_argument('--text_log_file', type=str, default='tex.txt')
 parser.add_argument('--params_log_file', type=str, default='args.txt')
-parser.add_argument('--snapshot_mode', type=str, default="gap")
+parser.add_argument('--snapshot_mode', type=str, default="last")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
 parser.add_argument('--log_dir', type=str, default='./Data/AST/PSMCTSTRC/Test')
@@ -69,7 +69,7 @@ tf.set_random_seed(seed)
 with tf.Session() as sess:
 	# Create env
 	env = TfEnv(AcrobotEnv(max_path_length = max_path_length,
-							success_threshhold = 1.9999,
+							success_threshhold = -1.0,
 							torque_noise_max = 0.0,))
 
 	# Create policy
