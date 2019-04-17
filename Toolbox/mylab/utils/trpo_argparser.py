@@ -5,7 +5,7 @@ def get_trpo_parser(log_dir='./'):
 	parser.add_argument('--exp_name', type=str, default="cartpole")
 	parser.add_argument('--n_trial', type=int, default=3)
 	parser.add_argument('--trial_start', type=int, default=0)
-	parser.add_argument('--n_itr', type=int, default=5000)
+	parser.add_argument('--n_itr', type=int, default=5001)
 	parser.add_argument('--batch_size', type=int, default=5000)
 	parser.add_argument('--step_size', type=float, default=0.1)
 	parser.add_argument('--snapshot_mode', type=str, default="gap")
