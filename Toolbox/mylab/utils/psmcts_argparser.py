@@ -4,7 +4,7 @@ import numpy as np
 def get_psmcts_parser(log_dir='./'):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--exp_name', type=str, default="cartpole")
-	parser.add_argument('--n_trial', type=int, default=5)
+	parser.add_argument('--n_trial', type=int, default=3)
 	parser.add_argument('--n_itr', type=int, default=50000)
 	parser.add_argument('--trial_start', type=int, default=0)
 	parser.add_argument('--batch_size', type=int, default=500)
