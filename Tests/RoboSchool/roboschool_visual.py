@@ -8,7 +8,7 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--exp_name', type=str, default='RoboschoolAnt-v1')
+parser.add_argument('--exp_name', type=str, default='Ant-v1')
 args = parser.parse_args()
 
 env = TfEnv(normalize(SeedEnv(gym.make('Roboschool'+args.exp_name),random_reset=False,reset_seed=0)))
