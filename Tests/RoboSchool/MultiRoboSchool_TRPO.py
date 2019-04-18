@@ -28,8 +28,8 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Logger Params
 from mylab.utils.trpo_argparser import get_trpo_parser
-args = get_trpo_parser(log_dir='./Data/TRPO')
-args.log_dir = args.log_dir+'/'+args.exp_name
+args = get_trpo_parser(log_dir='TRPO')
+args.log_dir = './Data/'+args.exp_name+'/'+args.log_dir
 
 top_k = 10
 max_path_length = 500

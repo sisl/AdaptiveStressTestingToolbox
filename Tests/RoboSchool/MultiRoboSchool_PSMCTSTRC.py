@@ -31,8 +31,8 @@ import mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
 from mylab.utils.psmcts_argparser import get_psmcts_parser
-args = get_psmcts_parser(log_dir='./Data/PSMCTSTRC')
-args.log_dir = args.log_dir+'/'+args.exp_name
+args = get_psmcts_parser(log_dir='PSMCTSTRC')
+args.log_dir = './Data/'+args.exp_name+'/'+args.log_dir
 
 top_k = 10
 max_path_length = 500

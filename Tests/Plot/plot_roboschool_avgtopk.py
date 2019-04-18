@@ -5,7 +5,7 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 2
+n_trial = 1
 top_k = 1
 batch_size = 4000
 max_step = np.inf
@@ -13,16 +13,17 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'Roboschool'
-exp_param = 'Pong-v1'
+exp_param = 'Pong-v1'#'Hopper-v1'#
 extra_name = ''#'hyper'
-prepath = "../"+exp_name+"/Data/Lexington/"
+prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 
 policies = [
         "TRPOStep0.1",\
         "GATRDP500T20K3Step1.0Fmean",\
-        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax",\
-        "PSMCTSTRCK0.5A0.5Ec5.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec5.0Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax","PSMCTSTRCK0.5A0.5Ec0.5Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.3A0.3Ec0.5Step1.0FmeanQmax","PSMCTSTRCK0.8A0.8Ec0.5Step1.0FmeanQmax",\
         ]
 plot_name = exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
@@ -36,7 +37,7 @@ for (policy_index,policy) in enumerate(policies):
     Rewards = []
     min_array_length = np.inf
     for trial in range(n_trial):
-        file_path = prepath+'/'+policy+'/'+exp_param+'/'+str(trial)+'/process.csv'
+        file_path = prepath+'/'+policy+'/'+str(trial)+'/process.csv'
         if os.path.exists(file_path):
             print(trial)
             steps = []
