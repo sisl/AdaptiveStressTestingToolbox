@@ -40,7 +40,22 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env = TfEnv(normalize(SeedEnv(gym.make('Roboschool'+args.exp_name),random_reset=False,reset_seed=0)))
+from RoboSchool.walkers import *
+if args.exp_name == 'Reacher':
+	from RoboSchool.reacher import RoboschoolReacher
+	env = TfEnv(normalize(SeedEnv(RoboschoolReacher(),random_reset=False,reset_seed=0)))
+elif args.exp_name == 'Hopper':
+	env = TfEnv(normalize(SeedEnv(RoboschoolHopper(),random_reset=False,reset_seed=0)))
+elif args.exp_name == 'Walker2d':
+	env = TfEnv(normalize(SeedEnv(RoboschoolWalker2d(),random_reset=False,reset_seed=0)))
+elif args.exp_name == 'HalfCheetah':
+	env = TfEnv(normalize(SeedEnv(RoboschoolHalfCheetah(),random_reset=False,reset_seed=0)))
+elif args.exp_name == 'Ant':
+	env = TfEnv(normalize(SeedEnv(RoboschoolAnt(),random_reset=False,reset_seed=0)))
+elif args.exp_name == 'Humanoid':
+	env = TfEnv(normalize(SeedEnv(RoboschoolHumanoid(),random_reset=False,reset_seed=0)))
+else:
+	env = TfEnv(normalize(SeedEnv(gym.make('Roboschool'+args.exp_name),random_reset=False,reset_seed=0)))
 
 # Create policy
 policy = GaussianMLPPolicy(

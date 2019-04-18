@@ -7,21 +7,27 @@ import numpy as np
 import time
 import argparse
 import joblib
+import tensorflow as tf
 
-data = joblib.load('Data/TRPOStep0.1/Pong-v1/0')
-env.reset()
-max_path_length = 100
-path_length = 0
-done = False
-c_r = 0.0
-while (path_length < max_path_length) and (not done):
-	path_length += 1
-	o, r, done, _ = env.step(np.ones_like(env.action_space.sample()))
-	c_r += r
-	env.render()
-	print("step: ",path_length)
-	print("o: ",o)
-	print('r: ',r)
-	print(done)
-	time.sleep(0.1)
-print('c_r: ',c_r)
+with tf.Session() as sess:
+	data_path = '/scratch/MCTSPO/Tests/RoboSchool/Data/Lexington/Reacher-v1/PSMCTSTRCK0.5A0.5Ec5.0Step1.0FmeanQmax/Reacher-v1/0/itr_50000.pkl'
+	data = joblib.load(data_path)
+	env = data['env']
+	o = env.reset()
+	policy = data['policy']
+	max_path_length = 500
+	path_length = 0
+	done = False
+	c_r = 0.0
+	while (path_length < max_path_length) and (not done):
+		path_length += 1
+		a, _ = policy.get_action(o)
+		o, r, done, _ = env.step(a)
+		c_r += r
+		env.render()
+		print("step: ",path_length)
+		print("o: ",o)
+		print('r: ',r)
+		print(done)
+		time.sleep(0.1)
+	print('c_r: ',c_r)
