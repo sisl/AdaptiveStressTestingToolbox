@@ -13,7 +13,7 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'RoboSchool'
-exp_param = 'Ant3'#'Hopper3'#'HalfCheetah'#'Walker2d'#'Hopper'#'Ant'#'Reacher'
+exp_param = 'HalfCheetah'#'Hopper3'#'Walker2d'#'Reacher'#'Ant3'#'Hopper'#'Ant'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
@@ -39,6 +39,7 @@ for (policy_index,policy) in enumerate(policies):
     print(policy)
     Rewards = []
     min_array_length = np.inf
+    average_final_return = 0.0
     for trial in range(n_trial):
         file_path = prepath+'/'+policy+'/'+str(trial)+'/process.csv'
         # print(file_path)
@@ -74,15 +75,14 @@ for (policy_index,policy) in enumerate(policies):
             if len(rewards) < min_array_length:
                 min_array_length = len(rewards) 
             Rewards.append(rewards)
-            # print(len(rewards))
-            # print(steps[-1])
-            # print(min_array_length)
+            print('trial final reward: ',rewards[-1]/500.0)
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
     plot, = plt.plot(steps,np.mean(Rewards,0))
     # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
     legends.append(policy)
+    print('average final reward: ',np.mean(Rewards,0)[-1]/500.0)
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')

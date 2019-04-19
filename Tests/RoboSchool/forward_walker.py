@@ -128,7 +128,7 @@ class RoboschoolForwardWalker(SharedMemoryClientEnv):
             joints_at_limit_cost, #~1.0?
             feet_collision_cost #~1.0?
             ]
-
+            
         self.frame  += 1
         if (done and not self.done): #or self.frame==self.spec.timestep_limit:
             self.episode_over(self.frame)

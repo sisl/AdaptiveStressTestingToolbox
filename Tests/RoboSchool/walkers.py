@@ -17,7 +17,7 @@ class RoboschoolHopper(RoboschoolForwardWalkerMujocoXML):
     The task is to make the hopper hop as fast as possible.
     '''
     foot_list = ["foot"]
-    def __init__(self, target_x=2.0):
+    def __init__(self, target_x=3.0):
         RoboschoolForwardWalkerMujocoXML.__init__(self,
          "hopper.xml", "torso", action_dim=3, obs_dim=15, power=0.75, target_x=target_x)
     def alive_bonus(self, z, pitch):
@@ -29,7 +29,7 @@ class RoboschoolWalker2d(RoboschoolForwardWalkerMujocoXML):
     The task is to make robot run as fast as possible
     '''
     foot_list = ["foot", "foot_left"]
-    def __init__(self, target_x=2.0):
+    def __init__(self, target_x=3.0):
         RoboschoolForwardWalkerMujocoXML.__init__(self,
          "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40, target_x=target_x)
     def alive_bonus(self, z, pitch):
@@ -46,7 +46,7 @@ class RoboschoolHalfCheetah(RoboschoolForwardWalkerMujocoXML):
     the task is to make the robot run as fast as possible
     '''
     foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
-    def __init__(self, target_x=2.0):
+    def __init__(self, target_x=3.0):
         RoboschoolForwardWalkerMujocoXML.__init__(self,
          "half_cheetah.xml", "torso", action_dim=6, obs_dim=26, power=0.90, target_x=target_x)
     def alive_bonus(self, z, pitch):
@@ -67,7 +67,7 @@ class RoboschoolAnt(RoboschoolForwardWalkerMujocoXML):
     The task is to make the creature walk as fast as possible
     '''
     foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
-    def __init__(self, target_x=2.0):
+    def __init__(self, target_x=3.0):
         RoboschoolForwardWalkerMujocoXML.__init__(self,
          "ant.xml", "torso", action_dim=8, obs_dim=28, power=2.5, target_x=target_x)
     def alive_bonus(self, z, pitch):
@@ -84,7 +84,7 @@ class RoboschoolHumanoid(RoboschoolForwardWalkerMujocoXML):
     foot_list = ["right_foot", "left_foot"]
     TASK_WALK, TASK_STAND_UP, TASK_ROLL_OVER, TASKS = range(4)
 
-    def __init__(self, target_x=2.0, model_xml='humanoid_symmetric.xml'):
+    def __init__(self, target_x=3.0, model_xml='humanoid_symmetric.xml'):
         RoboschoolForwardWalkerMujocoXML.__init__(self,
          model_xml, 'torso', action_dim=17, obs_dim=44, power=0.41, target_x=target_x)
         # 17 joints, 4 of them important for walking (hip, knee), others may as well be turned off, 17/4 = 4.25
