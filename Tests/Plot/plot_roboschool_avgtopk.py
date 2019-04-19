@@ -7,13 +7,13 @@ import numpy as np
 
 n_trial = 1
 top_k = 1
-batch_size = 4000
+batch_size = 5000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'RoboSchool'
-exp_param = 'HumanoidFlagrun-v1'#'Humanoid-v1'#'Reacher-v1'#'Hopper-v1'#'Pong-v1'#
+exp_param = 'Ant3'#'Hopper3'#'HalfCheetah'#'Walker2d'#'Hopper'#'Ant'#'Reacher'
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
@@ -23,7 +23,7 @@ policies = [
         "GATRDP500T20K3Step1.0Fmean",\
         "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax",\
         "PSMCTSTRCK0.5A0.5Ec5.0Step1.0FmeanQmax",\
-        # "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
         "PSMCTSTRCK0.5A0.5Ec0.5Step1.0FmeanQmax",\
         # "PSMCTSTRCK0.3A0.3Ec0.5Step1.0FmeanQmax",\
         # "PSMCTSTRCK0.8A0.8Ec0.5Step1.0FmeanQmax",\
