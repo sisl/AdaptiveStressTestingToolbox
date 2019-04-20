@@ -8,12 +8,13 @@ import numpy as np
 n_trial = 1
 top_k = 1
 batch_size = 5000
-max_step = np.inf
+# max_step = np.inf
+max_step = 1.5e7
 max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'RoboSchool'
-exp_param = 'HalfCheetah'#'Hopper3'#'Walker2d'#'Reacher'#'Ant3'#'Hopper'#'Ant'#
+exp_param = 'Hopper3'#'Ant3'#'Ant'#'Walker2d'#'HalfCheetah'#'Reacher'#'Hopper'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
@@ -75,14 +76,14 @@ for (policy_index,policy) in enumerate(policies):
             if len(rewards) < min_array_length:
                 min_array_length = len(rewards) 
             Rewards.append(rewards)
-            print('trial final reward: ',rewards[-1]/500.0)
+            print('trial final reward: ',rewards[-1])
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
     plot, = plt.plot(steps,np.mean(Rewards,0))
     # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
     legends.append(policy)
-    print('average final reward: ',np.mean(Rewards,0)[-1]/500.0)
+    print('average final reward: ',np.mean(Rewards,0)[-1])
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
