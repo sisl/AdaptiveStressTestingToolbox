@@ -4,7 +4,7 @@ import numpy as np
 def get_psmcts_parser(log_dir='./'):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--exp_name', type=str, default="cartpole")
-	parser.add_argument('--n_trial', type=int, default=3)
+	parser.add_argument('--n_trial', type=int, default=10)
 	parser.add_argument('--n_itr', type=int, default=50001)
 	parser.add_argument('--trial_start', type=int, default=0)
 	parser.add_argument('--batch_size', type=int, default=500)
@@ -15,7 +15,7 @@ def get_psmcts_parser(log_dir='./'):
 	parser.add_argument('--step_size_anneal', type=float, default=1.0)
 	parser.add_argument('--args_data', type=str, default=None)
 	parser.add_argument('--f_F',type=str, default="mean")
-	parser.add_argument('--ec',type=float, default=1.414)
+	parser.add_argument('--ec',type=float, default=10.0)#1.414)
 	parser.add_argument('--k',type=float, default=0.5)
 	parser.add_argument('--alpha',type=float, default=0.5)
 	parser.add_argument('--n_ca',type=int, default=4)
