@@ -5,16 +5,15 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 2
+n_trial = 3
 top_k = 1
 batch_size = 5000
-# max_step = np.inf
-max_step = 1.5e7
+max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'RoboSchool'
-exp_param = 'Ant'#'Walker2d'#'Hopper'#'HalfCheetah'#'Reacher'#
+exp_param = 'HalfCheetah'#'Hopper'#'Walker2d'#'Ant'#'Reacher'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
