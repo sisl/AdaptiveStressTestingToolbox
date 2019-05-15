@@ -118,7 +118,7 @@ class RoboschoolForwardWalker(SharedMemoryClientEnv):
 
         progress = 0.0
         if self.walk_target_dist < 1.0:
-            progress = 500.0
+            progress = 5.0
             # print("seccess!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         self.rewards = [

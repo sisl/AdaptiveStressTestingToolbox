@@ -5,7 +5,7 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 3
+n_trial = 1
 top_k = 1
 batch_size = 5000
 max_step = np.inf
@@ -13,20 +13,19 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'RoboSchool'
-exp_param = 'HalfCheetah'#'Hopper'#'Walker2d'#'Ant'#'Reacher'#
+exp_param = 'Ant'#'Hopper'#'HalfCheetah'#'Walker2d'#'Reacher'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 
 policies = [
         "TRPOStep0.1",\
+        "GATRDP100T20K3Step1.0Fmean",\
         "GATRDP500T20K3Step1.0Fmean",\
-        "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax",\
-        "PSMCTSTRCK0.5A0.5Ec5.0Step1.0FmeanQmax",\
+        "GATRDP1000T20K3Step1.0Fmean",\
+        "PSMCTSTRCK0.3A0.3Ec10.0Step1.0FmeanQmax",\
         "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
-        "PSMCTSTRCK0.5A0.5Ec0.5Step1.0FmeanQmax",\
-        # "PSMCTSTRCK0.3A0.3Ec0.5Step1.0FmeanQmax",\
-        # "PSMCTSTRCK0.8A0.8Ec0.5Step1.0FmeanQmax",\
+        "PSMCTSTRCK0.8A0.8Ec10.0Step1.0FmeanQmax",\
         ]
 plot_name = exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
