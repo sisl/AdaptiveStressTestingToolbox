@@ -10,7 +10,7 @@ import joblib
 import tensorflow as tf
 
 with tf.Session() as sess:
-	data_path = './Data/Lexington/HalfCheetah/PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax/0/itr_40000.pkl'
+	data_path = './Data/Lexington/HalfCheetah/PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax/0/itr_50000.pkl'
 	data = joblib.load(data_path)
 	env = data['env']
 	o = env.reset()
