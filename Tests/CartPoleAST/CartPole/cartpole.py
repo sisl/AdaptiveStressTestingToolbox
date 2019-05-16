@@ -188,6 +188,7 @@ class CartPoleEnv(gym.Env, Serializable):
         # wind_force = np.clip(ast_action, -self.wind_force_mag, self.wind_force_mag)
         # wind_force = np.tanh(ast_action)*self.wind_force_mag
         wind_force = ast_action
+        # wind_force = np.clip(ast_action, -1.0, 1.0)*self.wind_force_mag
         self.ast_action = wind_force
 
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))

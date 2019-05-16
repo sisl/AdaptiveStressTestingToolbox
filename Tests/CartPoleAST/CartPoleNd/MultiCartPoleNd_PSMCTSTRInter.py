@@ -15,7 +15,7 @@ from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
 from mylab.utils.tree_plot import plot_tree, plot_node_num
 
-from CartPoleNd.cartpole_nd import CartPoleNdEnv
+from CartPoleAST.CartPoleNd.cartpole_nd import CartPoleNdEnv
 
 from mylab.algos.psmctstr import PSMCTSTR
 

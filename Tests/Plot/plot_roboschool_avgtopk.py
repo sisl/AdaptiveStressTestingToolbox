@@ -13,7 +13,7 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'RoboSchool'
-exp_param = 'Ant'#'Hopper'#'HalfCheetah'#'Walker2d'#'Reacher'#
+exp_param = 'HalfCheetah'#'Hopper'#'Ant'#'Walker2d'#'Reacher'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"

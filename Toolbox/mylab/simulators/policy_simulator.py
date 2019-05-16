@@ -212,3 +212,8 @@ class InnerVecEnvExecutor(object):
 
     def terminate(self):
         pass
+
+    def close(self):
+        for env in self.envs:
+            if hasattr(env, "close") and callable(getattr(env, "close")):
+                env.close()

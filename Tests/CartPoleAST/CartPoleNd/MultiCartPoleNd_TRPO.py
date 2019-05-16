@@ -2,22 +2,19 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
-from garage.baselines.zero_baseline import ZeroBaseline
-from mylab.envs.tfenv import TfEnv
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.misc import logger
 
+from mylab.envs.tfenv import TfEnv
 from mylab.rewards.ast_reward import ASTReward
 from mylab.envs.ast_env import ASTEnv
 from mylab.simulators.policy_simulator import PolicySimulator
-from mylab.utils.tree_plot import plot_tree, plot_node_num
+from CartPoleAST.CartPoleNd.cartpole_nd import CartPoleNdEnv
 
-from CartPoleNd.cartpole_nd import CartPoleNdEnv
-
-from mylab.algos.psmctstrc import PSMCTSTRC
+from mylab.algos.trpo import TRPO
 
 import os.path as osp
 import argparse
@@ -29,9 +26,10 @@ import numpy as np
 
 import mcts.BoundedPriorityQueues as BPQ
 import csv
-# Log Params
-from mylab.utils.psmcts_argparser import get_psmcts_parser
-args = get_psmcts_parser(log_dir='./Data/AST/PSMCTSTRCInter')
+# Logger Params
+from mylab.utils.trpo_argparser import get_trpo_parser
+args = get_trpo_parser(log_dir='TRPO')
+args.log_dir = './Data/'+args.log_dir
 
 top_k = 10
 max_path_length = 100
@@ -54,12 +52,12 @@ env = TfEnv(ASTEnv(interactive=interactive,
 							 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
 							 reward_function=reward_function,
 							 ))
-
 # Create policy
-policy = DeterministicMLPPolicy(
+policy = GaussianMLPPolicy(
 	name='ast_agent',
 	env_spec=env.spec,
-	hidden_sizes=(64, 32)
+    hidden_sizes=(128, 64, 32),
+    output_nonlinearity=None,#tf.nn.tanh,
 )
 
 with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
@@ -74,7 +72,7 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 		log_dir = args.log_dir+'/'+str(trial)
 
 		tabular_log_file = osp.join(log_dir, 'process.csv')
-		text_log_file = osp.join(log_dir, 'text.txt')
+		# text_log_file = osp.join(log_dir, 'text.txt')
 		params_log_file = osp.join(log_dir, 'args.txt')
 
 		logger.set_snapshot_dir(log_dir)
@@ -94,41 +92,28 @@ with open(osp.join(args.log_dir, 'total_result.csv'), mode='w') as csv_file:
 
 		params = policy.get_params()
 		sess.run(tf.variables_initializer(params))
+		baseline = LinearFeatureBaseline(env_spec=env.spec)
+		# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-		# Instantiate the RLLAB objects
-		baseline = ZeroBaseline(env_spec=env.spec)
 		top_paths = BPQ.BoundedPriorityQueue(top_k)
-		algo = PSMCTSTRC(
+		algo = TRPO(
 			env=env,
 			policy=policy,
 			baseline=baseline,
 			batch_size=args.batch_size,
 			step_size=args.step_size,
-			step_size_anneal=args.step_size_anneal,
-			seed=trial,
-			ec=args.ec,
-			k=args.k,
-			alpha=args.alpha,
-			n_ca =args.n_ca,
 			n_itr=args.n_itr,
-			store_paths=False,
+			store_paths=True,
+			# optimizer= optimizer,
 			max_path_length=max_path_length,
 			top_paths = top_paths,
-			f_F=args.f_F,
-			log_interval=args.log_interval,
 			plot=False,
-			initial_seed = trial,
-			f_Q=args.f_Q,
 			)
 
-
 		algo.train(sess=sess, init_var=False)
-		if args.plot_tree:
-			plot_tree(algo.s,d=max_path_length,path=log_dir+"/tree",format="png")
-		plot_node_num(algo.s,path=log_dir+"/nodeNum",format="png")
 
 		row_content = dict()
-		row_content['step_count'] = algo.stepNum
+		row_content['step_count'] = args.n_itr*args.batch_size
 		i = 0
 		for (r,action_seq) in algo.top_paths:
 			row_content['reward '+str(i)] = r

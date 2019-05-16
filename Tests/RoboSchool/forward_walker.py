@@ -121,9 +121,10 @@ class RoboschoolForwardWalker(SharedMemoryClientEnv):
             progress = 1000.0
             done = True
             # print("seccess!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        alive = np.minimum(alive,0.0)
 
         self.rewards = [
-            alive, #1.0 if alive, -1.0 if not
+            alive, #1.0 if alive, -1.0 if not, now clipped to 0.0 if alive
             progress,
             electricity_cost, #~1.0
             joints_at_limit_cost, #~1.0?
