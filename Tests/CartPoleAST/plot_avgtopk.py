@@ -5,45 +5,44 @@ matplotlib.rcParams.update({'font.size': 15})
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 10
+n_trial = 5
 top_k = 1
-batch_size = 5000
+batch_size = 1000
 max_step = np.inf
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'RoboSchool'
-exp_param = 'Ant'#'HalfCheetah'#'Hopper'#'Walker2d'#'Reacher'#
-extra_name = ''#'hyper'
-prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
-plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-
+exp_name = 'CartPoleNd'
+exp_param = '3d'
+extra_name = ''#'PSMCTSTRC'
+prepath = exp_name+"/Data/"+exp_param
+plot_path = prepath
 policies = [
+        "MCTS_RS",\
         "TRPOStep0.1",\
-        "GATRDP100T20K3Step1.0Fmean",\
-        "GATRDP500T20K3Step1.0Fmean",\
-        "GATRDP1000T20K3Step1.0Fmean",\
+        # "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
         "PSMCTSTRCK0.3A0.3Ec10.0Step1.0FmeanQmax",\
-        "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
-        "PSMCTSTRCK0.8A0.8Ec10.0Step1.0FmeanQmax",\
+        # "PSMCTSTRCK0.8A0.8Ec10.0Step1.0FmeanQmax",\
+        # "PSMCTSTRCK0.5A0.5Ec100.0Step1.0FmeanQmax",\
+        # "PSMCTSTRCK0.5A0.5Ec1.5Step1.0FmeanQmax",\
+        # "PSMCTSTRCK0.8A0.8Ec100.0Step1.0FmeanQmax",\
+        # "PSMCTSTRCK0.8A0.8Ec50.0Step1.0FmeanQmax",\
         ]
-plot_name = exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
+plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
 plts = []
-legends = []
+# legends = []
+legends = ['MCTS','TRPO','MCTSPO']
 fig = plt.figure(figsize=(10, 10))
 
 for (policy_index,policy) in enumerate(policies):
     print(policy)
     Rewards = []
     min_array_length = np.inf
-    average_final_return = 0.0
     for trial in range(n_trial):
         file_path = prepath+'/'+policy+'/'+str(trial)+'/process.csv'
         # print(file_path)
-        if not os.path.exists(file_path):
-            file_path = prepath+'/'+policy+'/'+exp_param+'/'+str(trial)+'/process.csv'
         if os.path.exists(file_path):
             print(trial)
             steps = []
@@ -74,17 +73,18 @@ for (policy_index,policy) in enumerate(policies):
             if len(rewards) < min_array_length:
                 min_array_length = len(rewards) 
             Rewards.append(rewards)
-            print('trial final reward: ',rewards[-1])
+            # print(len(rewards))
+            # print(steps[-1])
+            # print(min_array_length)
     steps = steps[:min_array_length]
     Rewards = [rewards[:min_array_length] for rewards in Rewards]
     plot, = plt.plot(steps,np.mean(Rewards,0))
     # plot,_,_ = plt.errorbar(steps,np.mean(Rewards,0),yerr=np.std(Rewards,0)/np.sqrt(n_trial),errorevery=10)
     plts.append(plot)
-    legends.append(policy)
-    print('average final reward: ',np.mean(Rewards,0)[-1])
+    # legends.append(policy)
 
 plt.legend(plts,legends)
 plt.xlabel('Step Number')
 plt.ylabel('Average Top '+str(top_k) +' Reward')        
-fig.savefig(plot_path+plot_name)
+fig.savefig(plot_path+'/'+plot_name)
 plt.close(fig)

@@ -42,7 +42,7 @@ sess = tf.Session()
 sess.__enter__()
 
 # Instantiate the env
-env_inner = CartPoleNdEnv(nd=10,use_seed=False)
+env_inner = CartPoleNdEnv(nd=3,use_seed=False)
 data = joblib.load("../CartPole/Data/Train/itr_50.pkl")
 policy_inner = data['policy']
 reward_function = ASTReward()
