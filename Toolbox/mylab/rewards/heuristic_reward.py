@@ -32,7 +32,7 @@ class HeuristicReward(ASTReward):
         elif (is_terminal):
             reward = np.dot(self.terminal_heuristic_coef, terminal_heuristics)  # We reached the horizon with no crash
         else:
-            reward = self.action_model.log_prob(action) # No crash or horizon yet
+            reward = self.action_model.log_prob(action, **kwargs) # No crash or horizon yet
 
         if np.isnan(reward):
             print("found nan")

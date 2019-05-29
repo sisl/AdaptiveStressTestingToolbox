@@ -18,7 +18,7 @@ class PedestrianNoiseGaussian(ActionModel):
         self.c_cov_y = cov_y
         self.c_cov_sensor_noise = cov_sensor_noise
 
-    def log_prob(self, action):
+    def log_prob(self, action, **kwargs):
         # Mean action is 0
         mean = np.zeros((6 * self.c_num_peds, 1))
         # Assemble the diagonal covariance matrix

@@ -8,7 +8,7 @@ class ActionModel(object):
     def __init__(self):
         pass
 
-    def log_prob(self, action):
+    def log_prob(self, action, **kwargs):
         """
         returns the log probability of an action
         Input
