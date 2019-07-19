@@ -6,55 +6,49 @@ matplotlib.rcParams.update({'font.size': 45, 'font.family':'Times New Roman',\
 from matplotlib import pyplot as plt
 import numpy as np
 
-n_trial = 20
+n_trial = 10#20
 top_k = 1
 batch_size = 1e3#4000
-max_step = 5e6#np.inf
+max_step = 2e7#5e6
 max_reward = np.inf
 min_reward = -np.inf
 
-exp_name = 'Acrobot'#'BipedalWalker'#'MountainCar'#'CartPole'#'LunarLander'#
-exp_param = 'L100Th1999new'#'L100TL30new'#'L100P0002new'#'L100Th1203It02'#'L100R1U0'#
+exp_name = "Roboschool"
+exp_param = "Ant"
 extra_name = ''#'hyper'
-prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
+prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
 # plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
 plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/"
 
 policy_groups = [
                 [
                 "TRPOStep0.1",\
-                "TRPOStep1.0"],\
+                "TRPOStep1.0",
+                ],\
                 [
                 "GATRDP100T20K3Step1.0Fmean",\
                 "GATRDP500T20K3Step1.0Fmean",\
-                "GATRDP1000T20K3Step1.0Fmean"
+                "GATRDP1000T20K3Step1.0Fmean",\
                 ],\
                 [
-                "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax",\
-                "PSMCTSTRCK0.3A0.3Ec1.414Step1.0FmeanQmax",\
-                "PSMCTSTRCK0.8A0.8Ec1.414Step1.0FmeanQmax"]\
+                "PSMCTSTRCK0.3A0.3Ec10.0Step1.0FmeanQmax",\
+                "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
+                "PSMCTSTRCK0.8A0.8Ec10.0Step1.0FmeanQmax",\
+                ]\
                 ]
 
 algos = ["TRPO","Deep GA","MCTSPO"]
 parameters = [["step size 0.1","step size 1.0"],\
                 ["population size 100","population size 500","population size 1000"],\
-                ['$k=\\alpha=0.5$','$k=\\alpha=0.3$','$k=\\alpha=0.8$'],
+                ['$k=\\alpha=0.3$','$k=\\alpha=0.5$','$k=\\alpha=0.8$'],
                 ]
 
-exp_name_f = 'Acrobot'
-            # 'Acrobot',
-            # 'BipedalWalker',
-            # 'MountainCar'
-            
-exp_param_f = '$y_\\mathrm{goal} = 1.9$'
-            # '$y_\\mathrm{goal} = 1.9999$',\
-            # '$y_\\mathrm{goal} = 1.999$',\
-            # '$y_\\mathrm{goal} = 1.99$',\
-            # '$y_\\mathrm{goal} = 1.9$',\
-            # '$x_\\mathrm{goal} = 25$',\
-            # '$x_\\mathrm{goal} = 30$',\
-            # '$p_\\mathrm{car} = 0.002$',\
-            # '$p_\\mathrm{car} = 0.0015$'
+exp_name_f = 'Roboschool'
+
+exp_param_f = 'Ant'
+            # 'Ant'
+            # 'HalfCheetah'
+            # 'Hopper'
             
 
 colors = ["blue","green","red"]
@@ -119,14 +113,12 @@ for (group_index,policies) in enumerate(policy_groups):
     plot, = plt.plot(steps,np.mean(Rewards,0),color=colors[group_index])
     plt.fill_between(steps,y+yerr,y-yerr,linewidth=0,facecolor=colors[group_index],alpha=0.3)
     plts.append(plot)
-    # legends.append(algos[group_index]+' '+parameters[group_index][best_policy_index])
     legends.append(algos[group_index])
 
 axes = plt.gca()
 # axes.set_xlim([xmin,xmax])
-axes.set_ylim([-0.15,1.0])
-# plt.title(exp_name_f+' '+exp_param_f)
-plt.title(exp_name_f)
+axes.set_ylim([-50,800])
+plt.title(exp_param_f)
 # plt.legend(plts,legends)
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.xlabel('Step Number')

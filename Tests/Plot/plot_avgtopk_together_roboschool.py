@@ -8,50 +8,40 @@ import numpy as np
 
 import csv
 
-n_trial = 20
+n_trial = 10
 top_k = 1
 batch_size = 1000
-max_step = 5e6#np.inf
+max_step = 2e7
 max_reward = np.inf
 min_reward = -np.inf
 
 exp_names = [
-            'Acrobot',\
-            'BipedalWalker',\
-            'MountainCar'
+            'Roboschool',\
             ]
 exp_params = [
-            # ['L100Th19999new','L100Th1999new','L100Th199new','L100Th19new'],\
-            # ['L100TL25new','L100TL30new'],\
-            # ['L100P0002new','L100P00015new',]
-            ['L100Th1999new'],\
-            ['L100TL30new'],\
-            ['L100P00015new',]
+            ['Ant','HalfCheetah','Hopper'],\
             ]
 exp_names_f = [
-            'Acrobot',\
-            'BipedalWalker',\
-            'MountainCar'
+            'Roboschool',\
             ]
-# exp_params_f = [
-#             ['$y_\\mathrm{goal} = 1.9999$','$y_\\mathrm{goal} = 1.999$','$y_\\mathrm{goal} = 1.99$','$y_\\mathrm{goal} = 1.9$'],\
-#             ['$x_\\mathrm{goal} = 25$','$x_\\mathrm{goal} = 30$'],\
-#             ['$p_\\mathrm{car} = 0.002$','$p_\\mathrm{car} = 0.0015$']
-#             ]
+exp_params_f = [
+            ['Ant','HalfCheetah','Hopper'],\
+            ]
 extra_name = ''#'hyper'
 policy_groups = [
                 [
                 "TRPOStep0.1",\
-                "TRPOStep1.0"],\
+                "TRPOStep1.0",\
+                ],\
                 [
                 "GATRDP100T20K3Step1.0Fmean",\
                 "GATRDP500T20K3Step1.0Fmean",\
                 "GATRDP1000T20K3Step1.0Fmean"
                 ],\
                 [
-                "PSMCTSTRCK0.3A0.3Ec1.414Step1.0FmeanQmax",\
-                "PSMCTSTRCK0.5A0.5Ec1.414Step1.0FmeanQmax",\
-                "PSMCTSTRCK0.8A0.8Ec1.414Step1.0FmeanQmax"]\
+                "PSMCTSTRCK0.3A0.3Ec10.0Step1.0FmeanQmax",\
+                "PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax",\
+                "PSMCTSTRCK0.8A0.8Ec10.0Step1.0FmeanQmax"]\
                 ]
 
 algos = ["TRPO","Deep GA","MCTSPO"]
@@ -61,8 +51,8 @@ parameters = [["step size 0.1","step size 1.0"],\
                 ]
 colors = ["blue","green","red"]
     # plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/ClassicControl/"
-csv_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/ClassicControl/stats.csv"
+plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/Roboschool/"
+csv_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/Roboschool/stats.csv"
 
 csv_file = open(csv_path, mode='w')
 field_names = ["Evironment"]
@@ -75,7 +65,7 @@ writer.writeheader()
 for (exp_index,exp_name) in enumerate(exp_names):
     for (param_index,exp_param)in enumerate(exp_params[exp_index]): 
 
-        prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
+        prepath = "../"+exp_name+"/Data/Lexington/"+exp_param
         plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
@@ -154,9 +144,9 @@ for (exp_index,exp_name) in enumerate(exp_names):
         axes = plt.gca()
         # axes.set_xscale('log')
         # axes.set_xlim([xmin,xmax])
-        axes.set_ylim([-0.15,1.0])
+        axes.set_ylim([-50,800])
         # plt.title(exp_names_f[exp_index]+' '+exp_params_f[exp_index][param_index])
-        plt.title(exp_names_f[exp_index])
+        plt.title(exp_params_f[exp_index][param_index])
         # plt.legend(plts,legends)
         plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
         plt.xlabel('Step Number')
