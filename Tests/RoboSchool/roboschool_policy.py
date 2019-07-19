@@ -9,11 +9,21 @@ import argparse
 import joblib
 import tensorflow as tf
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--exp_name', type=str, default='Ant')
+parser.add_argument('--trial', type=int, default=0)
+args = parser.parse_args()
+
+np.random.seed(args.trial)
 with tf.Session() as sess:
-	data_path = './Data/Lexington/HalfCheetah/PSMCTSTRCK0.5A0.5Ec10.0Step1.0FmeanQmax/0/itr_50000.pkl'
+	data_path = './Data/Lexington/Ant/PSMCTSTRCK0.3A0.3Ec10.0Step1.0FmeanQmax/'+str(args.trial)+'/itr_50000.pkl'
 	data = joblib.load(data_path)
 	env = data['env']
 	o = env.reset()
+	env.render()
+
 	policy = data['policy']
 	max_path_length = 500
 	path_length = 0

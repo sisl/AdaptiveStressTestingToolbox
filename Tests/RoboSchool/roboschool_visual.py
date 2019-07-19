@@ -38,6 +38,8 @@ while (path_length < max_path_length) and (not done):
 	o, r, done, _ = env.step(env.action_space.sample())
 	c_r += r
 	env.render()
+	import pdb
+	pdb.set_trace()
 	print("step: ",path_length)
 	print("o: ",o)
 	print('r: ',r)
