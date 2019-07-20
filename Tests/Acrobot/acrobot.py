@@ -214,7 +214,7 @@ class AcrobotEnv(gym.Env, Serializable):
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
 
     def render(self, mode='human'):
-        from CartPoleAST.CartPole.gym import rendering
+        from gym.envs.classic_control import rendering
 
         s = self.state
 
@@ -233,7 +233,7 @@ class AcrobotEnv(gym.Env, Serializable):
         xys = np.array([[0,0], p1, p2])[:,::-1]
         thetas = [s[0]-np.pi/2, s[0]+s[1]-np.pi/2]
 
-        self.viewer.draw_line((-2.2, 1), (2.2, 1))
+        self.viewer.draw_line((-2.2, self.success_threshhold), (2.2, self.success_threshhold))
         for ((x,y),th) in zip(xys, thetas):
             l,r,t,b = 0, 1, .1, -.1
             jtransform = rendering.Transform(rotation=th, translation=(x,y))

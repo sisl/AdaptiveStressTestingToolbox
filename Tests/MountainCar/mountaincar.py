@@ -115,7 +115,7 @@ class MountainCarEnv(gym.Env, Serializable):
 
 
         if self.viewer is None:
-            from CartPoleAST.CartPole.gym import rendering
+            from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
             xs = np.linspace(self.min_position, self.max_position, 100)
             ys = self._height(xs)
