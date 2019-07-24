@@ -26,7 +26,8 @@ install:
   - echo "hello" > mjkey.txt
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
   - rm mjkey.txt
-  - source ~/miniconda2/bin/activate garage
+#   - source ~/miniconda2/bin/activate garage
+  - conda activate garage
 
   # Run AST setup
   - cd ../../
