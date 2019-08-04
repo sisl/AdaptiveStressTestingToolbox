@@ -2,27 +2,21 @@ from garage.tf.samplers.on_policy_vectorized_sampler import OnPolicyVectorizedSa
 import pickle
 
 import tensorflow as tf
-from garage.sampler.base import BaseSampler
-from garage.tf.envs.parallel_vec_env_executor import ParallelVecEnvExecutor
-from garage.tf.envs.vec_env_executor import VecEnvExecutor
-from garage.misc import tensor_utils
 import numpy as np
-from garage.sampler.stateful_pool import ProgBarCounter
-import garage.misc.logger as logger
-import itertools
+
 import pdb
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 
 class ASTVectorizedSampler(OnPolicyVectorizedSampler):
-    def __init__(self, algo, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
+    def __init__(self, algo, env, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
         # pdb.set_trace()
         self.open_loop = open_loop
         self.sim = sim
         self.reward_function = reward_function
-        super().__init__(algo)
+        super().__init__(algo, env)
 
-    def obtain_samples(self, itr):
+    def obtain_samples(self, itr, batch_size=None, whole_paths=False):
         # pdb.set_trace()
         paths = super().obtain_samples(itr)
         if self.open_loop:
