@@ -26,7 +26,7 @@ import tensorflow as tf
 parser = argparse.ArgumentParser()
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='.')
+parser.add_argument('--log_dir', type=str, default='../data/')
 parser.add_argument('--iters', type=int, default=1)
 args = parser.parse_args()
 

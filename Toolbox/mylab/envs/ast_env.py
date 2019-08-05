@@ -1,17 +1,8 @@
 from cached_property import cached_property
 from garage.misc.overrides import overrides
-# from garage.envs.base import GarageEnv
-# from garage.envs.env_spec import EnvSpec
-from garage.envs.base import Step
-# from garage.tf.spaces import Box
-# from garage.tf.spaces import Dict
-# from garage.tf.spaces import Discrete
-# from garage.tf.spaces import Tuple
 
-from gym.spaces import Box as GymBox
-from gym.spaces import Dict as GymDict
-from gym.spaces import Discrete as GymDiscrete
-from gym.spaces import Tuple as GymTuple
+from garage.envs.base import Step
+
 
 import numpy as np
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
