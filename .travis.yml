@@ -1,5 +1,7 @@
 language: python
 dist: xenial
+services:
+  - xvfb
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
   - "3.6"
@@ -35,4 +37,4 @@ install:
 
 script:
   # Your test script goes here
-  - python TestCases/validate_install.py
+  - xvfb-run python TestCases/validate_install.py
