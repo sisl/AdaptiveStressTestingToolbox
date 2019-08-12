@@ -26,7 +26,7 @@ install:
   - echo "hello" > mjkey.txt
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
   - rm mjkey.txt
-  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro
+  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw
   - pip install rlgarage
 
   # Run AST setup
