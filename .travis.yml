@@ -37,4 +37,5 @@ install:
 
 script:
   # Your test script goes here
-  - sudo xvfb-run -e /dev/stdout python TestCases/validate_install.py
+  - sudo rm /tmp/.X*
+  - sudo xvfb-run -a -e /dev/stdout python TestCases/validate_install.py
