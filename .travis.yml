@@ -28,6 +28,7 @@ install:
   - rm mjkey.txt
   - pip install numpy==1.14.5
   - pip install gym
+  - pip install dateutil
   - pip install rlgarage
 
   # Run AST setup
