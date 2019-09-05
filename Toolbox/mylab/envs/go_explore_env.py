@@ -467,7 +467,7 @@ class GoExploreTfEnv(TfEnv):
 
     @overrides
     def set_param_values(self, param_values, **tags):
-        # pdb.set_trace()
+        pdb.set_trace()
         # if tags['pool'] is not None:
         #     GoExploreTfEnv.pool = tags['pool']
         #     print("set pool")
