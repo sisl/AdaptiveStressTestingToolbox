@@ -24,6 +24,8 @@ import pdb
 import time
 # import xxhash
 from bsddb3 import db
+import pickle
+import shelve
 import os
 
 
@@ -107,9 +109,12 @@ class GoExplore(BatchPolopt):
         self.cell_pool = CellPool(filename=self.db_filename, flag=db.DB_CREATE, flag2='n')
         # self.cell_pool.create()
         # obs = self.env.downsample(self.env.env.env.reset())
+        pool_DB = db.DB()
+        pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+        d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         obs, state = self.env.get_first_cell()
-        self.cell_pool.d_update(observation=obs, trajectory=[], score=0.0, state=state, chosen=1)
-        self.cell_pool.d_pool.sync()
+        self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=[], score=0.0, state=state, chosen=1)
+        d_pool.sync()
         # self.cell_pool.d_pool.close()
         # cell = Cell()
         # cell.observation = np.zeros(128)
@@ -119,6 +124,7 @@ class GoExplore(BatchPolopt):
         self.env.set_param_values([self.db_filename], db_filename=True, debug=False)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
+        d_pool.close()
         # pdb.set_trace()
         # self.policy.set_param_values({"cell_num":-1,
         #                               "stateful_num":-1,
@@ -143,6 +149,11 @@ class GoExplore(BatchPolopt):
     def optimize_policy(self, itr, samples_data):
 
         start = time.time()
+
+        pool_DB = db.DB()
+        pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+        d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+
         new_cells = 0
         total_cells = 0
         # self.cell_pool.d_pool.open()
@@ -153,23 +164,34 @@ class GoExplore(BatchPolopt):
             sys.stdout.flush()
             for j in range(samples_data['observations'].shape[1]):
                 # pdb.set_trace()
+                chosen = 0
+                if j == 0:
+                    chosen = 1
                 observation = samples_data['observations'][i, j, :] #// 32
                 trajectory = samples_data['observations'][i, 0:j, :]
                 score = samples_data['rewards'][i, j]
                 state = samples_data['env_infos']['state'][i, j, :]
-                if self.cell_pool.d_update(observation, trajectory, score, state):
+                if self.cell_pool.d_update(d_pool=d_pool,
+                                           observation=observation,
+                                           trajectory=trajectory,
+                                           score=score,
+                                           state=state,
+                                           chosen=chosen):
                     new_cells += 1
                 total_cells += 1
         sys.stdout.write("\n")
         sys.stdout.flush()
         print(new_cells, " new cells (", 100 * new_cells / total_cells, "%)")
         print(total_cells, " samples processed in ", time.time() - start, " seconds")
-        self.cell_pool.d_pool.sync()
+
+        d_pool.sync()
+        d_pool.close()
         # self.cell_pool.d_pool.close()
         #TODO Way too much memory having to copy the whole pool, need to just set the single cell if possible
         # self.env.set_param_values([self.cell_pool], pool=True, debug=True)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
+
         if os.path.getsize(self.db_filename) /1000/1000/1000 > self.max_db_size:
             print ('------------ERROR: MAX DB SIZE REACHED------------')
             sys.exit()

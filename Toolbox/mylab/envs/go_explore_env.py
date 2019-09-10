@@ -9,6 +9,7 @@ from bsddb3 import db
 import pickle
 import time
 from cached_property import cached_property
+from garage.core import Parameterized
 
 
 
@@ -29,7 +30,7 @@ class CellPool():
         # print(filename)
         pool_DB.open(filename, dbname=None, dbtype=db.DB_HASH, flags=flag)
         # pool_DB = None
-        self.d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+        # self.d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         self.key_list = []
         self.max_value = 0
         self.max_score = 0
@@ -37,7 +38,7 @@ class CellPool():
         # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
         # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
 
-    def create(self):
+    def create(self, d_pool):
 
         self.init_cell = Cell()
         self.init_cell.observation = np.zeros((1,128))
@@ -48,38 +49,38 @@ class CellPool():
         self.init_cell.times_visited = 1
         # self.d_pool = shelve.open('cellpool-shelf', flag=flag)
 
-        self.d_pool[str(hash(self.init_cell))] = self.init_cell
+        d_pool[str(hash(self.init_cell))] = self.init_cell
         self.key_list.append(str(hash(self.init_cell)))
         self.length = 1
         self.max_value = self.init_cell.fitness
         # import pdb; pdb.set_trace()
 
-    def append(self, cell):
-        # pdb.set_trace()
-        # if observation not in self.guide:
-        #     self.guide.add(observation)
-        #     cell = Cell()
-        #     cell.observation = observation
-        #     self.pool.append(cell)
-        #     self.length += 1
-        if cell in self.d_pool:
-            self.d_pool[cell].seen += 1
-        else:
-            self.d_pool[cell] = cell
+    # def append(self, cell):
+    #     # pdb.set_trace()
+    #     # if observation not in self.guide:
+    #     #     self.guide.add(observation)
+    #     #     cell = Cell()
+    #     #     cell.observation = observation
+    #     #     self.pool.append(cell)
+    #     #     self.length += 1
+    #     if cell in self.d_pool:
+    #         self.d_pool[cell].seen += 1
+    #     else:
+    #         self.d_pool[cell] = cell
 
 
-    def get_cell(self, index):
-        return self.pool[index]
+    # def get_cell(self, index):
+    #     return self.pool[index]
+    #
+    # def get_random_cell(self):
+    #     index = np.random.randint(0, self.length)
+    #     return self.get_cell(index)
 
-    def get_random_cell(self):
-        index = np.random.randint(0, self.length)
-        return self.get_cell(index)
-
-    def d_update(self, observation, trajectory, score, state, chosen=0):
+    def d_update(self, d_pool, observation, trajectory, score, state, chosen=0):
         # pdb.set_trace()
         #This tests to see if the observation is already in the matrix
         obs_hash = str(hash(observation.tostring()))
-        if not obs_hash in self.d_pool:
+        if not obs_hash in d_pool:
             # self.guide.add(observation)
             cell = Cell()
             cell.observation = observation
@@ -91,7 +92,7 @@ class CellPool():
             cell.times_visited = 1
             cell.times_chosen = chosen
             cell.times_chosen_since_improved = 0
-            self.d_pool[obs_hash] = cell
+            d_pool[obs_hash] = cell
             self.length += 1
             self.key_list.append(obs_hash)
             if cell.fitness > self.max_value:
@@ -100,7 +101,7 @@ class CellPool():
                 self.max_score = score
             return True
         else:
-            cell = self.d_pool[obs_hash]
+            cell = d_pool[obs_hash]
             if score > cell.score:
                 cell.score = score
                 cell.trajectory = trajectory
@@ -109,7 +110,7 @@ class CellPool():
 
             cell.times_visited += 1
             cell.times_chosen += chosen
-            self.d_pool[obs_hash] = cell
+            d_pool[obs_hash] = cell
             if cell.fitness > self.max_value:
                 self.max_value = cell.fitness
             if cell.score > self.max_score:
@@ -247,7 +248,7 @@ class GoExploreParameter():
 
 
 
-class GoExploreTfEnv(TfEnv):
+class GoExploreTfEnv(TfEnv, Parameterized):
     # cell_pool = CellPool()
     # pool = []
     # var = Value('i', 7)
@@ -257,7 +258,9 @@ class GoExploreTfEnv(TfEnv):
         self.key_list = []
         self.max_value = 0
         # self.downsampler = self.default_downsampler
+
         super().__init__(env, env_name)
+        Parameterized.__init__(self)
         # self.cell_pool = cell_pool
 
         # print("New env, pool: ", GoExploreTfEnv.pool)
@@ -467,7 +470,7 @@ class GoExploreTfEnv(TfEnv):
 
     @overrides
     def set_param_values(self, param_values, **tags):
-        pdb.set_trace()
+        # pdb.set_trace()
         # if tags['pool'] is not None:
         #     GoExploreTfEnv.pool = tags['pool']
         #     print("set pool")
