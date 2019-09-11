@@ -1,23 +1,24 @@
 import time
-from rllab.algos.base import RLAlgorithm
-import rllab.misc.logger as logger
-from sandbox.rocky.tf.policies.base import Policy
+from garage.algos.base import RLAlgorithm
+import garage.misc.logger as logger
+from garage.tf.policies.base import Policy
 import tensorflow as tf
-from sandbox.rocky.tf.samplers.batch_sampler import BatchSampler
-# from sandbox.rocky.tf.samplers.vectorized_sampler import VectorizedSampler
-from rllab.sampler.utils import rollout
-from rllab.misc import ext
-from rllab.misc.overrides import overrides
-import rllab.misc.logger as logger
-from sandbox.rocky.tf.optimizers.penalty_lbfgs_optimizer import PenaltyLbfgsOptimizer
-from sandbox.rocky.tf.algos.batch_polopt import BatchPolopt
-from sandbox.rocky.tf.misc import tensor_utils
+from garage.tf.samplers.batch_sampler import BatchSampler
+# from garage.tf.samplers.vectorized_sampler import VectorizedSampler
+from garage.sampler.utils import rollout
+from garage.misc import ext
+from garage.misc.overrides import overrides
+import garage.misc.logger as logger
+from garage.tf.optimizers.penalty_lbfgs_optimizer import PenaltyLbfgsOptimizer
+from garage.tf.algos.batch_polopt import BatchPolopt
+from garage.tf.misc import tensor_utils
 import tensorflow as tf
 import pdb
 import numpy as np
 
 from mylab.samplers.vectorized_ga_sampler import VectorizedGASampler
 from mylab.utils import seeding
+from mylab.utils.np_weight_init import init_policy_np
 
 class GA(BatchPolopt):
 	"""
@@ -26,24 +27,40 @@ class GA(BatchPolopt):
 
 	def __init__(
 			self,
-			top_paths = None,
-			step_size = 0.01, #serve as the std dev in mutation
+			top_paths = None, 
+			step_size = 0.01,
 			step_size_anneal = 1.0,
 			pop_size = 5,
 			truncation_size = 2,
 			keep_best = 1,
-			fit_f = "max",
+			f_F = "mean",
 			log_interval = 4000,
+			init_step = 1.0,
 			**kwargs):
+		"""
+		:param top_paths: a bounded priority queue to store top-rewarded trajectories
+		:param step_size: standard deviation for each mutation
+		:param step_size_anneal: the linear annealing rate of step_size after each iteration
+		:param pop_size: the population size
+		:param truncation_size: the number of top-performed individuals that are chosen as parents
+		:param keep_best: the number of top-performed individuals that remain unchanged for next generation
+		:param f_F: the function used to calculate fitness: 'mean' for the average return, 'max' for the max return
+		:param log_interval: the log interval in terms of environment calls
+		:return: No return value.
+		"""
 
 		self.top_paths = top_paths
+		self.best_mean = -np.inf
+		self.best_var = 0.0
 		self.step_size = step_size
 		self.step_size_anneal = step_size_anneal
 		self.pop_size = pop_size
 		self.truncation_size = truncation_size
-		self.fit_f = fit_f
-		self.log_interval = log_interval
 		self.keep_best = keep_best
+		self.f_F = f_F
+		self.log_interval = log_interval
+		self.init_step = init_step
+
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
 		self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
 		self.parents = np.zeros(pop_size,dtype=int)
@@ -53,7 +70,8 @@ class GA(BatchPolopt):
 	def initial(self):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))
-		self.magnitudes[0,:] = np.ones(self.pop_size)
+		self.magnitudes[0,:] = self.init_step*np.ones(self.pop_size)
+		self.policy.set_param_values(self.policy.get_param_values())
 		self.stepNum = 0
 
 	@overrides
@@ -68,7 +86,7 @@ class GA(BatchPolopt):
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		self.start_worker()
+		self.start_worker(sess)
 		start_time = time.time()
 		self.initial()
 
@@ -80,17 +98,12 @@ class GA(BatchPolopt):
 					with logger.prefix('idv #%d | ' % p):
 						logger.log("Updating Params")
 						self.set_params(itr, p)
-
+						# print(self.policy.get_param_values(trainable=True))
 						logger.log("Obtaining samples...")
 						paths = self.obtain_samples(itr)
 						logger.log("Processing samples...")
 						samples_data = self.process_samples(itr, paths)
-
-						undiscounted_returns = [sum(path["rewards"]) for path in paths]
-
-						if not (self.top_paths is None):
-							action_seqs = [path["actions"] for path in paths]
-							[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+						# print([np.mean(path["actions"],-1) for path in paths])
 
 						# all_paths[p]=paths
 						all_paths[p]=samples_data
@@ -122,6 +135,8 @@ class GA(BatchPolopt):
 			if self.top_paths is not None:
 				for (topi, path) in enumerate(self.top_paths):
 					logger.record_tabular('reward '+str(topi), path[0])
+			logger.record_tabular('BestMean', self.best_mean)
+			logger.record_tabular('BestVar', self.best_var)
 			logger.record_tabular('parent',self.parents[p])
 			logger.record_tabular('StepSize',self.step_size)
 			logger.record_tabular('Magnitude',self.magnitudes[itr,p])
@@ -133,11 +148,20 @@ class GA(BatchPolopt):
 
 	@overrides
 	def set_params(self, itr, p):
-		param_values = np.zeros_like(self.policy.get_param_values(trainable=True))
 		for i in range(itr+1):
 			# print("seed: ", self.seeds[i,p])
-			if self.seeds[i,p] != 0:
-				self.np_random.seed(int(self.seeds[i,p]))
+			self.np_random.seed(int(self.seeds[i,p]))
+			if i == 0: #first generation
+				param_values = self.policy.get_param_values(trainable=True)
+				param_values = self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
+
+				# param_values = init_policy_np(self.policy, self.np_random)
+
+				# params = self.policy.get_params()
+				# sess = tf.get_default_session()
+				# sess.run(tf.variables_initializer(params))
+				# param_values = self.policy.get_param_values()
+			elif self.seeds[i,p] != 0:
 				param_values = param_values + self.magnitudes[i,p]*self.np_random.normal(size=param_values.shape)
 		self.policy.set_param_values(param_values, trainable=True)
 
@@ -147,7 +171,7 @@ class GA(BatchPolopt):
 			rewards = all_paths[p]["rewards"]
 			valid_rewards = rewards*all_paths[p]["valids"]
 			path_rewards = np.sum(valid_rewards,-1)
-			if self.fit_f == "max":
+			if self.f_F == "max":
 				fitness[p] = np.max(path_rewards)
 			else:
 				fitness[p] = np.mean(path_rewards)
@@ -185,7 +209,15 @@ class GA(BatchPolopt):
 	@overrides
 	def obtain_samples(self, itr):
 		self.stepNum += self.batch_size
-		return self.sampler.obtain_samples(itr)
+		paths = self.sampler.obtain_samples(itr)
+		undiscounted_returns = [sum(path["rewards"]) for path in paths]
+		if np.mean(undiscounted_returns) > self.best_mean:
+			self.best_mean = np.mean(undiscounted_returns)
+			self.best_var = np.var(undiscounted_returns)
+		if not (self.top_paths is None):
+			action_seqs = [path["actions"] for path in paths]
+			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
+		return paths
 
 	@overrides
 	def get_itr_snapshot(self, itr, samples_data):

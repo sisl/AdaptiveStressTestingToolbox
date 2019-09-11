@@ -1,5 +1,9 @@
 
+# useful packages for math and debugging
+import numpy as np
+import pdb
 
+# Define the class, inherit from the base
 class ASTReward(object):
     def __init__(self):
         pass

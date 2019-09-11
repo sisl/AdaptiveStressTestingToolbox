@@ -1,38 +1,68 @@
-from sandbox.rocky.tf.algos.npo import NPO
-from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
+from enum import Enum
+from enum import unique
+from garage.tf.algos import NPO
+from garage.tf.algos.npo import PGLoss
+from garage.tf.optimizers import ConjugateGradientOptimizer
+from garage.tf.optimizers import PenaltyLbfgsOptimizer
 import time
-import rllab.misc.logger as logger
+from garage.misc import logger
 import tensorflow as tf
-from rllab.sampler.utils import rollout
-from rllab.misc.overrides import overrides
+from garage.sampler.utils import rollout
+from garage.misc.overrides import overrides
+import numpy as np
+
+@unique
+class KLConstraint(Enum):
+	HARD = "hard"
+	SOFT = "soft"
+
 
 class TRPO(NPO):
 	"""
 	Trust Region Policy Optimization
 	"""
 
-	def __init__(
-			self,
-			optimizer=None,
-			optimizer_args=None,
-			top_paths = None,
-			**kwargs):
-		if optimizer is None:
-			if optimizer_args is None:
-				optimizer_args = dict()
-			optimizer = ConjugateGradientOptimizer(**optimizer_args)
+	def __init__(self,
+				 step_size=0.1,
+				 top_paths=None,
+				 kl_constraint=KLConstraint.HARD,
+				 optimizer=None,
+				 optimizer_args=None,
+				 **kwargs):
+		"""
+		:param step_size: the constraint on the KL divergence of each update
+		:param top_paths: a bounded priority queue to store top-rewarded trajectories
+		:return: No return value.
+		"""
+		if not optimizer:
+			if kl_constraint == KLConstraint.HARD:
+				optimizer = ConjugateGradientOptimizer
+			elif kl_constraint == KLConstraint.SOFT:
+				optimizer = PenaltyLbfgsOptimizer
+			else:
+				raise NotImplementedError("Unknown KLConstraint")
+
+		if optimizer_args is None:
+			optimizer_args = dict()
+
 		self.top_paths = top_paths
-		super(TRPO, self).__init__(optimizer=optimizer, **kwargs)
+		super(TRPO, self).__init__(
+			pg_loss=PGLoss.VANILLA,
+			optimizer=optimizer,
+			optimizer_args=optimizer_args,
+			name="TRPO",
+			clip_range=step_size,
+			**kwargs)
 
 	@overrides
-	def train(self, sess=None, init_var=True):
+	def train(self, sess=None, init_var=False):
 		created_session = True if (sess is None) else False
 		if sess is None:
 			sess = tf.Session()
 			sess.__enter__()
 		if init_var:
 			sess.run(tf.global_variables_initializer())
-		self.start_worker()
+		self.start_worker(sess)
 		start_time = time.time()
 		for itr in range(self.start_itr, self.n_itr):
 			itr_start_time = time.time()
@@ -41,6 +71,7 @@ class TRPO(NPO):
 				paths = self.obtain_samples(itr)
 				logger.log("Processing samples...")
 				samples_data = self.process_samples(itr, paths)
+				# print([path["observations"] for path in paths])
 
 				if not (self.top_paths is None):
 					undiscounted_returns = [sum(path["rewards"]) for path in paths]
@@ -67,7 +98,7 @@ class TRPO(NPO):
 
 				logger.dump_tabular(with_prefix=False)
 				if self.plot:
-					rollout(self.env, self.policy, animated=True, max_path_length=self.max_path_length)
+					self.plotter.update_plot(self.policy, self.max_path_length)
 					if self.pause_for_plot:
 						input("Plotting evaluation run: Press Enter to "
 							  "continue...")

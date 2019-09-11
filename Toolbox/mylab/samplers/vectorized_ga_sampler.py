@@ -1,17 +1,17 @@
 import pickle
 
 import tensorflow as tf
-from rllab.sampler.base import BaseSampler
-from sandbox.rocky.tf.envs.parallel_vec_env_executor import ParallelVecEnvExecutor
-from sandbox.rocky.tf.envs.vec_env_executor import VecEnvExecutor
-from rllab.misc import tensor_utils
+from garage.sampler.base import BaseSampler
+from garage.tf.envs.parallel_vec_env_executor import ParallelVecEnvExecutor
+from garage.tf.envs.vec_env_executor import VecEnvExecutor
+from garage.misc import tensor_utils
 import numpy as np
-from rllab.sampler.stateful_pool import ProgBarCounter
-import rllab.misc.logger as logger
+from garage.sampler.stateful_pool import ProgBarCounter
+import garage.misc.logger as logger
 import itertools
-from rllab.misc import special
-from rllab.algos import util
-import rllab.misc.logger as logger
+from garage.misc import special
+from garage.sampler import utils
+import garage.misc.logger as logger
 
 
 class VectorizedGASampler(BaseSampler):
@@ -37,7 +37,7 @@ class VectorizedGASampler(BaseSampler):
         self.env_spec = self.algo.env.spec
 
     def shutdown_worker(self):
-        self.vec_env.terminate()
+        self.vec_env.close()
 
     def obtain_samples(self, itr):
         logger.log("Obtaining samples for iteration %d..." % itr)
@@ -144,10 +144,10 @@ class VectorizedGASampler(BaseSampler):
             agent_infos = tensor_utils.concat_tensor_dict_list([path["agent_infos"] for path in paths])
 
             if self.algo.center_adv:
-                advantages = util.center_advantages(advantages)
+                advantages = utils.center_advantages(advantages)
 
             if self.algo.positive_adv:
-                advantages = util.shift_advantages_to_positive(advantages)
+                advantages = utils.shift_advantages_to_positive(advantages)
 
             average_discounted_return = \
                 np.mean([path["returns"][0] for path in paths])
