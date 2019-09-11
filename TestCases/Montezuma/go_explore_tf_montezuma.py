@@ -6,7 +6,7 @@ import gym
 from garage.np.baselines import LinearFeatureBaseline
 from mylab.algos.go_explore import GoExplore
 from garage.tf.envs import TfEnv
-from  mylab.envs.go_explore_env import Pixel_GoExploreEnv, Ram_GoExploreEnv
+from  mylab.envs.go_explore_atari_env import Pixel_GoExploreEnv, Ram_GoExploreEnv
 from mylab.policies.go_explore_policy import GoExplorePolicy
 from mylab.samplers.batch_sampler import BatchSampler
 

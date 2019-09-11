@@ -18,7 +18,8 @@ from garage.tf.misc.tensor_utils import flatten_batch_dict
 from garage.tf.misc.tensor_utils import flatten_inputs
 from garage.tf.misc.tensor_utils import graph_inputs
 from garage.tf.optimizers import LbfgsOptimizer
-from mylab.envs.go_explore_env import GoExploreTfEnv, CellPool,Cell
+from cached_property import cached_property
+from mylab.envs.go_explore_atari_env import GoExploreTfEnv #, CellPool,Cell
 import sys
 import pdb
 import time
@@ -28,6 +29,225 @@ import pickle
 import shelve
 import os
 
+class CellPool():
+    def __init__(self, filename = 'database.dat', flag=db.DB_RDONLY, flag2='r'):
+        # print("Creating new Cell Pool:", self)
+        # self.guide = set()
+
+        # import pdb; pdb.set_trace()
+        # self.pool = [self.init_cell]
+        # self.guide = self.init_cell.observation
+        self.length = 0
+
+        # self.d_pool = {}
+
+        pool_DB = db.DB()
+        # print('Creating Cell Pool with flag:', flag)
+        # print(filename)
+        pool_DB.open(filename, dbname=None, dbtype=db.DB_HASH, flags=flag)
+        # pool_DB = None
+        # self.d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+        self.key_list = []
+        self.max_value = 0
+        self.max_score = 0
+        # self.d_pool = shelve.BsdDbShelf(pool_DB)
+        # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
+        # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
+
+    def create(self, d_pool):
+
+        self.init_cell = Cell()
+        self.init_cell.observation = np.zeros((1,128))
+        self.init_cell.trajectory = None
+        self.init_cell.score = -np.inf
+        self.init_cell.state = None
+        self.init_cell.times_chosen = 0
+        self.init_cell.times_visited = 1
+        # self.d_pool = shelve.open('cellpool-shelf', flag=flag)
+
+        d_pool[str(hash(self.init_cell))] = self.init_cell
+        self.key_list.append(str(hash(self.init_cell)))
+        self.length = 1
+        self.max_value = self.init_cell.fitness
+        # import pdb; pdb.set_trace()
+
+    # def append(self, cell):
+    #     # pdb.set_trace()
+    #     # if observation not in self.guide:
+    #     #     self.guide.add(observation)
+    #     #     cell = Cell()
+    #     #     cell.observation = observation
+    #     #     self.pool.append(cell)
+    #     #     self.length += 1
+    #     if cell in self.d_pool:
+    #         self.d_pool[cell].seen += 1
+    #     else:
+    #         self.d_pool[cell] = cell
+
+
+    # def get_cell(self, index):
+    #     return self.pool[index]
+    #
+    # def get_random_cell(self):
+    #     index = np.random.randint(0, self.length)
+    #     return self.get_cell(index)
+
+    def d_update(self, d_pool, observation, trajectory, score, state, chosen=0):
+        # pdb.set_trace()
+        #This tests to see if the observation is already in the matrix
+        obs_hash = str(hash(observation.tostring()))
+        if not obs_hash in d_pool:
+            # self.guide.add(observation)
+            cell = Cell()
+            cell.observation = observation
+            # self.guide = np.append(self.guide, np.expand_dims(observation, axis=0), axis = 0)
+            cell.trajectory = trajectory
+            cell.score = score
+            cell.trajectory_length = len(trajectory)
+            cell.state = state
+            cell.times_visited = 1
+            cell.times_chosen = chosen
+            cell.times_chosen_since_improved = 0
+            d_pool[obs_hash] = cell
+            self.length += 1
+            self.key_list.append(obs_hash)
+            if cell.fitness > self.max_value:
+                self.max_value = cell.fitness
+            if cell.score > self.max_score:
+                self.max_score = score
+            return True
+        else:
+            cell = d_pool[obs_hash]
+            if score > cell.score:
+                cell.score = score
+                cell.trajectory = trajectory
+                cell.trajectory_length = len(trajectory)
+                cell.state = state
+
+            cell.times_visited += 1
+            cell.times_chosen += chosen
+            d_pool[obs_hash] = cell
+            if cell.fitness > self.max_value:
+                self.max_value = cell.fitness
+            if cell.score > self.max_score:
+                self.max_score = score
+        return False
+
+
+class Cell():
+
+    def __init__(self):
+        # print("Creating new Cell:", self)
+        # Number of times this was chosen and seen
+        self._times_visited=0
+        self._times_chosen = 0
+        self._times_chosen_since_improved = 0
+        self._score = -np.inf
+        self._action_times = 0
+
+        self.trajectory_length = -np.inf
+        self.trajectory = []
+        self.state = None
+        self.observation = None
+
+    def __eq__(self, other):
+        if type(other) != type(self):
+            return False
+        if np.all(self.observation == other.observation):
+            return True
+        else:
+            return False
+
+    def reset_cached_property(self, cached_property):
+        if cached_property in self.__dict__:
+            del self.__dict__[cached_property]
+
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value):
+        self._score = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def times_visited(self):
+        return self._times_visited
+
+    @times_visited.setter
+    def times_visited(self, value):
+        self._times_visited = value
+        self.reset_cached_property('times_visited_subscore')
+        self.reset_cached_property('count_subscores')
+        self.reset_cached_property('fitness')
+
+    @property
+    def times_chosen(self):
+        return self._times_chosen
+
+    @times_chosen.setter
+    def times_chosen(self, value):
+        self._times_chosen = value
+        self.reset_cached_property('times_chosen_subscore')
+        self.reset_cached_property('count_subscores')
+        self.reset_cached_property('fitness')
+
+    @property
+    def times_chosen_since_improved(self):
+        return self._times_chosen_since_improved
+
+    @times_chosen_since_improved.setter
+    def times_chosen_since_improved(self, value):
+        self._times_chosen_since_improved = value
+        self.reset_cached_property('times_chosen_since_improved')
+        self.reset_cached_property('count_subscores')
+        self.reset_cached_property('fitness')
+
+
+    @cached_property
+    def fitness(self):
+        # return max(1, self.score)
+        return self.score_weight*(self.count_subscores + 1)
+
+    @cached_property
+    def count_subscores(self):
+        return (self.times_chosen_subscore +
+                self.times_chosen_since_improved_subscore +
+                self.times_visited_subscore)
+
+    @cached_property
+    def times_chosen_subscore(self):
+        weight = 0.1
+        power = 0.5
+        eps1 = 0.001
+        eps2 = 0.00001
+        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
+
+    @cached_property
+    def times_chosen_since_improved_subscore(self):
+        weight = 0.0
+        power = 0.5
+        eps1 = 0.001
+        eps2 = 0.00001
+        return weight * (1 / (self.times_chosen_since_improved + eps1)) ** power + eps2
+
+    @cached_property
+    def times_visited_subscore(self):
+        weight = 0.3
+        power = 0.5
+        eps1 = 0.001
+        eps2 = 0.00001
+        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
+
+    @cached_property
+    def score_weight(self):
+        return 1.0
+        # return min(1e-6, 0.1**max(0.0, (100000-self.score)/10000))
+
+    def __hash__(self):
+        return hash((self.observation.tostring()))
 
 class GoExplore(BatchPolopt):
     """
@@ -187,7 +407,6 @@ class GoExplore(BatchPolopt):
         d_pool.sync()
         d_pool.close()
         # self.cell_pool.d_pool.close()
-        #TODO Way too much memory having to copy the whole pool, need to just set the single cell if possible
         # self.env.set_param_values([self.cell_pool], pool=True, debug=True)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
@@ -197,56 +416,3 @@ class GoExplore(BatchPolopt):
             sys.exit()
         print('\n---------- Max Score: ', self.cell_pool.max_score, ' ----------------\n')
 
-# class CellPool():
-#     def __init__(self):
-#         print("Creating new Cell Pool:", self)
-#         self.pool = []
-#         self.length = 0
-#
-#     def append(self, cell):
-#         self.pool.append(cell)
-#         self.length += 1
-#
-#     def get_cell(self, index):
-#         return self.pool[index]
-#
-# class Cell():
-#
-#     def __init__(self):
-#         print("Creating new Cell:", self)
-#         # Number of times this was chosen and seen
-#         self.seen_times = []
-#         self.chosen_times = 0
-#         self.chosen_since_new = 0
-#         self.score = -np.inf
-#         self.action_times = 0
-#
-#         self.trajectory_length = -np.inf
-#         self.trajectory = []
-#
-#     def __eq__(self, other):
-#         if type(other) != type(self):
-#             return False
-#         # if self.trajectory
-#
-#     # @dataclass
-#     # class Cell:
-#     #     # The list of ChainLink that can take us to this place
-#     #     chain: typing.List[ChainLink] = copyfield([])
-#     #     seen: list = copyfield({})
-#     #     score: int = -infinity
-#     #
-#     #     seen_times: int = 0
-#     #     chosen_times: int = 0
-#     #     chosen_since_new: int = 0
-#     #     action_times: int = 0  # This is the number of action that led to this cell
-#     #     # Length of the trajectory
-#     #     trajectory_len: int = infinity
-#     #     # Saved restore state. In a purely deterministic environment,
-#     #     # this allows us to fast-forward to the end state instead
-#     #     # of replaying.
-#     #     restore: typing.Any = None
-#     #     # TODO: JH: This should not refer to a Montezuma-only data-structure
-#     #     exact_pos: MontezumaPosLevel = None
-#     #     trajectory: list = copyfield([])
-#     #     real_cell: MontezumaPosLevel = None
