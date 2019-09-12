@@ -158,7 +158,8 @@ class ExampleAVSimulator(ASTSimulator):
             self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
 
             # grab simulation state, if interactive
-            obs = self.observe()
+            self.observe()
+            obs = self._env_obs
 
             # record step variables
             self.log()
@@ -327,3 +328,41 @@ class ExampleAVSimulator(ASTSimulator):
 
     def observe(self):
         self._env_obs = self._peds - self._car
+
+    def clone_state(self):
+        simulator_state = {
+            "info": self._info,
+            "step": self._step,
+            "path_length": self._path_length,
+            "is_terminal": self._is_terminal,
+            "init_conditions": self.init_conditions,
+            "first_step": self._first_step,
+            "car": self._car,
+            "car_accel": self._car_accel,
+            "x": self.x,
+            "y": self.y,
+            "peds": self._peds,
+            "measurements": self._measurements,
+            "env_obs": self._env_obs,
+            "car_obs": self._car_obs
+        }
+        return simulator_state
+
+    def restore_state(self, simulator_state):
+        self._info = simulator_state['info']
+        self._step = simulator_state['step']
+        self._path_length = simulator_state['path_length']
+        self._is_terminal = simulator_state['is_terminal']
+        self.init_conditions = simulator_state['init_conditions']
+        self._first_step = simulator_state['first_step']
+        self._car = simulator_state['car']
+        self._car_accel = simulator_state['car_accel']
+        self.x = simulator_state['x']
+        self.y = simulator_state['y']
+        self._peds = simulator_state['peds']
+        self._measurements = simulator_state['measurements']
+        self._env_obs = simulator_state['env_obs']
+        self._car_obs = simulator_state['car_obs']
+
+    def _get_obs(self):
+        return self._env_obs

@@ -28,11 +28,16 @@ class GoExploreParameter():
 
 class GoExploreTfEnv(TfEnv, Parameterized):
 
-    def __init__(self, env=None, env_name=""):
+    def __init__(self, env=None, env_name="", simulator = None):
         self.params_set = False
         self.db_filename = 'database.dat'
         self.key_list = []
         self.max_value = 0
+        self.wrapped_env = env
+        if simulator = None:
+            self.simulator = self.env.env
+        else:
+            self.simulator = simulator
 
         super().__init__(env, env_name)
         Parameterized.__init__(self)
@@ -50,8 +55,10 @@ class GoExploreTfEnv(TfEnv, Parameterized):
         return population[random.choice(self.p_key_list.value)]
 
     def get_first_cell(self):
-        obs = self.env.env.reset()
-        state = self.env.env.clone_state()
+        # obs = self.env.env.reset()
+        # state = self.env.env.clone_state()
+        obs = self.simulator.reset()
+        state = self.simulator.clone_state()
         return obs, state
 
     def reset(self, **kwargs):
