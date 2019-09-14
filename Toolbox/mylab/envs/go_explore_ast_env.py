@@ -28,7 +28,18 @@ class GoExploreParameter():
     def set_value(self, value):
         self.value = value
 
-class GoExploreASTEnv(gym.Env, Serializable, Parameterized):
+class GoExploreASTGymEnv(gym.Env):
+
+    def step(self, action):
+        pass
+
+    def reset(self):
+        pass
+
+    def render(self, mode='human'):
+        pass
+
+class GoExploreASTEnv(gym.Wrapper, Parameterized):
 # class ASTEnv(GarageEnv):
     def __init__(self,
                  open_loop=True,
@@ -38,6 +49,7 @@ class GoExploreASTEnv(gym.Env, Serializable, Parameterized):
                  simulator=None,
                  reward_function=None,
                  spaces=None):
+        super().__init__(gym.make('mylab:GoExploreAST-v0'))
         # Constant hyper-params -- set by user
         self.open_loop=open_loop
         self.action_only = action_only #is this redundant?

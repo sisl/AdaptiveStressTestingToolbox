@@ -304,7 +304,7 @@ class GoExploreTfEnv(TfEnv, Parameterized):
         # self.env.env.restore_state(cell.state)
         # obs = self.env.env._get_obs()
         try:
-            pdb.set_trace()
+            # pdb.set_trace()
             # start = time.time()
             flag = db.DB_RDONLY
             pool_DB = db.DB()
