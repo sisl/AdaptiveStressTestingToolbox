@@ -4,7 +4,7 @@ from mylab.rewards.example_av_reward import ExampleAVReward
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
 
 # Import the AST classes
-from mylab.envs.go_explore_ast_env import GoExploreASTEnv
+from mylab.envs.go_explore_ast_env import GoExploreASTEnv, Custom_GoExploreASTEnv
 from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
@@ -15,6 +15,7 @@ from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import LocalRunner, run_experiment
 from mylab.samplers.batch_sampler import BatchSampler
+import gym
 
 # Useful imports
 from example_save_trials import *
@@ -48,7 +49,8 @@ def runner(exp_name='av',
            max_path_length=100,
            discount=0.99,
            n_itr=100,
-           max_kl_step=0.01):
+           max_kl_step=0.01,
+           whole_paths=False):
 
     if overwrite_db and os.path.exists(db_filename):
         os.remove(db_filename)
@@ -72,14 +74,25 @@ def runner(exp_name='av',
                     spaces = ExampleAVSpaces()
 
                     # Create the environment
-                    env = TfEnv(normalize(GoExploreASTEnv(open_loop=False,
-                                                 action_only=True,
-                                                 fixed_init_state=True,
-                                                 s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                                                 simulator=sim,
-                                                 reward_function=reward_function,
-                                                 spaces=spaces
-                                                 )))
+                    # env1 = GoExploreASTEnv(open_loop=False,
+                    #                              action_only=True,
+                    #                              fixed_init_state=True,
+                    #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                    #                              simulator=sim,
+                    #                              reward_function=reward_function,
+                    #                              spaces=spaces
+                    #                              )
+                    env1 = gym.make('mylab:GoExploreAST-v1',
+                             open_loop=False,
+                             action_only=True,
+                             fixed_init_state=True,
+                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                             simulator=sim,
+                             reward_function=reward_function,
+                             spaces=spaces
+                             )
+                    env2 = normalize(env1)
+                    env = TfEnv(env2)
 
                     # Instantiate the garage objects
                     policy = GoExplorePolicy(
@@ -96,6 +109,7 @@ def runner(exp_name='av',
                         baseline=baseline,
                         max_path_length=max_path_length,
                         discount=discount,
+                        # whole_paths=whole_paths
                     )
 
                     sampler_cls = BatchSampler

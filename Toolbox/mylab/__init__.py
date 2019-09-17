@@ -4,10 +4,15 @@ from gym.envs.registration import register
 
 register(
     id='GoExploreAST-v0',
-    entry_point='mylab.envs:GoExploreASTGymEnv',
+    entry_point='mylab.envs:GoExploreASTEnv',
     nondeterministic = True,
 )
 
+register(
+    id='GoExploreAST-v1',
+    entry_point='mylab.envs:Custom_GoExploreASTEnv',
+    nondeterministic = True,
+)
 # register(
 #     id='SoccerEmptyGoal-v0',
 #     entry_point='gym_soccer.envs:SoccerEmptyGoalEnv',

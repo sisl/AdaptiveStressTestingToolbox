@@ -172,6 +172,7 @@ class ExampleAVSimulator(ASTSimulator):
             self._is_terminal = True
 
         # pdb.set_trace()
+        # print(obs)
         return obs
 
     def reset(self, s_0):
@@ -217,7 +218,7 @@ class ExampleAVSimulator(ASTSimulator):
 
         # return the initial simulation state
         if self.action_only:
-            return self.init_conditions
+            obs = np.array([0]*(4*self.c_num_peds))
         else:
             self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
             self._car_accel = np.zeros((2))
@@ -225,7 +226,8 @@ class ExampleAVSimulator(ASTSimulator):
             self._measurements = self._peds - self._car
             self._env_obs = self._measurements
             self._car_obs = self._measurements
-            return np.ndarray.flatten(self._measurements)
+            obs = np.ndarray.flatten(self._measurements)
+        return obs
 
 
     def get_reward_info(self):
@@ -330,39 +332,56 @@ class ExampleAVSimulator(ASTSimulator):
         self._env_obs = self._peds - self._car
 
     def clone_state(self):
-        simulator_state = {
-            "info": self._info,
-            "step": self._step,
-            "path_length": self._path_length,
-            "is_terminal": self._is_terminal,
-            "init_conditions": self.init_conditions,
-            "first_step": self._first_step,
-            "car": self._car,
-            "car_accel": self._car_accel,
-            "x": self.x,
-            "y": self.y,
-            "peds": self._peds,
-            "measurements": self._measurements,
-            "env_obs": self._env_obs,
-            "car_obs": self._car_obs
-        }
+        # simulator_state = {
+        #     "step": self._step,
+        #     "path_length": self._path_length,
+        #     "is_terminal": self._is_terminal,
+        #     "init_conditions": self.init_conditions,
+        #     "first_step": self._first_step,
+        #     "car": self._car,
+        #     "car_accel": self._car_accel,
+        #     "x": self.x,
+        #     "y": self.y,
+        #     "peds": self._peds,
+        #     "measurements": self._measurements,
+        #     "env_obs": self._env_obs,
+        #     "car_obs": self._car_obs
+        # }
+        # simulator_state = np.concatenate((np.array([self._step]),np.array([self._path_length]),np.array([int(self._is_terminal)]),np.array(self.init_conditions),np.array([int(self._first_step)]),self._car, self._car_accel,self._peds.flatten(),self._measurements.flatten(),self._env_obs.flatten(),self._car_obs.flatten()), axis=0)
+        # simulator_state = np.concatenate((np.array([self._step]), np.array([self._path_length]),np.array([int(self._is_terminal)]), self._car, self._car_accel,self._peds.flatten(),self._car_obs.flatten()), axis=0)
+        simulator_state = np.concatenate((np.array([self._step]),
+                                          np.array([self._path_length]),
+                                          np.array([int(self._is_terminal)]),
+                                          self._car,
+                                          self._car_accel,
+                                          self._peds.flatten(),
+                                          self._car_obs.flatten()), axis=0)
+
         return simulator_state
 
     def restore_state(self, simulator_state):
-        self._info = simulator_state['info']
-        self._step = simulator_state['step']
-        self._path_length = simulator_state['path_length']
-        self._is_terminal = simulator_state['is_terminal']
-        self.init_conditions = simulator_state['init_conditions']
-        self._first_step = simulator_state['first_step']
-        self._car = simulator_state['car']
-        self._car_accel = simulator_state['car_accel']
-        self.x = simulator_state['x']
-        self.y = simulator_state['y']
-        self._peds = simulator_state['peds']
-        self._measurements = simulator_state['measurements']
-        self._env_obs = simulator_state['env_obs']
-        self._car_obs = simulator_state['car_obs']
+        # self._step = simulator_state['step']
+        # self._path_length = simulator_state['path_length']
+        # self._is_terminal = simulator_state['is_terminal']
+        # self.init_conditions = simulator_state['init_conditions']
+        # self._first_step = simulator_state['first_step']
+        # self._car = simulator_state['car']
+        # self._car_accel = simulator_state['car_accel']
+        # self.x = simulator_state['x']
+        # self.y = simulator_state['y']
+        # self._peds = simulator_state['peds']
+        # self._measurements = simulator_state['measurements']
+        # self._env_obs = simulator_state['env_obs']
+        # self._car_obs = simulator_state['car_obs']
+        self._step = simulator_state[0]
+        self._path_length = simulator_state[1]
+        self._is_terminal = bool(simulator_state[2])
+        self._car = simulator_state[3:7]
+        self._car_accel = simulator_state[7:9]
+        peds_end_index = 9+self.c_num_peds*4
+        self._peds = simulator_state[9:peds_end_index].reshape((self.c_num_peds,4))
+        car_obs_end_index = peds_end_index + self.c_num_peds*4
+        self._car_obs = simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds,4))
 
     def _get_obs(self):
         return self._env_obs

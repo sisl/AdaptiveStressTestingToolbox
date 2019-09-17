@@ -27,19 +27,23 @@ class GoExploreParameter():
 
     def set_value(self, value):
         self.value = value
+#
+# class GoExploreASTGymEnv(gym.Env):
+#
+#     def __init__(self, test):
+#
+#         print(test)
+#
+#     def step(self, action):
+#         pass
+#
+#     def reset(self):
+#         pass
+#
+#     def render(self, mode='human'):
+#         pass
 
-class GoExploreASTGymEnv(gym.Env):
-
-    def step(self, action):
-        pass
-
-    def reset(self):
-        pass
-
-    def render(self, mode='human'):
-        pass
-
-class GoExploreASTEnv(gym.Wrapper, Parameterized):
+class GoExploreASTEnv(gym.Env, Parameterized):
 # class ASTEnv(GarageEnv):
     def __init__(self,
                  open_loop=True,
@@ -49,7 +53,10 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
                  simulator=None,
                  reward_function=None,
                  spaces=None):
-        super().__init__(gym.make('mylab:GoExploreAST-v0'))
+        # pdb.set_trace()
+        # gym_env = gym.make('mylab:GoExploreAST-v0', {'test':'test string'})
+        # pdb.set_trace()
+        # super().__init__(gym_env)
         # Constant hyper-params -- set by user
         self.open_loop=open_loop
         self.action_only = action_only #is this redundant?
@@ -64,6 +71,7 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
         self._first_step = True
         self.reward_range = (-float('inf'), float('inf'))
         self.metadata = None
+        self.spec._entry_point = []
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
@@ -130,6 +138,7 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
         # Update simulation step
         obs = self.simulator.step(self._action, self.open_loop)
         if (obs is None) or (self.open_loop is True):
+            print('Open Loop:', obs)
             obs = self._init_state
         # if self.simulator.is_goal():
         if self.simulator.isterminal():
@@ -145,9 +154,9 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
         return Step(observation=self.downsample(obs),
                     reward=self._reward,
                     done=self._done,
-                    info={'cache': self._info,
-                          'actions': self._action,
-                          'state': self._simulator_state})
+                    cache= self._info,
+                    actions= self._action,
+                    state= self._simulator_state)
 
     def simulate(self, actions):
         if not self._fixed_init_state:
@@ -205,6 +214,7 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
                     self.simulator.restore_state(cell.state)
                     # print("restored")
                     obs = self.simulator._get_obs()
+                    self._done = False
                     # print("restore obs: ", obs)
             else:
                 print("Reset from start")
@@ -235,9 +245,7 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
             print("Failed to get state from database")
             obs = self.env_reset()
 
-
-        x = self.downsample(obs)
-        return x
+        return self.downsample(obs)
 
     def env_reset(self):
         """
@@ -256,8 +264,10 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
         self._actions = []
         self._first_step = True
         self._step = 0
-
-        return self.simulator.reset(self._init_state)
+        obs = self.simulator.reset(self._init_state)
+        if  not self._fixed_init_state:
+            obs = np.concatenate((obs, np.array(self._init_state)), axis=0)
+        return obs
 
     @property
     def action_space(self):
@@ -361,3 +371,10 @@ class GoExploreASTEnv(gym.Wrapper, Parameterized):
 
     def downsample(self, obs):
         return obs
+
+class Custom_GoExploreASTEnv(GoExploreASTEnv):
+    @overrides
+    def downsample(self, obs):
+        # import pdb; pdb.set_trace()
+        obs = obs * 1000
+        return obs.astype(int)

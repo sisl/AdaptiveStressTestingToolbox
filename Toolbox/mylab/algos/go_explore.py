@@ -317,6 +317,18 @@ class GoExplore(BatchPolopt):
                          **kwargs)
 
     @overrides
+    def train(self, runner, batch_size):
+        last_return = None
+
+        for epoch in runner.step_epochs():
+            runner.step_path = runner.obtain_samples(runner.step_itr,
+                                                     batch_size)
+            last_return = self.train_once(runner.step_itr, runner.step_path)
+            runner.step_itr += 1
+
+        return last_return
+
+    @overrides
     def init_opt(self):
         """
         Initialize the optimization procedure. If using tensorflow, this may
@@ -333,6 +345,7 @@ class GoExplore(BatchPolopt):
         pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
         d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         obs, state = self.env.get_first_cell()
+        # pdb.set_trace()
         self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=[], score=0.0, state=state, chosen=1)
         d_pool.sync()
         # self.cell_pool.d_pool.close()
@@ -387,7 +400,9 @@ class GoExplore(BatchPolopt):
                 chosen = 0
                 if j == 0:
                     chosen = 1
-                observation = samples_data['observations'][i, j, :] #// 32
+                observation = samples_data['observations'][i, j, :]
+                if np.all(observation == 0):
+                    continue
                 trajectory = samples_data['observations'][i, 0:j, :]
                 score = samples_data['rewards'][i, j]
                 state = samples_data['env_infos']['state'][i, j, :]
