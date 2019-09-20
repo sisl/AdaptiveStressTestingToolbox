@@ -50,12 +50,14 @@ def runner(exp_name='av',
            discount=0.99,
            n_itr=100,
            max_kl_step=0.01,
-           whole_paths=False):
+           whole_paths=False,
+           batch_size=None):
 
     if overwrite_db and os.path.exists(db_filename):
         os.remove(db_filename)
 
-    batch_size = max_path_length * n_parallel
+    if batch_size is None:
+        batch_size = max_path_length * n_parallel
 
     def run_task(snapshot_config, *_):
 
