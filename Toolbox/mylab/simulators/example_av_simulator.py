@@ -56,7 +56,8 @@ class ExampleAVSimulator(ASTSimulator):
         self._info = []
         self._step = 0
         self._path_length = 0
-        self._action = None
+        # self._action = None
+        self._action = np.array([0] * (6 * self.c_num_peds))
         self._first_step = True
         self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
         self.y = np.random.rand(self.c_num_peds) * 14 - 5
@@ -171,6 +172,9 @@ class ExampleAVSimulator(ASTSimulator):
         if self._path_length >= self.c_max_path_length:
             self._is_terminal = True
 
+        if self.action_only:
+            obs = action
+
         # pdb.set_trace()
         # print(obs)
         return obs
@@ -189,6 +193,7 @@ class ExampleAVSimulator(ASTSimulator):
         self._path_length = 0
         self._is_terminal = False
         self.init_conditions = s_0
+        self._action = np.array([0] * (6 * self.c_num_peds))
         self._first_step = True
 
         # Get v_des if it is sampled from a range
@@ -218,7 +223,7 @@ class ExampleAVSimulator(ASTSimulator):
 
         # return the initial simulation state
         if self.action_only:
-            obs = np.array([0]*(4*self.c_num_peds))
+            obs = self._action
         else:
             self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
             self._car_accel = np.zeros((2))
@@ -349,13 +354,16 @@ class ExampleAVSimulator(ASTSimulator):
         # }
         # simulator_state = np.concatenate((np.array([self._step]),np.array([self._path_length]),np.array([int(self._is_terminal)]),np.array(self.init_conditions),np.array([int(self._first_step)]),self._car, self._car_accel,self._peds.flatten(),self._measurements.flatten(),self._env_obs.flatten(),self._car_obs.flatten()), axis=0)
         # simulator_state = np.concatenate((np.array([self._step]), np.array([self._path_length]),np.array([int(self._is_terminal)]), self._car, self._car_accel,self._peds.flatten(),self._car_obs.flatten()), axis=0)
+        # if self._action is None:
+        #     self._action =
         simulator_state = np.concatenate((np.array([self._step]),
                                           np.array([self._path_length]),
                                           np.array([int(self._is_terminal)]),
                                           self._car,
                                           self._car_accel,
                                           self._peds.flatten(),
-                                          self._car_obs.flatten()), axis=0)
+                                          self._car_obs.flatten(),
+                                          self._action.flatten()), axis=0)
 
         return simulator_state
 
@@ -382,6 +390,11 @@ class ExampleAVSimulator(ASTSimulator):
         self._peds = simulator_state[9:peds_end_index].reshape((self.c_num_peds,4))
         car_obs_end_index = peds_end_index + self.c_num_peds*4
         self._car_obs = simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds,4))
+        self._action = simulator_state[car_obs_end_index:]
 
     def _get_obs(self):
+        if self.action_only:
+            if self._action is None:
+                return np.array([0] * (6*self.c_num_peds))
+            return self._action
         return self._env_obs

@@ -72,6 +72,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self.reward_range = (-float('inf'), float('inf'))
         self.metadata = None
         self.spec._entry_point = []
+        self._cum_reward = 0.0
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
@@ -114,9 +115,14 @@ class GoExploreASTEnv(gym.Env, Parameterized):
     def get_first_cell(self):
         # obs = self.env.env.reset()
         # state = self.env.env.clone_state()
-        obs = self.simulator.reset(self._init_state)
-        state = self.simulator.clone_state()
-        return obs, state
+        obs = self.env_reset()
+        # obs = self.simulator.reset(self._init_state)
+        state = np.concatenate((self.simulator.clone_state(),
+                        np.array([self._cum_reward]),
+                        np.array([self._step])),
+                        axis=0)
+        # pdb.set_trace()
+        return self.downsample(obs), state
 
     def step(self, action):
         """
@@ -141,22 +147,29 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             print('Open Loop:', obs)
             obs = self._init_state
         # if self.simulator.is_goal():
+        #Add step number to differentiate identical actions
+        # obs = np.concatenate((np.array([self._step]), self.downsample(obs)), axis=0)
         if self.simulator.isterminal():
             self._done = True
         # Calculate the reward for this step
         self._reward = self.reward_function.give_reward(
             action=self._action,
             info=self.simulator.get_reward_info())
+        self._cum_reward += self._reward
         # Update instance attributes
         self._step = self._step + 1
         self._simulator_state = self.simulator.clone_state()
+        self._env_state = np.concatenate((self._simulator_state,
+                                          np.array([self._cum_reward]),
+                                          np.array([self._step])),
+                                          axis=0)
 
         return Step(observation=self.downsample(obs),
                     reward=self._reward,
                     done=self._done,
                     cache= self._info,
                     actions= self._action,
-                    state= self._simulator_state)
+                    state= self._env_state)
 
     def simulate(self, actions):
         if not self._fixed_init_state:
@@ -206,15 +219,21 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             # print("Close DB: ", 100*(tick7 - tick6) / (tick7 - start), " %")
             # print("DB Access took: ", time.time() - start, " s")
             if cell.state is not None:
-                if cell.state[0] == 0:
-                    print("DEFORMED CELL STATE")
+                # pdb.set_trace()
+                if np.all(cell.observation[0] == 0):
+                    # print("DEFORMED CELL STATE")
                     obs = self.env_reset()
                 else:
                     # print("restore state: ", cell.state)
-                    self.simulator.restore_state(cell.state)
+                    self.simulator.restore_state(cell.state[:-2])
+                    if self.simulator.isterminal() or self.simulator.is_goal():
+                        obs = self.env_reset()
+                    else:
                     # print("restored")
-                    obs = self.simulator._get_obs()
-                    self._done = False
+                        obs = self.simulator._get_obs()
+                        self._done = False
+                        self._cum_reward = cell.state[-2]
+                        self._step = cell.state[-1]
                     # print("restore obs: ", obs)
             else:
                 print("Reset from start")
@@ -259,14 +278,21 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             self._init_state = self.observation_space.sample()
         self._done = False
         self._reward = 0.0
+        self._cum_reward = 0.0
         self._info = []
         self._action = None
         self._actions = []
         self._first_step = True
         self._step = 0
         obs = self.simulator.reset(self._init_state)
+        # if self.action_only:
+        #     obs = np.array([0] * self.action_space.shape[0])
+        # else:
+        #     print('Not action only')
         if  not self._fixed_init_state:
             obs = np.concatenate((obs, np.array(self._init_state)), axis=0)
+
+        # obs = np.concatenate((np.array([self._step]), self.downsample(obs)), axis=0)
         return obs
 
     @property
@@ -372,9 +398,13 @@ class GoExploreASTEnv(gym.Env, Parameterized):
     def downsample(self, obs):
         return obs
 
+    def _get_obs(self):
+        obs = self.simulator._get_obs()
+
+
 class Custom_GoExploreASTEnv(GoExploreASTEnv):
     @overrides
     def downsample(self, obs):
         # import pdb; pdb.set_trace()
         obs = obs * 1000
-        return obs.astype(int)
+        return np.concatenate((np.array([self._step]), obs), axis=0).astype(int)
