@@ -23,9 +23,10 @@ import gym
 
 # Useful imports
 from example_save_trials import *
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 import tensorflow as tf
 import fire
-import os
 import pdb
 
 #
@@ -67,8 +68,8 @@ def runner(exp_name='av',
     def run_task(snapshot_config, *_):
 
 
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
+        config = tf.ConfigProto(device_count={'GPU': 0})
+        # config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
