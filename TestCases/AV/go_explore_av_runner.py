@@ -1,6 +1,5 @@
 # Import the example classes
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
-from mylab.simulators.av_rss_simulator import AVRSSSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
 
@@ -73,8 +72,7 @@ def runner(exp_name='av',
                         snapshot_config=snapshot_config, sess=sess) as runner:
 
                     # Instantiate the example classes
-                    # sim = ExampleAVSimulator()
-                    sim = AVRSSSimulator()
+                    sim = ExampleAVSimulator()
                     reward_function = ExampleAVReward()
                     spaces = ExampleAVSpaces()
 
