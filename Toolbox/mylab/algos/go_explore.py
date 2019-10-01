@@ -19,6 +19,7 @@ from garage.tf.misc.tensor_utils import flatten_inputs
 from garage.tf.misc.tensor_utils import graph_inputs
 from garage.tf.optimizers import LbfgsOptimizer
 from cached_property import cached_property
+from dowel import logger, tabular
 from mylab.envs.go_explore_atari_env import GoExploreTfEnv #, CellPool,Cell
 import sys
 import pdb
@@ -51,6 +52,7 @@ class CellPool():
         self.max_value = 0
         self.max_score = -np.inf
         self.max_reward = -np.inf
+        self.best_cell = None
         # self.d_pool = shelve.BsdDbShelf(pool_DB)
         # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
         # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
@@ -118,6 +120,7 @@ class CellPool():
                 self.max_value = cell.fitness
             if cell.score > self.max_score:
                 self.max_score = score
+
             return True
         else:
             cell = d_pool[obs_hash]
@@ -328,6 +331,7 @@ class GoExplore(BatchPolopt):
         self.env_spec = env_spec
         self.policy = policy
         self.env = env
+        self.best_cell = None
 
         # self.init_opt()
 
@@ -347,6 +351,15 @@ class GoExplore(BatchPolopt):
             runner.step_itr += 1
 
         return last_return
+
+    @overrides
+    def train_once(self, itr, paths):
+        paths = self.process_samples(itr, paths)
+
+        self.log_diagnostics(paths)
+        logger.log('Optimizing policy...')
+        self.optimize_policy(itr, paths)
+        return self.best_cell
 
     @overrides
     def init_opt(self):
@@ -392,12 +405,17 @@ class GoExplore(BatchPolopt):
 
 
     @overrides
-    def get_itr_snapshot(self, itr, samples_data):
+    def get_itr_snapshot(self, itr):
         """
         Returns all the data that should be saved in the snapshot for this
         iteration.
         """
-        return {'env':None, 'paths':None}
+        pdb.set_trace()
+        return dict(
+            itr=itr,
+            policy=self.policy,
+            baseline=self.baseline,
+        )
 
     @overrides
     def optimize_policy(self, itr, samples_data):
@@ -418,6 +436,7 @@ class GoExplore(BatchPolopt):
             sys.stdout.flush()
             cum_reward = 0
             cum_traj = np.array([])
+            observation = None
             for j in range(samples_data['observations'].shape[1]):
                 # pdb.set_trace()
                 chosen = 0
@@ -431,10 +450,10 @@ class GoExplore(BatchPolopt):
                         pdb.set_trace()
                     # if cum_reward == 0 or cum_reward  <-1e8:
                     #     pdb.set_trace()
-                observation = samples_data['observations'][i, j, :]
-                if np.all(observation == 0):
-                    continue
 
+                if np.all(samples_data['observations'][i, j, :] == 0):
+                    continue
+                observation = samples_data['observations'][i, j, :]
                 trajectory = samples_data['observations'][i, 0:j, :]
                 if cum_traj.shape[0] > 0:
                     trajectory = np.concatenate((cum_traj, trajectory), axis=0)
@@ -450,8 +469,9 @@ class GoExplore(BatchPolopt):
                                            chosen=chosen):
                     new_cells += 1
                 total_cells += 1
-            if cum_reward > self.max_cum_reward:
+            if cum_reward > self.max_cum_reward and observation is not None:
                 self.max_cum_reward = cum_reward
+                self.best_cell = d_pool[str(hash(observation.tostring()))]
             if cum_reward > -100:
                 pdb.set_trace()
         sys.stdout.write("\n")

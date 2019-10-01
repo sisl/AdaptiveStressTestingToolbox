@@ -2,7 +2,10 @@
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.simulators.av_rss_simulator import AVRSSSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
+from mylab.rewards.heuristic_reward import HeuristicReward
+from mylab.rewards.pedestrian_noise_gaussian import PedestrianNoiseGaussian
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
+import mylab.simulators.rss_metrics as rss
 
 # Import the AST classes
 from mylab.envs.go_explore_ast_env import GoExploreASTEnv, Custom_GoExploreASTEnv
@@ -74,8 +77,27 @@ def runner(exp_name='av',
 
                     # Instantiate the example classes
                     # sim = ExampleAVSimulator()
-                    sim = AVRSSSimulator()
-                    reward_function = ExampleAVReward()
+                    g = 9.8  # acceleration due to gravity
+
+                    # this is y
+                    lat_params = rss.LateralParams(0,  # ρ
+                                                   0.1 * g,  # a_lat_max_acc
+                                                   0.05 * g,  # a_lat_min_brake
+                                                   1.4  # Buffer distance
+                                                   )
+
+                    # this is x
+                    long_params = rss.LongitudinalParams(0,  # ρ
+                                                         0.7 * g,  # a_max_brake
+                                                         0.1 * g,  # a_max_acc
+                                                         0.7 * g,  # a_min_brake1
+                                                         0.7 * g,  # a_min_brake2
+                                                         2.5,  # Buffer
+                                                         )
+                    sim = AVRSSSimulator(lat_params, long_params)
+                    reward_function = HeuristicReward(PedestrianNoiseGaussian(1, 1, 0.2, .01),
+                                                      np.array([-10000, -1000, 0]))
+                    # reward_function = ExampleAVReward()
                     spaces = ExampleAVSpaces()
 
                     # Create the environment
@@ -86,12 +108,13 @@ def runner(exp_name='av',
                     #                              simulator=sim,
                     #                              reward_function=reward_function,
                     #                              spaces=spaces
+                    s_0 = [-1.0, -1.0, 1.0, 11.17, -35.0]
                     #                              )
                     env1 = gym.make('mylab:GoExploreAST-v1',
                              open_loop=False,
                              action_only=True,
                              fixed_init_state=True,
-                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                             s_0=s_0,
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
@@ -135,6 +158,21 @@ def runner(exp_name='av',
                     # Run the experiment
                     paths = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
                     print(paths)
+                    best_traj = paths.trajectory * np.array([1, 1/1000, 1/1000, 1/1000, 1/1000, 1/1000, 1/1000])
+                    obs = np.expand_dims(sim.reset(s_0=s_0), axis=0)
+                    peds = sim._peds
+                    car = np.expand_dims(sim._car, axis=0)
+                    car_obs = sim._car_obs
+                    for step in range(best_traj.shape[0]):
+                        sim.step(action=best_traj[step, 1:], open_loop=False)
+                        peds = np.concatenate((peds, sim._peds), axis=0)
+                        car = np.concatenate((car, np.expand_dims(sim._car, axis=0)), axis=0)
+                        car_obs = np.concatenate((car_obs, sim._car_obs), axis=0)
+
+                    import matplotlib.pyplot as plt
+                    plt.scatter(car[:,2], car[:,3])
+                    plt.scatter(peds[:, 2], peds[:, 3])
+                    plt.scatter(car_obs[:, 2], car_obs[:, 3])
                     pdb.set_trace()
                     print('done!')
                     # saver = tf.train.Saver()
