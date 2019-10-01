@@ -64,7 +64,7 @@ def runner(exp_name='av',
 
 
         config = tf.ConfigProto(device_count={'GPU': 0})
-        config.gpu_options.allow_growth = True
+        # config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
