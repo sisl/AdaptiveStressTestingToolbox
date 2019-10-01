@@ -410,7 +410,7 @@ class GoExplore(BatchPolopt):
         Returns all the data that should be saved in the snapshot for this
         iteration.
         """
-        pdb.set_trace()
+        # pdb.set_trace()
         return dict(
             itr=itr,
             policy=self.policy,
@@ -447,7 +447,8 @@ class GoExplore(BatchPolopt):
                         cum_reward = root_cell.reward
                         cum_traj = root_cell.trajectory
                     except:
-                        pdb.set_trace()
+                        print('----------ERROR - failed to retrieve root cell--------------------')
+                        break
                     # if cum_reward == 0 or cum_reward  <-1e8:
                     #     pdb.set_trace()
 
@@ -472,8 +473,8 @@ class GoExplore(BatchPolopt):
             if cum_reward > self.max_cum_reward and observation is not None:
                 self.max_cum_reward = cum_reward
                 self.best_cell = d_pool[str(hash(observation.tostring()))]
-            if cum_reward > -100:
-                pdb.set_trace()
+            # if cum_reward > -100:
+            #     pdb.set_trace()
         sys.stdout.write("\n")
         sys.stdout.flush()
         print(new_cells, " new cells (", 100 * new_cells / total_cells, "%)")

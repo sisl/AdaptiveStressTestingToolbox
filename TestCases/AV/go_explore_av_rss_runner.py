@@ -108,7 +108,7 @@ def runner(exp_name='av',
                     #                              simulator=sim,
                     #                              reward_function=reward_function,
                     #                              spaces=spaces
-                    s_0 = [-1.0, -1.0, 1.0, 11.17, -35.0]
+                    s_0 = [-1.0, -2.0, 1.0, 11.17, -35.0]
                     #                              )
                     env1 = gym.make('mylab:GoExploreAST-v1',
                              open_loop=False,
