@@ -2,7 +2,8 @@ import copy
 import mylab.mcts.MDP as MDP
 import mylab.mcts.MCTSdpw as MCTSdpw
 import numpy as np
-import garage.misc.logger as logger
+# import garage.misc.logger as logger
+from dowel import logger, tabular
 
 class ASTParams:
 	def __init__(self,max_steps,log_interval,log_tabular):
@@ -45,10 +46,12 @@ class AdaptiveStressTest:
 		if self.params.log_tabular:
 			if self.step_count%self.params.log_interval == 0:
 				logger.log(' ')
-				logger.record_tabular('StepNum',self.step_count)
+				# logger.record_tabular('StepNum',self.step_count)
+				tabular.record('StepNum',self.step_count)
 				for (topi, path) in enumerate(self.top_paths):
-					logger.record_tabular('reward '+str(topi), path[0])
-				logger.dump_tabular(with_prefix=False)
+					# logger.record_tabular('reward '+str(topi), path[0])
+					tabular.record('reward '+str(topi), path[0])
+				# logger.dump_tabular(with_prefix=False)
 		return obs, reward, done, info
 	def isterminal(self):
 		return self._isterminal
