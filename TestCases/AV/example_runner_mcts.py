@@ -15,10 +15,10 @@ from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+# from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
-from garage.misc import logger
-
+# from garage.misc import logger
+from garage.experiment import LocalRunner, run_experiment
 # Useful imports
 import os.path as osp
 import argparse
@@ -34,7 +34,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='.')
+parser.add_argument('--log_dir', type=str, default='.data_mcts')
 parser.add_argument('--args_data', type=str, default=None)
 parser.add_argument('--run_num', type=int, default=0)
 
@@ -65,21 +65,18 @@ tabular_log_file = osp.join(log_dir, args.tabular_log_file)
 text_log_file = osp.join(log_dir, args.text_log_file)
 params_log_file = osp.join(log_dir, args.params_log_file)
 
-logger.log_parameters_lite(params_log_file, args)
-logger.add_text_output(text_log_file)
-logger.add_tabular_output(tabular_log_file)
-prev_snapshot_dir = logger.get_snapshot_dir()
-prev_mode = logger.get_snapshot_mode()
-logger.set_snapshot_dir(log_dir)
-logger.set_snapshot_mode(args.snapshot_mode)
-logger.set_snapshot_gap(args.snapshot_gap)
-logger.set_log_tabular_only(args.log_tabular_only)
-logger.push_prefix("[%s] " % args.exp_name)
+# logger.log_parameters_lite(params_log_file, args)
+# logger.add_text_output(text_log_file)
+# logger.add_tabular_output(tabular_log_file)
+# prev_snapshot_dir = logger.get_snapshot_dir()
+# prev_mode = logger.get_snapshot_mode()
+# logger.set_snapshot_dir(log_dir)
+# logger.set_snapshot_mode(args.snapshot_mode)
+# logger.set_snapshot_gap(args.snapshot_gap)
+# logger.set_log_tabular_only(args.log_tabular_only)
+# logger.push_prefix("[%s] " % args.exp_name)
 
-# Instantiate the example classes
-sim = ExampleAVSimulator()
-reward_function = ExampleAVReward()
-spaces = ExampleAVSpaces()
+
 
 # Create the environment
 
@@ -101,28 +98,7 @@ s_0 = [ x[np.mod(args.run_num,2)],
         xc[np.mod(args.run_num//16, 2)]]
 print(s_0)
 # s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
-env = ASTEnv(action_only=True,
-             open_loop=False,
-             fixed_init_state=True,
-             s_0=s_0,
-             simulator=sim,
-             reward_function=reward_function,
-             spaces=spaces
-             )
-algo = MCTS(
-	    env=env,
-		stress_test_num=2,
-		max_path_length=50,
-		ec=args.ec,
-		n_itr=int(args.iters*args.batch_size/50**2),
-		k=args.k,
-		alpha=args.alpha,
-		clear_nodes=True,
-		log_interval=1000,
-	    top_paths=top_paths,
-	    plot_tree=False,
-	    plot_path=args.log_dir+'/tree'
-	    )
+
 
 # algo = MCTSBV(
 # 	    env=env,
@@ -140,11 +116,74 @@ algo = MCTS(
 # 		M=10
 # 	    )
 
-algo.train()
 # n = np.zeros((50,6))
 # for i in range(50):
 # 	n[i,:] = spaces.action_space.sample()
 #
 # print(np.mean(n, axis=0))
+batch_size = 50000
+max_path_length = 50
+n_envs = batch_size // max_path_length
+
+def run_task(snapshot_config, *_):
 
 
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    with tf.Session(config=config) as sess:
+        with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
+
+            with LocalRunner(
+                    snapshot_config=snapshot_config, max_cpus=4, sess=sess) as runner:
+
+                # Instantiate the example classes
+                sim = ExampleAVSimulator()
+                reward_function = ExampleAVReward()
+                spaces = ExampleAVSpaces()
+
+                # Create the environment
+                env = ASTEnv(action_only=True,
+                             open_loop=False,
+                             fixed_init_state=True,
+                             s_0=s_0,
+                             simulator=sim,
+                             reward_function=reward_function,
+                             spaces=spaces
+                             )
+                algo = MCTS(
+                        env=env,
+                        stress_test_num=2,
+                        max_path_length=50,
+                        ec=args.ec,
+                        n_itr=int(args.iters*args.batch_size/50**2),
+                        k=args.k,
+                        alpha=args.alpha,
+                        clear_nodes=True,
+                        log_interval=1000,
+                        top_paths=top_paths,
+                        plot_tree=False,
+                        plot_path=args.log_dir+'/tree'
+                        )
+
+                sampler_cls = ASTVectorizedSampler
+
+                runner.setup(
+                    algo=algo,
+                    env=env,
+                    sampler_cls=sampler_cls,
+                    sampler_args={"sim": sim,
+                                  "reward_function": reward_function,
+                                  "n_envs": n_envs})
+
+                # Run the experiment
+                runner.train(n_epochs=args.iters, batch_size=batch_size, plot=False)
+
+run_experiment(
+        run_task,
+        snapshot_mode=args.snapshot_mode,
+        log_dir=log_dir,
+        exp_name='av',
+        snapshot_gap=args.snapshot_gap,
+        seed=1,
+        n_parallel=4,
+    )

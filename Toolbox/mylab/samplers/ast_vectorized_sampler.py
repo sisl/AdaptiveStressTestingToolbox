@@ -9,12 +9,12 @@ from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 
 class ASTVectorizedSampler(OnPolicyVectorizedSampler):
-    def __init__(self, algo, env, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
+    def __init__(self, algo, env, n_envs = 1, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
         # pdb.set_trace()
         self.open_loop = open_loop
         self.sim = sim
         self.reward_function = reward_function
-        super().__init__(algo, env)
+        super().__init__(algo, env, n_envs)
 
     def obtain_samples(self, itr, batch_size=None, whole_paths=False):
         # pdb.set_trace()

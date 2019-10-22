@@ -11,6 +11,7 @@ from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies.uniform_control_policy import UniformControlPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
@@ -26,13 +27,13 @@ import tensorflow as tf
 parser = argparse.ArgumentParser()
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='../data/')
-parser.add_argument('--iters', type=int, default=1)
+parser.add_argument('--log_dir', type=str, default='./data')
+parser.add_argument('--iters', type=int, default=101)
 args = parser.parse_args()
 
 log_dir = args.log_dir
 
-batch_size = 4000
+batch_size = 50000
 max_path_length = 50
 n_envs = batch_size // max_path_length
 
@@ -46,7 +47,7 @@ def run_task(snapshot_config, *_):
         with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
             with LocalRunner(
-                    snapshot_config=snapshot_config, max_cpus=n_envs, sess=sess) as runner:
+                    snapshot_config=snapshot_config, max_cpus=4, sess=sess) as runner:
 
                 # Instantiate the example classes
                 sim = ExampleAVSimulator()
@@ -55,8 +56,8 @@ def run_task(snapshot_config, *_):
 
                 # Create the environment
                 env = TfEnv(normalize(ASTEnv(action_only=True,
-                                             fixed_init_state=False,
-                                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                                             fixed_init_state=True,
+                                             s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
                                              simulator=sim,
                                              reward_function=reward_function,
                                              spaces=spaces
@@ -67,6 +68,7 @@ def run_task(snapshot_config, *_):
                                             env_spec=env.spec,
                                             hidden_dim=64,
                                             use_peepholes=True)
+
 
                 baseline = LinearFeatureBaseline(env_spec=env.spec)
 
@@ -82,7 +84,8 @@ def run_task(snapshot_config, *_):
                     kl_constraint='hard',
                     optimizer=optimizer,
                     optimizer_args=optimizer_args,
-                    max_kl_step=0.01)
+                    lr_clip_range=1.0,
+                    max_kl_step=1.0)
 
                 sampler_cls = ASTVectorizedSampler
 
@@ -91,10 +94,11 @@ def run_task(snapshot_config, *_):
                     env=env,
                     sampler_cls=sampler_cls,
                     sampler_args={"sim": sim,
-                                  "reward_function": reward_function})
+                                  "reward_function": reward_function,
+                                  "n_envs": n_envs})
 
                 # Run the experiment
-                runner.train(n_epochs=args.iters, batch_size=4000, plot=False)
+                runner.train(n_epochs=args.iters, batch_size=batch_size, plot=False)
 
                 saver = tf.train.Saver()
                 save_path = saver.save(sess, log_dir + '/model.ckpt')
@@ -123,4 +127,12 @@ def run_task(snapshot_config, *_):
 
 
 
-run_experiment(run_task, snapshot_mode='last', seed=1)
+run_experiment(
+        run_task,
+        snapshot_mode=args.snapshot_mode,
+        log_dir=log_dir,
+        exp_name='av',
+        snapshot_gap=args.snapshot_gap,
+        seed=1,
+        n_parallel=4,
+    )
