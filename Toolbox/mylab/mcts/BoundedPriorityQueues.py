@@ -18,7 +18,7 @@ class BoundedPriorityQueue:
 			ck = copy.deepcopy(k)
 			self.pq.insert(ck,v)
 		else:
-			self.pq.put(k,v)
+			self.pq.insert(k,v)
 	def length(self):
 		return self.pq.size()
 	def empty(self):
