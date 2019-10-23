@@ -159,7 +159,7 @@ def run_task(snapshot_config, *_):
                         k=args.k,
                         alpha=args.alpha,
                         clear_nodes=True,
-                        log_interval=1000,
+                        log_interval=1,
                         top_paths=top_paths,
                         plot_tree=False,
                         plot_path=args.log_dir+'/tree'
