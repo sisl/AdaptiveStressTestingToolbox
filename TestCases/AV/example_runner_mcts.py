@@ -34,7 +34,7 @@ parser.add_argument('--params_log_file', type=str, default='args.txt')
 parser.add_argument('--snapshot_mode', type=str, default="gap")
 parser.add_argument('--snapshot_gap', type=int, default=10)
 parser.add_argument('--log_tabular_only', type=bool, default=False)
-parser.add_argument('--log_dir', type=str, default='.data_mcts')
+parser.add_argument('--log_dir', type=str, default='./data_mcts')
 parser.add_argument('--args_data', type=str, default=None)
 parser.add_argument('--run_num', type=int, default=0)
 

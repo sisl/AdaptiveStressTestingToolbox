@@ -52,12 +52,13 @@ class MCTS:
 		self.plot_tree=plot_tree
 		self.plot_path=plot_path
 		self.plot_format=plot_format
+		self.policy = None
 
 	def init(self):
 		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular)
 		self.ast = AST.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
 
-	def train(self):
+	def train(self, runner, batch_size):
 		self.init()
 		if self.plot_tree:
 			if self.stress_test_num == 2:
