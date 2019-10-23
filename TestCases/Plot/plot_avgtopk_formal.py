@@ -17,10 +17,13 @@ exp_name = 'CartpoleNd'
 exp_param = 'D1SUT5'
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
-# plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-plot_path = "/Users/xiaobaima/Dropbox/SISL/ASTToolbox/IROS/plots/"
+plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
+# plot_path = "/Users/xiaobaima/Dropbox/SISL/ASTToolbox/IROS/plots/"
 
 policy_groups = [
+                [
+                    "RandomSearchB2000",\
+                ],\
                 [
                     # "TRPOB2000Step0.1","TRPOB2000Step1.0",
                     "TRPOB2000Step5.0",\
@@ -41,8 +44,9 @@ policy_groups = [
                 ]\
                 ]
 
-algos = ["TRPO, Closed-Loop","TRPO, Open-Loop","MCTS, Open-Loop"]
-parameters = [["step size 0.1"],\
+algos = ["Random Search","TRPO, Closed-Loop","TRPO, Open-Loop","MCTS, Open-Loop"]
+parameters = [  [""],\
+                ["step size 0.1"],\
                 ['$k=\\alpha=0.5,ec=10.0$','$k=\\alpha=0.5,ec=10.0$','$k=\\alpha=0.5,ec=10.0$'],
                 ]
 
@@ -50,7 +54,7 @@ exp_name_f = 'Cartpole'
             
 exp_param_f = ''
 
-colors = ["blue","green","red"]
+colors = ["black","blue","green","red"]
 plot_name = exp_name+'_'+exp_param+'avgtop'+str(top_k)+'trial'+str(n_trial)+extra_name
 
 
