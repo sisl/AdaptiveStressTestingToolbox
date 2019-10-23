@@ -48,12 +48,18 @@ class AdaptiveStressTest:
                 logger.log(' ')
                 # logger.record_tabular('StepNum',self.step_count)
                 tabular.record('StepNum',self.step_count)
+                record_num = 0
                 for (topi, path) in enumerate(self.top_paths):
                     # logger.record_tabular('reward '+str(topi), path[0])
                     tabular.record('reward '+str(topi), path[1])
+                    record_num += 1
+
+                for topi_left in range(record_num, self.top_paths.N):
+                    tabular.record('reward '+str(topi_left), 0)
                 # logger.dump_tabular(with_prefix=False)
                 logger.log(tabular)
                 logger.dump_all(self.step_count)
+                tabular.clear()
         return obs, reward, done, info
     def isterminal(self):
         return self._isterminal

@@ -5,6 +5,7 @@ import numpy as np
 class BoundedPriorityQueue:
 	def __init__(self,N):
 		self.pq = DEPQ(iterable=None, maxlen=N)
+		self.N = N
 	def enqueue(self, k, v, make_copy=False):
 		if type(k) == np.ndarray:
 			for pair in self.pq.queue:
