@@ -78,7 +78,7 @@ class MCTS:
 		# 	reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)
 		# 	print("predic reward: ",result.rewards[i])
 		# 	print("actual reward: ",reward)	
-		for (reward_predict,action_seq) in result:
+		for (action_seq,reward_predict) in result:
 			actions = [a.get() for a in action_seq]
 			# print(np.mean(np.clip(actions,-1.0,1.0)))
 			reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)
