@@ -14,15 +14,26 @@ If you have already cloned the repo, you can run the following command to downlo
 If you have done the previous steps correctly, there should be a ``AdaptiveStressTestingToolbox/garage`` folder. Please see the `garage installation page <https://rlgarage.readthedocs.io/en/latest/user/installation.html>`_ for details on how to get all of their dependencies. Once garage is installed, create the Conda environment by running the following command from the top-level garage directory:
 ::
 	cd <Path-To-AdaptiveStressTestingToolbox>/AdaptiveStressTestingToolbox/garage
-	conda env create -f environment.yml
+	conda env create --name <your_environment_name> python=3.6
 
 Once the environment has been created, activate it by running:
 ::
-	source activate garage
+	conda activate <your_environment_name>
 
-More information on Conda environments can be found in their `documentation <https://conda.io/en/latest/>`_. Finally, add everthing to your ``PYTHONPATH`` like shown below:
+More information on Conda environments can be found in their `documentation <https://conda.io/en/latest/>`_. Next, run the following commands to install all of the dependencies. Note, you may run into errors with installing dm-control. You can ingore these if you are not planning to use Mujoco. 
 ::
-	export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox/garage:$PWD/TestCases:$PWD/Toolbox:$PWD/Toolbox/pydot
+	cd Toolbox/garage
+	touch mjkey.txt
+	echo "hello" > mjkey.txt
+	./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
+	rm mjkey.txt
+	pip install --ignore-installed garage
+	pip install -e .[dev]
+	cd ../../
+
+Finally, add everything to your ``PYTHONPATH`` like shown below:
+::
+	source setup.sh
 
 To validate your installation, please run the following:
 ::

@@ -38,7 +38,7 @@ parser.add_argument('--log_dir', type=str, default='./data_mcts')
 parser.add_argument('--args_data', type=str, default=None)
 parser.add_argument('--run_num', type=int, default=0)
 
-parser.add_argument('--iters', type=int, default=101)
+parser.add_argument('--iters', type=int, default=1001)
 parser.add_argument('--batch_size', type=int, default=4000)
 parser.add_argument('--clip_range', type=float, default=0.3)
 # Policy Params
@@ -91,14 +91,13 @@ vp = [0.5, 1.5]
 vc = [9.755, 12.315]
 xc = [-30.625, -39.375]
 
-s_0 = [ x[np.mod(args.run_num,2)],
-        y[np.mod(args.run_num//2, 2)],
-        vp[np.mod(args.run_num//4, 2)],
-        vc[np.mod(args.run_num//8, 2)],
-        xc[np.mod(args.run_num//16, 2)]]
-print(s_0)
-# s_0=[-0.0, -2.0, 1.0, 11.17, -35.0]
-
+# s_0 = [ x[np.mod(args.run_num,2)],
+#         y[np.mod(args.run_num//2, 2)],
+#         vp[np.mod(args.run_num//4, 2)],
+#         vc[np.mod(args.run_num//8, 2)],
+#         xc[np.mod(args.run_num//16, 2)]]
+# print(s_0)
+s_0=[0.0, -2.0, 1.0, 11.17, -35.0]
 
 # algo = MCTSBV(
 # 	    env=env,
