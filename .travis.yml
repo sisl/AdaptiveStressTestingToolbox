@@ -30,7 +30,7 @@ install:
   - rm mjkey.txt
   - pip install --ignore-installed garage
   - pip install -e .[dev]
-#  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma
+  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma
 #  - pip install rlgarage
 
   # Run AST setup
