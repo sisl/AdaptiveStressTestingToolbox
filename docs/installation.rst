@@ -29,6 +29,7 @@ More information on Conda environments can be found in their `documentation <htt
 	rm mjkey.txt
 	pip install --ignore-installed garage
 	pip install -e .[dev]
+	pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma
 	cd ../../
 
 Finally, add everything to your ``PYTHONPATH`` like shown below:
