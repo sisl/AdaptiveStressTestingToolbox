@@ -13,8 +13,8 @@ If you have already cloned the repo, you can run the following command to downlo
 
 If you have done the previous steps correctly, there should be a ``AdaptiveStressTestingToolbox/garage`` folder. Please see the `garage installation page <https://rlgarage.readthedocs.io/en/latest/user/installation.html>`_ for details on how to get all of their dependencies. Once garage is installed, create the Conda environment by running the following command from the top-level garage directory:
 ::
-	cd <Path-To-AdaptiveStressTestingToolbox>/AdaptiveStressTestingToolbox/garage
-	conda env create --name <your_environment_name> python=3.6
+	cd <Path-To-AdaptiveStressTestingToolbox>/AdaptiveStressTestingToolbox/Toolbox/garage
+	conda create --name <your_environment_name> python=3.6
 
 Once the environment has been created, activate it by running:
 ::
