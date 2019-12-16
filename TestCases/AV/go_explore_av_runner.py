@@ -40,10 +40,10 @@ import pdb
 
 def runner(exp_name='av',
            use_ram=False,
-           db_filename='/home/mkoren/Scratch/cellpool-shelf.dat',
+           db_filename='/home/mkoren/scratch/data/cellpool-shelf.dat',
            max_db_size=150,
            overwrite_db=True,
-           n_parallel=2,
+           n_parallel=1,
            snapshot_mode='last',
            snapshot_gap=1,
            log_dir=None,

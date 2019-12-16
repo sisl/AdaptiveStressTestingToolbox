@@ -34,7 +34,7 @@ class GoExploreTfEnv(TfEnv, Parameterized):
         self.key_list = []
         self.max_value = 0
         self.wrapped_env = env
-        if simulator = None:
+        if simulator is None:
             self.simulator = self.env.env
         else:
             self.simulator = simulator
