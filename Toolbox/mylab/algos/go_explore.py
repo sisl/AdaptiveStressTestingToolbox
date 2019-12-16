@@ -19,6 +19,7 @@ from garage.tf.misc.tensor_utils import flatten_inputs
 from garage.tf.misc.tensor_utils import graph_inputs
 from garage.tf.optimizers import LbfgsOptimizer
 from cached_property import cached_property
+from dowel import logger, tabular
 from mylab.envs.go_explore_atari_env import GoExploreTfEnv #, CellPool,Cell
 import sys
 import pdb
@@ -49,7 +50,9 @@ class CellPool():
         # self.d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         self.key_list = []
         self.max_value = 0
-        self.max_score = 0
+        self.max_score = -np.inf
+        self.max_reward = -np.inf
+        self.best_cell = None
         # self.d_pool = shelve.BsdDbShelf(pool_DB)
         # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
         # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
@@ -60,6 +63,7 @@ class CellPool():
         self.init_cell.observation = np.zeros((1,128))
         self.init_cell.trajectory = None
         self.init_cell.score = -np.inf
+        self.init_cell.reward = -np.inf
         self.init_cell.state = None
         self.init_cell.times_chosen = 0
         self.init_cell.times_visited = 1
@@ -92,7 +96,7 @@ class CellPool():
     #     index = np.random.randint(0, self.length)
     #     return self.get_cell(index)
 
-    def d_update(self, d_pool, observation, trajectory, score, state, chosen=0):
+    def d_update(self, d_pool, observation, trajectory, score, state, reward=-np.inf, chosen=0):
         # pdb.set_trace()
         #This tests to see if the observation is already in the matrix
         obs_hash = str(hash(observation.tostring()))
@@ -108,6 +112,7 @@ class CellPool():
             cell.times_visited = 1
             cell.times_chosen = chosen
             cell.times_chosen_since_improved = 0
+            cell.reward = reward
             d_pool[obs_hash] = cell
             self.length += 1
             self.key_list.append(obs_hash)
@@ -115,6 +120,7 @@ class CellPool():
                 self.max_value = cell.fitness
             if cell.score > self.max_score:
                 self.max_score = score
+
             return True
         else:
             cell = d_pool[obs_hash]
@@ -123,6 +129,7 @@ class CellPool():
                 cell.trajectory = trajectory
                 cell.trajectory_length = len(trajectory)
                 cell.state = state
+                cell.reward = reward
 
             cell.times_visited += 1
             cell.times_chosen += chosen
@@ -143,12 +150,14 @@ class Cell():
         self._times_chosen = 0
         self._times_chosen_since_improved = 0
         self._score = -np.inf
+        self._reward = 0
         self._action_times = 0
 
         self.trajectory_length = -np.inf
-        self.trajectory = []
+        self.trajectory = np.array([])
         self.state = None
         self.observation = None
+        # self._is_root = False
 
     def __eq__(self, other):
         if type(other) != type(self):
@@ -161,6 +170,20 @@ class Cell():
     def reset_cached_property(self, cached_property):
         if cached_property in self.__dict__:
             del self.__dict__[cached_property]
+
+    @property
+    def is_root(self):
+        return len(self.trajectory) == 0
+
+    @property
+    def reward(self):
+        return self._reward
+
+    @reward.setter
+    def reward(self, value):
+        self._reward = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
 
     @property
     def score(self):
@@ -308,6 +331,7 @@ class GoExplore(BatchPolopt):
         self.env_spec = env_spec
         self.policy = policy
         self.env = env
+        self.best_cell = None
 
         # self.init_opt()
 
@@ -317,7 +341,29 @@ class GoExplore(BatchPolopt):
                          **kwargs)
 
     @overrides
+    def train(self, runner, batch_size):
+        last_return = None
+
+        for epoch in runner.step_epochs():
+            runner.step_path = runner.obtain_samples(runner.step_itr,
+                                                     batch_size)
+            last_return = self.train_once(runner.step_itr, runner.step_path)
+            runner.step_itr += 1
+
+        return last_return
+
+    @overrides
+    def train_once(self, itr, paths):
+        paths = self.process_samples(itr, paths)
+
+        self.log_diagnostics(paths)
+        logger.log('Optimizing policy...')
+        self.optimize_policy(itr, paths)
+        return self.best_cell
+
+    @overrides
     def init_opt(self):
+        self.max_cum_reward = -np.inf
         """
         Initialize the optimization procedure. If using tensorflow, this may
         include declaring all the variables and compiling functions
@@ -333,7 +379,8 @@ class GoExplore(BatchPolopt):
         pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
         d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         obs, state = self.env.get_first_cell()
-        self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=[], score=0.0, state=state, chosen=1)
+        # pdb.set_trace()
+        self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=1)
         d_pool.sync()
         # self.cell_pool.d_pool.close()
         # cell = Cell()
@@ -358,12 +405,17 @@ class GoExplore(BatchPolopt):
 
 
     @overrides
-    def get_itr_snapshot(self, itr, samples_data):
+    def get_itr_snapshot(self, itr):
         """
         Returns all the data that should be saved in the snapshot for this
         iteration.
         """
-        return {'env':None, 'paths':None}
+        # pdb.set_trace()
+        return dict(
+            itr=itr,
+            policy=self.policy,
+            baseline=self.baseline,
+        )
 
     @overrides
     def optimize_policy(self, itr, samples_data):
@@ -382,23 +434,47 @@ class GoExplore(BatchPolopt):
         for i in range(samples_data['observations'].shape[0]):
             sys.stdout.write("\rProcessing Trajectory {0} / {1}".format(i, samples_data['observations'].shape[0]))
             sys.stdout.flush()
+            cum_reward = 0
+            cum_traj = np.array([])
+            observation = None
             for j in range(samples_data['observations'].shape[1]):
                 # pdb.set_trace()
                 chosen = 0
                 if j == 0:
                     chosen = 1
-                observation = samples_data['observations'][i, j, :] #// 32
+                    try:
+                        root_cell = d_pool[str(hash(samples_data['observations'][i, j, :].tostring()))]
+                        cum_reward = root_cell.reward
+                        cum_traj = root_cell.trajectory
+                    except:
+                        print('----------ERROR - failed to retrieve root cell--------------------')
+                        break
+                    # if cum_reward == 0 or cum_reward  <-1e8:
+                    #     pdb.set_trace()
+
+                if np.all(samples_data['observations'][i, j, :] == 0):
+                    continue
+                observation = samples_data['observations'][i, j, :]
                 trajectory = samples_data['observations'][i, 0:j, :]
+                if cum_traj.shape[0] > 0:
+                    trajectory = np.concatenate((cum_traj, trajectory), axis=0)
                 score = samples_data['rewards'][i, j]
+                cum_reward += score
                 state = samples_data['env_infos']['state'][i, j, :]
                 if self.cell_pool.d_update(d_pool=d_pool,
                                            observation=observation,
                                            trajectory=trajectory,
                                            score=score,
                                            state=state,
+                                           reward=cum_reward,
                                            chosen=chosen):
                     new_cells += 1
                 total_cells += 1
+            if cum_reward > self.max_cum_reward and observation is not None:
+                self.max_cum_reward = cum_reward
+                self.best_cell = d_pool[str(hash(observation.tostring()))]
+            # if cum_reward > -100:
+            #     pdb.set_trace()
         sys.stdout.write("\n")
         sys.stdout.flush()
         print(new_cells, " new cells (", 100 * new_cells / total_cells, "%)")
@@ -414,5 +490,5 @@ class GoExplore(BatchPolopt):
         if os.path.getsize(self.db_filename) /1000/1000/1000 > self.max_db_size:
             print ('------------ERROR: MAX DB SIZE REACHED------------')
             sys.exit()
-        print('\n---------- Max Score: ', self.cell_pool.max_score, ' ----------------\n')
+        print('\n---------- Max Score: ', self.max_cum_reward, ' ----------------\n')
 
