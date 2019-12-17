@@ -73,6 +73,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self.metadata = None
         self.spec._entry_point = []
         self._cum_reward = 0.0
+        self.robustify_state = None
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
@@ -185,6 +186,13 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         """
 
         try:
+            if self.robustify_state is not None:
+                self.simulator.restore_state(self.robustify_state[:-2])
+                obs = self.simulator._get_obs()
+                self._done = False
+                self._cum_reward = self.robustify_state[-2]
+                self._step = self.robustify_state[-1]
+                return obs
             # pdb.set_trace()
             # start = time.time()
             flag = db.DB_RDONLY
@@ -363,6 +371,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             self.p_db_filename = GoExploreParameter("db_filename", self.db_filename)
             self.p_key_list = GoExploreParameter("key_list", self.key_list)
             self.p_max_value = GoExploreParameter("max_value", self.max_value)
+            self.p_robustify_state = GoExploreParameter("robustify_state", self.robustify_state)
             self.params_set = True
 
         if tags.pop("db_filename", False) == True:
@@ -374,8 +383,11 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         if tags.pop("max_value", False) == True:
             return [self.p_max_value]
 
+        if tags.pop("robustify_state", False) == True:
+            return [self.p_robustify_state]
 
-        return [self.p_db_filename, self.p_key_list, self.p_max_value]#, self.p_downsampler]
+
+        return [self.p_db_filename, self.p_key_list, self.p_max_value, self.p_robustify_state]#, self.p_downsampler]
 
     @overrides
     def set_param_values(self, param_values, **tags):

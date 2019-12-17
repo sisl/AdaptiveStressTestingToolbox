@@ -286,7 +286,23 @@ class GoExplore(BatchPolopt):
                  env_spec,
                  policy,
                  baseline,
+                 robustify_max,
+                 robustify_algo,
+                 robustify_policy,
                  **kwargs):
+
+        # algo = TRPO(
+        #     env_spec=env.spec,
+        #     policy=policy,
+        #     baseline=baseline,
+        #     max_path_length=max_path_length,
+        #     discount=0.99,
+        #     kl_constraint='hard',
+        #     optimizer=optimizer,
+        #     optimizer_args=optimizer_args,
+        #     lr_clip_range=1.0,
+        #     max_kl_step=1.0)
+
         # env,
         # policy,
         # baseline,
@@ -332,6 +348,8 @@ class GoExplore(BatchPolopt):
         self.policy = policy
         self.env = env
         self.best_cell = None
+        self.robustify = False
+        self.robustify_max = robustify_max
 
         # self.init_opt()
 
@@ -350,6 +368,12 @@ class GoExplore(BatchPolopt):
             last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
 
+        # self.robustify = True
+        # self.init_opt()
+        # for epoch in range(self.robustify_max):
+        #     runner.step_path = runner.obtain_samples(runner.step_itr,
+        #                                              batch_size)
+        #     last_return = self.train_once(runner.step_itr, runner.step_path)
         return last_return
 
     @overrides
@@ -363,6 +387,9 @@ class GoExplore(BatchPolopt):
 
     @overrides
     def init_opt(self):
+
+        if self.robustify:
+            self.env.set_param_values([None], robustify_state=True, debug=False)
         self.max_cum_reward = -np.inf
         """
         Initialize the optimization procedure. If using tensorflow, this may
@@ -391,6 +418,7 @@ class GoExplore(BatchPolopt):
         self.env.set_param_values([self.db_filename], db_filename=True, debug=False)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
+        self.env.set_param_values([None], robustify_state=True, debug=False)
         d_pool.close()
         # pdb.set_trace()
         # self.policy.set_param_values({"cell_num":-1,
@@ -486,6 +514,7 @@ class GoExplore(BatchPolopt):
         # self.env.set_param_values([self.cell_pool], pool=True, debug=True)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
+
 
         if os.path.getsize(self.db_filename) /1000/1000/1000 > self.max_db_size:
             print ('------------ERROR: MAX DB SIZE REACHED------------')
