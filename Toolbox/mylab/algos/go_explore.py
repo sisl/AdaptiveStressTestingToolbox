@@ -8,6 +8,7 @@ import tensorflow as tf
 from garage.misc import special
 from garage.misc.overrides import overrides
 from garage.tf.algos.batch_polopt import BatchPolopt
+from mylab.algos.backward_algorithm import BackwardAlgorithm
 from garage.tf.misc import tensor_utils
 from garage.tf.misc.tensor_utils import compute_advantages
 from garage.tf.misc.tensor_utils import discounted_returns
@@ -286,9 +287,11 @@ class GoExplore(BatchPolopt):
                  env_spec,
                  policy,
                  baseline,
-                 robustify_max,
-                 robustify_algo,
-                 robustify_policy,
+                 robust_policy,
+                 robust_baseline,
+                 # robustify_max,
+                 # robustify_algo,
+                 # robustify_policy,
                  **kwargs):
 
         # algo = TRPO(
@@ -345,11 +348,15 @@ class GoExplore(BatchPolopt):
         self.db_filename = db_filename
         self.max_db_size = max_db_size
         self.env_spec = env_spec
-        self.policy = policy
+        self.go_explore_policy = policy
+        self.robust_policy = robust_policy
+        self.robust_baseline = robust_baseline
         self.env = env
         self.best_cell = None
         self.robustify = False
-        self.robustify_max = robustify_max
+        # self.robustify_max = robustify_max
+
+        self.policy = self.go_explore_policy
 
         # self.init_opt()
 
@@ -361,12 +368,24 @@ class GoExplore(BatchPolopt):
     @overrides
     def train(self, runner, batch_size):
         last_return = None
-
+        self.policy = self.go_explore_policy
         for epoch in runner.step_epochs():
             runner.step_path = runner.obtain_samples(runner.step_itr,
                                                      batch_size)
             last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
+
+        pdb.set_trace()
+        self.policy = self.robust_policy
+        self.backward_algorithm = BackwardAlgorithm(
+            env=self.env,
+            env_spec=self.env_spec,
+            policy=self.robust_policy,
+            baseline=self.robust_baseline,
+            expert_trajectory=last_return.trajectory.tolist(),
+            epochs_per_step=10)
+        pdb.set_trace()
+        return self.backward_algorithm.train(runner=runner,batch_size=batch_size)
 
         # self.robustify = True
         # self.init_opt()
@@ -388,8 +407,8 @@ class GoExplore(BatchPolopt):
     @overrides
     def init_opt(self):
 
-        if self.robustify:
-            self.env.set_param_values([None], robustify_state=True, debug=False)
+        # if self.robustify:
+        #     self.env.set_param_values([None], robustify_state=True, debug=False)
         self.max_cum_reward = -np.inf
         """
         Initialize the optimization procedure. If using tensorflow, this may

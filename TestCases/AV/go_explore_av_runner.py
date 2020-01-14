@@ -11,6 +11,7 @@ from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 from mylab.algos.go_explore import GoExplore
 from garage.tf.envs.base import TfEnv
 from mylab.policies.go_explore_policy import GoExplorePolicy
+from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import LocalRunner, run_experiment
@@ -37,6 +38,9 @@ import pdb
 # batch_size = 4000
 # max_path_length = 50
 # n_envs = batch_size // max_path_length
+
+# Example run command:
+# python TestCases/AV/go_explore_av_runner.py runner --n_itr=1
 
 def runner(exp_name='av',
            use_ram=False,
@@ -103,6 +107,13 @@ def runner(exp_name='av',
 
                     baseline = LinearFeatureBaseline(env_spec=env.spec)
 
+                    robust_policy = GaussianLSTMPolicy(name='lstm_policy',
+                                                env_spec=env.spec,
+                                                hidden_dim=64,
+                                                use_peepholes=True)
+
+                    robust_baseline = LinearFeatureBaseline(env_spec=env.spec)
+
                     algo = GoExplore(
                         db_filename=db_filename,
                         max_db_size=max_db_size,
@@ -110,6 +121,8 @@ def runner(exp_name='av',
                         env_spec=env.spec,
                         policy=policy,
                         baseline=baseline,
+                        robust_policy=robust_policy,
+                        robust_baseline=robust_baseline,
                         max_path_length=max_path_length,
                         discount=discount,
                         # whole_paths=whole_paths

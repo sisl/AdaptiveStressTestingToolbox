@@ -187,6 +187,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
         try:
             if self.robustify_state is not None:
+                print('-----------Robustify Init: ', self.robustify_state, ' -----------------')
                 self.simulator.restore_state(self.robustify_state[:-2])
                 obs = self.simulator._get_obs()
                 self._done = False
