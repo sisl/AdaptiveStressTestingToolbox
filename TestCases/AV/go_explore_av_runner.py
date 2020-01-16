@@ -9,6 +9,7 @@ from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from mylab.algos.go_explore import GoExplore
+from mylab.algos.backward_algorithm import BackwardAlgorithm
 from garage.tf.envs.base import TfEnv
 from mylab.policies.go_explore_policy import GoExplorePolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
@@ -16,6 +17,7 @@ from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import LocalRunner, run_experiment
 from mylab.samplers.batch_sampler import BatchSampler
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 import gym
 
 # Useful imports
@@ -72,8 +74,6 @@ def runner(exp_name='av',
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
-                with LocalRunner(
-                        snapshot_config=snapshot_config, sess=sess) as runner:
 
                     # Instantiate the example classes
                     sim = ExampleAVSimulator()
@@ -107,12 +107,6 @@ def runner(exp_name='av',
 
                     baseline = LinearFeatureBaseline(env_spec=env.spec)
 
-                    robust_policy = GaussianLSTMPolicy(name='lstm_policy',
-                                                env_spec=env.spec,
-                                                hidden_dim=64,
-                                                use_peepholes=True)
-
-                    robust_baseline = LinearFeatureBaseline(env_spec=env.spec)
 
                     algo = GoExplore(
                         db_filename=db_filename,
@@ -121,8 +115,8 @@ def runner(exp_name='av',
                         env_spec=env.spec,
                         policy=policy,
                         baseline=baseline,
-                        robust_policy=robust_policy,
-                        robust_baseline=robust_baseline,
+                        # robust_policy=robust_policy,
+                        # robust_baseline=robust_baseline,
                         max_path_length=max_path_length,
                         discount=discount,
                         # whole_paths=whole_paths
@@ -131,7 +125,10 @@ def runner(exp_name='av',
                     sampler_cls = BatchSampler
                     sampler_args = {'n_envs': n_parallel}
 
-                    runner.setup(algo=algo,
+                    with LocalRunner(
+                            snapshot_config=snapshot_config, sess=sess) as runner:
+
+                        runner.setup(algo=algo,
                                  env=env,
                                  sampler_cls=sampler_cls,
                                  sampler_args=sampler_args)
@@ -144,10 +141,59 @@ def runner(exp_name='av',
                     #                   "reward_function": reward_function})
 
                     # Run the experiment
-                    paths = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
-                    print(paths)
-                    pdb.set_trace()
-                    print('done!')
+                        paths = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
+                        print(paths)
+                        pdb.set_trace()
+                        print('done!')
+
+                    #Run backwards algorithm to robustify
+                    with LocalRunner(
+                            snapshot_config=snapshot_config, sess=sess) as runner:
+
+
+                        robust_policy = GaussianLSTMPolicy(name='lstm_policy',
+                                                           env_spec=env.spec,
+                                                           hidden_dim=64,
+                                                           use_peepholes=True)
+
+                        robust_baseline = LinearFeatureBaseline(env_spec=env.spec)
+
+                        optimizer = ConjugateGradientOptimizer
+                        optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
+
+                        robust_algo = BackwardAlgorithm(
+                                            env=env,
+                                            env_spec=env.spec,
+                                            policy=robust_policy,
+                                            baseline=robust_baseline,
+                                            expert_trajectory=paths.trajectory.tolist(),
+                                            epochs_per_step = 10,
+                                            scope=None,
+                                            max_path_length=max_path_length,
+                                            discount=discount,
+                                            gae_lambda=1,
+                                            center_adv=True,
+                                            positive_adv=False,
+                                            fixed_horizon=False,
+                                            pg_loss='surrogate_clip',
+                                            lr_clip_range=1.0,
+                                            max_kl_step=1.0,
+                                            optimizer=optimizer,
+                                            optimizer_args=optimizer_args,
+                                            policy_ent_coeff=0.0,
+                                            use_softplus_entropy=False,
+                                            use_neg_logli_entropy=False,
+                                            stop_entropy_gradient=False,
+                                            entropy_method='no_entropy',
+                                            name='PPO')
+
+
+                        runner.setup(algo=robust_algo,
+                                     env=env,
+                                     sampler_cls=sampler_cls,
+                                     sampler_args=sampler_args)
+
+                        runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
                     # saver = tf.train.Saver()
                     # save_path = saver.save(sess, log_dir + '/model.ckpt')
                     # print("Model saved in path: %s" % save_path)

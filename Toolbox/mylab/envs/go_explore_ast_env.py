@@ -73,7 +73,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self.metadata = None
         self.spec._entry_point = []
         self._cum_reward = 0.0
-        self.robustify_state = None
+
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
@@ -97,6 +97,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self.db_filename = 'database.dat'
         self.key_list = []
         self.max_value = 0
+        self.robustify_state = []
 
         Serializable.quick_init(self, locals())
         Parameterized.__init__(self)
@@ -165,7 +166,16 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                                           np.array([self._step])),
                                           axis=0)
 
-        return Step(observation=self.downsample(obs),
+        if len(self.robustify_state) > 0:
+            # No obs?
+            pdb.set_trace()
+            obs = self._init_state
+        else:
+            print(self.robustify_state)
+            obs = self.downsample(obs)
+
+
+        return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
                     cache= self._info,
@@ -186,7 +196,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         """
 
         try:
-            if self.robustify_state is not None:
+            if len(self.robustify_state) > 0:
                 print('-----------Robustify Init: ', self.robustify_state, ' -----------------')
                 self.simulator.restore_state(self.robustify_state[:-2])
                 obs = self.simulator._get_obs()

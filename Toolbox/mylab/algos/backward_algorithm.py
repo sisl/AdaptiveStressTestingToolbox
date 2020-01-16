@@ -137,20 +137,34 @@ class BackwardAlgorithm(PPO):
     def train(self, runner, batch_size):
         # pdb.set_trace()
         last_return = None
-
-        for step_num, env_state in enumerate(self.expert_trajectory):
-            if step_num <= self.skip_until_step:
-                continue
-            #Set environment to reset to the correct step:
-            self.env.set_param_values([env_state], robustify_state=True, debug=False)
-            self.max_path_length = step_num
-            for epoch in range(self.epochs_per_step):
+        for _ in runner.step_epochs():
+            #Just need to instantiate the step_epochs generator
+            for step_num, env_state in enumerate(self.expert_trajectory):
+                if step_num <= self.skip_until_step:
+                    continue
                 pdb.set_trace()
-                runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
-                last_return = self.train_once(runner.step_itr, runner.step_path)
-                runner.step_itr += 1
+                #Set environment to reset to the correct step:
+                self.env.set_param_values([env_state], robustify_state=True, debug=False)
+                self.max_path_length = step_num
+                for epoch in range(self.epochs_per_step):
+                    pdb.set_trace()
+                    runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
+                    last_return = self.train_once(runner.step_itr, runner.step_path)
+                    runner.step_itr += 1
 
+            return last_return
         return last_return
+
+        # last_return = None
+        #
+        # for epoch in runner.step_epochs():
+        #     if runner.step_itr <= self.skip_until_step:
+        #     runner.step_path = runner.obtain_samples(runner.step_itr,
+        #                                              batch_size)
+        #     last_return = self.train_once(runner.step_itr, runner.step_path)
+        #     runner.step_itr += 1
+        #
+        # return last_return
 
     # def train_once(self, itr, paths):
     #     paths = self.process_samples(itr, paths)

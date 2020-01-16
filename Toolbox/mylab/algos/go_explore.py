@@ -287,8 +287,8 @@ class GoExplore(BatchPolopt):
                  env_spec,
                  policy,
                  baseline,
-                 robust_policy,
-                 robust_baseline,
+                 # robust_policy,
+                 # robust_baseline,
                  # robustify_max,
                  # robustify_algo,
                  # robustify_policy,
@@ -349,8 +349,8 @@ class GoExplore(BatchPolopt):
         self.max_db_size = max_db_size
         self.env_spec = env_spec
         self.go_explore_policy = policy
-        self.robust_policy = robust_policy
-        self.robust_baseline = robust_baseline
+        # self.robust_policy = robust_policy
+        # self.robust_baseline = robust_baseline
         self.env = env
         self.best_cell = None
         self.robustify = False
@@ -375,17 +375,17 @@ class GoExplore(BatchPolopt):
             last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
 
-        pdb.set_trace()
-        self.policy = self.robust_policy
-        self.backward_algorithm = BackwardAlgorithm(
-            env=self.env,
-            env_spec=self.env_spec,
-            policy=self.robust_policy,
-            baseline=self.robust_baseline,
-            expert_trajectory=last_return.trajectory.tolist(),
-            epochs_per_step=10)
-        pdb.set_trace()
-        return self.backward_algorithm.train(runner=runner,batch_size=batch_size)
+        # pdb.set_trace()
+        # self.policy = self.robust_policy
+        # self.backward_algorithm = BackwardAlgorithm(
+        #     env=self.env,
+        #     env_spec=self.env_spec,
+        #     policy=self.robust_policy,
+        #     baseline=self.robust_baseline,
+        #     expert_trajectory=last_return.trajectory.tolist(),
+        #     epochs_per_step=10)
+        # pdb.set_trace()
+        # return self.backward_algorithm.train(runner=runner,batch_size=batch_size)
 
         # self.robustify = True
         # self.init_opt()
