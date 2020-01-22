@@ -85,7 +85,7 @@ def set_seed(seed):
 
 def _worker_set_policy_params(g, params, scope=None):
     g = _get_scoped_g(g, scope)
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     g.policy.set_param_values(params)
 
 def _worker_set_env_params(g, params, scope=None):
@@ -114,7 +114,7 @@ def sample_paths(policy_params,
     :param max_path_length: horizon / maximum length of a single trajectory
     :return: a list of collected paths
     """
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     singleton_pool.run_each(
         _worker_set_policy_params,
         [(policy_params, scope)] * singleton_pool.n_parallel)

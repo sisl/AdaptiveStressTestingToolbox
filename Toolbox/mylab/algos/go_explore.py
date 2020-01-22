@@ -97,11 +97,12 @@ class CellPool():
     #     index = np.random.randint(0, self.length)
     #     return self.get_cell(index)
 
-    def d_update(self, d_pool, observation, trajectory, score, state, reward=-np.inf, chosen=0):
+    def d_update(self, d_pool, observation, trajectory, score, state, parent=None, reward=-np.inf, chosen=0):
         # pdb.set_trace()
         #This tests to see if the observation is already in the matrix
         obs_hash = str(hash(observation.tostring()))
         if not obs_hash in d_pool:
+            # Make a new cell, add to pool
             # self.guide.add(observation)
             cell = Cell()
             cell.observation = observation
@@ -114,6 +115,8 @@ class CellPool():
             cell.times_chosen = chosen
             cell.times_chosen_since_improved = 0
             cell.reward = reward
+            cell.parent = parent
+
             d_pool[obs_hash] = cell
             self.length += 1
             self.key_list.append(obs_hash)
@@ -126,11 +129,13 @@ class CellPool():
         else:
             cell = d_pool[obs_hash]
             if score > cell.score:
+                # Cell exists, but new version is better. Overwrite
                 cell.score = score
                 cell.trajectory = trajectory
                 cell.trajectory_length = len(trajectory)
                 cell.state = state
                 cell.reward = reward
+                cell.parent = parent
 
             cell.times_visited += 1
             cell.times_chosen += chosen
@@ -158,6 +163,7 @@ class Cell():
         self.trajectory = np.array([])
         self.state = None
         self.observation = None
+        self.parent = None
         # self._is_root = False
 
     def __eq__(self, other):
@@ -426,7 +432,7 @@ class GoExplore(BatchPolopt):
         d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         obs, state = self.env.get_first_cell()
         # pdb.set_trace()
-        self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=1)
+        self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
         d_pool.sync()
         # self.cell_pool.d_pool.close()
         # cell = Cell()
@@ -438,6 +444,18 @@ class GoExplore(BatchPolopt):
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
         self.env.set_param_values([None], robustify_state=True, debug=False)
+
+
+        for cell in d_pool.values():
+
+            if cell.score == 0.0 and cell.reward >= self.max_cum_reward and cell.observation is not None and cell.parent is not None:
+                # pdb.set_trace()
+                # print(cell.observation, cell.score, cell.reward)
+
+                self.max_cum_reward = cell.reward
+                self.best_cell = cell
+        # pdb.set_trace()
+
         d_pool.close()
         # pdb.set_trace()
         # self.policy.set_param_values({"cell_num":-1,
@@ -486,23 +504,49 @@ class GoExplore(BatchPolopt):
             observation = None
             for j in range(samples_data['observations'].shape[1]):
                 # pdb.set_trace()
-                chosen = 0
+                # If action only (black box) we search based on history of actions
+                if self.env.action_only:
+                    # pdb.set_trace()
+                    observation_data = samples_data['env_infos']['actions']
+                    # observation = samples_data['actions'][i, j, :]
+                else:
+                    # else (white box) use simulation state
+                    observation_data = samples_data['observations']
+                    # observation = samples_data['observations'][i, j, :]
+                # chosen = 0
                 if j == 0:
-                    chosen = 1
+                    # chosen = 1
                     try:
-                        root_cell = d_pool[str(hash(samples_data['observations'][i, j, :].tostring()))]
+                        # root_cell = d_pool[str(hash(observation_data[i, j, :].tostring()))]
+                        # Get the chosen cell that was root of this rollout
+                        root_cell = d_pool[str(hash(samples_data['env_infos']['root_action'][i,j,:].tostring()))]
+                        #Update the chosen/visited count
+                        self.cell_pool.d_update(d_pool=d_pool,
+                                                observation=root_cell.observation,
+                                                trajectory=root_cell.trajectory,
+                                                score=root_cell.score,
+                                                state=root_cell.state,
+                                                parent=root_cell.parent,
+                                                reward=root_cell.reward,
+                                                chosen=1)
+                        # self.cell_pool.d_update(d_pool=d_pool,observation=root_cell.observation,trajectory=root_cell.trajectory,score=root_cell.score,state=root_cell.state,parent=root_cell.parent,reward=root_cell.reward,chosen=1)
+                        #Update trajectory info to root cell state
                         cum_reward = root_cell.reward
                         cum_traj = root_cell.trajectory
+                        parent = str(hash(samples_data['env_infos']['root_action'][i,j,:].tostring()))
                     except:
                         print('----------ERROR - failed to retrieve root cell--------------------')
+                        pdb.set_trace()
                         break
+                else:
+                    parent = str(hash(observation_data[i, j-1, :].tostring()))
                     # if cum_reward == 0 or cum_reward  <-1e8:
                     #     pdb.set_trace()
 
-                if np.all(samples_data['observations'][i, j, :] == 0):
+                if np.all(observation_data[i, j, :] == 0):
                     continue
-                observation = samples_data['observations'][i, j, :]
-                trajectory = samples_data['observations'][i, 0:j, :]
+                observation = observation_data[i, j, :]
+                trajectory = observation_data[i, 0:j, :]
                 if cum_traj.shape[0] > 0:
                     trajectory = np.concatenate((cum_traj, trajectory), axis=0)
                 score = samples_data['rewards'][i, j]
@@ -513,8 +557,9 @@ class GoExplore(BatchPolopt):
                                            trajectory=trajectory,
                                            score=score,
                                            state=state,
+                                           parent=parent,
                                            reward=cum_reward,
-                                           chosen=chosen):
+                                           chosen=0):
                     new_cells += 1
                 total_cells += 1
             if cum_reward > self.max_cum_reward and observation is not None:

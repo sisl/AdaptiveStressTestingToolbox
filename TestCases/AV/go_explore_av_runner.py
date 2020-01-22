@@ -53,7 +53,7 @@ def runner(exp_name='av',
            snapshot_mode='last',
            snapshot_gap=1,
            log_dir=None,
-           max_path_length=100,
+           max_path_length=50,
            discount=0.99,
            n_itr=100,
            max_kl_step=0.01,
@@ -93,7 +93,8 @@ def runner(exp_name='av',
                              open_loop=False,
                              action_only=True,
                              fixed_init_state=True,
-                             s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                             # s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                             s_0=[-0.0, -4.0, 1.0, 11.17, -35.0],
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
@@ -141,9 +142,29 @@ def runner(exp_name='av',
                     #                   "reward_function": reward_function})
 
                     # Run the experiment
-                        paths = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
-                        print(paths)
+                        best_cell = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
+
+                        from bsddb3 import db
+                        import pickle
+                        import shelve
+                        pool_DB = db.DB()
+                        pool_DB.open(db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+                        d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+                        print(best_cell)
+                        temp=best_cell
+                        paths = []
+                        while(temp.parent is not None):
+                            print(temp.observation)
+                            action = temp.observation[1:].astype(np.float32) / 1000
+                            paths.append({'state':temp.state,
+                                          'reward':temp.reward,
+                                          'action':action,
+                                          'observation':np.array([-0.0, -4.0, 1.0, 11.17, -35.0])})
+                            temp = d_pool[temp.parent]
+                        print(temp.observation)
+                        paths.append(temp.state)
                         pdb.set_trace()
+                        d_pool.close()
                         print('done!')
 
                     #Run backwards algorithm to robustify
@@ -166,26 +187,27 @@ def runner(exp_name='av',
                                             env_spec=env.spec,
                                             policy=robust_policy,
                                             baseline=robust_baseline,
-                                            expert_trajectory=paths.trajectory.tolist(),
+                                            expert_trajectory=paths,
                                             epochs_per_step = 10,
-                                            scope=None,
+                                            # scope=None,
                                             max_path_length=max_path_length,
                                             discount=discount,
-                                            gae_lambda=1,
-                                            center_adv=True,
-                                            positive_adv=False,
-                                            fixed_horizon=False,
-                                            pg_loss='surrogate_clip',
+                                            # gae_lambda=1,
+                                            # center_adv=True,
+                                            # positive_adv=False,
+                                            # fixed_horizon=False,
+                                            # pg_loss='surrogate_clip',
                                             lr_clip_range=1.0,
                                             max_kl_step=1.0,
                                             optimizer=optimizer,
                                             optimizer_args=optimizer_args,
-                                            policy_ent_coeff=0.0,
-                                            use_softplus_entropy=False,
-                                            use_neg_logli_entropy=False,
-                                            stop_entropy_gradient=False,
-                                            entropy_method='no_entropy',
-                                            name='PPO')
+                                            # policy_ent_coeff=0.0,
+                                            # use_softplus_entropy=False,
+                                            # use_neg_logli_entropy=False,
+                                            # stop_entropy_gradient=False,
+                                            # entropy_method='no_entropy',
+                                            # name='PPO',
+                                            )
 
 
                         runner.setup(algo=robust_algo,
@@ -193,7 +215,7 @@ def runner(exp_name='av',
                                      sampler_cls=sampler_cls,
                                      sampler_args=sampler_args)
 
-                        runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
+                        runner.train(n_epochs=50, batch_size=50000, plot=False)
                     # saver = tf.train.Saver()
                     # save_path = saver.save(sess, log_dir + '/model.ckpt')
                     # print("Model saved in path: %s" % save_path)

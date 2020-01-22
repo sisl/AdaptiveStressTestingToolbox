@@ -1,7 +1,8 @@
 from garage.tf.algos.ppo import PPO
+from garage.tf.algos.trpo import TRPO
 from garage.tf.optimizers import FirstOrderOptimizer
 from dowel import logger, tabular
-
+import numpy as np
 import pdb
 
 class BackwardAlgorithm(PPO):
@@ -82,9 +83,11 @@ class BackwardAlgorithm(PPO):
         #     optimizer = FirstOrderOptimizer
         #     if optimizer_args is None:
         #         optimizer_args = dict()
-        self.epochs_per_step = epochs_per_step
-        self.max_steps = len(expert_trajectory)
-        self.skip_until_step = int(.1 * self.max_steps)
+        self.max_epochs_per_step = epochs_per_step
+        # self.max_steps = len(expert_trajectory)
+        # self.skip_until_step = int(.5 * self.max_steps)
+        self.max_steps = max_path_length
+        self.skip_until_step = 5
         self.expert_trajectory = expert_trajectory
 
         self.env = env
@@ -109,7 +112,7 @@ class BackwardAlgorithm(PPO):
         # self.env.set_param_values([None], robustify_state=True, debug=False)
         # d_pool.close()
 
-        pdb.set_trace()
+        # pdb.set_trace()
 
         super().__init__(
             env_spec=env_spec,
@@ -134,26 +137,72 @@ class BackwardAlgorithm(PPO):
             entropy_method=entropy_method,
             name=name)
 
+    # def train(self, runner, batch_size):
+    #     # pdb.set_trace()
+    #     last_return = None
+    #     for _ in runner.step_epochs():
+    #         #Just need to instantiate the step_epochs generator
+    #         for step_num, env_state in enumerate(self.expert_trajectory):
+    #             if step_num <= self.skip_until_step:
+    #                 continue
+    #             # pdb.set_trace()
+    #             #Set environment to reset to the correct step:
+    #             self.env.set_param_values([env_state], robustify_state=True, debug=False)
+    #             # self.max_path_length = step_num
+    #             for epoch in range(self.epochs_per_step):
+    #                 # pdb.set_trace()
+    #                 runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
+    #                 last_return = self.train_once(runner.step_itr, runner.step_path)
+    #                 runner.step_itr += 1
+    #
+    #         return last_return
+    #     return last_return
+
     def train(self, runner, batch_size):
         # pdb.set_trace()
         last_return = None
-        for _ in runner.step_epochs():
-            #Just need to instantiate the step_epochs generator
-            for step_num, env_state in enumerate(self.expert_trajectory):
-                if step_num <= self.skip_until_step:
-                    continue
-                pdb.set_trace()
-                #Set environment to reset to the correct step:
-                self.env.set_param_values([env_state], robustify_state=True, debug=False)
-                self.max_path_length = step_num
-                for epoch in range(self.epochs_per_step):
-                    pdb.set_trace()
-                    runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
-                    last_return = self.train_once(runner.step_itr, runner.step_path)
-                    runner.step_itr += 1
 
-            return last_return
+        # set epoch, step numbers and maximums
+        step_num = self.skip_until_step
+        num_steps = len(self.expert_trajectory) - step_num
+        max_epochs = runner.train_args.n_epochs
+        self.max_epochs_per_step = max_epochs // num_steps
+        # Init environment to run for first step of expert trajectory
+        epochs_per_this_step = 0
+        env_state = self.expert_trajectory[step_num]['state']
+        env_reward = self.expert_trajectory[step_num]['reward']
+        env_action = self.expert_trajectory[step_num]['action']
+        env_observation = self.expert_trajectory[step_num]['observation']
+        self.env.set_param_values([env_state], robustify_state=True, debug=False)
+
+        for epoch in runner.step_epochs():
+            if epochs_per_this_step == self.max_epochs_per_step:
+                # Back up the algorithm to the next step of the expert trajectory
+                epochs_per_this_step = 0
+                step_num += 1
+                env_state = self.expert_trajectory[step_num]['state']
+                env_reward = self.expert_trajectory[step_num]['reward']
+                env_action = self.expert_trajectory[step_num]['action']
+                env_observation = self.expert_trajectory[step_num]['observation']
+                self.env.set_param_values([env_state], robustify_state=True, debug=False)
+
+            runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
+
+            # Set first step to that of the base step
+            for rollout_idx, rollout in enumerate(runner.step_path):
+                # pdb.set_trace()
+                # if rollout['rewards'].shape[0] == self.max_path_length:
+                    # runner.step_path[rollout_idx]['rewards'][0] = env_reward + rollout['rewards'][0]
+                # else:
+                if rollout['rewards'].shape[0] < self.max_path_length:
+                    runner.step_path[rollout_idx]['rewards'] = np.concatenate(([env_reward], rollout['rewards']))
+                    runner.step_path[rollout_idx]['actions'] = np.concatenate((np.expand_dims(env_action,axis=0),rollout['actions']))
+                    runner.step_path[rollout_idx]['observations'] = np.concatenate((np.expand_dims(env_observation,axis=0),rollout['observations']))
+            last_return = self.train_once(runner.step_itr, runner.step_path)
+            runner.step_itr += 1
+
         return last_return
+
 
         # last_return = None
         #

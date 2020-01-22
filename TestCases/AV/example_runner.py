@@ -9,6 +9,7 @@ from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
+from garage.tf.algos.ppo import PPO
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.tf.policies.uniform_control_policy import UniformControlPolicy
@@ -75,13 +76,13 @@ def run_task(snapshot_config, *_):
                 optimizer = ConjugateGradientOptimizer
                 optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
 
-                algo = TRPO(
+                algo = PPO(
                     env_spec=env.spec,
                     policy=policy,
                     baseline=baseline,
                     max_path_length=max_path_length,
                     discount=0.99,
-                    kl_constraint='hard',
+                    # kl_constraint='hard',
                     optimizer=optimizer,
                     optimizer_args=optimizer_args,
                     lr_clip_range=1.0,

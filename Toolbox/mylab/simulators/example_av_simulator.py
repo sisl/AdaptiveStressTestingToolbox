@@ -68,6 +68,8 @@ class ExampleAVSimulator(ASTSimulator):
         super().__init__(**kwargs)
 
 
+    def get_first_action(self):
+        return np.array([0] * (6 * self.c_num_peds))
 
     def simulate(self, actions, s_0):
         """
@@ -223,7 +225,8 @@ class ExampleAVSimulator(ASTSimulator):
 
         # return the initial simulation state
         if self.action_only:
-            obs = self._action
+            obs = s_0
+            # obs = self._action
         else:
             self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
             self._car_accel = np.zeros((2))
@@ -394,7 +397,8 @@ class ExampleAVSimulator(ASTSimulator):
 
     def _get_obs(self):
         if self.action_only:
-            if self._action is None:
-                return np.array([0] * (6*self.c_num_peds))
-            return self._action
+            return np.array(self.init_conditions)
+            # if self._action is None:
+                # return np.array([0] * (6*self.c_num_peds))
+            # return self._action
         return self._env_obs
