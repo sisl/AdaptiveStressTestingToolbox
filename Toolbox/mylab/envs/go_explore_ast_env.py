@@ -220,6 +220,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 self._cum_reward = state[-2]
                 self._step = state[-1]
                 # pdb.set_trace()
+                from pprint import pprint
+                pprint(vars(self.simulator))
 
                 self.robustify = True
                 return self._init_state
