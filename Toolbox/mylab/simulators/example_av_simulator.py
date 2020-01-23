@@ -370,7 +370,8 @@ class ExampleAVSimulator(ASTSimulator):
 
         return simulator_state
 
-    def restore_state(self, simulator_state):
+    def restore_state(self, in_simulator_state):
+        simulator_state = in_simulator_state.copy()
         # self._step = simulator_state['step']
         # self._path_length = simulator_state['path_length']
         # self._is_terminal = simulator_state['is_terminal']
@@ -394,6 +395,7 @@ class ExampleAVSimulator(ASTSimulator):
         car_obs_end_index = peds_end_index + self.c_num_peds*4
         self._car_obs = simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds,4))
         self._action = simulator_state[car_obs_end_index:]
+        self._info = []
 
     def _get_obs(self):
         if self.action_only:

@@ -56,14 +56,19 @@ def runner(exp_name='av',
            max_path_length=50,
            discount=0.99,
            n_itr=100,
+           n_itr_robust=100,
            max_kl_step=0.01,
            whole_paths=False,
-           batch_size=None):
+           batch_size=None,
+           batch_size_robust=None):
 
     if overwrite_db and os.path.exists(db_filename):
         os.remove(db_filename)
 
     if batch_size is None:
+        batch_size = max_path_length * n_parallel
+
+    if batch_size_robust is None:
         batch_size = max_path_length * n_parallel
 
     def run_task(snapshot_config, *_):
@@ -126,6 +131,7 @@ def runner(exp_name='av',
                     sampler_cls = BatchSampler
                     sampler_args = {'n_envs': n_parallel}
 
+
                     with LocalRunner(
                             snapshot_config=snapshot_config, sess=sess) as runner:
 
@@ -162,8 +168,11 @@ def runner(exp_name='av',
                                           'observation':np.array([-0.0, -4.0, 1.0, 11.17, -35.0])})
                             temp = d_pool[temp.parent]
                         print(temp.observation)
-                        paths.append(temp.state)
-                        pdb.set_trace()
+                        paths.append({'state': temp.state,
+                                      'reward': temp.reward,
+                                      'action': action,
+                                      'observation': np.array([-0.0, -4.0, 1.0, 11.17, -35.0])})
+                        # pdb.set_trace()
                         d_pool.close()
                         print('done!')
 
@@ -215,7 +224,11 @@ def runner(exp_name='av',
                                      sampler_cls=sampler_cls,
                                      sampler_args=sampler_args)
 
-                        runner.train(n_epochs=50, batch_size=50000, plot=False)
+                        results = runner.train(n_epochs=n_itr_robust, batch_size=batch_size_robust, plot=False)
+                        pdb.set_trace()
+                        print('done')
+                        return results
+
                     # saver = tf.train.Saver()
                     # save_path = saver.save(sess, log_dir + '/model.ckpt')
                     # print("Model saved in path: %s" % save_path)

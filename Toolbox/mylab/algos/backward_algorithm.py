@@ -83,6 +83,7 @@ class BackwardAlgorithm(PPO):
         #     optimizer = FirstOrderOptimizer
         #     if optimizer_args is None:
         #         optimizer_args = dict()
+
         self.max_epochs_per_step = epochs_per_step
         # self.max_steps = len(expert_trajectory)
         # self.skip_until_step = int(.5 * self.max_steps)
@@ -91,6 +92,7 @@ class BackwardAlgorithm(PPO):
         self.expert_trajectory = expert_trajectory
 
         self.env = env
+        self.policy = policy
 
         self.env.set_param_values([None], robustify_state=True, debug=False)
 
@@ -163,7 +165,7 @@ class BackwardAlgorithm(PPO):
         last_return = None
 
         # set epoch, step numbers and maximums
-        step_num = self.skip_until_step
+        step_num = np.minimum(self.skip_until_step, len(self.expert_trajectory)-1)
         num_steps = len(self.expert_trajectory) - step_num
         max_epochs = runner.train_args.n_epochs
         self.max_epochs_per_step = max_epochs // num_steps
@@ -175,11 +177,19 @@ class BackwardAlgorithm(PPO):
         env_observation = self.expert_trajectory[step_num]['observation']
         self.env.set_param_values([env_state], robustify_state=True, debug=False)
 
+        initial_reward = env_reward
+        max_reward = -np.inf
+        max_reward_step = -1
+        max_final_reward = -np.inf
         for epoch in runner.step_epochs():
+
+            # print('Policy stddev: ', policy)
             if epochs_per_this_step == self.max_epochs_per_step:
                 # Back up the algorithm to the next step of the expert trajectory
                 epochs_per_this_step = 0
-                step_num += 1
+                # print('------------ Backward Algorithm: Stepping Back ------------------')
+                step_num = np.minimum(step_num + 1, num_steps - 1)
+                print(step_num)
                 env_state = self.expert_trajectory[step_num]['state']
                 env_reward = self.expert_trajectory[step_num]['reward']
                 env_action = self.expert_trajectory[step_num]['action']
@@ -201,7 +211,27 @@ class BackwardAlgorithm(PPO):
             last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
 
+            for path in last_return['paths']:
+                if np.sum(path['rewards']) >= max_reward:
+                    max_reward = np.sum(path['rewards'])
+                    max_reward_step = step_num
+                if step_num == num_steps - 1 and np.sum(path['rewards']) > max_final_reward:
+                    max_final_reward = np.sum(path['rewards'])
+            print(np.exp(last_return['agent_infos']['log_std']))
+
+            epochs_per_this_step += 1
+
+        print('Backward Results -- Initial Reward: ', initial_reward, ' -- Best Reward at step ', max_reward_step, ': ', max_reward, " -- Best Final Reward: ", max_final_reward)
         return last_return
+
+
+    def train_once(self, itr, paths):
+        paths = self.process_samples(itr, paths)
+
+        self.log_diagnostics(paths)
+        logger.log('Optimizing policy...')
+        self.optimize_policy(itr, paths)
+        return paths
 
 
         # last_return = None
