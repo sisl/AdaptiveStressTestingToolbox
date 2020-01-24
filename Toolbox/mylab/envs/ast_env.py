@@ -80,7 +80,7 @@ class ASTEnv(gym.Env, Serializable):
         if (obs is None) or (self.open_loop is True):
             obs = self._init_state
         # if self.simulator.is_goal():
-        if self.simulator.isterminal() or self.simulator.is_goal():
+        if self.simulator.is_terminal() or self.simulator.is_goal():
             self._done = True
         # Calculate the reward for this step
         self._reward = self.reward_function.give_reward(

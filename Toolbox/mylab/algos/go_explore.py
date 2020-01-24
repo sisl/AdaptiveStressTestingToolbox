@@ -261,8 +261,8 @@ class Cell():
         self.state = None
         self.observation = None
         self.parent = None
-        self.is_goal = False
-        self.is_terminal = False
+        self._is_goal = False
+        self._is_terminal = False
         # self._is_root = False
 
     def __eq__(self, other):
@@ -288,6 +288,26 @@ class Cell():
     @reward.setter
     def reward(self, value):
         self._reward = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def is_terminal(self):
+        return self._is_terminal
+
+    @is_terminal.setter
+    def is_terminal(self, value):
+        self._is_terminal = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def is_goal(self):
+        return self._is_terminal
+
+    @is_goal.setter
+    def is_goal(self, value):
+        self._is_terminal = value
         self.reset_cached_property('score_weight')
         self.reset_cached_property('fitness')
 
@@ -372,7 +392,10 @@ class Cell():
 
     @cached_property
     def score_weight(self):
-        return 1.0
+        score_weight = 1.0 #Not sampling based on score right now
+        # Set chance of sampling to 0 if this cell is a terminal state
+        terminal_sample_elimination_factor = not(self.is_terminal or self._is_goal)
+        return terminal_sample_elimination_factor * score_weight
         # return min(1e-6, 0.1**max(0.0, (100000-self.score)/10000))
 
     def __hash__(self):
@@ -608,8 +631,10 @@ class GoExplore(BatchPolopt):
             cum_reward = 0
             cum_traj = np.array([])
             observation = None
+            is_terminal = False
+            is_goal = False
             for j in range(samples_data['observations'].shape[1]):
-                pdb.set_trace()
+                # pdb.set_trace()
                 # If action only (black box) we search based on history of actions
                 if self.env.action_only:
                     # pdb.set_trace()
@@ -660,6 +685,8 @@ class GoExplore(BatchPolopt):
                 score = samples_data['rewards'][i, j]
                 cum_reward += score
                 state = samples_data['env_infos']['state'][i, j, :]
+                is_terminal = samples_data['env_infos']['is_terminal'][i, j]
+                is_goal =samples_data['env_infos']['is_goal'][i, j]
                 if self.cell_pool.d_update(d_pool=d_pool,
                                            observation=observation,
                                            trajectory=trajectory,
@@ -667,6 +694,8 @@ class GoExplore(BatchPolopt):
                                            state=state,
                                            parent=parent,
                                            reward=cum_reward,
+                                           is_goal=is_goal,
+                                           is_terminal=is_terminal,
                                            chosen=0):
                     new_cells += 1
                 total_cells += 1

@@ -220,7 +220,7 @@ class BackwardAlgorithm(PPO):
                     max_reward_step = step_num
                 if step_num == num_steps - 1 and np.sum(path['rewards']) > max_final_reward:
                     max_final_reward = np.sum(path['rewards'])
-            print(np.exp(last_return['agent_infos']['log_std']))
+            # print(np.exp(last_return['agent_infos']['log_std']))
 
             epochs_per_this_step += 1
 

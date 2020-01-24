@@ -73,7 +73,7 @@ class ASTSimulator(object):
         """
         raise NotImplementedError
 
-    def isterminal(self):
+    def is_terminal(self):
         return self._is_terminal
 
     def log(self):

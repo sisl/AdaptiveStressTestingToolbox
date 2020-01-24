@@ -160,7 +160,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         # if self.simulator.is_goal():
         #Add step number to differentiate identical actions
         # obs = np.concatenate((np.array([self._step]), self.downsample(obs)), axis=0)
-        if self.simulator.isterminal() or self.simulator.is_goal():
+        if self.simulator.is_terminal() or self.simulator.is_goal():
             self._done = True
         # Calculate the reward for this step
         self._reward = self.reward_function.give_reward(
@@ -193,7 +193,9 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                     cache= self._info,
                     actions= action_return,
                     state= self._env_state,
-                    root_action = self.root_action)
+                    root_action = self.root_action,
+                    is_terminal=self.simulator.is_terminal(),
+                    is_goal=self.simulator.is_goal())
 
     def simulate(self, actions):
         if not self._fixed_init_state:
@@ -264,13 +266,13 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 else:
                     # print("restore state: ", cell.state)
                     self.simulator.restore_state(cell.state[:-2])
-                    if self.simulator.isterminal() or self.simulator.is_goal():
+                    if self.simulator.is_terminal() or self.simulator.is_goal():
                         obs = self.env_reset()
 
                     else:
                     # print("restored")
                         if cell.score == 0.0 and cell.parent is not None:
-                            print("Reset to cell with score 0.0 ---- terminal: ", self.simulator.isterminal(), " goal: ", self.simulator.is_goal(), " obs: ", cell.observation)
+                            print("Reset to cell with score 0.0 ---- terminal: ", self.simulator.is_terminal(), " goal: ", self.simulator.is_goal(), " obs: ", cell.observation)
                         obs = self.simulator._get_obs()
                         self._done = False
                         self._cum_reward = cell.state[-2]
