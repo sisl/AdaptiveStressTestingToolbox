@@ -181,6 +181,8 @@ class BackwardAlgorithm(PPO):
         max_reward = -np.inf
         max_reward_step = -1
         max_final_reward = -np.inf
+
+        full_paths = []
         for epoch in runner.step_epochs():
 
             # print('Policy stddev: ', policy)
@@ -209,6 +211,7 @@ class BackwardAlgorithm(PPO):
                     runner.step_path[rollout_idx]['actions'] = np.concatenate((np.expand_dims(env_action,axis=0),rollout['actions']))
                     runner.step_path[rollout_idx]['observations'] = np.concatenate((np.expand_dims(env_observation,axis=0),rollout['observations']))
             last_return = self.train_once(runner.step_itr, runner.step_path)
+            full_paths.append(last_return)
             runner.step_itr += 1
 
             for path in last_return['paths']:
@@ -222,7 +225,7 @@ class BackwardAlgorithm(PPO):
             epochs_per_this_step += 1
 
         print('Backward Results -- Initial Reward: ', initial_reward, ' -- Best Reward at step ', max_reward_step, ': ', max_reward, " -- Best Final Reward: ", max_final_reward)
-        return last_return
+        return full_paths
 
 
     def train_once(self, itr, paths):

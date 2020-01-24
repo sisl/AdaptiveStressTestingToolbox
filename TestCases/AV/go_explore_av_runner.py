@@ -26,6 +26,8 @@ import tensorflow as tf
 import fire
 import os
 import pdb
+import contextlib
+
 
 #
 # parser = argparse.ArgumentParser()
@@ -46,7 +48,7 @@ import pdb
 
 def runner(exp_name='av',
            use_ram=False,
-           db_filename='/home/mkoren/scratch/data/cellpool-shelf.dat',
+           db_filename='/home/mkoren/scratch/data/cellpool-shelf',
            max_db_size=150,
            overwrite_db=True,
            n_parallel=1,
@@ -62,8 +64,10 @@ def runner(exp_name='av',
            batch_size=None,
            batch_size_robust=None):
 
-    if overwrite_db and os.path.exists(db_filename):
-        os.remove(db_filename)
+    if overwrite_db:
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(db_filename +'_pool.dat')
+            os.remove(db_filename + '_meta.dat')
 
     if batch_size is None:
         batch_size = max_path_length * n_parallel
@@ -154,7 +158,7 @@ def runner(exp_name='av',
                         import pickle
                         import shelve
                         pool_DB = db.DB()
-                        pool_DB.open(db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+                        pool_DB.open(db_filename+'_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
                         d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
                         print(best_cell)
                         temp=best_cell

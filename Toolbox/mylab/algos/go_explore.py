@@ -30,9 +30,10 @@ from bsddb3 import db
 import pickle
 import shelve
 import os
+import contextlib
 
 class CellPool():
-    def __init__(self, filename = 'database.dat', flag=db.DB_RDONLY, flag2='r'):
+    def __init__(self, filename = 'database', flag=db.DB_RDONLY, flag2='r'):
         # print("Creating new Cell Pool:", self)
         # self.guide = set()
 
@@ -40,16 +41,19 @@ class CellPool():
         # self.pool = [self.init_cell]
         # self.guide = self.init_cell.observation
         self.length = 0
+        self._filename = filename
 
         # self.d_pool = {}
 
-        pool_DB = db.DB()
+        # pool_DB = db.DB()
         # print('Creating Cell Pool with flag:', flag)
         # print(filename)
-        pool_DB.open(filename, dbname=None, dbtype=db.DB_HASH, flags=flag)
+        # pool_DB.open(filename + '_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=flag)
         # pool_DB = None
         # self.d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         self.key_list = []
+        self.goal_dict = {}
+        self.terminal_dict = {}
         self.max_value = 0
         self.max_score = -np.inf
         self.max_reward = -np.inf
@@ -57,6 +61,81 @@ class CellPool():
         # self.d_pool = shelve.BsdDbShelf(pool_DB)
         # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
         # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
+
+    def save(self):
+        best_cell_key = None
+        if self.best_cell is not None:
+            best_cell_key = str(hash(self.best_cell.observation.tostring()))
+        save_dict = {
+                    'key_list':self.key_list,
+                    'goal_dict':self.goal_dict,
+                    'terminal_dict':self.terminal_dict,
+                    'max_value':self.max_value,
+                    'max_score':self.max_score,
+                    'max_reward':self.max_reward,
+                    'best_cell':best_cell_key
+        }
+        dirname = os.path.dirname(self.meta_filename)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        with open( self.meta_filename, "wb" ) as f:
+            pickle.dump(save_dict, f)
+
+    def load(self, cell_pool_shelf):
+        with contextlib.suppress(FileNotFoundError):
+            with open( self.meta_filename, "rb" ) as f:
+                save_dict = pickle.load(f)
+
+                self.key_list = save_dict['key_list']
+                self.goal_dict = save_dict['goal_dict']
+                self.terminal_dict = save_dict['terminal_dict']
+                self.max_value = save_dict['max_value']
+                self.max_score = save_dict['max_score']
+                self.max_reward = save_dict['max_reward']
+                self.best_cell = None
+                best_cell_key = save_dict['best_cell']
+                if best_cell_key is not None:
+                    self.best_cell = cell_pool_shelf[best_cell_key]
+
+    def open_pool(self, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL):
+        # We can't save our database as a class attribute due to pickling errors.
+        # To prevent errors from code repeat, this convenience function opens the database and
+        # loads the latest meta data, the returns the database.
+        cell_pool_db = db.DB()
+        cell_pool_db.open(self.pool_filename, dbname=dbname, dbtype=dbtype, flags=flags)
+        cell_pool_shelf = shelve.Shelf(cell_pool_db, protocol=protocol)
+        self.load(cell_pool_shelf=cell_pool_shelf)
+        return cell_pool_shelf
+
+    def sync_pool(self, cell_pool_shelf):
+        # We can't save our database as a class attribute due to pickling errors.
+        # To prevent errors from code repeat, this convenience function syncs the given database and
+        # saves the latest meta data.
+        cell_pool_shelf.sync()
+        self.save()
+
+    def close_pool(self, cell_pool_shelf):
+        # We can't save our database as a class attribute due to pickling errors.
+        # To prevent errors from code repeat, this convenience function closes the given database and
+        # saves the latest meta data.
+        cell_pool_shelf.close()
+        self.save()
+
+    def sync_and_close_pool(self, cell_pool_shelf):
+        # We can't save our database as a class attribute due to pickling errors.
+        # To prevent errors from code repeat, this convenience function syncs and closes the given
+        # database and saves the latest meta data.
+        cell_pool_shelf.sync()
+        cell_pool_shelf.close()
+        self.save()
+
+    @cached_property
+    def pool_filename(self):
+        return self._filename + '_pool.dat'
+
+    @cached_property
+    def meta_filename(self):
+        return self._filename + '_meta.dat'
 
     def create(self, d_pool):
 
@@ -97,7 +176,7 @@ class CellPool():
     #     index = np.random.randint(0, self.length)
     #     return self.get_cell(index)
 
-    def d_update(self, d_pool, observation, trajectory, score, state, parent=None, reward=-np.inf, chosen=0):
+    def d_update(self, d_pool, observation, trajectory, score, state, parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
         # pdb.set_trace()
         #This tests to see if the observation is already in the matrix
         obs_hash = str(hash(observation.tostring()))
@@ -116,6 +195,8 @@ class CellPool():
             cell.times_chosen_since_improved = 0
             cell.reward = reward
             cell.parent = parent
+            cell.is_terminal = is_terminal
+            cell.is_goal = is_goal
 
             d_pool[obs_hash] = cell
             self.length += 1
@@ -124,6 +205,10 @@ class CellPool():
                 self.max_value = cell.fitness
             if cell.score > self.max_score:
                 self.max_score = score
+            if is_goal:
+                self.goal_dict[obs_hash] = cell.reward
+            elif is_terminal:
+                self.terminal_dict[obs_hash] = cell.reward
 
             return True
         else:
@@ -136,6 +221,18 @@ class CellPool():
                 cell.state = state
                 cell.reward = reward
                 cell.parent = parent
+                cell.is_terminal = is_terminal
+                cell.is_goal = is_goal
+
+                if obs_hash in self.goal_dict:
+                    del self.goal_dict[obs_hash]
+                if obs_hash in self.terminal_dict:
+                    del self.terminal_dict[obs_hash]
+
+                if is_goal:
+                    self.goal_dict[obs_hash] = cell.reward
+                elif is_terminal:
+                    self.terminal_dict[obs_hash] = cell.reward
 
             cell.times_visited += 1
             cell.times_chosen += chosen
@@ -164,6 +261,8 @@ class Cell():
         self.state = None
         self.observation = None
         self.parent = None
+        self.is_goal = False
+        self.is_terminal = False
         # self._is_root = False
 
     def __eq__(self, other):
@@ -424,39 +523,45 @@ class GoExplore(BatchPolopt):
         # self.temp_index = 0
         # pool_DB = db.DB()
         # pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
-        self.cell_pool = CellPool(filename=self.db_filename, flag=db.DB_CREATE, flag2='n')
+        self.cell_pool = CellPool(filename=self.db_filename)
+
         # self.cell_pool.create()
         # obs = self.env.downsample(self.env.env.env.reset())
-        pool_DB = db.DB()
-        pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
-        d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
-        obs, state = self.env.get_first_cell()
+        d_pool = self.cell_pool.open_pool()
+        if len(self.cell_pool.key_list) == 0:
+            obs, state = self.env.get_first_cell()
         # pdb.set_trace()
-        self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
-        d_pool.sync()
+            self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
+            self.cell_pool.sync_pool(cell_pool_shelf=d_pool)
+
+
+        self.max_cum_reward = self.cell_pool.max_reward
+        self.best_cell = self.cell_pool.best_cell
+
+        self.cell_pool.close_pool(cell_pool_shelf=d_pool)
         # self.cell_pool.d_pool.close()
         # cell = Cell()
         # cell.observation = np.zeros(128)
         # self.temp_index += 1
         # self.cell_pool.append(cell)
         # self.cell_pool.update(observation=np.zeros(128), trajectory=None, score=-np.infty, state=None)
-        self.env.set_param_values([self.db_filename], db_filename=True, debug=False)
+        self.env.set_param_values([self.cell_pool.pool_filename], db_filename=True, debug=False)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
         self.env.set_param_values([None], robustify_state=True, debug=False)
 
 
-        for cell in d_pool.values():
+        # for cell in d_pool.values():
 
-            if cell.score == 0.0 and cell.reward >= self.max_cum_reward and cell.observation is not None and cell.parent is not None:
+            # if cell.score == 0.0 and cell.reward >= self.max_cum_reward and cell.observation is not None and cell.parent is not None:
                 # pdb.set_trace()
                 # print(cell.observation, cell.score, cell.reward)
 
-                self.max_cum_reward = cell.reward
-                self.best_cell = cell
+                # self.max_cum_reward = cell.reward
+                # self.best_cell = cell
         # pdb.set_trace()
 
-        d_pool.close()
+
         # pdb.set_trace()
         # self.policy.set_param_values({"cell_num":-1,
         #                               "stateful_num":-1,
@@ -487,9 +592,10 @@ class GoExplore(BatchPolopt):
 
         start = time.time()
 
-        pool_DB = db.DB()
-        pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
-        d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+        # pool_DB = db.DB()
+        # pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+        # d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+        d_pool = self.cell_pool.open_pool()
 
         new_cells = 0
         total_cells = 0
@@ -503,7 +609,7 @@ class GoExplore(BatchPolopt):
             cum_traj = np.array([])
             observation = None
             for j in range(samples_data['observations'].shape[1]):
-                # pdb.set_trace()
+                pdb.set_trace()
                 # If action only (black box) we search based on history of actions
                 if self.env.action_only:
                     # pdb.set_trace()
@@ -528,6 +634,8 @@ class GoExplore(BatchPolopt):
                                                 state=root_cell.state,
                                                 parent=root_cell.parent,
                                                 reward=root_cell.reward,
+                                                is_goal=root_cell.is_goal,
+                                                is_terminal=root_cell.is_terminal,
                                                 chosen=1)
                         # self.cell_pool.d_update(d_pool=d_pool,observation=root_cell.observation,trajectory=root_cell.trajectory,score=root_cell.score,state=root_cell.state,parent=root_cell.parent,reward=root_cell.reward,chosen=1)
                         #Update trajectory info to root cell state
@@ -572,15 +680,15 @@ class GoExplore(BatchPolopt):
         print(new_cells, " new cells (", 100 * new_cells / total_cells, "%)")
         print(total_cells, " samples processed in ", time.time() - start, " seconds")
 
-        d_pool.sync()
-        d_pool.close()
+
+        self.cell_pool.sync_and_close_pool(cell_pool_shelf=d_pool)
         # self.cell_pool.d_pool.close()
         # self.env.set_param_values([self.cell_pool], pool=True, debug=True)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
 
 
-        if os.path.getsize(self.db_filename) /1000/1000/1000 > self.max_db_size:
+        if os.path.getsize(self.cell_pool.pool_filename) /1000/1000/1000 > self.max_db_size:
             print ('------------ERROR: MAX DB SIZE REACHED------------')
             sys.exit()
         print('\n---------- Max Score: ', self.max_cum_reward, ' ----------------\n')
