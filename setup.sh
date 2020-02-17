@@ -8,4 +8,5 @@ export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox
 #pydot from https://github.com/nlhepler/pydot
 #neet run python setup.py install
 export PYTHONPATH=$PYTHONPATH:$PWD/Toolbox/pydot
+export PYTHONHASHSEED=0
 #cd Toolbox/scripts

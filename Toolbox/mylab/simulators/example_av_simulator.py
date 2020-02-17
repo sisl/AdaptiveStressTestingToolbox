@@ -218,7 +218,7 @@ class ExampleAVSimulator(ASTSimulator):
         self._peds[0:self.c_num_peds, 3] = self.y
 
         # Calculate the relative position measurements
-        self._measurements = self._peds - self._car
+        self._measurements = self._peds
         self._env_obs = self._measurements
         self._car_obs = self._measurements
 
@@ -230,7 +230,7 @@ class ExampleAVSimulator(ASTSimulator):
             self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
             self._car_accel = np.zeros((2))
             self._peds[:, 0:4] = np.array([0.0, 1.0, -0.5, -4.0])
-            self._measurements = self._peds - self._car
+            self._measurements = self._peds
             self._env_obs = self._measurements
             self._car_obs = self._measurements
             obs = np.ndarray.flatten(self._measurements)
@@ -256,7 +256,8 @@ class ExampleAVSimulator(ASTSimulator):
         dist = self._peds[:, 2:4] - self._car[2:4]
 
         # return True if any relative distance is within the SUT's hitbox
-        if (np.any(np.all(np.less_equal(abs(dist), self.c_min_dist), axis=1))):
+        if (np.any(np.all(np.less_equal(abs(dist), self.c_min_dist), axis=1)) and
+                self._car[0]  > 0.1):
             return True
 
         return False
@@ -268,6 +269,7 @@ class ExampleAVSimulator(ASTSimulator):
                            np.ndarray.flatten(self._car),
                            np.ndarray.flatten(self._peds),
                            np.ndarray.flatten(self._action),
+                           np.ndarray.flatten(self._car_obs),
                            0.0])
         self._info.append(cache)
         self._step += 1
@@ -365,7 +367,8 @@ class ExampleAVSimulator(ASTSimulator):
                                           self._car_accel,
                                           self._peds.flatten(),
                                           self._car_obs.flatten(),
-                                          self._action.flatten()), axis=0)
+                                          self._action.flatten(),
+                                          self.init_conditions), axis=0)
 
         return simulator_state
 
@@ -393,7 +396,8 @@ class ExampleAVSimulator(ASTSimulator):
         self._peds = simulator_state[9:peds_end_index].reshape((self.c_num_peds,4))
         car_obs_end_index = peds_end_index + self.c_num_peds*4
         self._car_obs = simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds,4))
-        self._action = simulator_state[car_obs_end_index:]
+        self._action = simulator_state[car_obs_end_index:car_obs_end_index+self._action.shape[0]]
+        self.init_conditions = simulator_state[car_obs_end_index+self._action.shape[0]:]
         self._info = []
 
     def _get_obs(self):
@@ -403,3 +407,10 @@ class ExampleAVSimulator(ASTSimulator):
                 # return np.array([0] * (6*self.c_num_peds))
             # return self._action
         return self._env_obs
+
+    def render(self, car, ped, noise, gif=False):
+        if gif:
+            return
+        else:
+            return
+

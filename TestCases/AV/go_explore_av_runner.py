@@ -27,7 +27,10 @@ import fire
 import os
 import pdb
 import contextlib
-
+import compress_pickle
+from bsddb3 import db
+import pickle
+import shelve
 
 #
 # parser = argparse.ArgumentParser()
@@ -98,12 +101,13 @@ def runner(exp_name='av',
                     #                              reward_function=reward_function,
                     #                              spaces=spaces
                     #                              )
+                    s_0 = [1.0, -6.0, 1.0, 11.17, -35.0]
                     env1 = gym.make('mylab:GoExploreAST-v1',
                              open_loop=False,
                              action_only=True,
                              fixed_init_state=True,
                              # s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                             s_0=[-0.0, -4.0, 1.0, 11.17, -35.0],
+                             s_0=s_0,
                              simulator=sim,
                              reward_function=reward_function,
                              spaces=spaces
@@ -129,6 +133,8 @@ def runner(exp_name='av',
                         # robust_baseline=robust_baseline,
                         max_path_length=max_path_length,
                         discount=discount,
+                        save_paths_gap=1,
+                        save_paths_path=log_dir,
                         # whole_paths=whole_paths
                     )
 
@@ -154,12 +160,10 @@ def runner(exp_name='av',
                     # Run the experiment
                         best_cell = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
 
-                        from bsddb3 import db
-                        import pickle
-                        import shelve
                         pool_DB = db.DB()
                         pool_DB.open(db_filename+'_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
                         d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+                        # pdb.set_trace()
                         print(best_cell)
                         temp=best_cell
                         paths = []
@@ -169,69 +173,74 @@ def runner(exp_name='av',
                             paths.append({'state':temp.state,
                                           'reward':temp.reward,
                                           'action':action,
-                                          'observation':np.array([-0.0, -4.0, 1.0, 11.17, -35.0])})
+                                          'observation':np.array(s_0)})
                             temp = d_pool[temp.parent]
                         print(temp.observation)
                         paths.append({'state': temp.state,
                                       'reward': temp.reward,
                                       'action': action,
-                                      'observation': np.array([-0.0, -4.0, 1.0, 11.17, -35.0])})
+                                      'observation': np.array(s_0)})
                         # pdb.set_trace()
                         d_pool.close()
                         print('done!')
 
                     #Run backwards algorithm to robustify
-                    with LocalRunner(
-                            snapshot_config=snapshot_config, sess=sess) as runner:
+                    if n_itr_robust > 0:
+                        with LocalRunner(
+                                snapshot_config=snapshot_config, sess=sess) as runner:
 
 
-                        robust_policy = GaussianLSTMPolicy(name='lstm_policy',
-                                                           env_spec=env.spec,
-                                                           hidden_dim=64,
-                                                           use_peepholes=True)
+                            robust_policy = GaussianLSTMPolicy(name='lstm_policy',
+                                                               env_spec=env.spec,
+                                                               hidden_dim=64,
+                                                               use_peepholes=True)
 
-                        robust_baseline = LinearFeatureBaseline(env_spec=env.spec)
+                            robust_baseline = LinearFeatureBaseline(env_spec=env.spec)
 
-                        optimizer = ConjugateGradientOptimizer
-                        optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
+                            optimizer = ConjugateGradientOptimizer
+                            optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
 
-                        robust_algo = BackwardAlgorithm(
-                                            env=env,
-                                            env_spec=env.spec,
-                                            policy=robust_policy,
-                                            baseline=robust_baseline,
-                                            expert_trajectory=paths,
-                                            epochs_per_step = 10,
-                                            # scope=None,
-                                            max_path_length=max_path_length,
-                                            discount=discount,
-                                            # gae_lambda=1,
-                                            # center_adv=True,
-                                            # positive_adv=False,
-                                            # fixed_horizon=False,
-                                            # pg_loss='surrogate_clip',
-                                            lr_clip_range=1.0,
-                                            max_kl_step=1.0,
-                                            optimizer=optimizer,
-                                            optimizer_args=optimizer_args,
-                                            # policy_ent_coeff=0.0,
-                                            # use_softplus_entropy=False,
-                                            # use_neg_logli_entropy=False,
-                                            # stop_entropy_gradient=False,
-                                            # entropy_method='no_entropy',
-                                            # name='PPO',
-                                            )
+                            robust_algo = BackwardAlgorithm(
+                                                env=env,
+                                                env_spec=env.spec,
+                                                policy=robust_policy,
+                                                baseline=robust_baseline,
+                                                expert_trajectory=paths,
+                                                epochs_per_step = 10,
+                                                # scope=None,
+                                                max_path_length=max_path_length,
+                                                discount=discount,
+                                                # gae_lambda=1,
+                                                # center_adv=True,
+                                                # positive_adv=False,
+                                                # fixed_horizon=False,
+                                                # pg_loss='surrogate_clip',
+                                                lr_clip_range=1.0,
+                                                max_kl_step=1.0,
+                                                optimizer=optimizer,
+                                                optimizer_args=optimizer_args,
+                                                # policy_ent_coeff=0.0,
+                                                # use_softplus_entropy=False,
+                                                # use_neg_logli_entropy=False,
+                                                # stop_entropy_gradient=False,
+                                                # entropy_method='no_entropy',
+                                                # name='PPO',
+                                                )
 
 
-                        runner.setup(algo=robust_algo,
-                                     env=env,
-                                     sampler_cls=sampler_cls,
-                                     sampler_args=sampler_args)
+                            runner.setup(algo=robust_algo,
+                                         env=env,
+                                         sampler_cls=sampler_cls,
+                                         sampler_args=sampler_args)
 
-                        results = runner.train(n_epochs=n_itr_robust, batch_size=batch_size_robust, plot=False)
-                        pdb.set_trace()
-                        print('done')
-                        return results
+                            results = runner.train(n_epochs=n_itr_robust, batch_size=batch_size_robust, plot=False)
+                            # pdb.set_trace()
+                            print('done')
+                            with open(log_dir + '/paths.gz', 'wb') as f:
+                                try:
+                                    compress_pickle.dump(results, f, compression="gzip", set_default_extension=False)
+                                except MemoryError:
+                                    pdb.set_trace()
 
                     # saver = tf.train.Saver()
                     # save_path = saver.save(sess, log_dir + '/model.ckpt')

@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+from matplotlib.patches import Rectangle, Circle
+from matplotlib.collections import PatchCollection
 import numpy as np
 from bsddb3 import db
 import pickle
@@ -6,6 +9,8 @@ import shelve
 import os, sys
 import contextlib
 import pdb
+from mylab.algos.go_explore import *
+
 
 
 def get_meta_filename(filename):
@@ -119,4 +124,78 @@ def get_root_cell(pool, cell):
 
     return root_cell
 
+def render(car=None, ped=None, noise=None, ped_obs=None, gif=False):
+    if gif:
+        return
+    else:
+        fig = plt.figure(constrained_layout=True)
+        if noise is not None and (car is not None or ped is not None or ped_obs is not None):
+            # Plotting Noise and trajectories
+            gs = GridSpec(4, 2, figure=fig)
+            ax1 = fig.add_subplot(gs[:, 0])
+            ax2 = fig.add_subplot(gs[0, 1])
+            ax3 = fig.add_subplot(gs[1, 1])
+            ax4 = fig.add_subplot(gs[2, 1])
+            ax5 = fig.add_subplot(gs[3, 1])
 
+            ax1.set_title('Car, Actual Pedestrian, and Observed Pedestrian Trajectories')
+        elif noise is not None:
+        #     Only plotting noise
+            gs = GridSpec(4, 1, figure=fig)
+            ax2 = fig.add_subplot(gs[0, 0])
+            ax3 = fig.add_subplot(gs[1, 0])
+            ax4 = fig.add_subplot(gs[2, 0])
+            ax5 = fig.add_subplot(gs[3, 0])
+        else:
+        #     Only plotting trajectories
+            gs = GridSpec(1, 1, figure=fig)
+            ax1 = fig.add_subplot(gs[0, 0])
+            ax1.set_title('Car, Actual Pedestrian, and Observed Pedestrian Trajectories')
+        if noise is not None:
+            axs = [ax2, ax3, ax4, ax5]
+            ax_titles = ['Noise: Pedestrian X Velocity', 'Noise: Pedestrian Y Velocity', 'Noise: Pedestrian X Position', 'Noise: Pedestrian Y Position']
+            x = np.arange(noise.shape[0] + 2)
+            for idx, ax in enumerate(axs):
+
+                y = np.concatenate(([0], noise[:, idx], [0]))
+
+                ax.step(x, y, color='black', where='pre')
+                ax.axhline(0, color='black', lw=2)
+
+                ycopy = y.copy()
+                ycopy[y < 0] = 0
+                ax.fill_between(x, ycopy, facecolor='green', step='pre')
+
+                ycopy = y.copy()
+                ycopy[y >= 0] = 0
+                ax.fill_between(x, ycopy, facecolor='red', step='pre')
+                ax.set_title(ax_titles[idx])
+
+        if ped is not None:
+            ax1.quiver(ped[:,2], ped[:,3], ped[:,0], ped[:,1], scale = 50)
+
+            ped_final_pos = ped[-1, 2:]
+            rad = 0.125
+
+            circle = Circle((ped_final_pos[0], ped_final_pos[1]), radius=rad)
+            pc = PatchCollection([circle], facecolor='blue', alpha=0.2,
+                                 edgecolor='blue')
+            ax1.add_collection(pc)
+
+        if ped_obs is not None:
+            ax1.quiver(ped_obs[:,2], ped_obs[:,3], ped_obs[:,0], ped_obs[:,1], scale = 50, color='gray')
+        if car is not None:
+            ax1.quiver(car[:, 2], car[:, 3], car[:, 0], car[:, 1], scale = 500)
+
+            car_final_pos = car[-1, 2:]
+            x_dist = 2.5
+            y_dist = 1.4
+
+            rect = Rectangle((car_final_pos[0] - x_dist/2, car_final_pos[1] - y_dist/2), x_dist, y_dist)
+            pc = PatchCollection([rect], facecolor='red', alpha=0.2,
+                                 edgecolor='red')
+            ax1.add_collection(pc)
+
+
+    plt.show()
+    return

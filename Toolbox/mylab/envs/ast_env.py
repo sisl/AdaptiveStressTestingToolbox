@@ -37,6 +37,7 @@ class ASTEnv(gym.Env, Serializable):
         self._first_step = True
         self.reward_range = (-float('inf'), float('inf'))
         self.metadata = None
+        self._cum_reward = 0.0
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
@@ -75,10 +76,11 @@ class ASTEnv(gym.Env, Serializable):
         """
         self._action = action
         self._actions.append(action)
+        action_return = self._action
         # Update simulation step
         obs = self.simulator.step(self._action, self.open_loop)
-        if (obs is None) or (self.open_loop is True):
-            obs = self._init_state
+        if (obs is None) or (self.open_loop is True) or (self.action_only):
+            obs = np.array(self._init_state)
         # if self.simulator.is_goal():
         if self.simulator.is_terminal() or self.simulator.is_goal():
             self._done = True
@@ -86,14 +88,29 @@ class ASTEnv(gym.Env, Serializable):
         self._reward = self.reward_function.give_reward(
             action=self._action,
             info=self.simulator.get_reward_info())
+        self._cum_reward += self._reward
         # Update instance attributes
         self._step = self._step + 1
-
+        self._simulator_state = self.simulator.clone_state()
+        self._env_state = np.concatenate((self._simulator_state,
+                                          np.array([self._cum_reward]),
+                                          np.array([self._step])),
+                                         axis=0)
+        if self._done:
+            self.simulator.simulate(self._actions, self._init_state)
+            if not (self.simulator.is_goal() or self.simulator.is_terminal()):
+                pdb.set_trace()
         return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
-                    info={'cache': self._info,
-                          'actions': self._action})
+                    cache=self._info,
+                    actions=action_return,
+                    # step = self._step -1,
+                    # real_actions=self._action,
+                    state=self._env_state,
+                    # root_action=self.root_action,
+                    is_terminal=self.simulator.is_terminal(),
+                    is_goal=self.simulator.is_goal())
 
     def simulate(self, actions):
         if not self._fixed_init_state:
@@ -112,13 +129,18 @@ class ASTEnv(gym.Env, Serializable):
             self._init_state = self.observation_space.sample()
         self._done = False
         self._reward = 0.0
+        self._cum_reward = 0.0
         self._info = []
         self._action = None
         self._actions = []
         self._first_step = True
         self._step = 0
 
-        return self.simulator.reset(self._init_state)
+        obs = np.array(self.simulator.reset(self._init_state))
+        if not self._fixed_init_state:
+            obs = np.concatenate((obs, np.array(self._init_state)), axis=0)
+
+        return obs
 
     @property
     def action_space(self):

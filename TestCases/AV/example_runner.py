@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 log_dir = args.log_dir
 
-batch_size = 50000
+batch_size = 5000
 max_path_length = 50
 n_envs = batch_size // max_path_length
 
@@ -57,8 +57,9 @@ def run_task(snapshot_config, *_):
 
                 # Create the environment
                 env = TfEnv(normalize(ASTEnv(action_only=True,
+                                             open_loop=False,
                                              fixed_init_state=True,
-                                             s_0=[0.0, -2.0, 1.0, 11.17, -35.0],
+                                             s_0=[1.0, -6.0, 1.0, 11.17, -35.0],
                                              simulator=sim,
                                              reward_function=reward_function,
                                              spaces=spaces
@@ -94,37 +95,38 @@ def run_task(snapshot_config, *_):
                     algo=algo,
                     env=env,
                     sampler_cls=sampler_cls,
-                    sampler_args={"sim": sim,
+                    sampler_args={"open_loop": False,
+                                  "sim": sim,
                                   "reward_function": reward_function,
                                   "n_envs": n_envs})
 
                 # Run the experiment
                 runner.train(n_epochs=args.iters, batch_size=batch_size, plot=False)
 
-                saver = tf.train.Saver()
-                save_path = saver.save(sess, log_dir + '/model.ckpt')
-                print("Model saved in path: %s" % save_path)
-
-                # Write out the episode results
-                header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-                for i in range(0,sim.c_num_peds):
-                    header += 'v_x_ped_' + str(i) + ','
-                    header += 'v_y_ped_' + str(i) + ','
-                    header += 'x_ped_' + str(i) + ','
-                    header += 'y_ped_' + str(i) + ','
-
-                for i in range(0,sim.c_num_peds):
-                    header += 'a_x_'  + str(i) + ','
-                    header += 'a_y_' + str(i) + ','
-                    header += 'noise_v_x_' + str(i) + ','
-                    header += 'noise_v_y_' + str(i) + ','
-                    header += 'noise_x_' + str(i) + ','
-                    header += 'noise_y_' + str(i) + ','
-
-                header += 'reward'
-                if args.snapshot_mode != "gap":
-                    args.snapshot_gap = args.iters - 1
-                example_save_trials(args.iters, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+                # saver = tf.train.Saver()
+                # save_path = saver.save(sess, log_dir + '/model.ckpt')
+                # print("Model saved in path: %s" % save_path)
+                #
+                # # Write out the episode results
+                # header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
+                # for i in range(0,sim.c_num_peds):
+                #     header += 'v_x_ped_' + str(i) + ','
+                #     header += 'v_y_ped_' + str(i) + ','
+                #     header += 'x_ped_' + str(i) + ','
+                #     header += 'y_ped_' + str(i) + ','
+                #
+                # for i in range(0,sim.c_num_peds):
+                #     header += 'a_x_'  + str(i) + ','
+                #     header += 'a_y_' + str(i) + ','
+                #     header += 'noise_v_x_' + str(i) + ','
+                #     header += 'noise_v_y_' + str(i) + ','
+                #     header += 'noise_x_' + str(i) + ','
+                #     header += 'noise_y_' + str(i) + ','
+                #
+                # header += 'reward'
+                # if args.snapshot_mode != "gap":
+                #     args.snapshot_gap = args.iters - 1
+                # example_save_trials(args.iters, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
 
 
 

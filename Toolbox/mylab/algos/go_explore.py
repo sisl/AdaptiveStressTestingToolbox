@@ -32,8 +32,182 @@ import shelve
 import os
 import contextlib
 
+class Cell():
+
+    def __init__(self):
+        # print("Creating new Cell:", self)
+        # Number of times this was chosen and seen
+        self._times_visited=0
+        self._times_chosen = 0
+        self._times_chosen_since_improved = 0
+        self._score = -np.inf
+        self._reward = 0
+        self._value_approx = 0.0
+        self._action_times = 0
+
+        self.trajectory_length = -np.inf
+        self.trajectory = np.array([])
+        self.state = None
+        self.observation = None
+        self.action = None
+        self.parent = None
+        self._is_goal = False
+        self._is_terminal = False
+        # self._is_root = False
+
+    def __eq__(self, other):
+        if type(other) != type(self):
+            return False
+        if np.all(self.observation == other.observation):
+            return True
+        else:
+            return False
+
+    def reset_cached_property(self, cached_property):
+        if cached_property in self.__dict__:
+            del self.__dict__[cached_property]
+
+    @property
+    def is_root(self):
+        return len(self.trajectory) == 0
+
+    @property
+    def step(self):
+        return len(self.trajectory)
+
+    @property
+    def reward(self):
+        return self._reward
+
+    @reward.setter
+    def reward(self, value):
+        self._reward = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def value_approx(self):
+        return self._value_approx
+
+    @value_approx.setter
+    def value_approx(self, value):
+        self._value_approx = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def is_terminal(self):
+        return self._is_terminal
+
+    @is_terminal.setter
+    def is_terminal(self, value):
+        self._is_terminal = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def is_goal(self):
+        return self._is_goal
+
+    @is_goal.setter
+    def is_goal(self, value):
+        self._is_goal = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value):
+        self._score = value
+        self.reset_cached_property('score_weight')
+        self.reset_cached_property('fitness')
+
+    @property
+    def times_visited(self):
+        return self._times_visited
+
+    @times_visited.setter
+    def times_visited(self, value):
+        self._times_visited = value
+        self.reset_cached_property('times_visited_subscore')
+        self.reset_cached_property('count_subscores')
+        self.reset_cached_property('fitness')
+
+    @property
+    def times_chosen(self):
+        return self._times_chosen
+
+    @times_chosen.setter
+    def times_chosen(self, value):
+        self._times_chosen = value
+        self.reset_cached_property('times_chosen_subscore')
+        self.reset_cached_property('count_subscores')
+        self.reset_cached_property('fitness')
+
+    @property
+    def times_chosen_since_improved(self):
+        return self._times_chosen_since_improved
+
+    @times_chosen_since_improved.setter
+    def times_chosen_since_improved(self, value):
+        self._times_chosen_since_improved = value
+        self.reset_cached_property('times_chosen_since_improved')
+        self.reset_cached_property('count_subscores')
+        self.reset_cached_property('fitness')
+
+
+    @cached_property
+    def fitness(self):
+        # return max(1, self.score)
+        return self.score_weight*(self.count_subscores + 1)
+
+    @cached_property
+    def count_subscores(self):
+        return (self.times_chosen_subscore +
+                self.times_chosen_since_improved_subscore +
+                self.times_visited_subscore)
+
+    @cached_property
+    def times_chosen_subscore(self):
+        weight = 0.1
+        power = 0.5
+        eps1 = 0.001
+        eps2 = 0.00001
+        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
+
+    @cached_property
+    def times_chosen_since_improved_subscore(self):
+        weight = 0.0
+        power = 0.5
+        eps1 = 0.001
+        eps2 = 0.00001
+        return weight * (1 / (self.times_chosen_since_improved + eps1)) ** power + eps2
+
+    @cached_property
+    def times_visited_subscore(self):
+        weight = 0.3
+        power = 0.5
+        eps1 = 0.001
+        eps2 = 0.00001
+        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
+
+    @cached_property
+    def score_weight(self):
+        # score_weight = 1.0 #Not sampling based on score right now
+        score_weight = 1/max([abs(self._value_approx), 1])
+        # Set chance of sampling to 0 if this cell is a terminal state
+        terminal_sample_elimination_factor = not(self.is_terminal or self._is_goal)
+        return terminal_sample_elimination_factor * score_weight
+        # return min(1e-6, 0.1**max(0.0, (100000-self.score)/10000))
+
+    def __hash__(self):
+        return hash((self.observation.tostring()))
+
 class CellPool():
-    def __init__(self, filename = 'database', flag=db.DB_RDONLY, flag2='r'):
+    def __init__(self, filename = 'database', discount=0.99, flag=db.DB_RDONLY, flag2='r'):
         # print("Creating new Cell Pool:", self)
         # self.guide = set()
 
@@ -42,6 +216,7 @@ class CellPool():
         # self.guide = self.init_cell.observation
         self.length = 0
         self._filename = filename
+        self.discount = discount
 
         # self.d_pool = {}
 
@@ -58,6 +233,7 @@ class CellPool():
         self.max_score = -np.inf
         self.max_reward = -np.inf
         self.best_cell = None
+
         # self.d_pool = shelve.BsdDbShelf(pool_DB)
         # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
         # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
@@ -176,9 +352,10 @@ class CellPool():
     #     index = np.random.randint(0, self.length)
     #     return self.get_cell(index)
 
-    def d_update(self, d_pool, observation, trajectory, score, state, parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
+    def d_update(self, d_pool, observation, action, trajectory, score, state, parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
         # pdb.set_trace()
         #This tests to see if the observation is already in the matrix
+
         obs_hash = str(hash(observation.tostring()))
         if not obs_hash in d_pool:
             # Make a new cell, add to pool
@@ -186,6 +363,7 @@ class CellPool():
             cell = Cell()
             cell.observation = observation
             # self.guide = np.append(self.guide, np.expand_dims(observation, axis=0), axis = 0)
+            cell.action = action
             cell.trajectory = trajectory
             cell.score = score
             cell.trajectory_length = len(trajectory)
@@ -210,12 +388,15 @@ class CellPool():
             elif is_terminal:
                 self.terminal_dict[obs_hash] = cell.reward
 
+            self.value_approx_update(obs_hash=obs_hash, d_pool=d_pool)
+
             return True
         else:
             cell = d_pool[obs_hash]
             if score > cell.score:
                 # Cell exists, but new version is better. Overwrite
                 cell.score = score
+                cell.action = action
                 cell.trajectory = trajectory
                 cell.trajectory_length = len(trajectory)
                 cell.state = state
@@ -241,165 +422,19 @@ class CellPool():
                 self.max_value = cell.fitness
             if cell.score > self.max_score:
                 self.max_score = score
+
+            self.value_approx_update(obs_hash=obs_hash, d_pool=d_pool)
+
         return False
 
+    def value_approx_update(self, obs_hash, d_pool):
+        cell = d_pool[obs_hash]
+        v = cell.score + self.discount * cell.value_approx
+        cell.value_approx = (v - cell.value_approx)/cell.times_visited + cell.value_approx
+        d_pool[obs_hash] = cell
+        if cell.parent is not None:
+            self.value_approx_update(obs_hash=cell.parent, d_pool=d_pool)
 
-class Cell():
-
-    def __init__(self):
-        # print("Creating new Cell:", self)
-        # Number of times this was chosen and seen
-        self._times_visited=0
-        self._times_chosen = 0
-        self._times_chosen_since_improved = 0
-        self._score = -np.inf
-        self._reward = 0
-        self._action_times = 0
-
-        self.trajectory_length = -np.inf
-        self.trajectory = np.array([])
-        self.state = None
-        self.observation = None
-        self.parent = None
-        self._is_goal = False
-        self._is_terminal = False
-        # self._is_root = False
-
-    def __eq__(self, other):
-        if type(other) != type(self):
-            return False
-        if np.all(self.observation == other.observation):
-            return True
-        else:
-            return False
-
-    def reset_cached_property(self, cached_property):
-        if cached_property in self.__dict__:
-            del self.__dict__[cached_property]
-
-    @property
-    def is_root(self):
-        return len(self.trajectory) == 0
-
-    @property
-    def reward(self):
-        return self._reward
-
-    @reward.setter
-    def reward(self, value):
-        self._reward = value
-        self.reset_cached_property('score_weight')
-        self.reset_cached_property('fitness')
-
-    @property
-    def is_terminal(self):
-        return self._is_terminal
-
-    @is_terminal.setter
-    def is_terminal(self, value):
-        self._is_terminal = value
-        self.reset_cached_property('score_weight')
-        self.reset_cached_property('fitness')
-
-    @property
-    def is_goal(self):
-        return self._is_terminal
-
-    @is_goal.setter
-    def is_goal(self, value):
-        self._is_terminal = value
-        self.reset_cached_property('score_weight')
-        self.reset_cached_property('fitness')
-
-    @property
-    def score(self):
-        return self._score
-
-    @score.setter
-    def score(self, value):
-        self._score = value
-        self.reset_cached_property('score_weight')
-        self.reset_cached_property('fitness')
-
-    @property
-    def times_visited(self):
-        return self._times_visited
-
-    @times_visited.setter
-    def times_visited(self, value):
-        self._times_visited = value
-        self.reset_cached_property('times_visited_subscore')
-        self.reset_cached_property('count_subscores')
-        self.reset_cached_property('fitness')
-
-    @property
-    def times_chosen(self):
-        return self._times_chosen
-
-    @times_chosen.setter
-    def times_chosen(self, value):
-        self._times_chosen = value
-        self.reset_cached_property('times_chosen_subscore')
-        self.reset_cached_property('count_subscores')
-        self.reset_cached_property('fitness')
-
-    @property
-    def times_chosen_since_improved(self):
-        return self._times_chosen_since_improved
-
-    @times_chosen_since_improved.setter
-    def times_chosen_since_improved(self, value):
-        self._times_chosen_since_improved = value
-        self.reset_cached_property('times_chosen_since_improved')
-        self.reset_cached_property('count_subscores')
-        self.reset_cached_property('fitness')
-
-
-    @cached_property
-    def fitness(self):
-        # return max(1, self.score)
-        return self.score_weight*(self.count_subscores + 1)
-
-    @cached_property
-    def count_subscores(self):
-        return (self.times_chosen_subscore +
-                self.times_chosen_since_improved_subscore +
-                self.times_visited_subscore)
-
-    @cached_property
-    def times_chosen_subscore(self):
-        weight = 0.1
-        power = 0.5
-        eps1 = 0.001
-        eps2 = 0.00001
-        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
-
-    @cached_property
-    def times_chosen_since_improved_subscore(self):
-        weight = 0.0
-        power = 0.5
-        eps1 = 0.001
-        eps2 = 0.00001
-        return weight * (1 / (self.times_chosen_since_improved + eps1)) ** power + eps2
-
-    @cached_property
-    def times_visited_subscore(self):
-        weight = 0.3
-        power = 0.5
-        eps1 = 0.001
-        eps2 = 0.00001
-        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
-
-    @cached_property
-    def score_weight(self):
-        score_weight = 1.0 #Not sampling based on score right now
-        # Set chance of sampling to 0 if this cell is a terminal state
-        terminal_sample_elimination_factor = not(self.is_terminal or self._is_goal)
-        return terminal_sample_elimination_factor * score_weight
-        # return min(1e-6, 0.1**max(0.0, (100000-self.score)/10000))
-
-    def __hash__(self):
-        return hash((self.observation.tostring()))
 
 class GoExplore(BatchPolopt):
     """
@@ -420,6 +455,8 @@ class GoExplore(BatchPolopt):
                  # robustify_max,
                  # robustify_algo,
                  # robustify_policy,
+                 save_paths_gap = 0,
+                 save_paths_path=None,
                  **kwargs):
 
         # algo = TRPO(
@@ -483,7 +520,8 @@ class GoExplore(BatchPolopt):
         self.best_cell = None
         self.robustify = False
         # self.robustify_max = robustify_max
-
+        self.save_paths_gap = save_paths_gap
+        self.save_paths_path = save_paths_path
         self.policy = self.go_explore_policy
 
         # self.init_opt()
@@ -554,7 +592,7 @@ class GoExplore(BatchPolopt):
         if len(self.cell_pool.key_list) == 0:
             obs, state = self.env.get_first_cell()
         # pdb.set_trace()
-            self.cell_pool.d_update(d_pool=d_pool, observation=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
+            self.cell_pool.d_update(d_pool=d_pool, observation=self.downsample(obs, step=-1), action=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
             self.cell_pool.sync_pool(cell_pool_shelf=d_pool)
 
 
@@ -623,7 +661,6 @@ class GoExplore(BatchPolopt):
         new_cells = 0
         total_cells = 0
         # self.cell_pool.d_pool.open()
-        print("(2) Processing Samples...")
         # pdb.set_trace()
         for i in range(samples_data['observations'].shape[0]):
             sys.stdout.write("\rProcessing Trajectory {0} / {1}".format(i, samples_data['observations'].shape[0]))
@@ -633,16 +670,19 @@ class GoExplore(BatchPolopt):
             observation = None
             is_terminal = False
             is_goal = False
+            root_step = 0
             for j in range(samples_data['observations'].shape[1]):
                 # pdb.set_trace()
                 # If action only (black box) we search based on history of actions
                 if self.env.action_only:
                     # pdb.set_trace()
                     observation_data = samples_data['env_infos']['actions']
+                    action_data = samples_data['env_infos']['actions']
                     # observation = samples_data['actions'][i, j, :]
                 else:
                     # else (white box) use simulation state
                     observation_data = samples_data['observations']
+                    action_data = samples_data['env_infos']['actions']
                     # observation = samples_data['observations'][i, j, :]
                 # chosen = 0
                 if j == 0:
@@ -650,10 +690,13 @@ class GoExplore(BatchPolopt):
                     try:
                         # root_cell = d_pool[str(hash(observation_data[i, j, :].tostring()))]
                         # Get the chosen cell that was root of this rollout
+                        # root_obs = self.downsample(obs=samples_data['env_infos']['root_action'][i,j,:],
+                        #                            step=samples_data['env_infos']['state'][i, j, -1]-1)
                         root_cell = d_pool[str(hash(samples_data['env_infos']['root_action'][i,j,:].tostring()))]
                         #Update the chosen/visited count
                         self.cell_pool.d_update(d_pool=d_pool,
                                                 observation=root_cell.observation,
+                                                action=root_cell.action,
                                                 trajectory=root_cell.trajectory,
                                                 score=root_cell.score,
                                                 state=root_cell.state,
@@ -666,20 +709,26 @@ class GoExplore(BatchPolopt):
                         #Update trajectory info to root cell state
                         cum_reward = root_cell.reward
                         cum_traj = root_cell.trajectory
+                        if cum_traj.shape[0] > 0:
+                            cum_traj = np.concatenate((cum_traj, root_cell.action.reshape((1,6))), axis=0)
                         parent = str(hash(samples_data['env_infos']['root_action'][i,j,:].tostring()))
+                        root_step = root_cell.state[-1] + 1
+                        # pdb.set_trace()
                     except:
                         print('----------ERROR - failed to retrieve root cell--------------------')
                         pdb.set_trace()
                         break
                 else:
-                    parent = str(hash(observation_data[i, j-1, :].tostring()))
+                    parent = str(hash(observation.tostring()))
                     # if cum_reward == 0 or cum_reward  <-1e8:
                     #     pdb.set_trace()
 
                 if np.all(observation_data[i, j, :] == 0):
                     continue
-                observation = observation_data[i, j, :]
-                trajectory = observation_data[i, 0:j, :]
+                observation = self.downsample(observation_data[i, j, :], root_step + j)
+                action = action_data[i, j, :]
+                # trajectory = observation_data[i, 0:j, :]
+                trajectory = action_data[i, 0:j, :]
                 if cum_traj.shape[0] > 0:
                     trajectory = np.concatenate((cum_traj, trajectory), axis=0)
                 score = samples_data['rewards'][i, j]
@@ -687,23 +736,29 @@ class GoExplore(BatchPolopt):
                 state = samples_data['env_infos']['state'][i, j, :]
                 is_terminal = samples_data['env_infos']['is_terminal'][i, j]
                 is_goal =samples_data['env_infos']['is_goal'][i, j]
+                # if j >48:
+                #     print(j)
+                #     pdb.set_trace()
                 if self.cell_pool.d_update(d_pool=d_pool,
                                            observation=observation,
+                                           action=action,
                                            trajectory=trajectory,
                                            score=score,
                                            state=state,
                                            parent=parent,
-                                           reward=cum_reward,
                                            is_goal=is_goal,
                                            is_terminal=is_terminal,
+                                           reward=cum_reward,
                                            chosen=0):
                     new_cells += 1
                 total_cells += 1
+                # pdb.set_trace()
             if cum_reward > self.max_cum_reward and observation is not None:
                 self.max_cum_reward = cum_reward
                 self.best_cell = d_pool[str(hash(observation.tostring()))]
             # if cum_reward > -100:
             #     pdb.set_trace()
+            # pdb.set_trace()
         sys.stdout.write("\n")
         sys.stdout.flush()
         print(new_cells, " new cells (", 100 * new_cells / total_cells, "%)")
@@ -716,9 +771,20 @@ class GoExplore(BatchPolopt):
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
 
+        if self.save_paths_gap != 0 and self.save_paths_path is not None and itr % self.save_paths_gap == 0:
+            with open(self.save_paths_path + '/paths_itr_' + str(itr) + '.p', 'wb') as f:
+                pickle.dump(samples_data, f)
+
 
         if os.path.getsize(self.cell_pool.pool_filename) /1000/1000/1000 > self.max_db_size:
             print ('------------ERROR: MAX DB SIZE REACHED------------')
             sys.exit()
         print('\n---------- Max Score: ', self.max_cum_reward, ' ----------------\n')
 
+    def downsample(self, obs, step=None):
+        # import pdb; pdb.set_trace()
+        obs = obs * 1000
+        # if step is None:
+        #     step = self._step
+
+        return np.concatenate((np.array([step]), obs), axis=0).astype(int)
