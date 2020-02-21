@@ -51,15 +51,18 @@ def run_task(snapshot_config, *_):
                     snapshot_config=snapshot_config, max_cpus=4, sess=sess) as runner:
 
                 # Instantiate the example classes
-                sim = ExampleAVSimulator()
+                sim = ExampleAVSimulator(blackbox_sim_state=True,
+                                         open_loop=False,
+                                         fixed_initial_state=True,
+                                         max_path_length = 50)
                 reward_function = ExampleAVReward()
                 spaces = ExampleAVSpaces()
 
                 # Create the environment
-                env = TfEnv(normalize(ASTEnv(action_only=True,
+                env = TfEnv(normalize(ASTEnv(blackbox_sim_state=True,
                                              open_loop=False,
                                              fixed_init_state=True,
-                                             s_0=[1.0, -6.0, 1.0, 11.17, -35.0],
+                                             s_0=[0.0, -6.0, 1.0, 11.17, -35.0],
                                              simulator=sim,
                                              reward_function=reward_function,
                                              spaces=spaces

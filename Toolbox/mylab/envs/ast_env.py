@@ -17,7 +17,7 @@ class ASTEnv(gym.Env, Serializable):
 # class ASTEnv(GarageEnv):
     def __init__(self,
                  open_loop=True,
-                 action_only=True,
+                 blackbox_sim_state=True,
                  fixed_init_state=False,
                  s_0=None,
                  simulator=None,
@@ -25,7 +25,7 @@ class ASTEnv(gym.Env, Serializable):
                  spaces=None):
         # Constant hyper-params -- set by user
         self.open_loop=open_loop
-        self.action_only = action_only #is this redundant?
+        self.blackbox_sim_state = blackbox_sim_state #is this redundant?
         self.spaces = spaces
         # These are set by reset, not the user
         self._done = False
@@ -78,8 +78,8 @@ class ASTEnv(gym.Env, Serializable):
         self._actions.append(action)
         action_return = self._action
         # Update simulation step
-        obs = self.simulator.step(self._action, self.open_loop)
-        if (obs is None) or (self.open_loop is True) or (self.action_only):
+        obs = self.simulator.step(self._action)
+        if (obs is None) or (self.open_loop is True) or (self.blackbox_sim_state):
             obs = np.array(self._init_state)
         # if self.simulator.is_goal():
         if self.simulator.is_terminal() or self.simulator.is_goal():

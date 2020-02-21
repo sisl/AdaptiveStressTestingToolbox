@@ -674,7 +674,7 @@ class GoExplore(BatchPolopt):
             for j in range(samples_data['observations'].shape[1]):
                 # pdb.set_trace()
                 # If action only (black box) we search based on history of actions
-                if self.env.action_only:
+                if self.env.blackbox_sim_state:
                     # pdb.set_trace()
                     observation_data = samples_data['env_infos']['actions']
                     action_data = samples_data['env_infos']['actions']
@@ -780,6 +780,7 @@ class GoExplore(BatchPolopt):
             print ('------------ERROR: MAX DB SIZE REACHED------------')
             sys.exit()
         print('\n---------- Max Score: ', self.max_cum_reward, ' ----------------\n')
+        tabular.record('MaxReturn', self.max_cum_reward)
 
     def downsample(self, obs, step=None):
         # import pdb; pdb.set_trace()

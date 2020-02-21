@@ -103,7 +103,7 @@ def runner(exp_name='av',
 
                     # Create the environment
                     # env1 = GoExploreASTEnv(open_loop=False,
-                    #                              action_only=True,
+                    #                              blackbox_sim_state=True,
                     #                              fixed_init_state=True,
                     #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
                     #                              simulator=sim,

@@ -47,7 +47,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 # class ASTEnv(GarageEnv):
     def __init__(self,
                  open_loop=True,
-                 action_only=True,
+                 blackbox_sim_state=True,
                  fixed_init_state=False,
                  s_0=None,
                  simulator=None,
@@ -59,7 +59,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         # super().__init__(gym_env)
         # Constant hyper-params -- set by user
         self.open_loop=open_loop
-        self.action_only = action_only #is this redundant?
+        self.blackbox_sim_state = blackbox_sim_state #is this redundant?
         self.spaces = spaces
         # These are set by reset, not the user
         self._done = False
@@ -126,7 +126,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         # obs = self.env.env.reset()
         # state = self.env.env.clone_state()
         obs = self.env_reset()
-        if self.action_only:
+        if self.blackbox_sim_state:
             # obs = self.downsample(self.simulator.get_first_action())
             obs = self.simulator.get_first_action()
             # else:
@@ -158,8 +158,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self._actions.append(action)
         action_return = self._action
         # Update simulation step
-        obs = self.simulator.step(self._action, self.open_loop)
-        if (obs is None) or (self.open_loop is True) or (self.action_only):
+        obs = self.simulator.step(self._action)
+        if (obs is None) or (self.open_loop is True) or (self.blackbox_sim_state):
             # print('Open Loop:', obs)
             obs = np.array(self._init_state)
             # if not self.robustify:
@@ -341,7 +341,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self._first_step = True
         self._step = 0
         obs = np.array(self.simulator.reset(self._init_state))
-        # if self.action_only:
+        # if self.blackbox_sim_state:
         #     obs = np.array([0] * self.action_space.shape[0])
         # else:
         #     print('Not action only')

@@ -38,8 +38,8 @@ parser.add_argument('--log_dir', type=str, default='./data_mcts')
 parser.add_argument('--args_data', type=str, default=None)
 parser.add_argument('--run_num', type=int, default=0)
 
-parser.add_argument('--iters', type=int, default=1001)
-parser.add_argument('--batch_size', type=int, default=4000)
+parser.add_argument('--iters', type=int, default=101)
+parser.add_argument('--batch_size', type=int, default=5000)
 parser.add_argument('--clip_range', type=float, default=0.3)
 # Policy Params
 parser.add_argument('--hidden_dim', type=int, default=64)
@@ -48,7 +48,7 @@ parser.add_argument('--use_peepholes', type=bool, default=False)
 parser.add_argument('--load_policy', type=bool, default=False)
 
 # Env Params
-parser.add_argument('--action_only', type=bool, default=True)
+parser.add_argument('--blackbox_sim_state', type=bool, default=True)
 parser.add_argument('--fixed_init_state', type=bool, default=False)
 
 # MCTS Params
@@ -85,11 +85,11 @@ top_k = 10
 np.random.seed(seed)
 import mylab.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
-y = [-2.125,-4.625]
-x = [-0.5, 0.5]
-vp = [0.5, 1.5]
-vc = [9.755, 12.315]
-xc = [-30.625, -39.375]
+# y = [-2.125,-4.625]
+# x = [-0.5, 0.5]
+# vp = [0.5, 1.5]
+# vc = [9.755, 12.315]
+# xc = [-30.625, -39.375]
 
 # s_0 = [ x[np.mod(args.run_num,2)],
 #         y[np.mod(args.run_num//2, 2)],
@@ -97,7 +97,7 @@ xc = [-30.625, -39.375]
 #         vc[np.mod(args.run_num//8, 2)],
 #         xc[np.mod(args.run_num//16, 2)]]
 # print(s_0)
-s_0=[0.0, -2.0, 1.0, 11.17, -35.0]
+s_0=[0.0, -6.0, 1.0, 11.17, -35.0]
 
 # algo = MCTSBV(
 # 	    env=env,
@@ -120,7 +120,7 @@ s_0=[0.0, -2.0, 1.0, 11.17, -35.0]
 # 	n[i,:] = spaces.action_space.sample()
 #
 # print(np.mean(n, axis=0))
-batch_size = 50000
+batch_size = 500
 max_path_length = 50
 n_envs = batch_size // max_path_length
 
@@ -136,12 +136,15 @@ def run_task(snapshot_config, *_):
                     snapshot_config=snapshot_config, max_cpus=4, sess=sess) as runner:
 
                 # Instantiate the example classes
-                sim = ExampleAVSimulator()
+                sim = ExampleAVSimulator(blackbox_sim_state=True,
+                                         open_loop=False,
+                                         fixed_initial_state=True,
+                                         max_path_length=50)
                 reward_function = ExampleAVReward()
                 spaces = ExampleAVSpaces()
 
                 # Create the environment
-                env = ASTEnv(action_only=True,
+                env = ASTEnv(blackbox_sim_state=True,
                              open_loop=False,
                              fixed_init_state=True,
                              s_0=s_0,

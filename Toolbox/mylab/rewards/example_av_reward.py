@@ -34,7 +34,11 @@ class ExampleAVReward(ASTReward):
             reward = 0
         elif (is_terminal):
             # reward = 0
-            reward = -100000 - 10000 * np.min(np.linalg.norm(dist, axis=1)) # We reached
+            # Heuristic reward based on distance between car and ped at end
+            # heuristic_reward = np.min(np.linalg.norm(dist, axis=1))
+            # No Herusitic
+            heuristic_reward = 0
+            reward = -100000 - 10000 * heuristic_reward # We reached
             # the horizon with no crash
         else:
             reward = -self.mahalanobis_d(action) # No crash or horizon yet

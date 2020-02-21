@@ -4,20 +4,20 @@ import pdb
 
 if __name__ == '__main__':
     use_ram = False
-    db_filename = '/home/mkoren/scratch/data/test_val_3'
+    db_filename = '/home/mkoren/scratch/data/test1_sparse_ge'
     max_db_size = 150
     overwrite_db = True
     n_parallel = 8
     snapshot_mode = 'last'
     snapshot_gap = 1
-    log_dir = '/home/mkoren/scratch/data/test_val_3'
+    log_dir = '/home/mkoren/scratch/data/test1_sparse_ge'
     max_path_length = 50
     discount = 0.99
-    n_itr = 15
-    n_itr_robust = 50
+    n_itr = 101
+    n_itr_robust = 0
     max_kl_step = 1.0
     whole_paths = False
-    batch_size = 5000
+    batch_size = 500
     batch_size_robust = 5000
 
     runner(exp_name='av',
