@@ -10,9 +10,9 @@ class GoExplorePolicy(StochasticPolicy,  Serializable):
     def __init__(self, env_spec):
         self.dist = DiagonalGaussian(dim=env_spec.action_space.flat_dim)
         self.log_std = np.zeros(env_spec.action_space.flat_dim)
-        self.cell_num = 0
-        self.stateful_num = -2
-        self.cell_pool = None
+        # self.cell_num = 0
+        # self.stateful_num = -2
+        # self.cell_pool = None
 
         Serializable.quick_init(self, locals())
         super(GoExplorePolicy, self).__init__(env_spec=env_spec)

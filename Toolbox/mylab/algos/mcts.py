@@ -20,6 +20,7 @@ class MCTS:
 			clear_nodes,
 			log_interval,
 			top_paths,
+			log_dir,
 			gamma=1.0,
 			stress_test_num=2,
 			log_tabular=True,
@@ -53,9 +54,10 @@ class MCTS:
 		self.plot_path=plot_path
 		self.plot_format=plot_format
 		self.policy = None
+		self.log_dir = log_dir
 
 	def init(self):
-		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular)
+		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular, self.log_dir)
 		self.ast = AST.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
 
 	def train(self, runner, batch_size):

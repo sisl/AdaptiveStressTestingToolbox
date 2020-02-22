@@ -49,34 +49,87 @@ import shelve
 # Example run command:
 # python TestCases/AV/go_explore_av_runner.py runner --n_itr=1
 
-def runner(exp_name='av',
-           use_ram=False,
-           db_filename='/home/mkoren/scratch/data/cellpool-shelf',
-           max_db_size=150,
-           overwrite_db=True,
-           n_parallel=1,
-           snapshot_mode='last',
-           snapshot_gap=1,
-           log_dir=None,
-           max_path_length=50,
-           discount=0.99,
-           n_itr=100,
-           n_itr_robust=100,
-           max_kl_step=0.01,
-           whole_paths=False,
-           batch_size=None,
-           batch_size_robust=None):
+def runner(env_name,
+           env_args=None,
+           run_experiment_args=None,
+           sim_args=None,
+           reward_args=None,
+           spaces_args=None,
+           policy_args=None,
+           baseline_args=None,
+           algo_args=None,
+           runner_args=None,
+           # log_dir='.',
+           ):
+           # exp_name='av',
+           # use_ram=False,
+           # db_filename='cellpool-shelf',
+           # s_0=[0.0, -4.0, 1.0, 11.17, -35.0],
+           # max_db_size=150,
+           # overwrite_db=True,
+           # n_parallel=1,
+           # snapshot_mode='last',
+           # snapshot_gap=1,
+           #
+           # max_path_length=50,
+           # discount=0.99,
+           # n_itr=100,
+           # n_itr_robust=100,
+           # max_kl_step=0.01,
+           # whole_paths=False,
+           # batch_size=None,
+           # batch_size_robust=None):
 
-    if overwrite_db:
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(db_filename +'_pool.dat')
-            os.remove(db_filename + '_meta.dat')
+    if env_args is None:
+        env_args = {}
 
-    if batch_size is None:
+    if run_experiment_args is None:
+        run_experiment_args = {}
+
+    if sim_args is None:
+        sim_args = {}
+
+    if reward_args is None:
+        reward_args = {}
+
+    if spaces_args is None:
+        spaces_args = {}
+
+    if policy_args is None:
+        policy_args = {}
+
+    if baseline_args is None:
+        baseline_args = {}
+
+    if algo_args is None:
+        algo_args = {}
+
+    if runner_args is None:
+        runner_args = {}
+
+    if 'n_parallel' in run_experiment_args:
+        n_parallel = run_experiment_args['n_parallel']
+    else:
+        n_parallel = 1
+        run_experiment_args['n_parallel'] = n_parallel
+
+    if 'max_path_length' in sim_args:
+        max_path_length = sim_args['max_path_length']
+    else:
+        max_path_length = 50
+        sim_args['max_path_length'] = max_path_length
+
+    if 'batch_size' in runner_args:
+        batch_size = runner_args['batch_size']
+    else:
         batch_size = max_path_length * n_parallel
+        runner_args['batch_size'] = batch_size
 
-    if batch_size_robust is None:
-        batch_size = max_path_length * n_parallel
+    # if batch_size is None:
+    #     batch_size = max_path_length * n_parallel
+    #
+    # if batch_size_robust is None:
+    #     batch_size = max_path_length * n_parallel
 
     def run_task(snapshot_config, *_):
 
@@ -86,74 +139,78 @@ def runner(exp_name='av',
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
+                # Instantiate the example classes
+                sim = ExampleAVSimulator(**sim_args)
+                                         # blackbox_sim_state=True,
+                                         # open_loop=False,
+                                         # fixed_initial_state=True,
+                                         # max_path_length=max_path_length)
+                reward_function = ExampleAVReward(**reward_args)
+                spaces = ExampleAVSpaces(**spaces_args)
 
-                    # Instantiate the example classes
-                    sim = ExampleAVSimulator(blackbox_sim_state=True,
-                                             open_loop=False,
-                                             fixed_initial_state=True,
-                                             max_path_length=50)
-                    reward_function = ExampleAVReward()
-                    spaces = ExampleAVSpaces()
+                # Create the environment
+                # env1 = GoExploreASTEnv(open_loop=False,
+                #                              blackbox_sim_state=True,
+                #                              fixed_init_state=True,
+                #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                #                              simulator=sim,
+                #                              reward_function=reward_function,
+                #                              spaces=spaces
+                #                              )
+                # env1 = gym.make('mylab:GoExploreAST-v1',
+                #                 blackbox_sim_state=True,
+                #                 open_loop=False,
+                #                 fixed_init_state=True,
+                #                 s_0=s_0,
+                #                 simulator=sim,
+                #                 reward_function=reward_function,
+                #                 spaces=spaces
+                #                 )
+                env1 = gym.make(id=env_name,
+                                simulator=sim,
+                                reward_function=reward_function,
+                                spaces=spaces,
+                                **env_args)
+                env2 = normalize(env1)
+                env = TfEnv(env2)
 
-                    # Create the environment
-                    # env1 = GoExploreASTEnv(open_loop=False,
-                    #                              blackbox_sim_state=True,
-                    #                              fixed_init_state=True,
-                    #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                    #                              simulator=sim,
-                    #                              reward_function=reward_function,
-                    #                              spaces=spaces
-                    #                              )
-                    s_0 = [0.0, -6.0, 1.0, 11.17, -35.0]
-                    env1 = gym.make('mylab:GoExploreAST-v1',
-                                    blackbox_sim_state=True,
-                                    open_loop=False,
-                                    fixed_init_state=True,
-                                    # s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                                    s_0=s_0,
-                                    simulator=sim,
-                                    reward_function=reward_function,
-                                    spaces=spaces
-                                    )
-                    env2 = normalize(env1)
-                    env = TfEnv(env2)
+                # Instantiate the garage objects
+                policy = GoExplorePolicy(env_spec=env.spec)
 
-                    # Instantiate the garage objects
-                    policy = GoExplorePolicy(
-                        env_spec=env.spec)
-
-                    baseline = LinearFeatureBaseline(env_spec=env.spec)
-
-
-                    algo = GoExplore(
-                        db_filename=db_filename,
-                        max_db_size=max_db_size,
-                        env=env,
-                        env_spec=env.spec,
-                        policy=policy,
-                        baseline=baseline,
-                        # robust_policy=robust_policy,
-                        # robust_baseline=robust_baseline,
-                        max_path_length=max_path_length,
-                        discount=discount,
-                        save_paths_gap=1,
-                        save_paths_path=log_dir,
-                        # whole_paths=whole_paths
-                    )
-
-                    sampler_cls = BatchSampler
-                    sampler_args = {'n_envs': n_parallel}
+                baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)
 
 
-                    with LocalRunner(
-                            snapshot_config=snapshot_config, sess=sess) as runner:
+                algo = GoExplore(env_spec=env.spec,
+                                 policy=policy,
+                                 baseline=baseline,
+                                 **algo_args)
+                #     db_filename=db_filename,
+                #     max_db_size=max_db_size,
+                #     env=env,
+                #
+                #     policy=policy,
+                #     baseline=baseline,
+                #     # robust_policy=robust_policy,
+                #     # robust_baseline=robust_baseline,
+                #     max_path_length=max_path_length,
+                #     discount=discount,
+                #     save_paths_gap=1,
+                #     save_paths_path=log_dir,
+                #     # whole_paths=whole_paths
+                # )
 
-                        runner.setup(algo=algo,
-                                 env=env,
-                                 sampler_cls=sampler_cls,
-                                 sampler_args=sampler_args)
+                sampler_cls = BatchSampler
+                sampler_args = {'n_envs': n_parallel}
 
-                    # runner.setup(
+
+                with LocalRunner(snapshot_config=snapshot_config, sess=sess) as local_runner:
+
+                    local_runner.setup(algo=algo,
+                                       env=env,
+                                       sampler_cls=sampler_cls,
+                                       sampler_args=sampler_args)
+
+                    # local_runner.setup(
                     #     algo=algo,
                     #     env=env,
                     #     sampler_cls=sampler_cls,
@@ -161,39 +218,45 @@ def runner(exp_name='av',
                     #                   "reward_function": reward_function})
 
                     # Run the experiment
-                        best_cell = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
+                    best_cell = local_runner.train(**runner_args)#n_epochs=n_itr, batch_size=batch_size, plot=False)
 
-                        pool_DB = db.DB()
-                        pool_DB.open(db_filename+'_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
-                        d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
-                        # pdb.set_trace()
-                        print(best_cell)
-                        temp=best_cell
-                        paths = []
-                        while(temp.parent is not None):
-                            print(temp.observation)
-                            action = temp.observation[1:].astype(np.float32) / 1000
-                            paths.append({'state':temp.state,
-                                          'reward':temp.reward,
-                                          'action':action,
-                                          'observation':np.array(s_0)})
-                            temp = d_pool[temp.parent]
+                    log_dir = run_experiment_args['log_dir']
+                    db_filename = algo_args['db_filename']
+                    s_0 = env_args['s_0']
+
+
+                    pool_DB = db.DB()
+                    pool_DB.open(db_filename+'_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+                    d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
+                    # pdb.set_trace()
+                    print(best_cell)
+                    temp=best_cell
+                    paths = []
+                    while(temp.parent is not None):
                         print(temp.observation)
-                        paths.append({'state': temp.state,
-                                      'reward': temp.reward,
-                                      'action': action,
-                                      'observation': np.array(s_0)})
-                        # pdb.set_trace()
-                        d_pool.close()
-                        with open(log_dir + '/expert_trajectory.p', 'wb') as f:
-                            pickle.dump([paths],f)
-                        print('done!')
+                        action = temp.observation[1:].astype(np.float32) / 1000
+                        paths.append({'state':temp.state,
+                                      'reward':temp.reward,
+                                      'action':action,
+                                      'observation':np.array(s_0)})
+                        temp = d_pool[temp.parent]
+                    print(temp.observation)
+                    paths.append({'state': temp.state,
+                                  'reward': temp.reward,
+                                  'action': action,
+                                  'observation': np.array(s_0)})
+                    # pdb.set_trace()
+                    d_pool.close()
+
+                    with open(log_dir + '/expert_trajectory.p', 'wb') as f:
+                        pickle.dump([paths],f)
+                    print('done!')
 
 
                     #Run backwards algorithm to robustify
                     # if n_itr_robust > 0:
                     #     with LocalRunner(
-                    #             snapshot_config=snapshot_config, sess=sess) as runner:
+                    #             snapshot_config=snapshot_config, sess=sess) as local_runner:
                     #
                     #
                     #         robust_policy = GaussianLSTMPolicy(name='lstm_policy',
@@ -234,12 +297,12 @@ def runner(exp_name='av',
                     #                             )
                     #
                     #
-                    #         runner.setup(algo=robust_algo,
+                    #         local_runner.setup(algo=robust_algo,
                     #                      env=env,
                     #                      sampler_cls=sampler_cls,
                     #                      sampler_args=sampler_args)
                     #
-                    #         results = runner.train(n_epochs=n_itr_robust, batch_size=batch_size_robust, plot=False)
+                    #         results = local_runner.train(n_epochs=n_itr_robust, batch_size=batch_size_robust, plot=False)
                     #         # pdb.set_trace()
                     #         print('done')
                     #         with open(log_dir + '/paths.gz', 'wb') as f:
@@ -275,12 +338,13 @@ def runner(exp_name='av',
 
     run_experiment(
         run_task,
-        snapshot_mode=snapshot_mode,
-        log_dir=log_dir,
-        exp_name=exp_name,
-        snapshot_gap=snapshot_gap,
-        seed=1,
-        n_parallel=n_parallel,
+        **run_experiment_args,
+        # snapshot_mode=snapshot_mode,
+        # log_dir=log_dir,
+        # exp_name=exp_name,
+        # snapshot_gap=snapshot_gap,
+        # seed=1,
+        # n_parallel=n_parallel,
     )
 
 

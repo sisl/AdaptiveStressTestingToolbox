@@ -11,7 +11,7 @@ if __name__ == '__main__':
     snapshot_mode = 'last'
     snapshot_gap = 1
     log_dir = '/home/mkoren/scratch/data/test1_sparse_ge'
-    max_path_length = 50
+    max_path_length = 100
     discount = 0.99
     n_itr = 101
     n_itr_robust = 0

@@ -24,6 +24,7 @@ import os.path as osp
 import argparse
 from example_save_trials import *
 import tensorflow as tf
+import fire
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--snapshot_mode', type=str, default="gap")
@@ -34,111 +35,181 @@ args = parser.parse_args()
 
 log_dir = args.log_dir
 
-batch_size = 5000
-max_path_length = 50
-n_envs = batch_size // max_path_length
+# batch_size = 5000
+# max_path_length = 50
+# n_envs = batch_size // max_path_length
 
 
-def run_task(snapshot_config, *_):
+# def runner(snapshot_mode='gap',
+#            snapshot_gap=10,
+#            log_dir='.',
+#            n_itr=101,
+#            s_0=[0.0, -4.0, 1.0, 11.17, -35.0],
+#            n_parallel=1,
+#            exp_name='crosswalk',
+#            batch_size=None,
+#
+#
+# ):
+def runner(env_name,
+           env_args=None,
+           run_experiment_args=None,
+           sim_args=None,
+           reward_args=None,
+           spaces_args=None,
+           policy_args=None,
+           baseline_args=None,
+           algo_args=None,
+           runner_args=None,
+           # log_dir='.',
+           ):
 
 
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    with tf.Session(config=config) as sess:
-        with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
+    if env_args is None:
+        env_args = {}
 
-            with LocalRunner(
-                    snapshot_config=snapshot_config, max_cpus=4, sess=sess) as runner:
+    if run_experiment_args is None:
+        run_experiment_args = {}
 
-                # Instantiate the example classes
-                sim = ExampleAVSimulator(blackbox_sim_state=True,
-                                         open_loop=False,
-                                         fixed_initial_state=True,
-                                         max_path_length = 50)
-                reward_function = ExampleAVReward()
-                spaces = ExampleAVSpaces()
+    if sim_args is None:
+        sim_args = {}
 
-                # Create the environment
-                env = TfEnv(normalize(ASTEnv(blackbox_sim_state=True,
-                                             open_loop=False,
-                                             fixed_init_state=True,
-                                             s_0=[0.0, -6.0, 1.0, 11.17, -35.0],
-                                             simulator=sim,
-                                             reward_function=reward_function,
-                                             spaces=spaces
-                                             )))
+    if reward_args is None:
+        reward_args = {}
 
-                # Instantiate the garage objects
-                policy = GaussianLSTMPolicy(name='lstm_policy',
-                                            env_spec=env.spec,
-                                            hidden_dim=64,
-                                            use_peepholes=True)
+    if spaces_args is None:
+        spaces_args = {}
 
+    if policy_args is None:
+        policy_args = {}
 
-                baseline = LinearFeatureBaseline(env_spec=env.spec)
+    if baseline_args is None:
+        baseline_args = {}
 
-                optimizer = ConjugateGradientOptimizer
-                optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
+    if algo_args is None:
+        algo_args = {}
 
-                algo = PPO(
-                    env_spec=env.spec,
-                    policy=policy,
-                    baseline=baseline,
-                    max_path_length=max_path_length,
-                    discount=0.99,
-                    # kl_constraint='hard',
-                    optimizer=optimizer,
-                    optimizer_args=optimizer_args,
-                    lr_clip_range=1.0,
-                    max_kl_step=1.0)
+    if runner_args is None:
+        runner_args = {}
 
-                sampler_cls = ASTVectorizedSampler
+    if 'n_parallel' in run_experiment_args:
+        n_parallel = run_experiment_args['n_parallel']
+    else:
+        n_parallel = 1
+        run_experiment_args['n_parallel'] = n_parallel
 
-                runner.setup(
-                    algo=algo,
-                    env=env,
-                    sampler_cls=sampler_cls,
-                    sampler_args={"open_loop": False,
-                                  "sim": sim,
-                                  "reward_function": reward_function,
-                                  "n_envs": n_envs})
+    if 'max_path_length' in sim_args:
+        max_path_length = sim_args['max_path_length']
+    else:
+        max_path_length = 50
+        sim_args['max_path_length'] = max_path_length
 
-                # Run the experiment
-                runner.train(n_epochs=args.iters, batch_size=batch_size, plot=False)
+    if 'batch_size' in runner_args:
+        batch_size = runner_args['batch_size']
+    else:
+        batch_size = max_path_length * n_parallel
+        runner_args['batch_size'] = batch_size
 
-                # saver = tf.train.Saver()
-                # save_path = saver.save(sess, log_dir + '/model.ckpt')
-                # print("Model saved in path: %s" % save_path)
-                #
-                # # Write out the episode results
-                # header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
-                # for i in range(0,sim.c_num_peds):
-                #     header += 'v_x_ped_' + str(i) + ','
-                #     header += 'v_y_ped_' + str(i) + ','
-                #     header += 'x_ped_' + str(i) + ','
-                #     header += 'y_ped_' + str(i) + ','
-                #
-                # for i in range(0,sim.c_num_peds):
-                #     header += 'a_x_'  + str(i) + ','
-                #     header += 'a_y_' + str(i) + ','
-                #     header += 'noise_v_x_' + str(i) + ','
-                #     header += 'noise_v_y_' + str(i) + ','
-                #     header += 'noise_x_' + str(i) + ','
-                #     header += 'noise_y_' + str(i) + ','
-                #
-                # header += 'reward'
-                # if args.snapshot_mode != "gap":
-                #     args.snapshot_gap = args.iters - 1
-                # example_save_trials(args.iters, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+    def run_task(snapshot_config, *_):
 
 
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        with tf.Session(config=config) as sess:
+            with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
-run_experiment(
+                with LocalRunner(
+                        snapshot_config=snapshot_config, max_cpus=4, sess=sess) as local_runner:
+                    # Instantiate the example classes
+                    sim = ExampleAVSimulator(**sim_args)
+                    reward_function = ExampleAVReward(**reward_args)
+                    spaces = ExampleAVSpaces(**spaces_args)
+
+                    # Create the environment
+                    env = TfEnv(normalize(ASTEnv(simulator=sim,
+                                                 reward_function=reward_function,
+                                                 spaces=spaces,
+                                                 **env_args
+                                                 )))
+
+                    # Instantiate the garage objects
+                    policy = GaussianLSTMPolicy(**policy_args)
+                                                # name='lstm_policy',
+                                                # env_spec=env.spec,
+                                                # hidden_dim=64,
+                                                # use_peepholes=True)
+
+
+                    baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)
+
+                    optimizer = ConjugateGradientOptimizer
+                    optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
+
+                    algo = PPO(env_spec=env.spec,
+                               policy=policy,
+                               baseline=baseline,
+                               optimizer=optimizer,
+                               optimizer_args=optimizer_args,
+                               **algo_args)
+                        # max_path_length=max_path_length,
+                        # discount=0.99,
+                        # # kl_constraint='hard',
+                        # optimizer=optimizer,
+                        # optimizer_args=optimizer_args,
+                        # lr_clip_range=1.0,
+                        # max_kl_step=1.0)
+
+                    sampler_cls = ASTVectorizedSampler
+
+                    local_runner.setup(
+                        algo=algo,
+                        env=env,
+                        sampler_cls=sampler_cls,
+                        sampler_args={"open_loop": False,
+                                      "sim": sim,
+                                      "reward_function": reward_function,
+                                      'n_envs': n_parallel})
+
+                    # Run the experiment
+                    local_runner.train(**runner_args)
+
+                    # saver = tf.train.Saver()
+                    # save_path = saver.save(sess, log_dir + '/model.ckpt')
+                    # print("Model saved in path: %s" % save_path)
+                    #
+                    # # Write out the episode results
+                    # header = 'trial, step, ' + 'v_x_car, v_y_car, x_car, y_car, '
+                    # for i in range(0,sim.c_num_peds):
+                    #     header += 'v_x_ped_' + str(i) + ','
+                    #     header += 'v_y_ped_' + str(i) + ','
+                    #     header += 'x_ped_' + str(i) + ','
+                    #     header += 'y_ped_' + str(i) + ','
+                    #
+                    # for i in range(0,sim.c_num_peds):
+                    #     header += 'a_x_'  + str(i) + ','
+                    #     header += 'a_y_' + str(i) + ','
+                    #     header += 'noise_v_x_' + str(i) + ','
+                    #     header += 'noise_v_y_' + str(i) + ','
+                    #     header += 'noise_x_' + str(i) + ','
+                    #     header += 'noise_y_' + str(i) + ','
+                    #
+                    # header += 'reward'
+                    # if args.snapshot_mode != "gap":
+                    #     args.snapshot_gap = args.iters - 1
+                    # example_save_trials(args.iters, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
+
+
+
+    run_experiment(
         run_task,
-        snapshot_mode=args.snapshot_mode,
-        log_dir=log_dir,
-        exp_name='av',
-        snapshot_gap=args.snapshot_gap,
-        seed=1,
-        n_parallel=4,
+        **run_experiment_args,
+        # snapshot_mode=snapshot_mode,
+        # log_dir=log_dir,
+        # exp_name=exp_name,
+        # snapshot_gap=snapshot_gap,
+        # seed=1,
+        # n_parallel=n_parallel,
     )
+
+if __name__ == '__main__':
+  fire.Fire()

@@ -273,10 +273,12 @@ class CellPool():
                 if best_cell_key is not None:
                     self.best_cell = cell_pool_shelf[best_cell_key]
 
-    def open_pool(self, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL):
+    def open_pool(self, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL, overwrite=False):
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function opens the database and
         # loads the latest meta data, the returns the database.
+        if overwrite:
+            self.delete_pool()
         cell_pool_db = db.DB()
         cell_pool_db.open(self.pool_filename, dbname=dbname, dbtype=dbtype, flags=flags)
         cell_pool_shelf = shelve.Shelf(cell_pool_db, protocol=protocol)
@@ -304,6 +306,11 @@ class CellPool():
         cell_pool_shelf.sync()
         cell_pool_shelf.close()
         self.save()
+
+    def delete_pool(self):
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(self.pool_filename)
+            os.remove(self.meta_filename)
 
     @cached_property
     def pool_filename(self):
@@ -457,6 +464,7 @@ class GoExplore(BatchPolopt):
                  # robustify_policy,
                  save_paths_gap = 0,
                  save_paths_path=None,
+                 overwrite_db=True,
                  **kwargs):
 
         # algo = TRPO(
@@ -510,7 +518,9 @@ class GoExplore(BatchPolopt):
          advantages will be standardized before shifting.
         :return:
         """
+
         self.db_filename = db_filename
+        self.overwrite_db = overwrite_db
         self.max_db_size = max_db_size
         self.env_spec = env_spec
         self.go_explore_policy = policy
@@ -588,7 +598,7 @@ class GoExplore(BatchPolopt):
 
         # self.cell_pool.create()
         # obs = self.env.downsample(self.env.env.env.reset())
-        d_pool = self.cell_pool.open_pool()
+        d_pool = self.cell_pool.open_pool(overwrite=self.overwrite_db)
         if len(self.cell_pool.key_list) == 0:
             obs, state = self.env.get_first_cell()
         # pdb.set_trace()

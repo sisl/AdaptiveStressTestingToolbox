@@ -4,12 +4,14 @@ import mylab.mcts.MCTSdpw as MCTSdpw
 import numpy as np
 # import garage.misc.logger as logger
 from dowel import logger, tabular
+import pickle
 
 class ASTParams:
-    def __init__(self,max_steps,log_interval,log_tabular):
+    def __init__(self,max_steps,log_interval,log_tabular, log_dir=None):
         self.max_steps = max_steps
         self.log_interval = log_interval
         self.log_tabular = log_tabular
+        self.log_dir = log_dir
 
 class AdaptiveStressTest:
     def __init__(self,p,env,top_paths):
@@ -49,6 +51,18 @@ class AdaptiveStressTest:
                 # logger.record_tabular('StepNum',self.step_count)
                 tabular.record('StepNum',self.step_count)
                 record_num = 0
+                if self.params.log_dir is not None:
+
+                    if self.step_count == self.params.log_interval:
+                        best_actions = []
+                    else:
+                        with open(self.params.log_dir + '/best_actions.p', 'rb') as f:
+                            best_actions = pickle.load(f)
+
+                    best_actions.append(np.array([x.get() for x in self.top_paths.pq[0][0]]))
+                    with open(self.params.log_dir + '/best_actions.p', 'wb') as f:
+                        pickle.dump(best_actions, f)
+
                 for (topi, path) in enumerate(self.top_paths):
                     # logger.record_tabular('reward '+str(topi), path[0])
                     tabular.record('reward '+str(topi), path[1])
