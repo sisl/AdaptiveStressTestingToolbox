@@ -49,7 +49,7 @@ import shelve
 # Example run command:
 # python TestCases/AV/go_explore_av_runner.py runner --n_itr=1
 
-def runner(env_name,
+def runner(
            env_args=None,
            run_experiment_args=None,
            sim_args=None,
@@ -152,7 +152,7 @@ def runner(env_name,
                     #                              reward_function=reward_function,
                     #                              spaces=spaces
                     #                              )
-                env1 = gym.make(id=env_name,
+                env1 = gym.make(id=env_args.pop('id'),
                                 simulator=sim,
                                 reward_function=reward_function,
                                 spaces=spaces,
@@ -172,7 +172,7 @@ def runner(env_name,
                         snapshot_config=snapshot_config, sess=sess) as local_runner:
 
 
-                    policy = GaussianLSTMPolicy(**policy_args)
+                    policy = GaussianLSTMPolicy(env_spec=env.spec, **policy_args)
                                                 # name='lstm_policy',
                                                 # env_spec=env.spec,
                                                 # hidden_dim=64,
@@ -185,12 +185,12 @@ def runner(env_name,
                     optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
 
                     algo = BackwardAlgorithm(env=env,
-                                                    env_spec=env.spec,
-                                                    policy=policy,
-                                                    baseline=baseline,
-                                                    optimizer=optimizer,
-                                                    optimizer_args=optimizer_args,
-                                                    **algo_args)
+                                             env_spec=env.spec,
+                                             policy=policy,
+                                             baseline=baseline,
+                                             optimizer=optimizer,
+                                             optimizer_args=optimizer_args,
+                                             **algo_args)
                                         # expert_trajectory=expert_trajectory[-1],
                                         # epochs_per_step = 10,
                                         # scope=None,
@@ -226,7 +226,14 @@ def runner(env_name,
                         try:
                             compress_pickle.dump(results, f, compression="gzip", set_default_extension=False)
                         except MemoryError:
-                            pdb.set_trace()
+                            # pdb.set_trace()
+                            for idx, result in enumerate(results):
+                                with open(log_dir + '/path_' + str(idx) + '.gz', 'wb') as ff:
+                                    try:
+                                        compress_pickle.dump(result, ff, compression="gzip",
+                                                             set_default_extension=False)
+                                    except MemoryError:
+                                        pass
 
                     # saver = tf.train.Saver()
                     # save_path = saver.save(sess, log_dir + '/model.ckpt')

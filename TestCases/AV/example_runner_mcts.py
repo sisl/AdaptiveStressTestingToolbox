@@ -123,7 +123,7 @@ import fire
 # max_path_length = 50
 # n_envs = batch_size // max_path_length
 
-def runner(env_name,
+def runner(
            env_args=None,
            run_experiment_args=None,
            sim_args=None,
@@ -210,6 +210,8 @@ def runner(env_name,
                     spaces = ExampleAVSpaces(**spaces_args)
 
                     # Create the environment
+                    if 'id' in env_args:
+                        env_args.pop('id')
                     env = ASTEnv(simulator=sim,
                                  reward_function=reward_function,
                                  spaces=spaces,

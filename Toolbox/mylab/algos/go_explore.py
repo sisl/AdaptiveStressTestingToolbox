@@ -34,7 +34,7 @@ import contextlib
 
 class Cell():
 
-    def __init__(self):
+    def __init__(self, use_score_weight=True):
         # print("Creating new Cell:", self)
         # Number of times this was chosen and seen
         self._times_visited=0
@@ -54,6 +54,8 @@ class Cell():
         self._is_goal = False
         self._is_terminal = False
         # self._is_root = False
+
+        self.use_score_weight = use_score_weight
 
     def __eq__(self, other):
         if type(other) != type(self):
@@ -196,8 +198,10 @@ class Cell():
 
     @cached_property
     def score_weight(self):
-        # score_weight = 1.0 #Not sampling based on score right now
-        score_weight = 1/max([abs(self._value_approx), 1])
+        if self.use_score_weight:
+            score_weight = 1/max([abs(self._value_approx), 1])
+        else:
+            score_weight = 1.0  # Not sampling based on score right now
         # Set chance of sampling to 0 if this cell is a terminal state
         terminal_sample_elimination_factor = not(self.is_terminal or self._is_goal)
         return terminal_sample_elimination_factor * score_weight
@@ -207,7 +211,7 @@ class Cell():
         return hash((self.observation.tostring()))
 
 class CellPool():
-    def __init__(self, filename = 'database', discount=0.99, flag=db.DB_RDONLY, flag2='r'):
+    def __init__(self, filename = 'database', discount=0.99, flag=db.DB_RDONLY, flag2='r', use_score_weight=True):
         # print("Creating new Cell Pool:", self)
         # self.guide = set()
 
@@ -234,6 +238,8 @@ class CellPool():
         self.max_reward = -np.inf
         self.best_cell = None
 
+        self.use_score_weight = use_score_weight
+
         # self.d_pool = shelve.BsdDbShelf(pool_DB)
         # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
         # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
@@ -249,7 +255,8 @@ class CellPool():
                     'max_value':self.max_value,
                     'max_score':self.max_score,
                     'max_reward':self.max_reward,
-                    'best_cell':best_cell_key
+                    'use_score_weight': self.use_score_weight,
+                    'best_cell':best_cell_key,
         }
         dirname = os.path.dirname(self.meta_filename)
         if not os.path.exists(dirname):
@@ -268,6 +275,7 @@ class CellPool():
                 self.max_value = save_dict['max_value']
                 self.max_score = save_dict['max_score']
                 self.max_reward = save_dict['max_reward']
+                self.use_score_weight = save_dict['use_score_weight']
                 self.best_cell = None
                 best_cell_key = save_dict['best_cell']
                 if best_cell_key is not None:
@@ -367,7 +375,7 @@ class CellPool():
         if not obs_hash in d_pool:
             # Make a new cell, add to pool
             # self.guide.add(observation)
-            cell = Cell()
+            cell = Cell(self.use_score_weight)
             cell.observation = observation
             # self.guide = np.append(self.guide, np.expand_dims(observation, axis=0), axis = 0)
             cell.action = action
@@ -395,7 +403,7 @@ class CellPool():
             elif is_terminal:
                 self.terminal_dict[obs_hash] = cell.reward
 
-            self.value_approx_update(obs_hash=obs_hash, d_pool=d_pool)
+            self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
 
             return True
         else:
@@ -430,17 +438,18 @@ class CellPool():
             if cell.score > self.max_score:
                 self.max_score = score
 
-            self.value_approx_update(obs_hash=obs_hash, d_pool=d_pool)
+            self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
 
         return False
 
-    def value_approx_update(self, obs_hash, d_pool):
-        cell = d_pool[obs_hash]
-        v = cell.score + self.discount * cell.value_approx
-        cell.value_approx = (v - cell.value_approx)/cell.times_visited + cell.value_approx
-        d_pool[obs_hash] = cell
-        if cell.parent is not None:
-            self.value_approx_update(obs_hash=cell.parent, d_pool=d_pool)
+    def value_approx_update(self, value, obs_hash, d_pool):
+        if obs_hash is not None:
+            cell = d_pool[obs_hash]
+            v = cell.score + self.discount * value
+            cell.value_approx = (v - cell.value_approx)/cell.times_visited + cell.value_approx
+            d_pool[obs_hash] = cell
+            if cell.parent is not None:
+                self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
 
 
 class GoExplore(BatchPolopt):
@@ -465,6 +474,7 @@ class GoExplore(BatchPolopt):
                  save_paths_gap = 0,
                  save_paths_path=None,
                  overwrite_db=True,
+                 use_score_weight=True,
                  **kwargs):
 
         # algo = TRPO(
@@ -524,6 +534,7 @@ class GoExplore(BatchPolopt):
         self.max_db_size = max_db_size
         self.env_spec = env_spec
         self.go_explore_policy = policy
+        self.use_score_weight = use_score_weight
         # self.robust_policy = robust_policy
         # self.robust_baseline = robust_baseline
         self.env = env
@@ -594,7 +605,7 @@ class GoExplore(BatchPolopt):
         # self.temp_index = 0
         # pool_DB = db.DB()
         # pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
-        self.cell_pool = CellPool(filename=self.db_filename)
+        self.cell_pool = CellPool(filename=self.db_filename, use_score_weight=self.use_score_weight)
 
         # self.cell_pool.create()
         # obs = self.env.downsample(self.env.env.env.reset())

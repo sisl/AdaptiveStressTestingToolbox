@@ -51,7 +51,7 @@ log_dir = args.log_dir
 #
 #
 # ):
-def runner(env_name,
+def runner(
            env_args=None,
            run_experiment_args=None,
            sim_args=None,
@@ -126,6 +126,8 @@ def runner(env_name,
                     spaces = ExampleAVSpaces(**spaces_args)
 
                     # Create the environment
+                    if 'id' in env_args:
+                        env_args.pop('id')
                     env = TfEnv(normalize(ASTEnv(simulator=sim,
                                                  reward_function=reward_function,
                                                  spaces=spaces,
@@ -133,11 +135,11 @@ def runner(env_name,
                                                  )))
 
                     # Instantiate the garage objects
-                    policy = GaussianLSTMPolicy(**policy_args)
+                    policy = GaussianLSTMPolicy(env_spec=env.spec, **policy_args)
                                                 # name='lstm_policy',
                                                 # env_spec=env.spec,
                                                 # hidden_dim=64,
-                                                # use_peepholes=True)
+                                                # 'use_peepholes=True)
 
 
                     baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)

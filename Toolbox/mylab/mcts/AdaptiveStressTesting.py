@@ -7,11 +7,12 @@ from dowel import logger, tabular
 import pickle
 
 class ASTParams:
-    def __init__(self,max_steps,log_interval,log_tabular, log_dir=None):
+    def __init__(self,max_steps,log_interval,log_tabular, log_dir=None, n_itr=100):
         self.max_steps = max_steps
         self.log_interval = log_interval
         self.log_tabular = log_tabular
         self.log_dir = log_dir
+        self.n_itr = n_itr
 
 class AdaptiveStressTest:
     def __init__(self,p,env,top_paths):
@@ -25,6 +26,7 @@ class AdaptiveStressTest:
         self.action_seq = []
         self.trajectory_reward = 0.0
         self.top_paths = top_paths
+        self.iter = 0
 
     def reset_setp_count(self):
         self.step_count = 0
@@ -45,8 +47,9 @@ class AdaptiveStressTest:
         self.trajectory_reward += reward
         if done:
             self.top_paths.enqueue(self.action_seq,self.trajectory_reward,make_copy=True)
-        if self.params.log_tabular:
+        if self.params.log_tabular and self.iter <= self.params.n_itr:
             if self.step_count%self.params.log_interval == 0:
+                self.iter += 1
                 logger.log(' ')
                 # logger.record_tabular('StepNum',self.step_count)
                 tabular.record('StepNum',self.step_count)

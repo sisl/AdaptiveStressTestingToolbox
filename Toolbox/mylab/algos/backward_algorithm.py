@@ -78,7 +78,8 @@ class BackwardAlgorithm(PPO):
                  use_neg_logli_entropy=False,
                  stop_entropy_gradient=False,
                  entropy_method='no_entropy',
-                 name='PPO'):
+                 name='PPO',
+                 log_dir=None):
         # if optimizer is None:
         #     optimizer = FirstOrderOptimizer
         #     if optimizer_args is None:
@@ -137,7 +138,8 @@ class BackwardAlgorithm(PPO):
             use_neg_logli_entropy=use_neg_logli_entropy,
             stop_entropy_gradient=stop_entropy_gradient,
             entropy_method=entropy_method,
-            name=name)
+            name=name,
+            log_dir=log_dir)
 
     # def train(self, runner, batch_size):
     #     # pdb.set_trace()

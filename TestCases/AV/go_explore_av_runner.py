@@ -49,7 +49,7 @@ import shelve
 # Example run command:
 # python TestCases/AV/go_explore_av_runner.py runner --n_itr=1
 
-def runner(env_name,
+def runner(
            env_args=None,
            run_experiment_args=None,
            sim_args=None,
@@ -166,7 +166,7 @@ def runner(env_name,
                 #                 reward_function=reward_function,
                 #                 spaces=spaces
                 #                 )
-                env1 = gym.make(id=env_name,
+                env1 = gym.make(id=env_args.pop('id'),
                                 simulator=sim,
                                 reward_function=reward_function,
                                 spaces=spaces,
@@ -181,6 +181,7 @@ def runner(env_name,
 
 
                 algo = GoExplore(env_spec=env.spec,
+                                 env=env,
                                  policy=policy,
                                  baseline=baseline,
                                  **algo_args)
