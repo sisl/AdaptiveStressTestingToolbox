@@ -3,7 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/ast-toolbox/badge/?version=master)](https://ast-toolbox.readthedocs.io/en/master/?badge=master)
 [![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/sisl/AdaptiveStressTestingToolbox/blob/master/LICENSE)
 
-Adaptive Stress Testing is a worst-case validation method for autonomous policies. This toolbox is currently under construction, and is being actvily developed by the Stanford Intelligent Systems Lab.
+Adaptive Stress Testing is a worst-case validation method for autonomous policies. This toolbox is currently under construction, and is being actively developed by the Stanford Intelligent Systems Lab.
 
 See https://ast-toolbox.readthedocs.io/en/master/ for documentation.
 
