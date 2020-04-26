@@ -39,6 +39,8 @@ install:
   - pip install --ignore-installed garage
 #  - pip install -e .[dev]
   - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma
+# Install the codecov pip dependency
+  - pip install codecov
 #  - pip install rlgarage
 
   # Run AST setup
@@ -50,3 +52,9 @@ script:
   # Your test script goes here
   - conda info -a
   - python TestCases/validate_install.py
+# Run the unit test
+  - coverage run tests.py
+
+# Push the results back to codecov
+after_success:
+  - codecov
