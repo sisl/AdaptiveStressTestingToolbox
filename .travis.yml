@@ -22,6 +22,13 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
+  # Replace dep1 dep2 ... with your dependencies
+#  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION dep1 dep2 ...
+#  - conda activate test-environment
+#  - python setup.py install
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
+  - conda activate test-environment
+  - conda info -a
   # Install garage and dependencies
   - cd Toolbox/garage
   - touch mjkey.txt
@@ -34,9 +41,11 @@ install:
 #  - pip install rlgarage
 
   # Run AST setup
+  - conda info -a
   - cd ../../
   - source setup.sh
 
 script:
   # Your test script goes here
+  - conda info -a
   - python TestCases/validate_install.py
