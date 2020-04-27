@@ -76,8 +76,13 @@ def run_task(snapshot_config, *_):
         runner.train(n_epochs=1, batch_size=4000, plot=False)
 
         print("Installation successfully validated")
+        return True
 
 
-run_experiment(run_task, snapshot_mode='last', seed=1)
+def validate_install():
+    run_experiment(run_task, snapshot_mode='last', seed=1)
+
+
+validate_install()
 
 
