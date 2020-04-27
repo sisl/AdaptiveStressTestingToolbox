@@ -31,7 +31,7 @@ n_envs = batch_size // max_path_length
 def run_task(snapshot_config, *_):
 
     with LocalRunner(
-            snapshot_config=snapshot_config, max_cpus=n_envs) as runner:
+            snapshot_config=snapshot_config, max_cpus=1) as runner:
 
         # Instantiate the example classes
         sim = ExampleAVSimulator()
@@ -76,13 +76,12 @@ def run_task(snapshot_config, *_):
         runner.train(n_epochs=1, batch_size=4000, plot=False)
 
         print("Installation successfully validated")
-        return True
-
 
 def validate_install():
-    run_experiment(run_task, snapshot_mode='last', seed=1)
+    run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=1)
+    return True
 
-
-validate_install()
+if __name__ == '__main__':
+    validate_install()
 
 
