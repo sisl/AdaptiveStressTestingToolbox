@@ -22,9 +22,13 @@ def test_ast_simulator():
     sim = ASTSimulator()
     with pytest.raises(NotImplementedError):
         sim.simulate(None, None)
+    with pytest.raises(NotImplementedError):
         sim.step(None, None)
+    with pytest.raises(NotImplementedError):
         sim.reset(None)
+    with pytest.raises(NotImplementedError):
         sim.get_reward_info()
+    with pytest.raises(NotImplementedError):
         sim.is_goal()
 
     assert sim.log() is None
