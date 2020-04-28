@@ -40,7 +40,7 @@ install:
 #  - pip install -e .[dev]
   - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma
 # Install the codecov pip dependency
-  - pip install codecov
+  - pip install codecov pytest pytest-cov
 #  - pip install rlgarage
 
   # Run AST setup
@@ -53,7 +53,8 @@ script:
   - conda info -a
 #  - python TestCases/validate_install.py
 # Run the unit test
-  - coverage run TestCases/Tests/tests.py
+#  - coverage run TestCases/Tests/tests.py
+  - pytest --cov=Toolbox/ TestCases/Tests/tests.py
 
 # Push the results back to codecov
 after_success:
