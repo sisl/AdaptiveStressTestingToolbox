@@ -1,14 +1,4 @@
-# import unittest
-#
-# from TestCases.Tests.validate_install import validate_install
-#
-# class TestMethods(unittest.TestCase):
-#     def test_add(self):
-#         self.assertEqual(validate_install(), True)
-#
-#
-# if __name__ == '__main__':
-#     unittest.main()
+
 import pytest
 import numpy as np
 from TestCases.Tests.validate_install import validate_install
@@ -61,3 +51,23 @@ def test_example_av_simulator():
     sim.action_only = False
     init = sim.reset(s_0=np.array([0,0,0,0,0]))
     assert np.all(init == np.array([0, 0, 0, 0]))
+
+from mylab.spaces.ast_spaces import ASTSpaces
+
+def test_ast_spaces():
+    space = ASTSpaces()
+
+    with pytest.raises(NotImplementedError):
+        space.action_space()
+
+    with pytest.raises(NotImplementedError):
+        space.observation_space
+
+from mylab.spaces.example_av_spaces import ExampleAVSpaces
+from gym.spaces.box import Box
+
+def test_example_av_spaces():
+    space = ExampleAVSpaces(num_peds=2)
+
+    assert type(space.action_space) is Box
+    assert type(space.observation_space) is Box
