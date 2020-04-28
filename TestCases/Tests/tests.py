@@ -40,10 +40,10 @@ def test_example_av_simulator():
     sim = ExampleAVSimulator(car_init_x=0, car_init_y=0, max_path_length=1)
 
 #     Check if simulate can find a goal
-    path_length, info = sim.simulate(actions=np.zeros(6), s_0=np.array([0,0,0,0]))
+    path_length, info = sim.simulate(actions=[np.zeros(6)], s_0=np.array([0,0,0,0,0]))
     assert path_length == 0
     # Check if simulate can return end of path
-    path_length, info = sim.simulate(actions=np.zeros(6), s_0=np.array([5, 5, 0, 0]))
+    path_length, info = sim.simulate(actions=[np.zeros(6)], s_0=np.array([5,5,0,0,0]))
     assert path_length == -1
 
     # Check open-loop sim step
@@ -51,13 +51,13 @@ def test_example_av_simulator():
     assert obs is None
 
     # Check closed-loop sim step
-    init = sim.reset(s_0=np.array([0,0,0,0]))
-    assert np.all(init == np.array([0,0,0,0]))
-    obs = sim.step(action=np.zeros(6), open_loop=True)
+    init = sim.reset(s_0=np.array([0,0,0,0,0]))
+    assert np.all(init == np.array([0,0,0,0,0]))
+    obs = sim.step(action=np.zeros(6), open_loop=False)
     print(obs)
-    assert np.all(init == np.array([0,0,0,0]))
+    assert np.all(obs == np.array([0,0,0,0]))
 
     # check white-box reset
     sim.action_only = False
-    init = sim.reset(s_0=np.array([0, 0, 0, 0]))
+    init = sim.reset(s_0=np.array([0,0,0,0,0]))
     assert np.all(init == np.array([0, 0, 0, 0]))

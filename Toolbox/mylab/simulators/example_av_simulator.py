@@ -136,7 +136,6 @@ class ExampleAVSimulator(ASTSimulator):
 
         """
         # return None
-
         if not open_loop:
         # get the action from the list
             self._action = action
@@ -158,7 +157,8 @@ class ExampleAVSimulator(ASTSimulator):
             self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
 
             # grab simulation state, if interactive
-            obs = self.observe()
+            self.observe()
+            obs = self._env_obs
 
             # record step variables
             self.log()
