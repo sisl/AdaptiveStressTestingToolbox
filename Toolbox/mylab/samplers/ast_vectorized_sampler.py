@@ -38,7 +38,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
                 # pdb.set_trace()
                 path["rewards"][end_idx] = rewards
                 info[:,-1] = path["rewards"][:info.shape[0]]
-                path['env_infos']['info']['cache'] = info
+                path['env_infos']['cache'] = info
 
         return paths
 

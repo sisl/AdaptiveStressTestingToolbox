@@ -1,7 +1,7 @@
-from TestCases.AV.go_explore_av_runner import runner as go_explore_runner
-from TestCases.AV.example_runner import runner as drl_runner
-from TestCases.AV.example_runner_mcts import runner as mcts_runner
-from TestCases.AV.backward_algorithm_av_runner import runner as ba_runner
+from TestCases.AV.example_runner_ge_av import runner as go_explore_runner
+from TestCases.AV.example_runner_drl_av import runner as drl_runner
+from TestCases.AV.example_runner_mcts_av import runner as mcts_runner
+from TestCases.AV.example_runner_ba_av import runner as ba_runner
 import pickle
 import pdb
 
@@ -122,26 +122,26 @@ if __name__ == '__main__':
     # )
 
     # Hard MCTS settings
-    run_experiment_args['log_dir'] = exp_log_dir + '/mcts'
-    run_experiment_args['exp_name'] = 'mcts'
-
-    mcts_algo_args['max_path_length'] = max_path_length
-    mcts_algo_args['log_dir'] = run_experiment_args['log_dir']
-    mcts_algo_args['plot_path'] = run_experiment_args['log_dir']
-    # mcts_algo_args['n_itr'] = runner_args['n_epochs']*runner_args['batch_size'] // max_path_length**2
-    mcts_algo_args['n_itr'] = 100
-    runner_args['batch_size'] = 500
-
-    mcts_runner(
-        env_args=env_args,
-        run_experiment_args=run_experiment_args,
-        sim_args=sim_args,
-        reward_args=reward_args,
-        spaces_args=spaces_args,
-        policy_args=mcts_policy_args,
-        baseline_args=mcts_baseline_args,
-        algo_args=mcts_algo_args,
-        bpq_args=mcts_bpq_args,
-        runner_args=runner_args,
-        # log_dir='.',
-    )
+    # run_experiment_args['log_dir'] = exp_log_dir + '/mcts'
+    # run_experiment_args['exp_name'] = 'mcts'
+    #
+    # mcts_algo_args['max_path_length'] = max_path_length
+    # mcts_algo_args['log_dir'] = run_experiment_args['log_dir']
+    # mcts_algo_args['plot_path'] = run_experiment_args['log_dir']
+    # # mcts_algo_args['n_itr'] = runner_args['n_epochs']*runner_args['batch_size'] // max_path_length**2
+    # mcts_algo_args['n_itr'] = 100
+    # runner_args['batch_size'] = 500
+    #
+    # mcts_runner(
+    #     env_args=env_args,
+    #     run_experiment_args=run_experiment_args,
+    #     sim_args=sim_args,
+    #     reward_args=reward_args,
+    #     spaces_args=spaces_args,
+    #     policy_args=mcts_policy_args,
+    #     baseline_args=mcts_baseline_args,
+    #     algo_args=mcts_algo_args,
+    #     bpq_args=mcts_bpq_args,
+    #     runner_args=runner_args,
+    #     # log_dir='.',
+    # )

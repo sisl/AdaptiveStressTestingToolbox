@@ -47,7 +47,7 @@ import shelve
 # n_envs = batch_size // max_path_length
 
 # Example run command:
-# python TestCases/AV/go_explore_av_runner.py runner --n_itr=1
+# python TestCases/AV/example_runner_ge_av.py runner --n_itr=1
 
 def runner(
            env_args=None,

@@ -31,7 +31,7 @@ n_envs = batch_size // max_path_length
 def run_task(snapshot_config, *_):
 
     with LocalRunner(
-            snapshot_config=snapshot_config, max_cpus=n_envs) as runner:
+            snapshot_config=snapshot_config, max_cpus=1) as runner:
 
         # Instantiate the example classes
         sim = ExampleAVSimulator()
@@ -39,8 +39,8 @@ def run_task(snapshot_config, *_):
         spaces = ExampleAVSpaces()
 
         # Create the environment
-        env = TfEnv(normalize(ASTEnv(action_only=True,
-                                     fixed_init_state=False,
+        env = TfEnv(normalize(ASTEnv(blackbox_sim_state=True,
+                                     fixed_init_state=True,
                                      s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
                                      simulator=sim,
                                      reward_function=reward_function,
@@ -78,6 +78,6 @@ def run_task(snapshot_config, *_):
         print("Installation successfully validated")
 
 
-run_experiment(run_task, snapshot_mode='last', seed=1)
+run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=1)
 
 

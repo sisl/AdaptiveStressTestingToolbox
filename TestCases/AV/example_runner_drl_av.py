@@ -26,14 +26,14 @@ from example_save_trials import *
 import tensorflow as tf
 import fire
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--snapshot_mode', type=str, default="gap")
-parser.add_argument('--snapshot_gap', type=int, default=10)
-parser.add_argument('--log_dir', type=str, default='./data')
-parser.add_argument('--iters', type=int, default=101)
-args = parser.parse_args()
-
-log_dir = args.log_dir
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--snapshot_mode', type=str, default="gap")
+# parser.add_argument('--snapshot_gap', type=int, default=10)
+# parser.add_argument('--log_dir', type=str, default='./data')
+# parser.add_argument('--iters', type=int, default=101)
+# args = parser.parse_args()
+#
+# log_dir = args.log_dir
 
 # batch_size = 5000
 # max_path_length = 50
