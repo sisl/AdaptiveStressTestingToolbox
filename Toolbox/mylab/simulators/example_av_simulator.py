@@ -255,7 +255,7 @@ class ExampleAVSimulator(ASTSimulator):
         # calculate the relative distances between the pedestrians and the car
         dist = self._peds[:, 2:4] - self._car[2:4]
 
-        # return True if any relative distance is within the SUT's hitbox
+        # return True if any relative distance is within the SUT's hitbox and the car is still moving
         if (np.any(np.all(np.less_equal(abs(dist), self.c_min_dist), axis=1)) and
                 self._car[0]  > 0.5):
             return True
