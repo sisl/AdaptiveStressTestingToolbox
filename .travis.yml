@@ -8,7 +8,6 @@ python:
 install:
   - sudo apt-get update
   - sudo apt install libdb-dev python3-bsddb3
-  - pip install bsddb3
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
