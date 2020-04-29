@@ -1,3 +1,5 @@
+import pytest
+
 # Import the example classes
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
