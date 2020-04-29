@@ -7,6 +7,8 @@ python:
   - "3.6"
 install:
   - sudo apt-get update
+  - sudo apt install libdb-dev python3-bsddb3
+  - pip install bsddb3
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -38,7 +40,7 @@ install:
   - rm mjkey.txt
   - pip install --ignore-installed garage
 #  - pip install -e .[dev]
-  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma
+  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma bsddb3
 # Install the codecov pip dependency
   - pip install codecov pytest pytest-cov
 #  - pip install rlgarage
