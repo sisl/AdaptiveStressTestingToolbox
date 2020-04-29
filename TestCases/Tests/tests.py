@@ -1,12 +1,26 @@
 import pytest
 import numpy as np
 
-
 from TestCases.Tests.validate_install import validate_install
+from TestCases.Tests.validate_drl import validate_drl
+from TestCases.Tests.validate_mcts import validate_mcts
+from TestCases.Tests.validate_ge_ba import validate_ge_ba
 
 
 def test_validate_install():
     assert validate_install() is True
+
+
+def test_validate_drl():
+    assert validate_drl() is True
+
+
+def test_validate_mcts():
+    assert validate_mcts() is True
+
+
+def test_validate_ge_ba():
+    assert validate_ge_ba() is True
 
 
 from mylab.simulators.ast_simulator import ASTSimulator
@@ -80,6 +94,7 @@ def test_example_av_simulator():
     obs = sim.step(action=np.zeros(6))
     assert np.all(obs == np.array([0, 0, 0, 0]))
 
+
 from mylab.spaces.ast_spaces import ASTSpaces
 
 
@@ -90,7 +105,7 @@ def test_ast_spaces():
         space.action_space()
 
     with pytest.raises(NotImplementedError):
-        space.observation_space
+        space.observation_space()
 
 
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
