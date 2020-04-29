@@ -139,7 +139,8 @@ class BackwardAlgorithm(PPO):
             stop_entropy_gradient=stop_entropy_gradient,
             entropy_method=entropy_method,
             name=name,
-            log_dir=log_dir)
+            # log_dir=log_dir
+        )
 
     # def train(self, runner, batch_size):
     #     # pdb.set_trace()

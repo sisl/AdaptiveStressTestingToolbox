@@ -46,8 +46,7 @@ class MCTS:
 		self.env = env
 		self.stress_test_num = stress_test_num
 		self.max_path_length = max_path_length
-		self.macts_params = MCTSdpw.DPWParams(max_path_length,gamma,ec,2*(n_itr*log_interval // max_path_length**2),k,alpha,clear_nodes)
-		# import pdb; pdb.set_trace()
+		self.macts_params = MCTSdpw.DPWParams(max_path_length,gamma,ec,2*max(n_itr*log_interval // max_path_length**2, 1),k,alpha,clear_nodes)
 		self.log_interval = log_interval
 		self.top_paths = top_paths
 		self.log_tabular = log_tabular

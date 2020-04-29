@@ -112,7 +112,7 @@ def selectAction(dpw, s, verbose=False):
 		# dpw.top_paths.enqueue(dpw.tracker, R, make_copy=True)
 
 	dpw.f.model.goToState(s)
-	print("Size of sdict: ", len(dpw.s))
+	# print("Size of sdict: ", len(dpw.s))
 	cS = dpw.s[s]
 	A = list(cS.a.keys())
 	nA = len(A)
