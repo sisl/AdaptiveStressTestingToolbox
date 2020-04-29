@@ -14,7 +14,7 @@ def validate_ge_ba():
                            'log_dir': None,
                            'exp_name': None,
                            'seed': 0,
-                           'n_parallel': 8,
+                           'n_parallel': 1,
                            'tabular_log_file': 'progress.csv'
                            }
 
