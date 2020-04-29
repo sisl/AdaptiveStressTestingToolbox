@@ -39,8 +39,8 @@ def run_task(snapshot_config, *_):
         spaces = ExampleAVSpaces()
 
         # Create the environment
-        env = TfEnv(normalize(ASTEnv(action_only=True,
-                                     fixed_init_state=False,
+        env = TfEnv(normalize(ASTEnv(blackbox_sim_state=True,
+                                     fixed_init_state=True,
                                      s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
                                      simulator=sim,
                                      reward_function=reward_function,

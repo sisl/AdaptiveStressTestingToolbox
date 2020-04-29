@@ -1,6 +1,5 @@
 #import base Simulator class
-from mylab.simulators.ast_simulator import ASTSimulator
-#Used for math and debugging
+from mylab.simulators.ast_simulator import ASTSimulator#Used for math and debugging
 import numpy as np
 import pdb
 #Define the class
@@ -25,7 +24,7 @@ class ExampleAVSimulator(ASTSimulator):
                  min_dist_y = 1.4,
                  car_init_x = -35.0,
                  car_init_y = 0.0,
-                 action_only = True,
+                 # blackbox_sim_state = True,
                  **kwargs):
         #Constant hyper-params -- set by user
         self.c_num_peds = num_peds
@@ -42,7 +41,7 @@ class ExampleAVSimulator(ASTSimulator):
         self.c_min_dist = np.array([min_dist_x, min_dist_y])
         self.c_car_init_x = car_init_x
         self.c_car_init_y = car_init_y
-        self.action_only = action_only
+        # self.blackbox_sim_state = blackbox_sim_state
 
         #These are set by reset, not the user
         self._car = np.zeros((4))
@@ -56,7 +55,8 @@ class ExampleAVSimulator(ASTSimulator):
         self._info = []
         self._step = 0
         self._path_length = 0
-        self._action = None
+        # self._action = None
+        self._action = np.array([0] * (6 * self.c_num_peds))
         self._first_step = True
         self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
         self.y = np.random.rand(self.c_num_peds) * 14 - 5
@@ -67,6 +67,8 @@ class ExampleAVSimulator(ASTSimulator):
         super().__init__(**kwargs)
 
 
+    def get_first_action(self):
+        return np.array([0] * (6 * self.c_num_peds))
 
     def simulate(self, actions, s_0):
         """
@@ -122,7 +124,7 @@ class ExampleAVSimulator(ASTSimulator):
         self._is_terminal = True
         return -1, np.array(self._info)
 
-    def step(self, action, open_loop):
+    def closed_loop_step(self, action):
         """
         Handle anything that needs to take place at each step, such as a simulation update or write to file
         Input
@@ -136,42 +138,45 @@ class ExampleAVSimulator(ASTSimulator):
 
         """
         # return None
-        if not open_loop:
+
         # get the action from the list
-            self._action = action
+        self._action = action
 
-            # move the peds
-            self.update_peds()
+        # move the peds
+        self.update_peds()
 
-            # move the car
-            self._car = self.move_car(self._car, self._car_accel)
+        # move the car
+        self._car = self.move_car(self._car, self._car_accel)
 
-            # take new measurements and noise them
-            noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
-            self._measurements = self.sensors(self._car, self._peds, noise)
+        # take new measurements and noise them
+        noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
+        self._measurements = self.sensors(self._car, self._peds, noise)
 
-            # filter out the noise with an alpha-beta tracker
-            self._car_obs = self.tracker(self._car_obs, self._measurements)
+        # filter out the noise with an alpha-beta tracker
+        self._car_obs = self.tracker(self._car_obs, self._measurements)
 
-            # select the SUT action for the next timestep
-            self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
+        # select the SUT action for the next timestep
+        self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
 
-            # grab simulation state, if interactive
-            self.observe()
-            obs = self._env_obs
+        # grab simulation state, if interactive
+        self.observe()
+        self.observation = self._env_obs
+        # record step variables
+        self.log()
 
-            # record step variables
-            self.log()
+        # else:
+        #     obs = None
 
-        else:
-            obs = None
+        # self._path_length += 1
+        # if self._path_length >= self.c_max_path_length:
+        #     self._is_terminal = True
 
-        self._path_length += 1
-        if self._path_length >= self.c_max_path_length:
-            self._is_terminal = True
+        # if self.blackbox_sim_state:
+        #     obs = action
 
         # pdb.set_trace()
-        return obs
+        # print(obs)
+        return self.observation_return()
 
     def reset(self, s_0):
         """
@@ -186,45 +191,50 @@ class ExampleAVSimulator(ASTSimulator):
         self._step = 0
         self._path_length = 0
         self._is_terminal = False
-        self.init_conditions = s_0
+        self.initial_conditions = s_0
+        self._action = np.array([0] * (6 * self.c_num_peds))
         self._first_step = True
 
         # Get v_des if it is sampled from a range
-        v_des = self.init_conditions[3*self.c_num_peds]
+        v_des = self.initial_conditions[3 * self.c_num_peds]
 
         # initialize SUT location
-        car_init_x = self.init_conditions[3*self.c_num_peds + 1]
+        car_init_x = self.initial_conditions[3 * self.c_num_peds + 1]
         self._car = np.array([v_des, 0.0, car_init_x, self.c_car_init_y])
 
         # zero out the first SUT acceleration
         self._car_accel = np.zeros((2))
 
         # initialize pedestrian locations and velocities
-        pos = self.init_conditions[0:2*self.c_num_peds]
+        pos = self.initial_conditions[0:2 * self.c_num_peds]
         self.x = pos[0:self.c_num_peds*2:2]
         self.y = pos[1:self.c_num_peds*2:2]
-        v_start = self.init_conditions[2*self.c_num_peds:3*self.c_num_peds]
+        v_start = self.initial_conditions[2 * self.c_num_peds:3 * self.c_num_peds]
         self._peds[0:self.c_num_peds, 0] = np.zeros((self.c_num_peds))
         self._peds[0:self.c_num_peds, 1] = v_start
         self._peds[0:self.c_num_peds, 2] = self.x
         self._peds[0:self.c_num_peds, 3] = self.y
 
         # Calculate the relative position measurements
-        self._measurements = self._peds - self._car
+        self._measurements = self._peds
         self._env_obs = self._measurements
         self._car_obs = self._measurements
 
         # return the initial simulation state
-        if self.action_only:
-            return self.init_conditions
-        else:
-            # self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
-            # self._car_accel = np.zeros((2))
-            # self._peds[:, 0:4] = np.array([0.0, 1.0, -0.5, -4.0])
-            # self._measurements = self._peds - self._car
-            # self._env_obs = self._measurements
-            # self._car_obs = self._measurements
-            return np.ndarray.flatten(self._measurements)
+        # if self.blackbox_sim_state:
+        #     obs = s_0
+        #     # obs = self._action
+        # else:
+        # self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
+        # self._car_accel = np.zeros((2))
+        # self._peds[:, 0:4] = np.array([0.0, 1.0, -0.5, -4.0])
+        # self._measurements = self._peds
+        # self._env_obs = self._measurements
+        # self._car_obs = self._measurements
+        self.observation = np.ndarray.flatten(self._measurements)
+
+        # self.observation = obs
+        return self.observation_return()
 
 
     def get_reward_info(self):
@@ -246,7 +256,8 @@ class ExampleAVSimulator(ASTSimulator):
         dist = self._peds[:, 2:4] - self._car[2:4]
 
         # return True if any relative distance is within the SUT's hitbox
-        if (np.any(np.all(np.less_equal(abs(dist), self.c_min_dist), axis=1))):
+        if (np.any(np.all(np.less_equal(abs(dist), self.c_min_dist), axis=1)) and
+                self._car[0]  > 0.5):
             return True
 
         return False
@@ -258,6 +269,7 @@ class ExampleAVSimulator(ASTSimulator):
                            np.ndarray.flatten(self._car),
                            np.ndarray.flatten(self._peds),
                            np.ndarray.flatten(self._action),
+                           np.ndarray.flatten(self._car_obs),
                            0.0])
         self._info.append(cache)
         self._step += 1
@@ -304,7 +316,7 @@ class ExampleAVSimulator(ASTSimulator):
 
         if np.isnan(a):
             pdb.set_trace()
-
+        # pdb.set_trace()
         return np.clip(a, -self.c_d_max, self.c_a_max)
 
     def move_car(self, car, accel):
@@ -322,8 +334,85 @@ class ExampleAVSimulator(ASTSimulator):
             pdb.set_trace()
 
         self._peds += self.c_dt * mod_a
+        #Enforce max abs(velocity) on pedestrians
+        self._peds[:,0:2] = np.clip(self._peds[:,0:2], a_min=[-4.5, -4.5], a_max=[4.5, 4.5])
         if np.any(np.isnan(self._peds)):
             pdb.set_trace()
 
     def observe(self):
         self._env_obs = self._peds - self._car
+
+    def clone_state(self):
+        # simulator_state = {
+        #     "step": self._step,
+        #     "path_length": self._path_length,
+        #     "is_terminal": self._is_terminal,
+        #     "initial_conditions": self.initial_conditions,
+        #     "first_step": self._first_step,
+        #     "car": self._car,
+        #     "car_accel": self._car_accel,
+        #     "x": self.x,
+        #     "y": self.y,
+        #     "peds": self._peds,
+        #     "measurements": self._measurements,
+        #     "env_obs": self._env_obs,
+        #     "car_obs": self._car_obs
+        # }
+        # simulator_state = np.concatenate((np.array([self._step]),np.array([self._path_length]),np.array([int(self._is_terminal)]),np.array(self.initial_conditions),np.array([int(self._first_step)]),self._car, self._car_accel,self._peds.flatten(),self._measurements.flatten(),self._env_obs.flatten(),self._car_obs.flatten()), axis=0)
+        # simulator_state = np.concatenate((np.array([self._step]), np.array([self._path_length]),np.array([int(self._is_terminal)]), self._car, self._car_accel,self._peds.flatten(),self._car_obs.flatten()), axis=0)
+        # if self._action is None:
+        #     self._action =
+        simulator_state = np.concatenate((np.array([self._step]),
+                                          np.array([self._path_length]),
+                                          np.array([int(self._is_terminal)]),
+                                          self._car,
+                                          self._car_accel,
+                                          self._peds.flatten(),
+                                          self._car_obs.flatten(),
+                                          self._action.flatten(),
+                                          self.initial_conditions), axis=0)
+
+        return simulator_state
+
+    def restore_state(self, in_simulator_state):
+        simulator_state = in_simulator_state.copy()
+        # self._step = simulator_state['step']
+        # self._path_length = simulator_state['path_length']
+        # self._is_terminal = simulator_state['is_terminal']
+        # self.initial_conditions = simulator_state['initial_conditions']
+        # self._first_step = simulator_state['first_step']
+        # self._car = simulator_state['car']
+        # self._car_accel = simulator_state['car_accel']
+        # self.x = simulator_state['x']
+        # self.y = simulator_state['y']
+        # self._peds = simulator_state['peds']
+        # self._measurements = simulator_state['measurements']
+        # self._env_obs = simulator_state['env_obs']
+        # self._car_obs = simulator_state['car_obs']
+        self._step = simulator_state[0]
+        self._path_length = simulator_state[1]
+        self._is_terminal = bool(simulator_state[2])
+        self._car = simulator_state[3:7]
+        self._car_accel = simulator_state[7:9]
+        peds_end_index = 9+self.c_num_peds*4
+        self._peds = simulator_state[9:peds_end_index].reshape((self.c_num_peds,4))
+        car_obs_end_index = peds_end_index + self.c_num_peds*4
+        self._car_obs = simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds,4))
+        self._action = simulator_state[car_obs_end_index:car_obs_end_index+self._action.shape[0]]
+        self.initial_conditions = simulator_state[car_obs_end_index + self._action.shape[0]:]
+        self._info = []
+
+    def _get_obs(self):
+        if self.blackbox_sim_state:
+            return np.array(self.initial_conditions)
+            # if self._action is None:
+                # return np.array([0] * (6*self.c_num_peds))
+            # return self._action
+        return self._env_obs
+
+    def render(self, car, ped, noise, gif=False):
+        if gif:
+            return
+        else:
+            return
+

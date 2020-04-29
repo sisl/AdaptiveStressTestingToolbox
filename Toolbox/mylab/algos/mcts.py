@@ -20,6 +20,7 @@ class MCTS:
 			clear_nodes,
 			log_interval,
 			top_paths,
+			log_dir,
 			gamma=1.0,
 			stress_test_num=2,
 			log_tabular=True,
@@ -45,7 +46,7 @@ class MCTS:
 		self.env = env
 		self.stress_test_num = stress_test_num
 		self.max_path_length = max_path_length
-		self.macts_params = MCTSdpw.DPWParams(max_path_length,gamma,ec,n_itr,k,alpha,clear_nodes)
+		self.macts_params = MCTSdpw.DPWParams(max_path_length,gamma,ec,2*max(n_itr*log_interval // max_path_length**2, 1),k,alpha,clear_nodes)
 		self.log_interval = log_interval
 		self.top_paths = top_paths
 		self.log_tabular = log_tabular
@@ -53,9 +54,11 @@ class MCTS:
 		self.plot_path=plot_path
 		self.plot_format=plot_format
 		self.policy = None
+		self.log_dir = log_dir
+		self.n_itr = n_itr
 
 	def init(self):
-		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular)
+		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular, self.log_dir, self.n_itr)
 		self.ast = AST.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
 
 	def train(self, runner, batch_size):

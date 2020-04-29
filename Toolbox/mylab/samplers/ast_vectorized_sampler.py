@@ -19,10 +19,13 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
     def obtain_samples(self, itr, batch_size=None, whole_paths=False):
         # pdb.set_trace()
         paths = super().obtain_samples(itr)
+        # pdb.set_trace()
         if self.open_loop:
             for path in paths:
                 s_0 = path["observations"][0]
-                actions = path['env_infos']['info']['actions']
+
+                # actions = path['env_infos']['info']['actions']
+                actions = path['actions']
                 # pdb.set_trace()
                 end_idx, info = self.sim.simulate(actions = actions, s_0 = s_0)
                 if end_idx >= 0:
@@ -35,7 +38,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
                 # pdb.set_trace()
                 path["rewards"][end_idx] = rewards
                 info[:,-1] = path["rewards"][:info.shape[0]]
-                path['env_infos']['info']['cache'] = info
+                path['env_infos']['cache'] = info
 
         return paths
 

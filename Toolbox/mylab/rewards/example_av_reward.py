@@ -11,12 +11,14 @@ class ExampleAVReward(ASTReward):
                  num_peds=1,
                  cov_x=0.1,
                  cov_y=0.01,
-                 cov_sensor_noise=0.1):
+                 cov_sensor_noise=0.1,
+                 use_heuristic=True):
 
         self.c_num_peds = num_peds
         self.c_cov_x = cov_x
         self.c_cov_y = cov_y
         self.c_cov_sensor_noise = cov_sensor_noise
+        self.use_heuristic = use_heuristic
         super().__init__()
 
     def give_reward(self, action, **kwargs):
@@ -34,7 +36,13 @@ class ExampleAVReward(ASTReward):
             reward = 0
         elif (is_terminal):
             # reward = 0
-            reward = -100000 - 10000 * np.min(np.linalg.norm(dist, axis=1)) # We reached
+            # Heuristic reward based on distance between car and ped at end
+            if self.use_heuristic:
+                heuristic_reward = np.min(np.linalg.norm(dist, axis=1))
+            else:
+            # No Herusitic
+                heuristic_reward = 0
+            reward = -100000 - 10000 * heuristic_reward # We reached
             # the horizon with no crash
         else:
             reward = -self.mahalanobis_d(action) # No crash or horizon yet

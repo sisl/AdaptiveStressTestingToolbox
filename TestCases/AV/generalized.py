@@ -49,7 +49,7 @@ parser.add_argument('--use_peepholes', type=bool, default=False)
 parser.add_argument('--load_policy', type=bool, default=False)
 
 # Env Params
-parser.add_argument('--action_only', type=bool, default=True)
+parser.add_argument('--blackbox_sim_state', type=bool, default=True)
 parser.add_argument('--fixed_init_state', type=bool, default=False)
 
 parser.add_argument('--run_num', type=int, default=0)
