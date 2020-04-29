@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 
 from TestCases.Tests.validate_install import validate_install
+from TestCases.Tests.validate_parallel import validate_parallel
 from TestCases.Tests.validate_drl import validate_drl
 from TestCases.Tests.validate_mcts import validate_mcts
 from TestCases.Tests.validate_ge_ba import validate_ge_ba
@@ -9,6 +10,10 @@ from TestCases.Tests.validate_ge_ba import validate_ge_ba
 
 def test_validate_install():
     assert validate_install() is True
+
+
+def test_validate_parallel():
+    assert validate_parallel() is True
 
 
 def test_validate_drl():
