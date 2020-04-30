@@ -62,11 +62,7 @@ def validate_mcts():
     run_experiment_args['log_dir'] = exp_log_dir + '/mcts'
     run_experiment_args['exp_name'] = 'mcts'
 
-    # mcts_algo_args['max_path_length'] = max_path_length
-    # mcts_algo_args['log_dir'] = run_experiment_args['log_dir']
-    # mcts_algo_args['plot_path'] = run_experiment_args['log_dir']
-
-    for mcts_type in ['mcts','mctsbv']:
+    for mcts_type in ['mcts','mctsbv','mctsrs']:
       for stress_test_mode in [1,2]:
         mcts_algo_args = {'max_path_length':max_path_length,
                           'stress_test_mode':stress_test_mode,

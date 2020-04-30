@@ -36,11 +36,10 @@ class StateNode:
 		self.n = 0 #UInt64
 
 class DPWTree:
-	def __init__(self, p, f, top_paths) :
+	def __init__(self, p, f) :
 		self.s_tree = {} #Dict{State,StateNode}
 		self.p = p #DPWParams
 		self.f = f #DPWModel
-		self.top_paths = top_paths #BoundedPriorityQueue
 
 def saveBackwardState(old_s_tree, new_s_tree, s_current):
     if not (s_current in old_s_tree):

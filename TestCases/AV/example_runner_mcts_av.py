@@ -131,6 +131,11 @@ def runner(
                         print('mctsbv')
                         algo = MCTSBV(env=env,
                                     top_paths=top_paths,
+                                    **algo_args) 
+                    elif mcts_type == 'mctsrs':
+                        print('mctsrs')
+                        algo = MCTSRS(env=env,
+                                    top_paths=top_paths,
                                     **algo_args)       
                     else:
                         raise NotImplementedError  

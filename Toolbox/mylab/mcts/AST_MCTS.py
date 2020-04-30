@@ -26,7 +26,7 @@ def explore_getAction(ast):
 
 def stress_test(ast,mcts_params,top_paths,verbose=True,return_tree=False):
 	dpw_model = MCTSdpw.DPWModel(ast.transition_model,rollout_getAction(ast),explore_getAction(ast))
-	tree = MCTSdpw.DPWTree(mcts_params,dpw_model,top_paths)
+	tree = MCTSdpw.DPWTree(mcts_params,dpw_model)
 	(mcts_reward,action_seq) = MDP.simulate(tree.f.model,tree,MCTSdpw.selectAction,verbose=verbose)
 	results = StressTestResultsInit(top_paths.N)
 
@@ -41,7 +41,7 @@ def stress_test2(ast,mcts_params,top_paths,verbose=True,return_tree=False):
 	mcts_params.n *= ast.params.max_steps
 
 	dpw_model = MCTSdpw.DPWModel(ast.transition_model,rollout_getAction(ast),explore_getAction(ast))
-	tree = MCTSdpw.DPWTree(mcts_params,dpw_model,top_paths)
+	tree = MCTSdpw.DPWTree(mcts_params,dpw_model)
 
 	s = tree.f.model.getInitialState()
 	MCTSdpw.selectAction(tree,s,verbose=verbose)

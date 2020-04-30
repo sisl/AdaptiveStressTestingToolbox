@@ -78,7 +78,7 @@ class MCTS:
 		for (action_seq,reward_predict) in result:
 			actions = [a.get() for a in action_seq]
 			reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)	
-			assert reward_predict == reward
+			assert np.isclose(reward_predict,reward)
 		print("done")
 		if self.plot_tree:
 			tree_plot.plot_tree(tree,d=self.max_path_length,path=self.plot_path,format=self.plot_format)
