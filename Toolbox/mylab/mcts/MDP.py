@@ -14,15 +14,6 @@ class TransitionModel:
 		self.maxSteps = maxSteps
 		self.goToState = goToState
 
-
-# def TransitionModelInit(getInitialState,getNextState,isEndState,maxSteps):
-# 	getInitialState = getInitialState
-# 	getNextState = getNextState
-# 	isEndState = getNextisEndStateAction
-# 	maxSteps = maxSteps
-# 	goToState = goToState
-# 	return TransitionModel(getInitialState,getNextState,maxSteps,goToState)
-
 def simulate(model,p,policy,verbose=False,sleeptime=0.0):
 	cum_reward = 0.0
 	actions = []
