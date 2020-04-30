@@ -7,7 +7,7 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 from mylab.envs.ast_env import ASTEnv
 from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 from mylab.algos.mcts import MCTS
-# from mylab.algos.mctsbv import MCTSBV
+from mylab.algos.mctsbv import MCTSBV
 from mylab.algos.mctsrs import MCTSRS
 import mylab.mcts.BoundedPriorityQueues as BPQ
 # Import the necessary garage classes
@@ -99,7 +99,7 @@ import fire
 
 # algo = MCTSBV(
 # 	    env=env,
-# 		stress_test_num=2,
+# 		stress_test_mode=2,
 # 		max_path_length=50,
 # 		ec=args.ec,
 # 		n_itr=int(args.iters*args.batch_size/100**2),
@@ -220,12 +220,12 @@ def runner(
 
                     top_paths = BPQ.BoundedPriorityQueue(**bpq_args)
 
-                    algo = MCTS(env=env,
+                    algo = MCTSBV(env=env,
                                 top_paths=top_paths,
                                 **algo_args)
                     # algo = MCTS(
                     #         env=env,
-                    #         stress_test_num=2,
+                    #         stress_test_mode=2,
                     #         max_path_length=50,
                     #         ec=args.ec,
                     #         n_itr=int(args.iters*args.batch_size/50**2),

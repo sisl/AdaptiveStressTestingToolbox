@@ -4,14 +4,6 @@ import mylab.mcts.MDP as MDP
 import mylab.mcts.MCTSdpw as MCTSdpw
 import numpy as np
 import mylab.mcts.RNGWrapper as RNG
-
-class ASTParams:
-	def __init__(self,max_steps,rsg_length,init_seed,log_interval,log_tabular):
-		self.max_steps = max_steps
-		self.rsg_length = rsg_length
-		self.init_seed = init_seed
-		self.log_interval = log_interval
-		self.log_tabular = log_tabular
 		
 class AdaptiveStressTestRS(AdaptiveStressTest):
 	def __init__(self,**kwargs):

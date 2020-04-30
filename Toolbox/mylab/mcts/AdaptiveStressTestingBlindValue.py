@@ -4,21 +4,13 @@ import mylab.mcts.MCTSdpw as MCTSdpw
 import numpy as np
 from mylab.mcts.AdaptiveStressTesting import AdaptiveStressTest,ASTAction
 
-class ASTParams:
-	def __init__(self,max_steps,ec,M,log_interval,log_tabular):
-		self.max_steps = max_steps
-		self.ec = ec
-		self.M = M
-		self.log_interval = log_interval
-		self.log_tabular = log_tabular
-
 class AdaptiveStressTestBV(AdaptiveStressTest):
 	def __init__(self,**kwargs):
 		super(AdaptiveStressTestBV, self).__init__(**kwargs)
 	def explore_action(self,s,tree):
 		s = tree[s]
-		D = s.a.keys()
-		if len(D) == 0.0:
+		A_explored = s.a.keys()
+		if len(A_explored) == 0.0:
 			return ASTAction(self.env.action_space.sample())
 		UCB = self.getUCB(s)
 		sigma_known = np.std([float(UCB[a]) for a in s.a.keys()])
@@ -38,7 +30,7 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
 		BV_max = -np.inf
 		a_best = None
 		for y in A_pool:
-			BV = self.getBV(y,rho,D,UCB)
+			BV = self.getBV(y,rho,A_explored,UCB)
 			if BV > BV_max:
 				BV_max = BV
 				a_best = y
@@ -54,9 +46,9 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
 			UCB[a] = s.a[a].q + self.params.ec*np.sqrt(np.log(nS)/float(s.a[a].n))
 		return UCB
 
-	def getBV(self,y,rho,D,UCB):
+	def getBV(self,y,rho,A,UCB):
 		BVs = []
-		for d in D:
-			BV = rho*self.getDistance(d.action,y)+UCB[d]
+		for a in A:
+			BV = rho*self.getDistance(a.action,y)+UCB[a]
 			BVs.append(BV)
 		return min(BVs)

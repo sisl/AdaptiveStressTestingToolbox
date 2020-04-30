@@ -50,7 +50,7 @@ def validate_mcts():
     mcts_baseline_args = {}
 
     mcts_algo_args = {'max_path_length':max_path_length,
-                      'stress_test_num':2,
+                      'stress_test_mode':2,
                       'ec':100.0,
                       'n_itr':1,
                       'k':0.5,

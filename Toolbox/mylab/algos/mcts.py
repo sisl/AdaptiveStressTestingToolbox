@@ -22,7 +22,7 @@ class MCTS:
 			top_paths,
 			log_dir,
 			gamma=1.0,
-			stress_test_num=2,
+			stress_test_mode=2,
 			log_tabular=True,
 			plot_tree=False,
 			plot_path=None,
@@ -44,7 +44,7 @@ class MCTS:
 		:return: No return value.
 		"""
 		self.env = env
-		self.stress_test_num = stress_test_num
+		self.stress_test_mode = stress_test_mode
 		self.max_path_length = max_path_length
 		self.macts_params = MCTSdpw.DPWParams(max_path_length,gamma,ec,2*max(n_itr*log_interval // max_path_length**2, 1),k,alpha,clear_nodes)
 		self.log_interval = log_interval
@@ -64,28 +64,21 @@ class MCTS:
 	def train(self, runner, batch_size):
 		self.init()
 		if self.plot_tree:
-			if self.stress_test_num == 2:
+			if self.stress_test_mode == 2:
 				result,tree = AST_MCTS.stress_test2(self.ast,self.macts_params,self.top_paths,verbose=False, return_tree=True)
 			else:
 				result,tree = AST_MCTS.stress_test(self.ast,self.macts_params,self.top_paths,verbose=False, return_tree=True)
 		else:
-			if self.stress_test_num == 2:
+			if self.stress_test_mode == 2:
 				result = AST_MCTS.stress_test2(self.ast,self.macts_params,self.top_paths,verbose=False, return_tree=False)
 			else:
 				result = AST_MCTS.stress_test(self.ast,self.macts_params,self.top_paths,verbose=False, return_tree=False)
 		self.ast.params.log_tabular = False
-		print("check reward consistance")
-		# for (i,action_seq) in enumerate(result.action_seqs):
-		# 	actions = [a.get() for a in action_seq]
-		# 	print(np.mean(np.clip(actions,-1.0,1.0)))
-		# 	reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)
-		# 	print("predic reward: ",result.rewards[i])
-		# 	print("actual reward: ",reward)	
+		print("checking reward consistance")
 		for (action_seq,reward_predict) in result:
 			actions = [a.get() for a in action_seq]
-			# print(np.mean(np.clip(actions,-1.0,1.0)))
-			reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)
-			print("predic reward: ",reward_predict)
-			print("actual reward: ",reward)	
+			reward, _ = ASTSim.play_sequence(self.ast,action_seq,sleeptime=0.0)	
+			assert reward_predict == reward
+		print("done")
 		if self.plot_tree:
 			tree_plot.plot_tree(tree,d=self.max_path_length,path=self.plot_path,format=self.plot_format)
