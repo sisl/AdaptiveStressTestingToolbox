@@ -43,8 +43,8 @@ class ExampleAVSpaces(ASTSpaces):
         self.c_car_init_x = car_init_x
         self.c_car_init_y = car_init_y
         self.action_only = action_only
-        self.low_start_bounds = [-1.0, -1.0, -1.0, 5.0, 0.0, -6.0, 0.0, 5.0]
-        self.high_start_bounds = [1.0, -6.0, 0.0, 9.0, 1.0, -2.0, 1.0, 9.0]
+        self.low_start_bounds = [-1.0, -6.0, -1.0, 5.0, 0.0, -6.0, 0.0, 5.0]
+        self.high_start_bounds = [1.0, -1.0, 0.0, 9.0, 1.0, -2.0, 1.0, 9.0]
         self.v_start = [1.0, -1.0, 1.0, -1.0]
         super().__init__()
 
@@ -81,11 +81,17 @@ class ExampleAVSpaces(ASTSpaces):
             low = self.low_start_bounds[:self.c_num_peds * 2]
             low = low + np.ndarray.tolist(0.0 * np.array(self.v_start))[:self.c_num_peds]
             low = low + [0.75 * self.c_v_des]
-            low = low + [0.75 * self.c_car_init_x]
+
             high = self.high_start_bounds[:self.c_num_peds * 2]
             high = high + np.ndarray.tolist(2.0 * np.array(self.v_start))[:self.c_num_peds]
             high = high + [1.25 * self.c_v_des]
-            high = high + [1.25 * self.c_car_init_x]
+
+            if self.c_car_init_x > 0:
+                low = low + [0.75 * self.c_car_init_x]
+                high = high + [1.25 * self.c_car_init_x]
+            else:
+                low = low + [1.25 * self.c_car_init_x]
+                high = high + [0.75 * self.c_car_init_x]
 
         # pdb.set_trace()
         return Box(low=np.array(low), high=np.array(high), dtype=np.float32)
