@@ -2,30 +2,15 @@
 from enum import Enum, unique
 
 import numpy as np
-import tensorflow as tf
 
-# from garage.logger import logger, tabular
-from garage.misc import special
 from garage.misc.overrides import overrides
 from garage.tf.algos.batch_polopt import BatchPolopt
-from mylab.algos.backward_algorithm import BackwardAlgorithm
-from garage.tf.misc import tensor_utils
-from garage.tf.misc.tensor_utils import compute_advantages
-from garage.tf.misc.tensor_utils import discounted_returns
-from garage.tf.misc.tensor_utils import filter_valids
-from garage.tf.misc.tensor_utils import filter_valids_dict
-from garage.tf.misc.tensor_utils import flatten_batch
-from garage.tf.misc.tensor_utils import flatten_batch_dict
-from garage.tf.misc.tensor_utils import flatten_inputs
-from garage.tf.misc.tensor_utils import graph_inputs
-from garage.tf.optimizers import LbfgsOptimizer
 from cached_property import cached_property
 from dowel import logger, tabular
-from mylab.envs.go_explore_atari_env import GoExploreTfEnv #, CellPool,Cell
 import sys
 import pdb
 import time
-# import xxhash
+
 from bsddb3 import db
 import pickle
 import shelve
