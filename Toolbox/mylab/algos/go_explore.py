@@ -313,22 +313,22 @@ class CellPool():
     def meta_filename(self):
         return self._filename + '_meta.dat'
 
-    def create(self, d_pool):
-
-        self.init_cell = Cell()
-        self.init_cell.observation = np.zeros((1,128))
-        self.init_cell.trajectory = None
-        self.init_cell.score = -np.inf
-        self.init_cell.reward = -np.inf
-        self.init_cell.state = None
-        self.init_cell.times_chosen = 0
-        self.init_cell.times_visited = 1
-        # self.d_pool = shelve.open('cellpool-shelf', flag=flag)
-
-        d_pool[str(hash(self.init_cell))] = self.init_cell
-        self.key_list.append(str(hash(self.init_cell)))
-        self.length = 1
-        self.max_value = self.init_cell.fitness
+    # def create(self, d_pool):
+    #
+    #     self.init_cell = Cell()
+    #     self.init_cell.observation = np.zeros((1,128))
+    #     self.init_cell.trajectory = None
+    #     self.init_cell.score = -np.inf
+    #     self.init_cell.reward = -np.inf
+    #     self.init_cell.state = None
+    #     self.init_cell.times_chosen = 0
+    #     self.init_cell.times_visited = 1
+    #     # self.d_pool = shelve.open('cellpool-shelf', flag=flag)
+    #
+    #     d_pool[str(hash(self.init_cell))] = self.init_cell
+    #     self.key_list.append(str(hash(self.init_cell)))
+    #     self.length = 1
+    #     self.max_value = self.init_cell.fitness
         # import pdb; pdb.set_trace()
 
     # def append(self, cell):
