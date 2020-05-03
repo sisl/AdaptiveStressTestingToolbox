@@ -3,10 +3,10 @@ from garage.misc.overrides import overrides
 
 from garage.envs.base import Step
 
-
 import numpy as np
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
+from mylab.spaces.example_av_spaces import ExampleAVSpaces
 from garage.envs.env_spec import EnvSpec
 import pdb
 import gym
@@ -15,6 +15,7 @@ import random
 import shelve
 from bsddb3 import db
 import pickle
+
 
 class GoExploreParameter():
     def __init__(self, name, value, **tags):
@@ -27,6 +28,8 @@ class GoExploreParameter():
 
     def set_value(self, value):
         self.value = value
+
+
 #
 # class GoExploreASTGymEnv(gym.Env):
 #
@@ -44,7 +47,7 @@ class GoExploreParameter():
 #         pass
 
 class GoExploreASTEnv(gym.Env, Parameterized):
-# class ASTEnv(GarageEnv):
+
     def __init__(self,
                  open_loop=True,
                  blackbox_sim_state=True,
@@ -53,14 +56,16 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                  simulator=None,
                  reward_function=None,
                  spaces=None):
-        # pdb.set_trace()
+
         # gym_env = gym.make('mylab:GoExploreAST-v0', {'test':'test string'})
         # pdb.set_trace()
         # super().__init__(gym_env)
         # Constant hyper-params -- set by user
-        self.open_loop=open_loop
-        self.blackbox_sim_state = blackbox_sim_state #is this redundant?
+        self.open_loop = open_loop
+        self.blackbox_sim_state = blackbox_sim_state  # is this redundant?
         self.spaces = spaces
+        if spaces is None:
+            self.spaces = ExampleAVSpaces()
         # These are set by reset, not the user
         self._done = False
         self._reward = 0.0
@@ -74,15 +79,18 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self.spec._entry_point = []
         self._cum_reward = 0.0
         self.root_action = None
+        self.sample_limit = 10000
+
+        self.simulator = simulator
+        if self.simulator is None:
+            self.simulator = ExampleAVSimulator()
 
         if s_0 is None:
             self._init_state = self.observation_space.sample()
         else:
             self._init_state = s_0
         self._fixed_init_state = fixed_init_state
-        self.simulator = simulator
-        if self.simulator is None:
-            self.simulator = ExampleAVSimulator()
+
         self.reward_function = reward_function
         if self.reward_function is None:
             self.reward_function = ExampleAVReward()
@@ -104,16 +112,18 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         Parameterized.__init__(self)
 
     def sample(self, population):
-        #Proportional sampling: Stochastic Acceptance
+        # Proportional sampling: Stochastic Acceptance
         # https://arxiv.org/pdf/1109.3627.pdf
         # https://jbn.github.io/fast_proportional_selection/
         attempts = 0
-        while attempts < 10000:
+        while attempts < self.sample_limit:
+            attempts += 1
             candidate = population[random.choice(self.p_key_list.value)]
             if random.random() < (candidate.fitness / self.p_max_value.value):
                 return candidate
         attempts = 0
-        while attempts < 10000:
+        while attempts < self.sample_limit:
+            attempts += 1
             candidate = population[random.choice(self.p_key_list.value)]
             if candidate.fitness > 0:
                 print("Returning Uniform Random Sample - Max Attempts Reached!")
@@ -133,9 +143,9 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         #     obs = self.env_reset()
         # obs = self.simulator.reset(self._init_state)
         state = np.concatenate((self.simulator.clone_state(),
-                        np.array([self._cum_reward]),
-                        np.array([-1])),
-                        axis=0)
+                                np.array([self._cum_reward]),
+                                np.array([-1])),
+                               axis=0)
         # pdb.set_trace()
         return obs, state
 
@@ -163,9 +173,9 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             # print('Open Loop:', obs)
             obs = np.array(self._init_state)
             # if not self.robustify:
-                # action_return = self.downsample(action_return)
+            # action_return = self.downsample(action_return)
         # if self.simulator.is_goal():
-        #Add step number to differentiate identical actions
+        # Add step number to differentiate identical actions
         # obs = np.concatenate((np.array([self._step]), self.downsample(obs)), axis=0)
         if self.simulator.is_terminal() or self.simulator.is_goal():
             self._done = True
@@ -180,7 +190,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self._env_state = np.concatenate((self._simulator_state,
                                           np.array([self._cum_reward]),
                                           np.array([self._step])),
-                                          axis=0)
+                                         axis=0)
 
         # if self.robustify:
         #     # No obs?
@@ -190,26 +200,24 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         #     # print(self.robustify_state)
         #     obs = self.downsample(obs)
 
-
         # pdb.set_trace()
-
 
         return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
-                    cache= self._info,
-                    actions= action_return,
+                    cache=self._info,
+                    actions=action_return,
                     # step = self._step -1,
                     # real_actions=self._action,
-                    state= self._env_state,
-                    root_action = self.root_action,
+                    state=self._env_state,
+                    root_action=self.root_action,
                     is_terminal=self.simulator.is_terminal(),
                     is_goal=self.simulator.is_goal())
 
     def simulate(self, actions):
         if not self._fixed_init_state:
             self._init_state = self.observation_space.sample()
-        self.simulator.simulate(actions, self._init_state)
+        return self.simulator.simulate(actions, self._init_state)
 
     def reset(self, **kwargs):
         """
@@ -221,7 +229,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
         try:
             # print(self.p_robustify_state.value)
-            if self.p_robustify_state.value is not None and len(self.p_robustify_state.value) > 0:
+            if self.p_robustify_state is not None and self.p_robustify_state.value is not None and len(
+                    self.p_robustify_state.value) > 0:
                 state = self.p_robustify_state.value
                 # print('-----------Robustify Init-----------------')
                 # print('-----------Robustify Init: ', state, ' -----------------')
@@ -283,7 +292,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                     else:
                         # print("restored")
                         if cell.score == 0.0 and cell.parent is not None:
-                            print("Reset to cell with score 0.0 ---- terminal: ", self.simulator.is_terminal(), " goal: ", self.simulator.is_goal(), " obs: ", cell.observation)
+                            print("Reset to cell with score 0.0 ---- terminal: ", self.simulator.is_terminal(),
+                                  " goal: ", self.simulator.is_goal(), " obs: ", cell.observation)
                         obs = self.simulator._get_obs()
                         self._done = False
                         self._cum_reward = cell.state[-2]
@@ -335,7 +345,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self._done = False
         self._reward = 0.0
         self._cum_reward = 0.0
-        self._info = {'actions':[]}
+        self._info = {'actions': []}
         self._action = self.simulator.get_first_action()
         self._actions = []
         self._first_step = True
@@ -345,7 +355,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         #     obs = np.array([0] * self.action_space.shape[0])
         # else:
         #     print('Not action only')
-        if  not self._fixed_init_state:
+        if not self.blackbox_sim_state:
             obs = np.concatenate((obs, np.array(self._init_state)), axis=0)
 
         # self.root_action = self.downsample(self._action)
@@ -437,16 +447,15 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         if tags.pop("robustify_state", False) == True:
             return [self.p_robustify_state]
 
-
-        return [self.p_db_filename, self.p_key_list, self.p_max_value, self.p_robustify_state]#, self.p_downsampler]
+        return [self.p_db_filename, self.p_key_list, self.p_max_value, self.p_robustify_state]  # , self.p_downsampler]
 
     @overrides
     def set_param_values(self, param_values, **tags):
         debug = tags.pop("debug", False)
 
-        for param,  value in zip(
-            self.get_params(**tags),
-            param_values):
+        for param, value in zip(
+                self.get_params(**tags),
+                param_values):
             param.set_value(value)
             if debug:
                 print("setting value of %s" % param.name)
@@ -467,7 +476,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 class Custom_GoExploreASTEnv(GoExploreASTEnv):
     @overrides
     def downsample(self, obs, step=None):
-        import pdb; pdb.set_trace()
         obs = obs * 1000
         if step is None:
             step = self._step
