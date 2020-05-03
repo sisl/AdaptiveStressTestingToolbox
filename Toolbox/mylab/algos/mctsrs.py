@@ -1,3 +1,4 @@
+import mylab.mcts.AdaptiveStressTesting as AST
 import mylab.mcts.AdaptiveStressTestingRandomSeed as AST_RS
 from mylab.algos.mcts import MCTS
 
@@ -6,8 +7,8 @@ class MCTSRS(MCTS):
 	MCTS with Random Seed as action
 	"""
 	def __init__(self,
-		seed,
-		rsg_length,
+		seed=0,
+		rsg_length=1,
 		**kwargs):
 		"""
 		:param seed: the seed used to generate the initial random seed generator.
@@ -19,5 +20,7 @@ class MCTSRS(MCTS):
 		super(MCTSRS, self).__init__(**kwargs)
 
 	def init(self):
-		ast_params = AST_RS.ASTParams(self.max_path_length,self.rsg_length,self.seed,self.log_interval,self.log_tabular)
+		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular, self.log_dir, self.n_itr)
+		ast_params.rsg_length = self.rsg_length
+		ast_params.init_seed = self.seed
 		self.ast = AST_RS.AdaptiveStressTestRS(p=ast_params, env=self.env, top_paths=self.top_paths)

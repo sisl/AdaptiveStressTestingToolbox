@@ -1,3 +1,4 @@
+import mylab.mcts.AdaptiveStressTesting as AST
 import mylab.mcts.AdaptiveStressTestingBlindValue as AST_BV
 from mylab.algos.mcts import MCTS
 
@@ -6,7 +7,7 @@ class MCTSBV(MCTS):
 	MCTS with Blind Value
 	"""
 	def __init__(self,
-		M,
+		M=10,
 		**kwargs):
 		"""
 		:param M: the number of randon decisions generated for the action pool
@@ -17,5 +18,7 @@ class MCTSBV(MCTS):
 		super(MCTSBV, self).__init__(**kwargs)
 
 	def init(self):
-		ast_params = AST_BV.ASTParams(self.max_path_length,self.ec,self.M,self.log_interval,self.log_tabular)
+		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular, self.log_dir, self.n_itr)
+		ast_params.ec = self.ec
+		ast_params.M = self.M
 		self.ast = AST_BV.AdaptiveStressTestBV(p=ast_params, env=self.env, top_paths=self.top_paths)

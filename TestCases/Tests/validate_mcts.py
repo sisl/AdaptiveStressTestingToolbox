@@ -49,19 +49,6 @@ def validate_mcts():
 
     mcts_baseline_args = {}
 
-    mcts_algo_args = {'max_path_length':max_path_length,
-                      'stress_test_num':2,
-                      'ec':100.0,
-                      'n_itr':1,
-                      'k':0.5,
-                      'alpha':0.5,
-                      'clear_nodes':True,
-                      'log_interval':500,
-                      'plot_tree':False,
-                      'plot_path':None,
-                      'log_dir':None,
-                      }
-
     mcts_bpq_args = {'N':10}
 
     exp_log_dir = base_log_dir
@@ -75,22 +62,33 @@ def validate_mcts():
     run_experiment_args['log_dir'] = exp_log_dir + '/mcts'
     run_experiment_args['exp_name'] = 'mcts'
 
-    mcts_algo_args['max_path_length'] = max_path_length
-    mcts_algo_args['log_dir'] = run_experiment_args['log_dir']
-    mcts_algo_args['plot_path'] = run_experiment_args['log_dir']
-
-    mcts_runner(
-        env_args=env_args,
-        run_experiment_args=run_experiment_args,
-        sim_args=sim_args,
-        reward_args=reward_args,
-        spaces_args=spaces_args,
-        policy_args=mcts_policy_args,
-        baseline_args=mcts_baseline_args,
-        algo_args=mcts_algo_args,
-        bpq_args=mcts_bpq_args,
-        runner_args=runner_args,
-    )
+    for mcts_type in ['mcts','mctsbv','mctsrs']:
+      for stress_test_mode in [1,2]:
+        mcts_algo_args = {'max_path_length':max_path_length,
+                          'stress_test_mode':stress_test_mode,
+                          'ec':100.0,
+                          'n_itr':1,
+                          'k':0.5,
+                          'alpha':0.5,
+                          'clear_nodes':True,
+                          'log_interval':500,
+                          'plot_tree':False,
+                          'plot_path':run_experiment_args['log_dir'],
+                          'log_dir':run_experiment_args['log_dir'],
+                          }
+        mcts_runner(
+            mcts_type = mcts_type,
+            env_args=env_args,
+            run_experiment_args=run_experiment_args,
+            sim_args=sim_args,
+            reward_args=reward_args,
+            spaces_args=spaces_args,
+            policy_args=mcts_policy_args,
+            baseline_args=mcts_baseline_args,
+            algo_args=mcts_algo_args,
+            bpq_args=mcts_bpq_args,
+            runner_args=runner_args,
+        )
 
     return True
 

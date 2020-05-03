@@ -38,25 +38,24 @@ class AdaptiveStressTest:
         return self.env.reset()
     def update(self,action):
         self.step_count += 1
-        # print("step_count: ",self.step_count)
         obs, reward, done, info = self.env.step(action.get())
-        # print("step: ",obs, reward, done)
         self._isterminal = done
         self._reward = reward
         self.action_seq.append(action)
         self.trajectory_reward += reward
         if done:
             self.top_paths.enqueue(self.action_seq,self.trajectory_reward,make_copy=True)
+        self.logging()
+        return obs, reward, done, info
+    def logging(self):
         if self.params.log_tabular and self.iter <= self.params.n_itr:
             if self.step_count%self.params.log_interval == 0:
                 self.iter += 1
                 logger.log(' ')
-                # logger.record_tabular('StepNum',self.step_count)
                 tabular.record('StepNum',self.step_count)
                 record_num = 0
                 if self.params.log_dir is not None:
-
-                    if self.step_count == self.params.log_interval:
+                    if self.step_count == self.params.log_interval: # first time logging
                         best_actions = []
                     else:
                         with open(self.params.log_dir + '/best_actions.p', 'rb') as f:
@@ -67,25 +66,19 @@ class AdaptiveStressTest:
                         pickle.dump(best_actions, f)
 
                 for (topi, path) in enumerate(self.top_paths):
-                    # logger.record_tabular('reward '+str(topi), path[0])
                     tabular.record('reward '+str(topi), path[1])
                     record_num += 1
 
                 for topi_left in range(record_num, self.top_paths.N):
                     tabular.record('reward '+str(topi_left), 0)
-                # logger.dump_tabular(with_prefix=False)
                 logger.log(tabular)
                 logger.dump_all(self.step_count)
                 tabular.clear()
-        return obs, reward, done, info
     def isterminal(self):
         return self._isterminal
     def get_reward(self):
         return self._reward
     def random_action(self):
-        # action = self.env.action_space.sample()
-        # print('action: ',action)
-        # return ASTAction(action)
         return ASTAction(self.env.action_space.sample())
     def explore_action(self,s,tree):
         return ASTAction(self.env.action_space.sample())
