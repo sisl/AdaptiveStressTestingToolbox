@@ -4,3 +4,4 @@ Data
 *.pyc
 .idea
 data
+*.coverage
