@@ -181,10 +181,8 @@ def test_go_explore_ast_env():
     env.blackbox_sim_state = False
     env.simulator.blackbox_sim_state = False
     obs = env.env_reset()
-    import pdb; pdb.set_trace()
     assert env.observation_space.contains(obs[4:])
 
-    import pdb;pdb.set_trace()
     obs = np.array([0, 0.001, 0.0015, 0.002])
     assert np.all(env.downsample(obs) == obs)
 
