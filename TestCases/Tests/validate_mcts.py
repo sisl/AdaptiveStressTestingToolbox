@@ -17,7 +17,7 @@ def validate_mcts():
                            }
 
     # runner settings
-    runner_args = {'n_epochs':5,
+    runner_args = {'n_epochs':1,
                    'batch_size':500,
                    'plot':False
                    }

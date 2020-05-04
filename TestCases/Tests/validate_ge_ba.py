@@ -5,7 +5,7 @@ import pickle
 
 def validate_ge_ba():
     # Overall settings
-    max_path_length = 50
+    max_path_length = 5
     s_0 = [0.0, -4.0, 1.0, 11.17, -35.0]
     base_log_dir = './data'
     # experiment settings
@@ -19,7 +19,7 @@ def validate_ge_ba():
                            }
 
     # runner settings
-    runner_args = {'n_epochs': 5,
+    runner_args = {'n_epochs': 1,
                    'batch_size': 500,
                    'plot': False
                    }
@@ -63,7 +63,7 @@ def validate_ge_ba():
 
     ba_algo_args = {'expert_trajectory': None,
                     'max_path_length': max_path_length,
-                    'epochs_per_step': 10,
+                    'epochs_per_step': 1,
                     'scope': None,
                     'discount': 0.99,
                     'gae_lambda': 1.0,

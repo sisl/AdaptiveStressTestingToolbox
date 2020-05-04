@@ -201,8 +201,8 @@ def runner(
                 # )
 
                 sampler_cls = BatchSampler
-                sampler_args = {'n_envs': n_parallel}
-
+                # sampler_args = {'n_envs': n_parallel}
+                sampler_args = {}
 
                 with LocalRunner(snapshot_config=snapshot_config, sess=sess) as local_runner:
 

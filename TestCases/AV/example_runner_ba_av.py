@@ -161,7 +161,8 @@ def runner(
                 env = TfEnv(env2)
 
                 sampler_cls = BatchSampler
-                sampler_args = {'n_envs': n_parallel}
+                # sampler_args = {'n_envs': n_parallel}
+                sampler_args = {}
                 # expert_trajectory_file = log_dir + '/expert_trajectory.p'
                 # with open(expert_trajectory_file, 'rb') as f:
                 #     expert_trajectory = pickle.load(f)
