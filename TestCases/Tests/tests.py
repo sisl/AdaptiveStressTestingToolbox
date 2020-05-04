@@ -225,109 +225,13 @@ def test_parallel_sampler():
     ps.populate_task(env, policy, scope=1)
     ps.close()
 
-from mylab.samplers.batch_sampler import BatchSampler
-from garage.sampler import singleton_pool
-from mylab.envs.go_explore_ast_env import GoExploreASTEnv
-from garage.tf.algos.ppo import PPO
-from garage.tf.envs.base import TfEnv
-from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from garage.tf.policies.uniform_control_policy import UniformControlPolicy
-from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.envs.normalized_env import normalize
-from mylab.simulators.example_av_simulator import ExampleAVSimulator
-from mylab.rewards.example_av_reward import ExampleAVReward
-from mylab.spaces.example_av_spaces import ExampleAVSpaces
+from mylab.algos.go_explore import GoExplore, Cell, CellPool
 
-# # Import the AST classes
-# from mylab.envs.ast_env import ASTEnv
-# from mylab.samplers.ast_vectorized_sampler import ASTVectorizedSampler
-# def test_batch_sampler():
-#
-#     # env settings
-#     s_0 = [0.0, -4.0, 1.0, 11.17, -35.0]
-#     env_args = {'id':'mylab:GoExploreAST-v1',
-#                 'blackbox_sim_state':True,
-#                 'open_loop':False,
-#                 'fixed_init_state':True,
-#                 's_0':s_0,
-#                 }
-#
-#     # simulation settings
-#     sim_args = {'blackbox_sim_state':True,
-#                 'open_loop':False,
-#                 'fixed_initial_state':True,
-#                 'max_path_length':max_path_length
-#                 }
-#
-#     # reward settings
-#     reward_args = {'use_heuristic':True}
-#
-#     # spaces settings
-#     spaces_args = {}
-#
-#     # DRL Settings
-#
-#     drl_policy_args = {'name':'lstm_policy',
-#                        'hidden_dim':64,
-#                        'use_peepholes':True,
-#                        }
-#
-#     drl_baseline_args = {}
-#
-#     drl_algo_args = {'max_path_length':5,
-#                      'discount':0.99,
-#                      'lr_clip_range':1.0,
-#                      'max_kl_step':1.0,
-#                      # 'log_dir':None,
-#                      }
-#
-#     sim = ExampleAVSimulator(**sim_args)
-#     reward_function = ExampleAVReward(**reward_args)
-#     spaces = ExampleAVSpaces(**spaces_args)
-#
-#     # Create the environment
-#     env = TfEnv(normalize(ASTEnv(simulator=sim,
-#                                  reward_function=reward_function,
-#                                  spaces=spaces,
-#                                  **env_args,
-#                                  )))
-#
-#     # Instantiate the garage objects
-#     policy = GaussianLSTMPolicy(env_spec=env.spec, **drl_policy_args)
-#     # name='lstm_policy',
-#     # env_spec=env.spec,
-#     # hidden_dim=64,
-#     # 'use_peepholes=True)
-#
-#     baseline = LinearFeatureBaseline(env_spec=env.spec, **drl_baseline_args)
-#
-#     optimizer = ConjugateGradientOptimizer
-#     optimizer_args = {'hvp_approach': FiniteDifferenceHvp(base_eps=1e-5)}
-#
-#     algo = PPO(env_spec=env.spec,
-#                policy=policy,
-#                baseline=baseline,
-#                optimizer=optimizer,
-#                optimizer_args=optimizer_args,
-#                **drl_algo_args
-#                )
-#
-#     singleton_pool.initialize(2)
-#     sess = tf.compat.v1.Session()
-#     sess.__enter__()
-#     bs = BatchSampler(algo=algo, env=env)
-#
-#     with tf.name_scope('initialize_tf_vars'):
-#         uninited_set = [
-#             e.decode() for e in sess.run(
-#                 tf.compat.v1.report_uninitialized_variables())
-#         ]
-#         sess.run(
-#             tf.compat.v1.variables_initializer([
-#                 v for v in tf.compat.v1.global_variables()
-#                 if v.name.split(':')[0] in uninited_set
-#             ]))
-#     bs.start_worker()
-#     bs.shutdown_worker()
+def test_go_explore():
+    cell_pool = CellPool(filename='./test_pool.dat', use_score_weight=True)
+    d_pool = cell_pool.open_pool(overwrite=True)
+    cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=0.0, state=None, reward=0.0, chosen=0)
+    cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=1.0,
+                       state=None, reward=1.0, chosen=0, is_goal=True)
+
 
