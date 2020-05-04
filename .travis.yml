@@ -55,7 +55,7 @@ script:
 #  - python TestCases/validate_install.py
 # Run the unit test
 #  - coverage run TestCases/Tests/tests.py
-  - pytest --cov=Toolbox/mylab --cov=TestCases TestCases/Tests/tests.py
+  - travis_wait 30 pytest --cov=Toolbox/mylab --cov=TestCases TestCases/Tests/tests.py
 
 # Push the results back to codecov
 after_success:
