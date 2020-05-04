@@ -51,7 +51,7 @@ def _worker_terminate_task(g, scope=None):
 
 def populate_task(env, policy, scope=None):
     logger.log('Populating workers...')
-    if singleton_pool.n_parallel >= 1:
+    if singleton_pool.n_parallel > 1:
         singleton_pool.run_each(_worker_populate_task, [
             (pickle.dumps(env), pickle.dumps(policy), scope)
         ] * singleton_pool.n_parallel)
