@@ -470,7 +470,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         return obs
 
     def _get_obs(self):
-        obs = self.simulator._get_obs()
+        return self.simulator._get_obs()
 
 
 class Custom_GoExploreASTEnv(GoExploreASTEnv):
