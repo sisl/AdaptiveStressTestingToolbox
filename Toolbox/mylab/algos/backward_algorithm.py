@@ -200,6 +200,7 @@ class BackwardAlgorithm(PPO):
                 env_action = self.expert_trajectory[step_num]['action']
                 env_observation = self.expert_trajectory[step_num]['observation']
                 self.env.set_param_values([env_state], robustify_state=True, debug=False)
+                print(self.env.get_param_values())
 
             runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
 

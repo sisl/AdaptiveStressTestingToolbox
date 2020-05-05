@@ -32,6 +32,7 @@ from bsddb3 import db
 import pickle
 import shelve
 
+
 #
 # parser = argparse.ArgumentParser()
 # parser.add_argument('--snapshot_mode', type=str, default="gap")
@@ -50,24 +51,23 @@ import shelve
 # python TestCases/AV/example_runner_ge_av.py runner --n_itr=1
 
 def runner(
-           env_args=None,
-           run_experiment_args=None,
-           sim_args=None,
-           reward_args=None,
-           spaces_args=None,
-           policy_args=None,
-           baseline_args=None,
-           algo_args=None,
-           runner_args=None,
-           # log_dir='.',
-           ):
-
-
-    if env_args is None:
-        env_args = {}
+        env_args=None,
+        run_experiment_args=None,
+        sim_args=None,
+        reward_args=None,
+        spaces_args=None,
+        policy_args=None,
+        baseline_args=None,
+        algo_args=None,
+        runner_args=None,
+        # log_dir='.',
+):
+    if type(env_args) != dict or 'id' not in env_args.keys():
+        print('ERROR: Must supply an environment id in env_args')
+        raise Exception
 
     if run_experiment_args is None:
-        run_experiment_args = {}
+        run_experiment_args = {'log_dir':'.'}
 
     if sim_args is None:
         sim_args = {}
@@ -84,11 +84,12 @@ def runner(
     if baseline_args is None:
         baseline_args = {}
 
-    if algo_args is None:
-        algo_args = {}
+    if algo_args is dict and 'id' not in env_args.keys():
+        print('ERROR: Must supply an expert trajectory')
+        raise Exception
 
     if runner_args is None:
-        runner_args = {}
+        runner_args = {'n_epochs': 1}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -107,31 +108,30 @@ def runner(
     else:
         batch_size = max_path_length * n_parallel
         runner_args['batch_size'] = batch_size
-# def runner(exp_name='av',
-#            # use_ram=False,
-#            # db_filename='/home/mkoren/scratch/data/cellpool-shelf',
-#            # max_db_size=150,
-#            # overwrite_db=True,
-#            # expert_trajectory_file='/home/mkoren/scratch/data/test1_sparse_ge/expert_trajectory.p',
-#            n_parallel=1,
-#            snapshot_mode='last',
-#            snapshot_gap=1,
-#            log_dir=None,
-#            max_path_length=50,
-#            discount=0.99,
-#            n_itr=100,
-#            max_kl_step=0.01,
-#            whole_paths=False,
-#            batch_size=None,):
+
+    # def runner(exp_name='av',
+    #            # use_ram=False,
+    #            # db_filename='/home/mkoren/scratch/data/cellpool-shelf',
+    #            # max_db_size=150,
+    #            # overwrite_db=True,
+    #            # expert_trajectory_file='/home/mkoren/scratch/data/test1_sparse_ge/expert_trajectory.p',
+    #            n_parallel=1,
+    #            snapshot_mode='last',
+    #            snapshot_gap=1,
+    #            log_dir=None,
+    #            max_path_length=50,
+    #            discount=0.99,
+    #            n_itr=100,
+    #            max_kl_step=0.01,
+    #            whole_paths=False,
+    #            batch_size=None,):
     #
     # if overwrite_db:
     #     with contextlib.suppress(FileNotFoundError):
     #         os.remove(db_filename +'_pool.dat')
     #         os.remove(db_filename + '_meta.dat')
 
-
     def run_task(snapshot_config, *_):
-
 
         config = tf.ConfigProto(device_count={'GPU': 0})
         # config.gpu_options.allow_growth = True
@@ -143,15 +143,15 @@ def runner(
                 reward_function = ExampleAVReward(**reward_args)
                 spaces = ExampleAVSpaces(**spaces_args)
 
-                    # Create the environment
-                    # env1 = GoExploreASTEnv(open_loop=False,
-                    #                              blackbox_sim_state=True,
-                    #                              fixed_init_state=True,
-                    #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                    #                              simulator=sim,
-                    #                              reward_function=reward_function,
-                    #                              spaces=spaces
-                    #                              )
+                # Create the environment
+                # env1 = GoExploreASTEnv(open_loop=False,
+                #                              blackbox_sim_state=True,
+                #                              fixed_init_state=True,
+                #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                #                              simulator=sim,
+                #                              reward_function=reward_function,
+                #                              spaces=spaces
+                #                              )
                 env1 = gym.make(id=env_args.pop('id'),
                                 simulator=sim,
                                 reward_function=reward_function,
@@ -172,13 +172,11 @@ def runner(
                 with LocalRunner(
                         snapshot_config=snapshot_config, sess=sess) as local_runner:
 
-
                     policy = GaussianLSTMPolicy(env_spec=env.spec, **policy_args)
-                                                # name='lstm_policy',
-                                                # env_spec=env.spec,
-                                                # hidden_dim=64,
-                                                # use_peepholes=True)
-
+                    # name='lstm_policy',
+                    # env_spec=env.spec,
+                    # hidden_dim=64,
+                    # use_peepholes=True)
 
                     baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)
 
@@ -192,27 +190,26 @@ def runner(
                                              optimizer=optimizer,
                                              optimizer_args=optimizer_args,
                                              **algo_args)
-                                        # expert_trajectory=expert_trajectory[-1],
-                                        # epochs_per_step = 10,
-                                        # scope=None,
-                                        # max_path_length=max_path_length,
-                                        # discount=discount,
-                                        # gae_lambda=1,
-                                        # center_adv=True,
-                                        # positive_adv=False,
-                                        # fixed_horizon=False,
-                                        # pg_loss='surrogate_clip',
-                                        # lr_clip_range=1.0,
-                                        # max_kl_step=1.0,
+                    # expert_trajectory=expert_trajectory[-1],
+                    # epochs_per_step = 10,
+                    # scope=None,
+                    # max_path_length=max_path_length,
+                    # discount=discount,
+                    # gae_lambda=1,
+                    # center_adv=True,
+                    # positive_adv=False,
+                    # fixed_horizon=False,
+                    # pg_loss='surrogate_clip',
+                    # lr_clip_range=1.0,
+                    # max_kl_step=1.0,
 
-                                        # policy_ent_coeff=0.0,
-                                        # use_softplus_entropy=False,
-                                        # use_neg_logli_entropy=False,
-                                        # stop_entropy_gradient=False,
-                                        # entropy_method='no_entropy',
-                                        # name='PPO',
-                                        # )
-
+                    # policy_ent_coeff=0.0,
+                    # use_softplus_entropy=False,
+                    # use_neg_logli_entropy=False,
+                    # stop_entropy_gradient=False,
+                    # entropy_method='no_entropy',
+                    # name='PPO',
+                    # )
 
                     local_runner.setup(algo=algo,
                                        env=env,
@@ -227,6 +224,7 @@ def runner(
                         try:
                             compress_pickle.dump(results, f, compression="gzip", set_default_extension=False)
                         except MemoryError:
+                            print('1')
                             # pdb.set_trace()
                             for idx, result in enumerate(results):
                                 with open(log_dir + '/path_' + str(idx) + '.gz', 'wb') as ff:
@@ -234,7 +232,7 @@ def runner(
                                         compress_pickle.dump(result, ff, compression="gzip",
                                                              set_default_extension=False)
                                     except MemoryError:
-                                        pass
+                                        print('2')
 
                     # saver = tf.train.Saver()
                     # save_path = saver.save(sess, log_dir + '/model.ckpt')
@@ -284,4 +282,4 @@ def runner(
 
 
 if __name__ == '__main__':
-  fire.Fire()
+    fire.Fire()

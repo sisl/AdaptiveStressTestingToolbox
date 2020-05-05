@@ -90,7 +90,7 @@ def runner(
         algo_args = {}
 
     if runner_args is None:
-        runner_args = {}
+        runner_args = {'n_epochs':1}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']

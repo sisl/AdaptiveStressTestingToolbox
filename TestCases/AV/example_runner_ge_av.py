@@ -32,6 +32,7 @@ from bsddb3 import db
 import pickle
 import shelve
 
+
 #
 # parser = argparse.ArgumentParser()
 # parser.add_argument('--snapshot_mode', type=str, default="gap")
@@ -50,38 +51,39 @@ import shelve
 # python TestCases/AV/example_runner_ge_av.py runner --n_itr=1
 
 def runner(
-           env_args=None,
-           run_experiment_args=None,
-           sim_args=None,
-           reward_args=None,
-           spaces_args=None,
-           policy_args=None,
-           baseline_args=None,
-           algo_args=None,
-           runner_args=None,
-           # log_dir='.',
-           ):
-           # exp_name='av',
-           # use_ram=False,
-           # db_filename='cellpool-shelf',
-           # s_0=[0.0, -4.0, 1.0, 11.17, -35.0],
-           # max_db_size=150,
-           # overwrite_db=True,
-           # n_parallel=1,
-           # snapshot_mode='last',
-           # snapshot_gap=1,
-           #
-           # max_path_length=50,
-           # discount=0.99,
-           # n_itr=100,
-           # n_itr_robust=100,
-           # max_kl_step=0.01,
-           # whole_paths=False,
-           # batch_size=None,
-           # batch_size_robust=None):
+        env_args=None,
+        run_experiment_args=None,
+        sim_args=None,
+        reward_args=None,
+        spaces_args=None,
+        policy_args=None,
+        baseline_args=None,
+        algo_args=None,
+        runner_args=None,
+        # log_dir='.',
+):
+    # exp_name='av',
+    # use_ram=False,
+    # db_filename='cellpool-shelf',
+    # s_0=[0.0, -4.0, 1.0, 11.17, -35.0],
+    # max_db_size=150,
+    # overwrite_db=True,
+    # n_parallel=1,
+    # snapshot_mode='last',
+    # snapshot_gap=1,
+    #
+    # max_path_length=50,
+    # discount=0.99,
+    # n_itr=100,
+    # n_itr_robust=100,
+    # max_kl_step=0.01,
+    # whole_paths=False,
+    # batch_size=None,
+    # batch_size_robust=None):
 
-    if env_args is None:
-        env_args = {}
+    if env_args is dict and 'id' not in env_args.keys():
+        print('ERROR: Must supply an environment id in env_args')
+        raise Exception
 
     if run_experiment_args is None:
         run_experiment_args = {}
@@ -105,7 +107,7 @@ def runner(
         algo_args = {}
 
     if runner_args is None:
-        runner_args = {}
+        runner_args = {'n_epochs': 1}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -125,26 +127,24 @@ def runner(
         batch_size = max_path_length * n_parallel
         runner_args['batch_size'] = batch_size
 
-    # if batch_size is None:
-    #     batch_size = max_path_length * n_parallel
-    #
-    # if batch_size_robust is None:
-    #     batch_size = max_path_length * n_parallel
+        # if batch_size is None:
+        #     batch_size = max_path_length * n_parallel
+        #
+        # if batch_size_robust is None:
+        #     batch_size = max_path_length * n_parallel
 
     def run_task(snapshot_config, *_):
-
 
         config = tf.ConfigProto(device_count={'GPU': 0})
         # config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
-
                 # Instantiate the example classes
                 sim = ExampleAVSimulator(**sim_args)
-                                         # blackbox_sim_state=True,
-                                         # open_loop=False,
-                                         # fixed_initial_state=True,
-                                         # max_path_length=max_path_length)
+                # blackbox_sim_state=True,
+                # open_loop=False,
+                # fixed_initial_state=True,
+                # max_path_length=max_path_length)
                 reward_function = ExampleAVReward(**reward_args)
                 spaces = ExampleAVSpaces(**spaces_args)
 
@@ -179,7 +179,6 @@ def runner(
 
                 baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)
 
-
                 algo = GoExplore(env_spec=env.spec,
                                  env=env,
                                  policy=policy,
@@ -205,7 +204,6 @@ def runner(
                 sampler_args = {}
 
                 with LocalRunner(snapshot_config=snapshot_config, sess=sess) as local_runner:
-
                     local_runner.setup(algo=algo,
                                        env=env,
                                        sampler_cls=sampler_cls,
@@ -219,27 +217,26 @@ def runner(
                     #                   "reward_function": reward_function})
 
                     # Run the experiment
-                    best_cell = local_runner.train(**runner_args)#n_epochs=n_itr, batch_size=batch_size, plot=False)
+                    best_cell = local_runner.train(**runner_args)  # n_epochs=n_itr, batch_size=batch_size, plot=False)
 
                     log_dir = run_experiment_args['log_dir']
                     db_filename = algo_args['db_filename']
                     s_0 = env_args['s_0']
 
-
                     pool_DB = db.DB()
-                    pool_DB.open(db_filename+'_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
+                    pool_DB.open(db_filename + '_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
                     d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
                     # pdb.set_trace()
                     print(best_cell)
-                    temp=best_cell
+                    temp = best_cell
                     paths = []
-                    while(temp.parent is not None):
+                    while (temp.parent is not None):
                         print(temp.observation)
                         action = temp.observation[1:].astype(np.float32) / 1000
-                        paths.append({'state':temp.state,
-                                      'reward':temp.reward,
-                                      'action':action,
-                                      'observation':np.array(s_0)})
+                        paths.append({'state': temp.state,
+                                      'reward': temp.reward,
+                                      'action': action,
+                                      'observation': np.array(s_0)})
                         temp = d_pool[temp.parent]
                     print(temp.observation)
                     paths.append({'state': temp.state,
@@ -250,11 +247,10 @@ def runner(
                     d_pool.close()
 
                     with open(log_dir + '/expert_trajectory.p', 'wb') as f:
-                        pickle.dump([paths],f)
+                        pickle.dump([paths], f)
                     print('done!')
 
-
-                    #Run backwards algorithm to robustify
+                    # Run backwards algorithm to robustify
                     # if n_itr_robust > 0:
                     #     with LocalRunner(
                     #             snapshot_config=snapshot_config, sess=sess) as local_runner:
@@ -350,4 +346,4 @@ def runner(
 
 
 if __name__ == '__main__':
-  fire.Fire()
+    fire.Fire()
