@@ -8,6 +8,7 @@ python:
 install:
   - sudo apt-get update
   - sudo apt install libdb-dev python3-bsddb3
+  # Used for tree_plot
   - sudo apt-get install graphviz
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
@@ -44,6 +45,8 @@ install:
 # Install the codecov pip dependency
   - pip install codecov pytest pytest-cov
 #  - pip install rlgarage
+  # Used for tree_plot
+  - pip install pydot
 
   # Run AST setup
   - conda info -a
