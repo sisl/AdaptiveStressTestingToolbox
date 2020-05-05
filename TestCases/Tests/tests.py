@@ -234,4 +234,16 @@ def test_go_explore():
     cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=1.0,
                        state=None, reward=1.0, chosen=0, is_goal=True)
 
+from TestCases.AV.example_runner_ba_av import runner
+
+def test_example_runner_ba_av():
+    sim = ExampleAVSimulator()
+    sim.reset(np.zeros(5))
+    expert_trajectory = {'state': sim.clone_state(),
+                         'reward': 0,
+                         'action': np.zeros(6),
+                         'observation': np.zeros(5)}
+    with patch('TestCases.AV.example_runner_ba_av.compress_pickle.dump', side_effect=MemoryError):
+        with patch('TestCases.AV.example_runner_ba_av.LocalRunner.train', new=lambda x: 0):
+            runner(env_args={'id': 'mylab:GoExploreAST-v1'}, algo_args={'expert_trajectory': [expert_trajectory] * 50})
 
