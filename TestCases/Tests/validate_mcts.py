@@ -72,8 +72,8 @@ def validate_mcts():
                           'alpha':0.5,
                           'clear_nodes':True,
                           'log_interval':500,
-                          'plot_tree':False,
-                          'plot_path':run_experiment_args['log_dir'],
+                          'plot_tree':True,
+                          'plot_path':run_experiment_args['log_dir']+'/'+mcts_type+'_tree',
                           'log_dir':run_experiment_args['log_dir'],
                           }
         mcts_runner(

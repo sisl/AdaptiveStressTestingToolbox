@@ -32,7 +32,7 @@ def stress_test(ast,mcts_params,top_paths,verbose=True,return_tree=False):
 
 	results = ast.top_paths
 	if return_tree:
-		return results,tree.s
+		return results,tree.s_tree
 	else:
 		return results
 
@@ -48,7 +48,7 @@ def stress_test2(ast,mcts_params,top_paths,verbose=True,return_tree=False):
 
 	results = ast.top_paths
 	if return_tree:
-		return results,tree.s
+		return results,tree.s_tree
 	else:
 		return results
 
