@@ -17,7 +17,8 @@ from garage.tf.envs.base import TfEnv
 from mylab.policies.go_explore_policy import GoExplorePolicy
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
-from garage.experiment import LocalRunner, run_experiment
+from garage.experiment import run_experiment
+from garage.tf.experiment import LocalTFRunner
 from mylab.samplers.batch_sampler import BatchSampler
 import gym
 
@@ -73,7 +74,7 @@ def runner(exp_name='av',
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
-                with LocalRunner(
+                with LocalTFRunner(
                         snapshot_config=snapshot_config, sess=sess) as runner:
 
                     # Instantiate the example classes

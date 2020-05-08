@@ -7,7 +7,6 @@ from garage.tf.samplers.batch_sampler import BatchSampler
 # from garage.tf.samplers.vectorized_sampler import VectorizedSampler
 from garage.sampler.utils import rollout
 from garage.misc import ext
-from garage.misc.overrides import overrides
 import garage.misc.logger as logger
 from garage.tf.optimizers.penalty_lbfgs_optimizer import PenaltyLbfgsOptimizer
 from garage.tf.algos.batch_polopt import BatchPolopt
@@ -74,11 +73,9 @@ class GA(BatchPolopt):
 		self.policy.set_param_values(self.policy.get_param_values())
 		self.stepNum = 0
 
-	@overrides
 	def init_opt(self):
 		return dict()
 
-	@overrides
 	def train(self, sess=None, init_var=False):
 		created_session = True if (sess is None) else False
 		if sess is None:
@@ -146,7 +143,6 @@ class GA(BatchPolopt):
 	def extra_recording(self, itr, p):
 		return None
 
-	@overrides
 	def set_params(self, itr, p):
 		for i in range(itr+1):
 			# print("seed: ", self.seeds[i,p])
@@ -192,7 +188,6 @@ class GA(BatchPolopt):
 				new_seeds[itr+1,i] = 0
 		return new_seeds, new_magnitudes
 
-	@overrides
 	def optimize_policy(self, itr, all_paths):
 		fitness = self.get_fitness(itr, all_paths)
 		self.select_parents(fitness)
@@ -206,7 +201,6 @@ class GA(BatchPolopt):
 		self.magnitudes=new_magnitudes
 		return dict()
 
-	@overrides
 	def obtain_samples(self, itr):
 		self.stepNum += self.batch_size
 		paths = self.sampler.obtain_samples(itr)
@@ -219,7 +213,6 @@ class GA(BatchPolopt):
 			[self.top_paths.enqueue(action_seq,R,make_copy=True) for (action_seq,R) in zip(action_seqs,undiscounted_returns)]
 		return paths
 
-	@overrides
 	def get_itr_snapshot(self, itr, samples_data):
 		# pdb.set_trace()
 		return dict(

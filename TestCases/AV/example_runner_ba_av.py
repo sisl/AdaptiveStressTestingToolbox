@@ -15,7 +15,8 @@ from mylab.policies.go_explore_policy import GoExplorePolicy
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
-from garage.experiment import LocalRunner, run_experiment
+from garage.experiment import run_experiment
+from garage.tf.experiment import LocalTFRunner
 from mylab.samplers.batch_sampler import BatchSampler
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 import gym
@@ -169,7 +170,7 @@ def runner(
 
                 #
                 # #Run backwards algorithm to robustify
-                with LocalRunner(
+                with LocalTFRunner(
                         snapshot_config=snapshot_config, sess=sess) as local_runner:
 
                     policy = GaussianLSTMPolicy(env_spec=env.spec, **policy_args)

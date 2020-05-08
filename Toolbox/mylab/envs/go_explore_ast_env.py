@@ -1,5 +1,4 @@
 from cached_property import cached_property
-from garage.misc.overrides import overrides
 
 from garage.envs.base import Step
 
@@ -10,12 +9,133 @@ from mylab.spaces.example_av_spaces import ExampleAVSpaces
 from garage.envs.env_spec import EnvSpec
 import pdb
 import gym
-from garage.core import Serializable, Parameterized
 import random
 import shelve
 from bsddb3 import db
 import pickle
 
+from contextlib import contextmanager
+
+import tensorflow as tf
+
+from garage.misc.tensor_utils import flatten_tensors, unflatten_tensors
+
+load_params = True
+
+
+@contextmanager
+def suppress_params_loading():
+    global load_params
+    load_params = False
+    yield
+    load_params = True
+
+
+class Parameterized:
+    def __init__(self):
+        self._cached_params = {}
+        self._cached_param_dtypes = {}
+        self._cached_param_shapes = {}
+        self._cached_assign_ops = {}
+        self._cached_assign_placeholders = {}
+
+    def get_params_internal(self, **tags):
+        """
+        Internal method to be implemented which does not perform caching
+        """
+        raise NotImplementedError
+
+    def get_params(self, **tags):
+        """
+        Get the list of parameters, filtered by the provided tags.
+        Some common tags include 'regularizable' and 'trainable'
+        """
+        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
+        if tag_tuple not in self._cached_params:
+            self._cached_params[tag_tuple] = self.get_params_internal(**tags)
+        return self._cached_params[tag_tuple]
+
+    def get_param_dtypes(self, **tags):
+        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
+        if tag_tuple not in self._cached_param_dtypes:
+            params = self.get_params(**tags)
+            param_values = tf.get_default_session().run(params)
+            self._cached_param_dtypes[tag_tuple] = [
+                val.dtype for val in param_values
+            ]
+        return self._cached_param_dtypes[tag_tuple]
+
+    def get_param_shapes(self, **tags):
+        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
+        if tag_tuple not in self._cached_param_shapes:
+            params = self.get_params(**tags)
+            param_values = tf.get_default_session().run(params)
+            self._cached_param_shapes[tag_tuple] = [
+                val.shape for val in param_values
+            ]
+        return self._cached_param_shapes[tag_tuple]
+
+    def get_param_values(self, **tags):
+        params = self.get_params(**tags)
+        param_values = tf.get_default_session().run(params)
+        return flatten_tensors(param_values)
+
+    def set_param_values(self, flattened_params, name=None, **tags):
+        with tf.name_scope(name, 'set_param_values', [flattened_params]):
+            debug = tags.pop('debug', False)
+            param_values = unflatten_tensors(flattened_params,
+                                             self.get_param_shapes(**tags))
+            ops = []
+            feed_dict = dict()
+            for param, dtype, value in zip(
+                    self.get_params(**tags), self.get_param_dtypes(**tags),
+                    param_values):
+                if param not in self._cached_assign_ops:
+                    assign_placeholder = tf.placeholder(
+                        dtype=param.dtype.base_dtype)
+                    assign_op = tf.assign(param, assign_placeholder)
+                    self._cached_assign_ops[param] = assign_op
+                    self._cached_assign_placeholders[
+                        param] = assign_placeholder
+                ops.append(self._cached_assign_ops[param])
+                feed_dict[self._cached_assign_placeholders[
+                    param]] = value.astype(dtype)
+                if debug:
+                    print('setting value of %s' % param.name)
+            tf.get_default_session().run(ops, feed_dict=feed_dict)
+
+    def flat_to_params(self, flattened_params, **tags):
+        return unflatten_tensors(flattened_params,
+                                 self.get_param_shapes(**tags))
+
+    # def __getstate__(self):
+    #     d = Serializable.__getstate__(self)
+    #     global load_params
+    #     if load_params:
+    #         d['params'] = self.get_param_values()
+    #     return d
+    #
+    # def __setstate__(self, d):
+    #     Serializable.__setstate__(self, d)
+    #     global load_params
+    #     if load_params:
+    #         tf.get_default_session().run(
+    #             tf.variables_initializer(self.get_params()))
+    #         self.set_param_values(d['params'])
+
+
+class JointParameterized(Parameterized):
+    def __init__(self, components):
+        super(JointParameterized, self).__init__()
+        self.components = components
+
+    def get_params_internal(self, **tags):
+        params = [
+            param for comp in self.components
+            for param in comp.get_params_internal(**tags)
+        ]
+        # only return unique parameters
+        return sorted(set(params), key=hash)
 
 class GoExploreParameter():
     def __init__(self, name, value, **tags):
@@ -108,7 +228,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self.robustify_state = []
         self.robustify = False
 
-        Serializable.quick_init(self, locals())
         Parameterized.__init__(self)
 
     def sample(self, population):
@@ -413,7 +532,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         pass
 
     @cached_property
-    @overrides
     def spec(self):
         """
         Returns an EnvSpec.
@@ -425,7 +543,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             observation_space=self.observation_space,
             action_space=self.action_space)
 
-    @overrides
     def get_params_internal(self, **tags):
         # this lasagne function also returns all var below the passed layers
         if not self.params_set:
@@ -449,7 +566,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
         return [self.p_db_filename, self.p_key_list, self.p_max_value, self.p_robustify_state]  # , self.p_downsampler]
 
-    @overrides
     def set_param_values(self, param_values, **tags):
         debug = tags.pop("debug", False)
 
@@ -460,7 +576,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             if debug:
                 print("setting value of %s" % param.name)
 
-    @overrides
     def get_param_values(self, **tags):
         return [
             param.get_value(borrow=True) for param in self.get_params(**tags)
@@ -474,10 +589,10 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
 
 class Custom_GoExploreASTEnv(GoExploreASTEnv):
-    @overrides
     def downsample(self, obs, step=None):
         obs = obs * 1000
         if step is None:
             step = self._step
 
         return np.concatenate((np.array([step]), obs), axis=0).astype(int)
+

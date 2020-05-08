@@ -10,11 +10,9 @@ from scipy.stats import norm
 import gym
 from gym import logger
 from gym.utils import seeding
-from garage.core import Serializable
 from garage.envs import Step
-from garage.misc.overrides import overrides
 
-class CartPoleEnv(gym.Env, Serializable):
+class CartPoleEnv(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second' : 50
@@ -46,7 +44,6 @@ class CartPoleEnv(gym.Env, Serializable):
         # self.log_trajectory_pdf = 0.0
 
         self.steps_beyond_done = None
-        Serializable.quick_init(self, locals())
 
     @property
     def observation_space(self):

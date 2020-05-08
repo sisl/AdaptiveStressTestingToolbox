@@ -1,7 +1,6 @@
 from garage.misc import ext
 from garage.misc import krylov
 from garage.misc import logger
-from garage.core.serializable import Serializable
 # from garage.misc.ext import flatten_tensor_variables
 import itertools
 import numpy as np
@@ -115,7 +114,7 @@ class FiniteDifferenceHvp(object):
         return eval
 
 
-class DirectionConstraintOptimizer(Serializable):
+class DirectionConstraintOptimizer():
     """
     Performs constrained optimization via line search.
     """
@@ -143,7 +142,6 @@ class DirectionConstraintOptimizer(Serializable):
         exhausting all backtracking budgets
         :return:
         """
-        Serializable.quick_init(self, locals())
         self._cg_iters = cg_iters
         self._reg_coeff = reg_coeff
         self._subsample_factor = subsample_factor

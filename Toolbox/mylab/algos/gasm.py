@@ -1,7 +1,6 @@
 import garage.misc.logger as logger
 import tensorflow as tf
 from garage.misc import ext
-from garage.misc.overrides import overrides
 import garage.misc.logger as logger
 from garage.tf.misc import tensor_utils
 import tensorflow as tf
@@ -29,7 +28,6 @@ class GASM(GA):
 			self.optimizer = optimizer
 		super(GASM, self).__init__(**kwargs)
 
-	@overrides
 	def init_opt(self):
 		is_recurrent = int(self.policy.recurrent)
 		obs_var = self.env.observation_space.new_tensor_variable(
@@ -87,7 +85,6 @@ class GASM(GA):
 		)
 		return dict()
 
-	@overrides
 	def extra_recording(self, itr, p):
 		logger.record_tabular('Divergence',self.divergences[p])
 		return None
@@ -115,7 +112,6 @@ class GASM(GA):
 			all_input_values += (np.ones(npath)*npath,)
 		return all_input_values
 
-	@overrides
 	def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
 		self.seeds=np.copy(new_seeds)
 		self.magnitudes=np.copy(new_magnitudes)
@@ -140,7 +136,6 @@ class GASM(GA):
 			self.divergences[p] = constraint_val
 		return new_seeds, new_magnitudes
 
-	# @overrides
 	# def optimize_policy(self, itr, all_paths):
 	# 	fitness = self.get_fitness(itr, all_paths)
 	# 	self.select_parents(fitness)

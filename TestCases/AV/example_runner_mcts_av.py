@@ -18,7 +18,8 @@ from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientO
 # from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 # from garage.misc import logger
-from garage.experiment import LocalRunner, run_experiment
+from garage.experiment import run_experiment
+from garage.tf.experiment import LocalTFRunner
 # Useful imports
 import os.path as osp
 import argparse
@@ -103,7 +104,7 @@ def runner(
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
-                with LocalRunner(
+                with LocalTFRunner(
                         snapshot_config=snapshot_config, max_cpus=4, sess=sess) as local_runner:
 
                     # Instantiate the example classes

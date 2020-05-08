@@ -35,8 +35,8 @@ def plot_tree(tree,d,path,format="svg"):
 	add_children(root,root_node,tree,graph,d)
 	filename = path+"."+format
 	if format == "svg":
-		graph.write_svg(filename)
+		graph.write(filename)
 	elif format == "png":
-		graph.write_png(filename)
+		graph.write(filename)
 
 

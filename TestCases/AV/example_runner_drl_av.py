@@ -16,8 +16,8 @@ from garage.tf.policies.uniform_control_policy import UniformControlPolicy
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
-from garage.experiment import LocalRunner, run_experiment
-
+from garage.experiment import run_experiment
+from garage.tf.experiment import LocalTFRunner
 
 # Useful imports
 import os.path as osp
@@ -118,7 +118,7 @@ def runner(
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
 
-                with LocalRunner(
+                with LocalTFRunner(
                         snapshot_config=snapshot_config, max_cpus=4, sess=sess) as local_runner:
                     # Instantiate the example classes
                     sim = ExampleAVSimulator(**sim_args)

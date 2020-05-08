@@ -1,9 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from garage.core import Serializable
 from garage.misc import logger
-from garage.misc.overrides import overrides
 from garage.tf.misc import tensor_utils
 from garage.tf.policies import Policy
 from garage.tf.spaces import Box,Discrete
@@ -49,7 +47,7 @@ class RandomPolicy(Policy):
                  env_spec,
                  seed=None,
                  name="RandomPolicy"):
-        Serializable.quick_init(self, locals())
+
         super(RandomPolicy, self).__init__(env_spec)
         self.name = name
         self._dist = RandomDistribution(self.action_space)
@@ -62,7 +60,6 @@ class RandomPolicy(Policy):
     def vectorized(self):
         return True
 
-    @overrides
     def get_action(self, observation):
         actions, _ = self.get_actions([observation])
         return actions[0], dict()

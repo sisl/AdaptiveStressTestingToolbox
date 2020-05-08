@@ -86,7 +86,6 @@ def validate_ge_ba():
 
     ba_policy_args = {'name': 'lstm_policy',
                       'hidden_dim': 64,
-                      'use_peepholes': True,
                       }
 
     exp_log_dir = base_log_dir

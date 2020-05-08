@@ -1,4 +1,4 @@
-from garage.tf.samplers.on_policy_vectorized_sampler import OnPolicyVectorizedSampler
+from garage.sampler.on_policy_vectorized_sampler import OnPolicyVectorizedSampler
 import pickle
 
 import tensorflow as tf

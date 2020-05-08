@@ -4,7 +4,8 @@ import pytest
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
-from garage.experiment import LocalRunner, run_experiment
+from garage.experiment import run_experiment
+from garage.tf.experiment import LocalTFRunner
 
 # Import the AST classes
 from mylab.envs.ast_env import ASTEnv
@@ -24,17 +25,14 @@ import argparse
 from example_save_trials import *
 import tensorflow as tf
 
-
 batch_size = 4000
 max_path_length = 50
 n_envs = batch_size // max_path_length
 
 
 def run_task(snapshot_config, *_):
-
-    with LocalRunner(
+    with LocalTFRunner(
             snapshot_config=snapshot_config, max_cpus=2) as runner:
-
         # Instantiate the example classes
         sim = ExampleAVSimulator()
         reward_function = ExampleAVReward()
@@ -52,8 +50,7 @@ def run_task(snapshot_config, *_):
         # Instantiate the garage objects
         policy = GaussianLSTMPolicy(name='lstm_policy',
                                     env_spec=env.spec,
-                                    hidden_dim=64,
-                                    use_peepholes=True)
+                                    hidden_dim=64)
 
         baseline = LinearFeatureBaseline(env_spec=env.spec)
 
@@ -79,11 +76,11 @@ def run_task(snapshot_config, *_):
 
         print("Installation successfully validated")
 
+
 def validate_parallel():
     run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=2)
     return True
 
+
 if __name__ == '__main__':
     validate_parallel()
-
-

@@ -163,7 +163,7 @@ class BackwardAlgorithm(PPO):
     #         return last_return
     #     return last_return
 
-    def train(self, runner, batch_size):
+    def train(self, runner):
         # pdb.set_trace()
         last_return = None
 
@@ -202,7 +202,7 @@ class BackwardAlgorithm(PPO):
                 self.env.set_param_values([env_state], robustify_state=True, debug=False)
                 print(self.env.get_param_values())
 
-            runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
+            runner.step_path = runner.obtain_samples(runner.step_itr)
 
             # Set first step to that of the base step
             for rollout_idx, rollout in enumerate(runner.step_path):

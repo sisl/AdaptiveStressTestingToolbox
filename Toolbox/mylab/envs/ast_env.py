@@ -1,5 +1,4 @@
 from cached_property import cached_property
-from garage.misc.overrides import overrides
 
 from garage.envs.base import Step
 
@@ -10,10 +9,9 @@ from mylab.rewards.example_av_reward import ExampleAVReward
 from garage.envs.env_spec import EnvSpec
 import pdb
 import gym
-from garage.core import Serializable
 
 
-class ASTEnv(gym.Env, Serializable):
+class ASTEnv(gym.Env):
 # class ASTEnv(GarageEnv):
     def __init__(self,
                  open_loop=True,
@@ -56,8 +54,6 @@ class ASTEnv(gym.Env, Serializable):
         else:
             self.vectorized = False
         # super().__init__(self)
-        # Always call Serializable constructor last
-        Serializable.quick_init(self, locals())
 
     def step(self, action):
         """
@@ -191,7 +187,6 @@ class ASTEnv(gym.Env, Serializable):
         pass
 
     @cached_property
-    @overrides
     def spec(self):
         """
         Returns an EnvSpec.

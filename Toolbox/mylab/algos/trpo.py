@@ -8,7 +8,6 @@ import time
 from garage.misc import logger
 import tensorflow as tf
 from garage.sampler.utils import rollout
-from garage.misc.overrides import overrides
 import numpy as np
 
 @unique
@@ -54,7 +53,6 @@ class TRPO(NPO):
 			clip_range=step_size,
 			**kwargs)
 
-	@overrides
 	def train(self, sess=None, init_var=False):
 		created_session = True if (sess is None) else False
 		if sess is None:

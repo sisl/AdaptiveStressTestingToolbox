@@ -61,7 +61,7 @@ class MCTS:
 		ast_params = AST.ASTParams(self.max_path_length,self.log_interval,self.log_tabular, self.log_dir, self.n_itr)
 		self.ast = AST.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
 
-	def train(self, runner, batch_size):
+	def train(self, runner):
 		self.init()
 		if self.plot_tree:
 			if self.stress_test_mode == 2:

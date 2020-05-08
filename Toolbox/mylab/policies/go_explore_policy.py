@@ -1,24 +1,27 @@
 # from garage.tf.policies.base2 import StochasticPolicy2
 from garage.tf.policies.base import StochasticPolicy
-from garage.core import Serializable
-from garage.misc.overrides import overrides
+
+
 from garage.tf.distributions.diagonal_gaussian import DiagonalGaussian
 import tensorflow as tf
 import numpy as np
 
-class GoExplorePolicy(StochasticPolicy,  Serializable):
-    def __init__(self, env_spec):
+class GoExplorePolicy(StochasticPolicy):
+    def __init__(self, env_spec, name='GoExplorePolicy'):
         self.dist = DiagonalGaussian(dim=env_spec.action_space.flat_dim)
         self.log_std = np.zeros(env_spec.action_space.flat_dim)
         # self.cell_num = 0
         # self.stateful_num = -2
         # self.cell_pool = None
 
-        Serializable.quick_init(self, locals())
-        super(GoExplorePolicy, self).__init__(env_spec=env_spec)
+        super(GoExplorePolicy, self).__init__(env_spec=env_spec, name=name)
+        self._initialize()
+
+    def _initialize(self):
+        with tf.compat.v1.variable_scope(self.name) as vs:
+            self._variable_scope = vs
 
     # Should be implemented by all policies
-    @overrides
     def get_action(self, observation):
         # print("From get_action: ", self, ": ", self.cell_num, ", ", self.action_iter)
         # self.action_iter += 1
@@ -26,7 +29,6 @@ class GoExplorePolicy(StochasticPolicy,  Serializable):
         #     return self.cell.trajectory[self.action_iter]
         return self.action_space.sample(), dict(mean=self.log_std, log_std=self.log_std)
 
-    @overrides
     def get_actions(self, observations):
         # import pdb; pdb.set_trace()
         # obs = [path["observations"] for path in paths]
@@ -34,11 +36,9 @@ class GoExplorePolicy(StochasticPolicy,  Serializable):
         log_stds = [self.log_std for observation in observations]
         return self.action_space.sample_n(len(observations)), dict(mean=means, log_std=log_stds)
 
-    @overrides
     def get_params_internal(self, **tags):
         return []
 
-    @overrides
     def reset(self, dones=None):
         # print("From reset: ", self, ": ", self.cell_num, ", ", self.stateful_num, ": ", self.cell_pool)
         # import pdb; pdb.set_trace()
@@ -49,7 +49,6 @@ class GoExplorePolicy(StochasticPolicy,  Serializable):
         # print("reset policy")
         pass
 
-    @overrides
     def log_diagnostics(self, paths):
         """
         Log extra information per iteration based on the collected paths
@@ -65,7 +64,6 @@ class GoExplorePolicy(StochasticPolicy,  Serializable):
         """
         return False
 
-    @overrides
     def terminate(self):
         """
         Clean up operation
@@ -89,6 +87,10 @@ class GoExplorePolicy(StochasticPolicy,  Serializable):
         :return:
         """
         return dict(mean=None, log_std=self.log_std)
+
+
+    def dist_info_sym(self, obs_var, state_info_vars, name='dist_info_sym'):
+        raise NotImplementedError
 
     # def get_param_values(self):
     #     print("params ", self.cell_num, ", ", self.stateful_num, ", ", self.cell_pool, " retrieved from ", self)

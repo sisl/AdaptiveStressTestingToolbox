@@ -6,7 +6,6 @@ import tensorflow as tf
 import time
 from garage.misc import logger
 from garage.misc import special
-from garage.misc.overrides import overrides
 from garage.tf.algos import BatchPolopt
 from garage.tf.misc import tensor_utils
 
@@ -20,17 +19,14 @@ class RandomSearch(BatchPolopt):
         self.top_paths = top_paths
         super(RandomSearch, self).__init__(policy=policy, **kwargs)
 
-    @overrides
     def init_opt(self):
         return dict()
 
-    @overrides
     def optimize_policy(self, itr, samples_data):
         num_traj = self.batch_size // self.max_path_length
         actions = samples_data["actions"][:num_traj, ...]
         logger.record_histogram("{}/Actions".format(self.policy.name), actions)
 
-    @overrides
     def get_itr_snapshot(self, itr, samples_data):
         return dict(
             itr=itr,
@@ -39,7 +35,6 @@ class RandomSearch(BatchPolopt):
             env=self.env,
         )
 
-    @overrides
     def train(self, sess=None, init_var=False):
         created_session = True if (sess is None) else False
         if sess is None:

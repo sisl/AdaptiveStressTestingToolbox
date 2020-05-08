@@ -47,7 +47,6 @@ def validate_drl():
 
     drl_policy_args = {'name': 'lstm_policy',
                        'hidden_dim': 64,
-                       'use_peepholes': True,
                        }
 
     drl_baseline_args = {}

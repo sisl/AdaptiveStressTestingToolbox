@@ -300,6 +300,7 @@ class ExampleAVSimulator(ASTSimulator):
             mins = np.argmin(in_road.reshape((-1, 4)), axis=0)
             v_oth = obs[mins[3], 0]
             s_headway = obs[mins[3], 2] - self._car[2]
+            s_headway = max(10 ** -6, abs(s_headway)) * np.sign(s_headway) #avoid div by zero error later
 
             del_v = v_oth - v_car
             s_des = self.c_s_min + v_car * self.c_t_headway - v_car * del_v / (2 * np.sqrt(self.c_a_max * self.c_d_cmf))

@@ -3,7 +3,6 @@ from enum import Enum, unique
 
 import numpy as np
 
-from garage.misc.overrides import overrides
 from garage.tf.algos.batch_polopt import BatchPolopt
 from cached_property import cached_property
 from dowel import logger, tabular
@@ -537,13 +536,11 @@ class GoExplore(BatchPolopt):
                          baseline=baseline,
                          **kwargs)
 
-    @overrides
-    def train(self, runner, batch_size):
+    def train(self, runner):
         last_return = None
         self.policy = self.go_explore_policy
         for epoch in runner.step_epochs():
-            runner.step_path = runner.obtain_samples(runner.step_itr,
-                                                     batch_size)
+            runner.step_path = runner.obtain_samples(runner.step_itr)
             last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
 
@@ -567,7 +564,6 @@ class GoExplore(BatchPolopt):
         #     last_return = self.train_once(runner.step_itr, runner.step_path)
         return last_return
 
-    @overrides
     def train_once(self, itr, paths):
         paths = self.process_samples(itr, paths)
 
@@ -576,7 +572,6 @@ class GoExplore(BatchPolopt):
         self.optimize_policy(itr, paths)
         return self.best_cell
 
-    @overrides
     def init_opt(self):
 
         # if self.robustify:
@@ -641,7 +636,6 @@ class GoExplore(BatchPolopt):
         # self.env.set_param_values([np.random.randint(0,100)], debug=True,test_var=True)
 
 
-    @overrides
     def get_itr_snapshot(self, itr):
         """
         Returns all the data that should be saved in the snapshot for this
@@ -654,7 +648,6 @@ class GoExplore(BatchPolopt):
             baseline=self.baseline,
         )
 
-    @overrides
     def optimize_policy(self, itr, samples_data):
 
         start = time.time()

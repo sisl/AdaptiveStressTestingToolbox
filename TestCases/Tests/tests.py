@@ -244,6 +244,6 @@ def test_example_runner_ba_av():
                          'action': np.zeros(6),
                          'observation': np.zeros(5)}
     with patch('TestCases.AV.example_runner_ba_av.compress_pickle.dump', side_effect=MemoryError):
-        with patch('TestCases.AV.example_runner_ba_av.LocalRunner.train', new=lambda x: 0):
+        with patch('TestCases.AV.example_runner_ba_av.LocalTFRunner.train', new=lambda x: 0):
             runner(env_args={'id': 'mylab:GoExploreAST-v1'}, algo_args={'expert_trajectory': [expert_trajectory] * 50})
 

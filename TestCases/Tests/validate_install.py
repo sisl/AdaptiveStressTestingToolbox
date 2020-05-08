@@ -4,7 +4,8 @@ import pytest
 from mylab.simulators.example_av_simulator import ExampleAVSimulator
 from mylab.rewards.example_av_reward import ExampleAVReward
 from mylab.spaces.example_av_spaces import ExampleAVSpaces
-from garage.experiment import LocalRunner, run_experiment
+from garage.experiment import run_experiment
+from garage.tf.experiment import LocalTFRunner
 
 # Import the AST classes
 from mylab.envs.ast_env import ASTEnv
@@ -32,7 +33,7 @@ n_envs = batch_size // max_path_length
 
 def run_task(snapshot_config, *_):
 
-    with LocalRunner(
+    with LocalTFRunner(
             snapshot_config=snapshot_config, max_cpus=1) as runner:
 
         # Instantiate the example classes
@@ -52,8 +53,7 @@ def run_task(snapshot_config, *_):
         # Instantiate the garage objects
         policy = GaussianLSTMPolicy(name='lstm_policy',
                                     env_spec=env.spec,
-                                    hidden_dim=64,
-                                    use_peepholes=True)
+                                    hidden_dim=64)
 
         baseline = LinearFeatureBaseline(env_spec=env.spec)
 
