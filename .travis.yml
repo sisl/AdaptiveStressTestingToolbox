@@ -38,7 +38,7 @@ install:
   - conda activate test-environment
   - conda info -a
   # Install garage and dependencies
-  - cd Toolbox/garage
+  - cd third_party/garage
   - touch mjkey.txt
   - echo "hello" > mjkey.txt
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
@@ -63,7 +63,7 @@ script:
 #  - python examples/validate_install.py
 # Run the unit test
 #  - coverage run examples/tests/unit_tests.py
-  - travis_wait 30 pytest --cov=Toolbox/ast_toolbox --cov=examples examples/tests/unit_tests.py
+  - travis_wait 30 pytest --cov=ast_toolbox --cov=examples tests/unit_tests.py
 
 # Push the results back to codecov
 after_success:
