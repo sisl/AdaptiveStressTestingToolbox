@@ -6,8 +6,8 @@ from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
 
 # Import the AST classes
-from ast_toolbox import ASTEnv
-from ast_toolbox import ASTVectorizedSampler
+from ast_toolbox.envs.ast_env import ASTEnv
+from ast_toolbox.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO

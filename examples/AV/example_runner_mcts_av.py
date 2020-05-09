@@ -4,8 +4,8 @@ from ast_toolbox.rewards.example_av_reward import ExampleAVReward
 from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
 
 # Import the AST classes
-from ast_toolbox import ASTEnv
-from ast_toolbox import ASTVectorizedSampler
+from ast_toolbox.envs.ast_env import ASTEnv
+from ast_toolbox.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 from ast_toolbox.algos.mcts import MCTS
 from ast_toolbox.algos.mctsbv import MCTSBV
 from ast_toolbox.algos.mctsrs import MCTSRS
@@ -16,10 +16,11 @@ import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
 # Useful imports
-from example_save_trials import *
+# from example_save_trials import *
 import tensorflow as tf
 import pickle
 import fire
+import numpy as np
 
 def runner(
            mcts_type=None,

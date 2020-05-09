@@ -8,22 +8,22 @@ from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
 # Import the necessary garage classes
 from ast_toolbox.algos.go_explore import GoExplore
 from garage.tf.envs.base import TfEnv
-from ast_toolbox import GoExplorePolicy
+from ast_toolbox.policies.go_explore_policy import GoExplorePolicy
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
-from ast_toolbox import BatchSampler
+from ast_toolbox.samplers.batch_sampler import BatchSampler
 import gym
 
 # Useful imports
-from example_save_trials import *
+# from example_save_trials import *
 import tensorflow as tf
 import fire
 from bsddb3 import db
 import pickle
 import shelve
-
+import numpy as np
 
 #
 # parser = argparse.ArgumentParser()

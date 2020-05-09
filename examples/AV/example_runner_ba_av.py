@@ -13,7 +13,7 @@ from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
-from ast_toolbox import BatchSampler
+from ast_toolbox.samplers.batch_sampler import BatchSampler
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
 import gym
 

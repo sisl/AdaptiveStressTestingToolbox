@@ -199,7 +199,7 @@ def test_go_explore_ast_env():
     assert np.all(cenv.downsample(obs) == np.array([1,0,1,1,2]))
 
 
-import ast_toolbox as ps
+import ast_toolbox.samplers.parallel_sampler as ps
 
 
 def test_parallel_sampler():

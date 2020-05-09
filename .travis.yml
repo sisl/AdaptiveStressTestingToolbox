@@ -1,5 +1,9 @@
 language: python
 dist: xenial
+branches:
+  only:
+    - packaging
+    - master
 services:
   - xvfb
 python:
@@ -58,8 +62,8 @@ script:
   - conda info -a
 #  - python examples/validate_install.py
 # Run the unit test
-#  - coverage run examples/tests/tests.py
-  - travis_wait 30 pytest --cov=Toolbox/ast_toolbox --cov=examples examples/tests/tests.py
+#  - coverage run examples/tests/unit_tests.py
+  - travis_wait 30 pytest --cov=Toolbox/ast_toolbox --cov=examples examples/tests/unit_tests.py
 
 # Push the results back to codecov
 after_success:

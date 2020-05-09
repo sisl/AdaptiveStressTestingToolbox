@@ -4,8 +4,8 @@ from ast_toolbox.rewards.example_av_reward import ExampleAVReward
 from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
 
 # Import the AST classes
-from ast_toolbox import ASTEnv
-from ast_toolbox import ASTVectorizedSampler
+from ast_toolbox.envs.ast_env import ASTEnv
+from ast_toolbox.samplers.ast_vectorized_sampler import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from garage.tf.algos.ppo import PPO
