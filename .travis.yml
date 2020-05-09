@@ -56,10 +56,10 @@ install:
 script:
   # Your test script goes here
   - conda info -a
-#  - python TestCases/validate_install.py
+#  - python examples/validate_install.py
 # Run the unit test
-#  - coverage run TestCases/Tests/tests.py
-  - travis_wait 30 pytest --cov=Toolbox/mylab --cov=TestCases TestCases/Tests/tests.py
+#  - coverage run examples/tests/tests.py
+  - travis_wait 30 pytest --cov=Toolbox/ast_toolbox --cov=examples examples/tests/tests.py
 
 # Push the results back to codecov
 after_success:
