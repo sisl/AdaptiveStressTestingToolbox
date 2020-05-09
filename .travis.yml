@@ -63,7 +63,8 @@ script:
 #  - python examples/validate_install.py
 # Run the unit test
 #  - coverage run examples/tests/unit_tests.py
-  - travis_wait 30 pytest --cov=ast_toolbox --cov=examples tests/unit_tests.py
+#  - travis_wait 30 pytest --cov=ast_toolbox --cov=examples tests/unit_tests.py
+  - travis_wait 30 pytest --cov-config=.coveragerc tests/unit_tests.py
 
 # Push the results back to codecov
 after_success:
