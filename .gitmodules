@@ -1,3 +1,0 @@
-[submodule "Toolbox/garage"]
-	path = third_party/garage
-	url = https://github.com/rlworkgroup/garage.git
