@@ -15,7 +15,8 @@ REQUIRED = ['garage==2019.10.1',
             'bsddb3',
             'fire',
             'depq',
-            'compress_pickle',]
+            'compress_pickle',
+            'pydot',]
 
 # Dependencies for optional features
 EXTRAS = {}
