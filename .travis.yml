@@ -50,11 +50,11 @@ install:
 #  - pip install codecov pytest pytest-cov
 #  - pip install rlgarage
   # Used for tree_plot
-  - pip install pydot
+#  - pip install pydot
 
   # Run AST setup
   - conda info -a
-  - cd ../../
+#  - cd ../../
   - source scripts/setup.sh
 
 script:
