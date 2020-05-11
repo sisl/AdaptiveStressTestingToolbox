@@ -1,7 +1,7 @@
 import setuptools
 
 # Required dependencies
-REQUIRED = ['garage',
+REQUIRED = ['garage==2019.10.1',
             'numpy==1.14.5',
             'gym',
             'python-dateutil',
@@ -25,7 +25,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ast-toolbox",
-    version="06.1.2020.dev1",
+    version="2020.06.01.dev1",
     author="Stanford Intelligent Systems Laboratory",
     author_email="mkoren@stanford.edu",
     description="A toolbox for worst-case validation of autonomous policies",
@@ -51,7 +51,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
 
-        'Development Status :: 3 - Alpha'.
+        'Development Status :: 3 - Alpha',
     ],
     python_requires='>=3.6',
     project_urls={
