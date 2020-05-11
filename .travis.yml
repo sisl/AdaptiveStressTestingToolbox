@@ -38,16 +38,16 @@ install:
   - conda activate test-environment
   - conda info -a
   # Install garage and dependencies
-  - cd third_party/garage
-  - touch mjkey.txt
-  - echo "hello" > mjkey.txt
-  - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
-  - rm mjkey.txt
-  - pip install --ignore-installed garage
+#  - cd third_party/garage
+#  - touch mjkey.txt
+#  - echo "hello" > mjkey.txt
+#  - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
+#  - rm mjkey.txt
+#  - pip install --ignore-installed garage
 #  - pip install -e .[dev]
-  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma bsddb3 fire depq compress_pickle
+#  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma bsddb3 fire depq compress_pickle
 # Install the codecov pip dependency
-  - pip install codecov pytest pytest-cov
+#  - pip install codecov pytest pytest-cov
 #  - pip install rlgarage
   # Used for tree_plot
   - pip install pydot
