@@ -1,5 +1,9 @@
 language: python
 dist: xenial
+#branches:
+#  only:
+#    - packaging
+#    - master
 services:
   - xvfb
 python:
@@ -34,7 +38,7 @@ install:
   - conda activate test-environment
   - conda info -a
   # Install garage and dependencies
-  - cd Toolbox/garage
+  - cd third_party/garage
   - touch mjkey.txt
   - echo "hello" > mjkey.txt
   - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
@@ -51,15 +55,16 @@ install:
   # Run AST setup
   - conda info -a
   - cd ../../
-  - source setup.sh
+  - source scripts/setup.sh
 
 script:
   # Your test script goes here
   - conda info -a
-#  - python TestCases/validate_install.py
+#  - python examples/validate_install.py
 # Run the unit test
-#  - coverage run TestCases/Tests/tests.py
-  - travis_wait 30 pytest --cov=Toolbox/mylab --cov=TestCases TestCases/Tests/tests.py
+#  - coverage run examples/tests/unit_tests.py
+#  - travis_wait 30 pytest --cov=ast_toolbox --cov=examples tests/unit_tests.py
+  - travis_wait 30 pytest --cov-config=.coveragerc tests/unit_tests.py
 
 # Push the results back to codecov
 after_success:

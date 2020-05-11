@@ -1,0 +1,6 @@
+# .coveragerc to control coverage.py
+[report]
+branch = True
+include = /examples/*
+          /ast_toolbox/*
+omit =    /ast_toolbox/utils/*

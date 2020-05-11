@@ -7726,7 +7726,7 @@ jQuery.fn.delay = function( time, type ) {
 	// (WebKit defaults to false instead of true, IE too, if it's in an optgroup)
 	support.optSelected = opt.selected;
 
-	// Tests for enctype support on a form (#6743)
+	// tests for enctype support on a form (#6743)
 	support.enctype = !!document.createElement("form").enctype;
 
 	// Make sure that the options inside disabled selects aren't marked as disabled
