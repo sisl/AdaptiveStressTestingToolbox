@@ -1,9 +1,9 @@
 language: python
 dist: xenial
-branches:
-  only:
-    - packaging
-    - master
+#branches:
+#  only:
+#    - packaging
+#    - master
 services:
   - xvfb
 python:
