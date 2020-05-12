@@ -1,7 +1,8 @@
 import setuptools
 
 # Required dependencies
-REQUIRED = ['garage==2019.10.1',
+REQUIRED = [
+            # 'garage==2019.10.1',
             'numpy==1.14.5',
             'gym',
             'python-dateutil',
