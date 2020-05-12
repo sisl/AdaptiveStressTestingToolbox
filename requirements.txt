@@ -13,3 +13,4 @@ bsddb3
 fire
 depq
 compress_pickle
+pydot
