@@ -48,7 +48,7 @@ install:
 #  - cd ../../
 #  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma bsddb3 fire depq compress_pickle
 # Install the codecov pip dependency
-  - pip install garage[dev]==2019.10.1
+#  - pip install garage[dev]==2019.10.1
   - pip install -r requirements.txt
   - pip install codecov pytest pytest-cov
 #  - pip install rlgarage
