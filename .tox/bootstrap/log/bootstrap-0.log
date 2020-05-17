@@ -1,0 +1,7 @@
+action: bootstrap, msg: getenv
+cwd: /home/mark/Research/AST-workflow/AdaptiveStressTestingToolbox/AdaptiveStressTestingToolbox/AdaptiveStressTestingToolbox/.tox
+cmd: /home/mark/miniconda3/envs/AST/bin/python -m virtualenv --no-download --python /home/mark/miniconda3/envs/AST/bin/python bootstrap
+created virtual environment CPython3.6.9.final.0-64 in 242ms
+  creator CPython3Posix(dest=/home/mark/Research/AST-workflow/AdaptiveStressTestingToolbox/AdaptiveStressTestingToolbox/AdaptiveStressTestingToolbox/.tox/bootstrap, clear=False, global=False)
+  seeder FromAppData(download=False, pip=latest, setuptools=latest, wheel=latest, via=copy, app_data_dir=/home/mark/.local/share/virtualenv/seed-app-data/v1.0.1)
+  activators BashActivator,CShellActivator,FishActivator,PowerShellActivator,PythonActivator,XonshActivator

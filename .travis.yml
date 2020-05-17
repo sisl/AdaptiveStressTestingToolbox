@@ -1,76 +1,177 @@
-language: python
-dist: xenial
+#language: python
+#dist: xenial
+##branches:
+##  only:
+##    - packaging
+##    - master
+#services:
+#  - xvfb
 #branches:
 #  only:
-#    - packaging
 #    - master
-services:
-  - xvfb
-branches:
-  only:
-    - master
-python:
-  # We don't actually use the Travis Python, but this keeps it organized.
-  - "3.6"
-install:
-  - sudo apt-get update
-  - sudo apt install libdb-dev python3-bsddb3
-  # Used for tree_plot
-  - sudo apt-get install graphviz
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-
-  # Replace dep1 dep2 ... with your dependencies
-#  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION dep1 dep2 ...
+#python:
+#  # We don't actually use the Travis Python, but this keeps it organized.
+#  - "3.6"
+#install:
+#  - sudo apt-get update
+#  - sudo apt install libdb-dev python3-bsddb3
+#  # Used for tree_plot
+#  - sudo apt-get install graphviz
+#  # We do this conditionally because it saves us some downloading if the
+#  # version is the same.
+#  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+#      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+#    else
+#      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+#    fi
+#  - bash miniconda.sh -b -p $HOME/miniconda
+#  - export PATH="$HOME/miniconda/bin:$PATH"
+#  - hash -r
+#  - conda config --set always_yes yes --set changeps1 no
+#  - conda update -q conda
+#  # Useful for debugging any issues with conda
+#  - conda info -a
+#
+#  # Replace dep1 dep2 ... with your dependencies
+##  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION dep1 dep2 ...
+##  - conda activate test-environment
+##  - python setup.py install
+#  - source $(conda info --root)/etc/profile.d/conda.sh
+#  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
 #  - conda activate test-environment
-#  - python setup.py install
-  - source $(conda info --root)/etc/profile.d/conda.sh
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - conda activate test-environment
-  - conda info -a
-  # Install garage and dependencies
-#  - cd third_party/garage
-#  - touch mjkey.txt
-#  - echo "hello" > mjkey.txt
-#  - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
-#  - rm mjkey.txt
-#  - pip install --ignore-installed garage
-#  - pip install -e .[dev]
-#  - cd ../../
-#  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma bsddb3 fire depq compress_pickle
-# Install the codecov pip dependency
-#  - pip install garage[dev]==2019.10.1
-  - pip install -r requirements.txt
-  - pip install codecov pytest pytest-cov
-#  - pip install rlgarage
-  # Used for tree_plot
-#  - pip install pydot
+#  - conda info -a
+#  # Install garage and dependencies
+##  - cd third_party/garage
+##  - touch mjkey.txt
+##  - echo "hello" > mjkey.txt
+##  - ./scripts/setup_linux.sh --mjkey mjkey.txt --modify-bashrc
+##  - rm mjkey.txt
+##  - pip install --ignore-installed garage
+##  - pip install -e .[dev]
+##  - cd ../../
+##  - pip install numpy==1.14.5 gym python-dateutil dowel joblib cached_property akro glfw pyprind cma bsddb3 fire depq compress_pickle
+## Install the codecov pip dependency
+##  - pip install garage[dev]==2019.10.1
+#  - pip install -r requirements.txt
+#  - pip install codecov pytest pytest-cov
+##  - pip install rlgarage
+#  # Used for tree_plot
+##  - pip install pydot
+#
+#  # Run AST setup
+#  - conda info -a
+#  - source scripts/setup.sh
+#
+#script:
+#  # Your test script goes here
+#  - conda info -a
+##  - python examples/validate_install.py
+## Run the unit test
+##  - coverage run examples/tests/unit_tests.py
+##  - travis_wait 30 pytest --cov=ast_toolbox --cov=examples tests/unit_tests.py
+#  - travis_wait 30 pytest --cov-config=.coveragerc tests/unit_tests.py
+#
+## Push the results back to codecov
+#after_success:
+#  - codecov
 
-  # Run AST setup
-  - conda info -a
-  - source scripts/setup.sh
-
+anguage: python
+dist: xenial
+cache: false
+env:
+  global:
+    - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+    - SEGFAULT_SIGNALS=all
+matrix:
+  include:
+    - python: '3.6'
+      env:
+        - TOXENV=check
+    - python: '3.6'
+      env:
+        - TOXENV=docs
+    - os: osx
+      language: generic
+      env:
+        - TOXENV=py27-cover
+    - env:
+        - TOXENV=py27-cover,codecov
+      python: '2.7'
+    - os: osx
+      language: generic
+      env:
+        - TOXENV=py27-nocov
+    - env:
+        - TOXENV=py27-nocov
+      python: '2.7'
+    - env:
+        - TOXENV=py35-cover,codecov
+      python: '3.5'
+    - env:
+        - TOXENV=py35-nocov
+      python: '3.5'
+    - env:
+        - TOXENV=py36-cover,codecov
+      python: '3.6'
+    - env:
+        - TOXENV=py36-nocov
+      python: '3.6'
+    - os: osx
+      language: generic
+      env:
+        - TOXENV=py37-cover
+    - env:
+        - TOXENV=py37-cover,codecov
+      python: '3.7'
+    - os: osx
+      language: generic
+      env:
+        - TOXENV=py37-nocov
+    - env:
+        - TOXENV=py37-nocov
+      python: '3.7'
+    - env:
+        - TOXENV=py38-cover,codecov
+      python: '3.8'
+    - env:
+        - TOXENV=py38-nocov
+      python: '3.8'
+    - env:
+        - TOXENV=pypy-cover,codecov
+      python: 'pypy'
+    - env:
+        - TOXENV=pypy-nocov
+      python: 'pypy'
+    - env:
+        - TOXENV=pypy3-cover,codecov
+        - TOXPYTHON=pypy3
+      python: 'pypy3'
+    - env:
+        - TOXENV=pypy3-nocov
+        - TOXPYTHON=pypy3
+      python: 'pypy3'
+before_install:
+  - python --version
+  - uname -a
+  - lsb_release -a || true
+  - |
+    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+      [[ $TOXENV =~ py3 ]] && brew upgrade python
+      [[ $TOXENV =~ py2 ]] && brew install python@2
+      export PATH="/usr/local/opt/python/libexec/bin:${PATH}"
+    fi
+install:
+  - python -mpip install --progress-bar=off tox -rci/requirements.txt
+  - virtualenv --version
+  - easy_install --version
+  - pip --version
+  - tox --version
 script:
-  # Your test script goes here
-  - conda info -a
-#  - python examples/validate_install.py
-# Run the unit test
-#  - coverage run examples/tests/unit_tests.py
-#  - travis_wait 30 pytest --cov=ast_toolbox --cov=examples tests/unit_tests.py
-  - travis_wait 30 pytest --cov-config=.coveragerc tests/unit_tests.py
-
-# Push the results back to codecov
-after_success:
-  - codecov
+  - tox -v
+after_failure:
+  - more .tox/log/* | cat
+  - more .tox/*/log/* | cat
+notifications:
+  email:
+    on_success: never
+    on_failure: always
