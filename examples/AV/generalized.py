@@ -1,11 +1,11 @@
 # Import the example classes
-from ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
-from ast_toolbox.rewards.example_av_reward import ExampleAVReward
-from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
+from src.ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
+from src.ast_toolbox.rewards import ExampleAVReward
+from src.ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
-from ast_toolbox.envs.ast_env import ASTEnv
-from ast_toolbox.samplers.ast_vectorized_sampler import ASTVectorizedSampler
+from src.ast_toolbox.envs.ast_env import ASTEnv
+from src.ast_toolbox.samplers import ASTVectorizedSampler
 
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO

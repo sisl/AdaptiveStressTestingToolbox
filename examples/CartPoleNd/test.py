@@ -3,15 +3,15 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from ast_toolbox import TfEnv
+from src.ast_toolbox import TfEnv
 from garage.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from garage.misc import logger
 
-from ast_toolbox.rewards.ast_reward_standard import ASTRewardS
-from ast_toolbox import ASTEnv
+from src.ast_toolbox.rewards import ASTRewardS
+from src.ast_toolbox import ASTEnv
 from CartPole.cartpole_simulator import CartpoleSimulator
 
-from ast_toolbox import TRPO
+from src.ast_toolbox import TRPO
 
 import os.path as osp
 import argparse
@@ -51,7 +51,7 @@ logger.push_prefix("[%s] " % args.exp_name)
 seed = 0
 top_k = 10
 
-import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
@@ -109,7 +109,7 @@ with tf.Session() as sess:
 
 	# print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))
 
-	from ast_toolbox.algos.mcts import MCTS
+	from src.ast_toolbox.algos.mcts import MCTS
 	top_paths2 = BPQ.BoundedPriorityQueue(top_k)
 	algo = MCTS(
 	    env=env,
@@ -128,8 +128,8 @@ with tf.Session() as sess:
 
 	algo.train()
 
-	import ast_toolbox.mcts.AdaptiveStressTesting as AST
-	import ast_toolbox.mcts.ASTSim as ASTSim
+	import src.ast_toolbox.mcts.AdaptiveStressTesting as AST
+	import src.ast_toolbox.mcts.ASTSim as ASTSim
 
 	# ast_params = AST.ASTParams(100,0,False)
 	# ast = AST.AdaptiveStressTest(p=ast_params, env=env, top_paths=top_paths)

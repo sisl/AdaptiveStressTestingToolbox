@@ -1,21 +1,21 @@
 # Import the example classes
-from ast_toolbox import AVRSSSimulator
-from ast_toolbox.rewards.heuristic_reward import HeuristicReward
-from ast_toolbox import PedestrianNoiseGaussian
-from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
-import ast_toolbox.simulators.rss_metrics as rss
+from src.ast_toolbox import AVRSSSimulator
+from src.ast_toolbox.rewards import HeuristicReward
+from src.ast_toolbox import PedestrianNoiseGaussian
+from src.ast_toolbox.spaces import ExampleAVSpaces
+import src.ast_toolbox.simulators.rss_metrics as rss
 
 # Import the AST classes
 
 # Import the necessary garage classes
-from ast_toolbox.algos.go_explore import GoExplore
+from src.ast_toolbox.algos.go_explore import GoExplore
 from garage.tf.envs.base import TfEnv
-from ast_toolbox import GoExplorePolicy
+from src.ast_toolbox import GoExplorePolicy
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
-from ast_toolbox import BatchSampler
+from src.ast_toolbox import BatchSampler
 import gym
 
 # Useful imports

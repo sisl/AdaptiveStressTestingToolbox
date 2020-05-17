@@ -3,15 +3,15 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.zero_baseline import ZeroBaseline
-from ast_toolbox import TfEnv
+from src.ast_toolbox import TfEnv
 from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.misc import logger
 
-from ast_toolbox.rewards.ast_reward_standard import ASTRewardS
-from ast_toolbox import ASTEnv
+from src.ast_toolbox.rewards import ASTRewardS
+from src.ast_toolbox import ASTEnv
 from CartPole.cartpole_simulator import CartpoleSimulator
 
-from ast_toolbox.algos.ga import GA
+from src.ast_toolbox.algos.ga import GA
 
 import os.path as osp
 # from example_save_trials import *
@@ -20,10 +20,10 @@ import joblib
 import math
 import numpy as np
 
-import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 import csv
 # Log Params
-from ast_toolbox import get_ga_parser
+from src.ast_toolbox import get_ga_parser
 args = get_ga_parser(log_dir='./Data/AST/GA')
 
 top_k = 10

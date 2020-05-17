@@ -3,15 +3,15 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
 
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from ast_toolbox import TfEnv
+from src.ast_toolbox import TfEnv
 from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.misc import logger
 
-from ast_toolbox.rewards.ast_reward_standard import ASTRewardS
-from ast_toolbox import ASTEnv
+from src.ast_toolbox.rewards import ASTRewardS
+from src.ast_toolbox import ASTEnv
 from CartPole.cartpole_simulator import CartpoleSimulator
 
-from ast_toolbox.algos.gasm import GASM
+from src.ast_toolbox.algos.gasm import GASM
 
 import os.path as osp
 import argparse
@@ -56,7 +56,7 @@ seed = 0
 top_k = 10
 max_path_length = 100
 
-import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)

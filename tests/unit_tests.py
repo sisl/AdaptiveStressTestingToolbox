@@ -29,7 +29,7 @@ def test_validate_ge_ba():
     assert validate_ge_ba() is True
 
 
-from ast_toolbox.simulators.ast_simulator import ASTSimulator
+from src.ast_toolbox.simulators.ast_simulator import ASTSimulator
 
 
 def test_ast_simulator():
@@ -70,7 +70,7 @@ def test_ast_simulator():
     assert sim.log() is None
 
 
-from ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
+from src.ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
 
 
 def test_example_av_simulator():
@@ -101,7 +101,7 @@ def test_example_av_simulator():
     assert np.all(obs == np.array([0, 0, 0, 0]))
 
 
-from ast_toolbox.spaces.ast_spaces import ASTSpaces
+from src.ast_toolbox.spaces import ASTSpaces
 
 
 def test_ast_spaces():
@@ -114,7 +114,7 @@ def test_ast_spaces():
         space.observation_space()
 
 
-from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
+from src.ast_toolbox.spaces import ExampleAVSpaces
 from gym.spaces.box import Box
 
 
@@ -124,7 +124,7 @@ def test_example_av_spaces():
     assert type(space.action_space) is Box
     assert type(space.observation_space) is Box
 
-from ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv, GoExploreParameter, Custom_GoExploreASTEnv
+from src.ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv, GoExploreParameter, Custom_GoExploreASTEnv
 from bsddb3 import db
 
 def test_go_explore_ast_env():
@@ -199,7 +199,7 @@ def test_go_explore_ast_env():
     assert np.all(cenv.downsample(obs) == np.array([1,0,1,1,2]))
 
 
-import ast_toolbox.samplers.parallel_sampler as ps
+import src.ast_toolbox.samplers.parallel_sampler as ps
 
 
 def test_parallel_sampler():
@@ -220,7 +220,7 @@ def test_parallel_sampler():
     ps.populate_task(env, policy, scope=1)
     ps.close()
 
-from ast_toolbox.algos.go_explore import CellPool
+from src.ast_toolbox.algos.go_explore import CellPool
 
 def test_go_explore():
     cell_pool = CellPool(filename='./test_pool.dat', use_score_weight=True)
