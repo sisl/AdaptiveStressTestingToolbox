@@ -6,3 +6,4 @@ from .example_av_reward import ExampleAVReward
 from .example_cartpole_reward import CartpoleReward
 from .heuristic_reward import HeuristicReward
 from .pedestrian_noise_gaussian import PedestrianNoiseGaussian
+from .action_model import ActionModel
