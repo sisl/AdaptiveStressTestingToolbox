@@ -4,8 +4,8 @@ from garage.envs.base import Step
 
 
 import numpy as np
-from src.ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
-from src.ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.rewards import ExampleAVReward
 from garage.envs.env_spec import EnvSpec
 import pdb
 import gym

@@ -1,15 +1,15 @@
 # Import the example classes
-from src.ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
-from src.ast_toolbox.rewards import ExampleAVReward
-from src.ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
-from src.ast_toolbox.envs.ast_env import ASTEnv
-from src.ast_toolbox.samplers import ASTVectorizedSampler
-from src.ast_toolbox.algos.mcts import MCTS
-from src.ast_toolbox.algos.mctsbv import MCTSBV
-from src.ast_toolbox.algos.mctsrs import MCTSRS
-import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+from ast_toolbox.envs import ASTEnv
+from ast_toolbox.samplers import ASTVectorizedSampler
+from ast_toolbox.algos import MCTS
+from ast_toolbox.algos import MCTSBV
+from ast_toolbox.algos import MCTSRS
+import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 # Import the necessary garage classes
 # from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 # from garage.misc import logger
@@ -126,14 +126,14 @@ def runner(
                         print('mctsbv')
                         algo = MCTSBV(env=env,
                                     top_paths=top_paths,
-                                    **algo_args) 
+                                    **algo_args)
                     elif mcts_type == 'mctsrs':
                         print('mctsrs')
                         algo = MCTSRS(env=env,
                                     top_paths=top_paths,
-                                    **algo_args)       
+                                    **algo_args)
                     else:
-                        raise NotImplementedError  
+                        raise NotImplementedError
 
                     sampler_cls = ASTVectorizedSampler
 

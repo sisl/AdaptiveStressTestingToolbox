@@ -1,6 +1,6 @@
 # useful packages for math and debugging
 import numpy as np
-from src.ast_toolbox.rewards import ActionModel
+from ast_toolbox.rewards.action_model import ActionModel
 
 
 # Define the class, inherit from the base

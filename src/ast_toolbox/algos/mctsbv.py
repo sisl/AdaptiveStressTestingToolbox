@@ -1,6 +1,6 @@
-import src.ast_toolbox.mcts.AdaptiveStressTesting as AST
-import src.ast_toolbox.mcts.AdaptiveStressTestingBlindValue as AST_BV
-from src.ast_toolbox.algos.mcts import MCTS
+import ast_toolbox.mcts.AdaptiveStressTesting as AST
+import ast_toolbox.mcts.AdaptiveStressTestingBlindValue as AST_BV
+from ast_toolbox.algos.mcts import MCTS
 
 class MCTSBV(MCTS):
 	"""

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Rectangle, Circle
 from matplotlib.collections import PatchCollection
-from src.ast_toolbox.algos.go_explore import *
+from ast_toolbox.algos.go_explore import *
 
 
 

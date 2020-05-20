@@ -1,5 +1,5 @@
 #import base Simulator class
-from src.ast_toolbox.simulators.ast_simulator import ASTSimulator#Used for math and debugging
+from ast_toolbox.simulators import ASTSimulator#Used for math and debugging
 import numpy as np
 import pdb
 #Define the class

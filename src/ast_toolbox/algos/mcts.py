@@ -1,8 +1,8 @@
-import src.ast_toolbox.mcts.AdaptiveStressTesting as AST
-import src.ast_toolbox.mcts.ASTSim as ASTSim
-import src.ast_toolbox.mcts.MCTSdpw as MCTSdpw
-import src.ast_toolbox.mcts.AST_MCTS as AST_MCTS
-from src.ast_toolbox.mcts import tree_plot
+import ast_toolbox.mcts.AdaptiveStressTesting as AST
+import ast_toolbox.mcts.ASTSim as ASTSim
+import ast_toolbox.mcts.MCTSdpw as MCTSdpw
+import ast_toolbox.mcts.AST_MCTS as AST_MCTS
+from ast_toolbox.mcts import tree_plot
 import numpy as np
 
 class MCTS:
@@ -35,7 +35,7 @@ class MCTS:
 		:param n_itr: iteration number, the total numeber of environment call is approximately
 						n_itr*max_path_length*max_path_length
 		:param k, alpha: the constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha
-		:param clear_nodes: whether to clear redundant nodes in tree. 
+		:param clear_nodes: whether to clear redundant nodes in tree.
 						Set it to True for saving memoray. Set it to False to better tree plotting
 		:param log_interval: the log interval in terms of environment calls
 		:param top_paths: a bounded priority queue to store top-rewarded trajectories

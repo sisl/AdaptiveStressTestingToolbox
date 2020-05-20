@@ -1,6 +1,6 @@
 import numpy as np
-import src.ast_toolbox.mcts.MCTSdpw as MCTSdpw
-import src.ast_toolbox.mcts.MDP as MDP
+import ast_toolbox.mcts.MCTSdpw as MCTSdpw
+import ast_toolbox.mcts.MDP as MDP
 
 class StressTestResults:
 	def __init__(self,rewards,action_seqs,q_values):

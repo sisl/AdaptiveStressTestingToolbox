@@ -1,5 +1,5 @@
 # import base class
-from src.ast_toolbox.rewards import ASTReward
+from ast_toolbox.rewards import ASTReward
 
 # useful packages for math and debugging
 import numpy as np

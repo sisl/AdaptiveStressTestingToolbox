@@ -1,4 +1,4 @@
-import src.ast_toolbox.mcts.MDP as MDP
+import ast_toolbox.mcts.MDP as MDP
 
 
 # class SampleResults:

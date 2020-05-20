@@ -3,9 +3,9 @@ from cached_property import cached_property
 from garage.envs.base import Step
 
 import numpy as np
-from src.ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
-from src.ast_toolbox.rewards import ExampleAVReward
-from src.ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.spaces import ExampleAVSpaces
 from garage.envs.env_spec import EnvSpec
 import pdb
 import gym

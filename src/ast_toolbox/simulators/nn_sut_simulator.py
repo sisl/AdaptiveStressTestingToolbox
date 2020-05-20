@@ -1,4 +1,4 @@
-from src.ast_toolbox.simulators.ast_simulator import ASTSimulator
+from ast_toolbox.simulators import ASTSimulator
 import numpy as np
 import pickle as pickle
 from garage.tf.misc import tensor_utils
@@ -18,7 +18,7 @@ class NNSUTSimulator(ASTSimulator):
         self.env = env
         self.sut = sut
         self.path_length = 0
-        
+
         self._is_terminal = False
         super().__init__(**kwargs)
 
@@ -178,7 +178,7 @@ class InnerVecEnvExecutor(object):
         env_infos = infos
 
         rewards = np.asarray(rewards)
-        
+
         for (i, done) in enumerate(dones):
             if done:
                 if self._fixed_init_state:

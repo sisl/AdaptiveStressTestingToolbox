@@ -5,7 +5,6 @@ import numpy as np
 import tensorflow as tf
 import time
 from garage.misc import logger
-from garage.misc import special
 from garage.tf.algos import BatchPolopt
 from garage.tf.misc import tensor_utils
 

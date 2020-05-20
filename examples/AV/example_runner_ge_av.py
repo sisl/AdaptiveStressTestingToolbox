@@ -1,19 +1,19 @@
 # Import the example classes
-from src.ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
-from src.ast_toolbox.rewards import ExampleAVReward
-from src.ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
 
 # Import the necessary garage classes
-from src.ast_toolbox.algos.go_explore import GoExplore
+from ast_toolbox.algos import GoExplore
 from garage.tf.envs.base import TfEnv
-from src.ast_toolbox.policies.go_explore_policy import GoExplorePolicy
+from ast_toolbox.policies import GoExplorePolicy
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
-from src.ast_toolbox.samplers import BatchSampler
+from ast_toolbox.samplers import BatchSampler
 import gym
 
 # Useful imports

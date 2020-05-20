@@ -24,8 +24,8 @@ version = release = '2020.06.01.dev1'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://https://github.com/sisl/AdaptiveStressTestingToolbox/issues/%s', '#'),
-    'pr': ('https://https://github.com/sisl/AdaptiveStressTestingToolbox/pull/%s', 'PR #'),
+    'issue': ('https://github.com/sisl/AdaptiveStressTestingToolbox/issues/%s', '#'),
+    'pr': ('https://github.com/sisl/AdaptiveStressTestingToolbox/pull/%s', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

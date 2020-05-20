@@ -105,7 +105,7 @@ setup(
     ),
     author='Stanford Intelligent Systems Laboratory',
     author_email='mkoren@stanford.edu',
-    url='https://https://github.com/sisl/AdaptiveStressTestingToolbox',
+    url='https://github.com/sisl/AdaptiveStressTestingToolbox',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -138,7 +138,7 @@ setup(
     project_urls={
         'Documentation': 'https://AdaptiveStressTestingToolbox.readthedocs.io/',
         'Changelog': 'https://AdaptiveStressTestingToolbox.readthedocs.io/en/latest/changelog.html',
-        'Issue Tracker': 'https://https://github.com/sisl/AdaptiveStressTestingToolbox/issues',
+        'Issue Tracker': 'https://github.com/sisl/AdaptiveStressTestingToolbox/issues',
     },
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',

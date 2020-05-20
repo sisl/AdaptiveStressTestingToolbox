@@ -1,4 +1,4 @@
-import src.ast_toolbox.mcts.MDP as MDP
+import ast_toolbox.mcts.MDP as MDP
 import numpy as np
 # import garage.misc.logger as logger
 from dowel import logger, tabular

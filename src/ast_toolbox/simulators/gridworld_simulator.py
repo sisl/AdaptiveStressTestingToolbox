@@ -1,7 +1,7 @@
 # from garage.envs.base import GarageEnv
 # from garage.envs.base import Step
 # from garage.spaces import Box
-from src.ast_toolbox.simulators.ast_simulator import ASTSimulator
+from ast_toolbox.simulators import ASTSimulator
 import numpy as np
 
 

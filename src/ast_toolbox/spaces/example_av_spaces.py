@@ -1,4 +1,4 @@
-from src.ast_toolbox.spaces import ASTSpaces
+from ast_toolbox.spaces import ASTSpaces
 from gym.spaces.box import Box
 import numpy as np
 

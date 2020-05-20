@@ -1,8 +1,8 @@
 import copy
-from src.ast_toolbox.mcts.AdaptiveStressTesting import AdaptiveStressTest
-import src.ast_toolbox.mcts.RNGWrapper as RNG
+from ast_toolbox.mcts.AdaptiveStressTesting import AdaptiveStressTest
+import ast_toolbox.mcts.RNGWrapper as RNG
 import gym
-		
+
 class AdaptiveStressTestRS(AdaptiveStressTest):
 	def __init__(self,**kwargs):
 		super(AdaptiveStressTestRS, self).__init__(**kwargs)

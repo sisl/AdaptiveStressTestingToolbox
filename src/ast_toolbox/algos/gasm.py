@@ -4,8 +4,8 @@ from garage.tf.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
-from src.ast_toolbox.algos.ga import GA
-from src.ast_toolbox.optimizers.direction_constraint_optimizer import DirectionConstraintOptimizer
+from ast_toolbox.algos import GA
+from ast_toolbox.optimizers import DirectionConstraintOptimizer
 
 class GASM(GA):
 	"""
@@ -53,7 +53,7 @@ class GASM(GA):
 		else:
 			valid_var = tf.placeholder(tf.float32, shape=[None], name="valid")
 
-		# npath_var = tf.placeholder(tf.int32, shape=(), name="npath") 
+		# npath_var = tf.placeholder(tf.int32, shape=(), name="npath")
 		npath_var = tf.placeholder(tf.int32, shape=[None], name="npath") #in order to work with sliced_fn
 
 		actions = self.policy.get_action_sym(obs_var)
@@ -76,7 +76,7 @@ class GASM(GA):
 
 		self.optimizer.update_opt(
 			target=self.policy,
-			# leq_constraint=(mean_kl, self.step_size), 
+			# leq_constraint=(mean_kl, self.step_size),
 			leq_constraint = divergence, #input max contraint at run time with annealing
 			inputs=input_list,
 			constraint_name="divergence"
@@ -97,7 +97,7 @@ class GASM(GA):
 		all_input_values += tuple(state_info_list)
 		# if self.policy.recurrent:
 		all_input_values += (samples_data["valids"],)
-		npath, max_path_length, _ = all_input_values[0].shape 
+		npath, max_path_length, _ = all_input_values[0].shape
 		if not self.policy.recurrent:
 			all_input_values_new = ()
 			for (i,item) in enumerate(all_input_values):

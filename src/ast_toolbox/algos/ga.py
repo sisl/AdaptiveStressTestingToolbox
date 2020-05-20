@@ -5,8 +5,8 @@ from garage.tf.algos.batch_polopt import BatchPolopt
 import tensorflow as tf
 import numpy as np
 
-from src.ast_toolbox.samplers import VectorizedGASampler
-from src.ast_toolbox.utils import seeding
+from ast_toolbox.samplers import VectorizedGASampler
+from ast_toolbox.utils import seeding
 
 
 class GA(BatchPolopt):
@@ -16,7 +16,7 @@ class GA(BatchPolopt):
 
 	def __init__(
 			self,
-			top_paths = None, 
+			top_paths = None,
 			step_size = 0.01,
 			step_size_anneal = 1.0,
 			pop_size = 5,
@@ -55,7 +55,7 @@ class GA(BatchPolopt):
 		self.parents = np.zeros(pop_size,dtype=int)
 		self.np_random, seed = seeding.np_random() #used in set_params
 		super(GA, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
-		
+
 	def initial(self):
 		self.seeds[0,:] = np.random.randint(low= 0, high = int(2**16),
 											size = (1, self.pop_size))

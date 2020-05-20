@@ -1,5 +1,5 @@
 import numpy as np
-from src.ast_toolbox.mcts.AdaptiveStressTesting import AdaptiveStressTest,ASTAction
+from ast_toolbox.mcts.AdaptiveStressTesting import AdaptiveStressTest,ASTAction
 
 class AdaptiveStressTestBV(AdaptiveStressTest):
 	def __init__(self,**kwargs):
