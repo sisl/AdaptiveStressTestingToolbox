@@ -1,8 +1,7 @@
-# AST
-[![Build Status](https://travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg?branch=master)](https://travis-ci.org/sisl/AdaptiveStressTestingToolbox)
-[![Documentation Status](https://readthedocs.org/projects/ast-toolbox/badge/?version=master)](https://ast-toolbox.readthedocs.io/en/master/?badge=master)
-[![license: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/sisl/AdaptiveStressTestingToolbox/blob/master/LICENSE)
-[![codecov](https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox/branch/master/graph/badge.svg)](https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox)
+===============================
+Adaptive Stress Testing Toolbox
+===============================
+|build-status| |docs| |coverage| |license|
 
 Adaptive Stress Testing is a worst-case validation method for autonomous policies. This toolbox is currently under construction, and is being actively developed by the Stanford Intelligent Systems Lab.
 
@@ -57,3 +56,24 @@ Note, to combine the coverage data from all the tox environments run:
       - ::
 
             PYTEST_ADDOPTS=--cov-append tox
+
+
+.. |build-status| image:: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg?branch=master
+    :alt: build status
+    :scale: 100%
+    :target: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox
+
+.. |docs| image:: https://readthedocs.org/projects/ast-toolbox/badge/?version=master
+    :alt: build status
+    :scale: 100%
+    :target: https://ast-toolbox.readthedocs.io/en/master/?badge=master
+
+.. |coverage| image:: https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox/branch/master/graph/badge.svg
+    :alt: build status
+    :scale: 100%
+    :target: https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox
+
+.. |license| image:: https://img.shields.io/badge/license-MIT-yellow.svg
+    :alt: build status
+    :scale: 100%
+    :target: https://github.com/sisl/AdaptiveStressTestingToolbox/blob/master/LICENSE
