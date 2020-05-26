@@ -2,9 +2,9 @@
 #Used for math and debugging
 import numpy as np
 
-# import ast_toolbox.simulators.rss_metrics as rss
-from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.simulators import rss_metrics as rss
+# import ast_toolbox.simulators.rss_metrics as rss
+from ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
 
 
 #Define the class
