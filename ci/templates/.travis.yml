@@ -1,10 +1,6 @@
 language: python
 dist: xenial
 cache: false
-branches:
-  only:
-    -master
-    -workflows
 env:
   global:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
