@@ -1,6 +1,7 @@
 import csv
-from matplotlib import pyplot as plt
+
 import numpy as np
+from matplotlib import pyplot as plt
 
 csv_path = './Data/AST/Oct21/GAInter/0/process.csv'
 

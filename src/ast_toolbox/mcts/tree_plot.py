@@ -1,6 +1,8 @@
-import pydot
 import uuid
+
 import numpy as np
+import pydot
+
 
 def get_root(tree):
 	for s in tree.keys():
@@ -38,5 +40,3 @@ def plot_tree(tree,d,path,format="svg"):
 		graph.write(filename)
 	elif format == "png":
 		graph.write(filename)
-
-

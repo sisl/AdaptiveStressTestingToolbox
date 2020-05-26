@@ -1,8 +1,12 @@
-import ast_toolbox.mcts.MDP as MDP
+import pickle
+
 import numpy as np
 # import garage.misc.logger as logger
-from dowel import logger, tabular
-import pickle
+from dowel import logger
+from dowel import tabular
+
+import ast_toolbox.mcts.MDP as MDP
+
 
 class ASTParams:
     def __init__(self,max_steps,log_interval,log_tabular, log_dir=None, n_itr=100):

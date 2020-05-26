@@ -1,5 +1,5 @@
-from src.ast_toolbox.simulators.nn_sut_simulator import NNSUTSimulator
 from CartPole.cartpole import CartPoleEnv
+from src.ast_toolbox.simulators.nn_sut_simulator import NNSUTSimulator
 
 
 class CartpoleSimulator(NNSUTSimulator):

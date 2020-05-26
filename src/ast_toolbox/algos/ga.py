@@ -1,9 +1,10 @@
 import time
+
 # from garage.tf.samplers.vectorized_sampler import VectorizedSampler
 import garage.misc.logger as logger
-from garage.tf.algos.batch_polopt import BatchPolopt
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from garage.tf.algos.batch_polopt import BatchPolopt
 
 from ast_toolbox.samplers import VectorizedGASampler
 from ast_toolbox.utils import seeding

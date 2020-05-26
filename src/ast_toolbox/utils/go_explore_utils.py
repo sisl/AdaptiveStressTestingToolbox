@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-from matplotlib.patches import Rectangle, Circle
 from matplotlib.collections import PatchCollection
-from ast_toolbox.algos.go_explore import *
+from matplotlib.gridspec import GridSpec
+from matplotlib.patches import Circle
+from matplotlib.patches import Rectangle
 
+from ast_toolbox.algos.go_explore import *
 
 
 def get_meta_filename(filename):

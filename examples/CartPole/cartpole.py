@@ -5,12 +5,14 @@ permalink: https://perma.cc/C9ZM-652R
 """
 
 import math
-import numpy as np
-from scipy.stats import norm
+
 import gym
+import numpy as np
+from garage.envs import Step
 from gym import logger
 from gym.utils import seeding
-from garage.envs import Step
+from scipy.stats import norm
+
 
 class CartPoleEnv(gym.Env):
     metadata = {

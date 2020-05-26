@@ -1,9 +1,11 @@
+import numpy as np
+
 import ast_toolbox.mcts.AdaptiveStressTesting as AST
+import ast_toolbox.mcts.AST_MCTS as AST_MCTS
 import ast_toolbox.mcts.ASTSim as ASTSim
 import ast_toolbox.mcts.MCTSdpw as MCTSdpw
-import ast_toolbox.mcts.AST_MCTS as AST_MCTS
 from ast_toolbox.mcts import tree_plot
-import numpy as np
+
 
 class MCTS:
 	"""

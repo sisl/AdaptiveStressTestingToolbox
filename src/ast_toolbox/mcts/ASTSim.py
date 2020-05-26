@@ -1,6 +1,5 @@
 import ast_toolbox.mcts.MDP as MDP
 
-
 # class SampleResults:
 # 	def __init__(self,reward,action_seq):
 # 		self.reward=reward
@@ -38,5 +37,3 @@ def play_sequence(ast,actions,verbose=False,sleeptime=0.0):
 	reward2,actions2 = MDP.simulate(ast.transition_model, AcionSequence(actions), action_seq_policy, verbose=verbose, sleeptime=sleeptime)
 	assert actions == actions2
 	return reward2,actions2
-
-

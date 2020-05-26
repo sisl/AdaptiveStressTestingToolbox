@@ -1,12 +1,13 @@
+# from garage.misc.ext import flatten_tensor_variables
+import itertools
+
+import numpy as np
+import tensorflow as tf
 from garage.misc import ext
 from garage.misc import krylov
 from garage.misc import logger
-# from garage.misc.ext import flatten_tensor_variables
-import itertools
-import numpy as np
-import tensorflow as tf
-from garage.tf.misc import tensor_utils
 from garage.misc.ext import sliced_fun
+from garage.tf.misc import tensor_utils
 
 
 class PerlmutterHvp(object):

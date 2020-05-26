@@ -1,6 +1,8 @@
-import numpy as np
 import copy
+
 import gym.utils.seeding as seeding
+import numpy as np
+
 
 class RSG:
 	def __init__(self,state_length=1,seed=0):
@@ -27,6 +29,3 @@ def seed_to_state_itr(state_length,seed):
 		state.append(seedi)
 		seedi = seeding.hash_seed(seedi)
 	return np.array(state,dtype=np.uint32)
-
-
-

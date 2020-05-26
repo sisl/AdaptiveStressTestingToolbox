@@ -1,9 +1,12 @@
+import pdb
+
+import numpy as np
+from dowel import logger
+from dowel import tabular
 from garage.tf.algos.ppo import PPO
 from garage.tf.algos.trpo import TRPO
 from garage.tf.optimizers import FirstOrderOptimizer
-from dowel import logger, tabular
-import numpy as np
-import pdb
+
 
 class BackwardAlgorithm(PPO):
     """Backward Algorithm from Salimans and Chen.

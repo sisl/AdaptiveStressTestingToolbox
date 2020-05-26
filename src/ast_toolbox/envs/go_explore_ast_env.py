@@ -1,24 +1,22 @@
-from cached_property import cached_property
-
-from garage.envs.base import Step
-
-import numpy as np
-from ast_toolbox.simulators import ExampleAVSimulator
-from ast_toolbox.rewards import ExampleAVReward
-from ast_toolbox.spaces import ExampleAVSpaces
-from garage.envs.env_spec import EnvSpec
 import pdb
-import gym
+import pickle
 import random
 import shelve
-from bsddb3 import db
-import pickle
-
 from contextlib import contextmanager
 
+import gym
+import numpy as np
 import tensorflow as tf
+from bsddb3 import db
+from cached_property import cached_property
+from garage.envs.base import Step
+from garage.envs.env_spec import EnvSpec
+from garage.misc.tensor_utils import flatten_tensors
+from garage.misc.tensor_utils import unflatten_tensors
 
-from garage.misc.tensor_utils import flatten_tensors, unflatten_tensors
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.spaces import ExampleAVSpaces
 
 load_params = True
 
@@ -595,4 +593,3 @@ class Custom_GoExploreASTEnv(GoExploreASTEnv):
             step = self._step
 
         return np.concatenate((np.array([step]), obs), axis=0).astype(int)
-

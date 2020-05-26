@@ -1,24 +1,27 @@
+import argparse
+import math
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
+import os.path as osp
 
+import joblib
+import numpy as np
+import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+import tensorflow as tf
+from CartPole.cartpole_simulator import CartpoleSimulator
 # from garage.tf.algos.trpo import TRPO
 from garage.baselines.zero_baseline import ZeroBaseline
-from src.ast_toolbox import TfEnv
-from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from garage.misc import logger
-
-from src.ast_toolbox.rewards import ASTRewardS
+from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
 from src.ast_toolbox import ASTEnv
-from CartPole.cartpole_simulator import CartpoleSimulator
-
+from src.ast_toolbox import TfEnv
 from src.ast_toolbox.algos.ga import GA
+from src.ast_toolbox.rewards import ASTRewardS
 
-import os.path as osp
-import argparse
-import tensorflow as tf
-import joblib
-import math
-import numpy as np
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
+
+
+
+
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -55,7 +58,6 @@ seed = 0
 top_k = 10
 max_path_length = 100
 
-import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 top_paths = BPQ.BoundedPriorityQueue(top_k)
 
 np.random.seed(seed)
@@ -109,5 +111,3 @@ with tf.Session() as sess:
 		)
 
 	algo.train(sess=sess, init_var=False)
-
-	

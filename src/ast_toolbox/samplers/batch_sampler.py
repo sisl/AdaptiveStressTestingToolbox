@@ -49,9 +49,10 @@
 #         else:
 #             paths_truncated = truncate_paths(paths, batch_size)
 #             return paths_truncated
-from ast_toolbox.samplers import parallel_sampler
 from garage.sampler.base import BaseSampler
 from garage.sampler.utils import truncate_paths
+
+from ast_toolbox.samplers import parallel_sampler
 
 
 class BatchSampler(BaseSampler):

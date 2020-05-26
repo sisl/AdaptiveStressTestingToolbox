@@ -1,9 +1,10 @@
 # from garage.envs.base import GarageEnv
 # from garage.envs.base import Step
 # from garage.spaces import Box
+import pdb
+
 import numpy as np
 
-import pdb
 
 class ASTSimulator(object):
     """
@@ -116,4 +117,3 @@ class ASTSimulator(object):
         perform any logging steps
         """
         pass
-

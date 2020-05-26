@@ -1,26 +1,28 @@
 # Import the example classes
-from ast_toolbox.simulators import ExampleAVSimulator
+import compress_pickle
+import fire
+import gym
+# Useful imports
+import tensorflow as tf
+from garage.envs.normalized_env import normalize
+from garage.experiment import run_experiment
+from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.tf.envs.base import TfEnv
+from garage.tf.experiment import LocalTFRunner
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
+from garage.tf.optimizers.conjugate_gradient_optimizer import FiniteDifferenceHvp
+from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+
+# Import the necessary garage classes
+from ast_toolbox.algos import BackwardAlgorithm
 from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.samplers import BatchSampler
+from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
 
-# Import the necessary garage classes
-from ast_toolbox.algos import BackwardAlgorithm
-from garage.tf.envs.base import TfEnv
-from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.envs.normalized_env import normalize
-from garage.experiment import run_experiment
-from garage.tf.experiment import LocalTFRunner
-from ast_toolbox.samplers import BatchSampler
-from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-import gym
 
-# Useful imports
-import tensorflow as tf
-import fire
-import compress_pickle
 
 
 #

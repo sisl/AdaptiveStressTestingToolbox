@@ -1,7 +1,11 @@
 #import base Simulator class
-from ast_toolbox.simulators import ASTSimulator#Used for math and debugging
-import numpy as np
 import pdb
+
+import numpy as np
+
+from ast_toolbox.simulators import ASTSimulator  # Used for math and debugging
+
+
 #Define the class
 class ExampleAVSimulator(ASTSimulator):
     """
@@ -416,4 +420,3 @@ class ExampleAVSimulator(ASTSimulator):
             return
         else:
             return
-

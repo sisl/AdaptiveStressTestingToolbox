@@ -1,10 +1,9 @@
 # from garage.tf.policies.base2 import StochasticPolicy2
+import numpy as np
+import tensorflow as tf
+from garage.tf.distributions.diagonal_gaussian import DiagonalGaussian
 from garage.tf.policies.base import StochasticPolicy
 
-
-from garage.tf.distributions.diagonal_gaussian import DiagonalGaussian
-import tensorflow as tf
-import numpy as np
 
 class GoExplorePolicy(StochasticPolicy):
     def __init__(self, env_spec, name='GoExplorePolicy'):

@@ -2,6 +2,7 @@
 # from gym.envs.registration import register
 import gym
 
+
 def register(id, entry_point, force=True, **kwargs):
     env_specs = gym.envs.registry.env_specs
     if id in env_specs.keys():

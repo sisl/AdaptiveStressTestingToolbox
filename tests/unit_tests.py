@@ -1,12 +1,25 @@
-import pytest
 from unittest.mock import patch
-import numpy as np
 
-from tests.validate_install import validate_install
-from tests.validate_parallel import validate_parallel
+import numpy as np
+import pytest
+from bsddb3 import db
+from examples.AV.example_runner_ba_av import runner
+from gym.spaces.box import Box
 from tests.validate_drl import validate_drl
-from tests.validate_mcts import validate_mcts
 from tests.validate_ge_ba import validate_ge_ba
+from tests.validate_install import validate_install
+from tests.validate_mcts import validate_mcts
+from tests.validate_parallel import validate_parallel
+
+import ast_toolbox.samplers.parallel_sampler as ps
+from ast_toolbox.algos.go_explore import CellPool
+from ast_toolbox.envs.go_explore_ast_env import Custom_GoExploreASTEnv
+from ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv
+from ast_toolbox.envs.go_explore_ast_env import GoExploreParameter
+from ast_toolbox.simulators import ASTSimulator
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.spaces import ASTSpaces
+from ast_toolbox.spaces import ExampleAVSpaces
 
 
 def test_validate_install():
@@ -29,7 +42,6 @@ def test_validate_ge_ba():
     assert validate_ge_ba() is True
 
 
-from ast_toolbox.simulators import ASTSimulator
 
 
 def test_ast_simulator():
@@ -70,7 +82,6 @@ def test_ast_simulator():
     assert sim.log() is None
 
 
-from ast_toolbox.simulators import ExampleAVSimulator
 
 
 def test_example_av_simulator():
@@ -101,7 +112,6 @@ def test_example_av_simulator():
     assert np.all(obs == np.array([0, 0, 0, 0]))
 
 
-from ast_toolbox.spaces import ASTSpaces
 
 
 def test_ast_spaces():
@@ -114,8 +124,6 @@ def test_ast_spaces():
         space.observation_space()
 
 
-from ast_toolbox.spaces import ExampleAVSpaces
-from gym.spaces.box import Box
 
 
 def test_example_av_spaces():
@@ -124,8 +132,6 @@ def test_example_av_spaces():
     assert type(space.action_space) is Box
     assert type(space.observation_space) is Box
 
-from ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv, GoExploreParameter, Custom_GoExploreASTEnv
-from bsddb3 import db
 
 def test_go_explore_ast_env():
     env = GoExploreASTEnv()
@@ -199,7 +205,6 @@ def test_go_explore_ast_env():
     assert np.all(cenv.downsample(obs) == np.array([1,0,1,1,2]))
 
 
-import ast_toolbox.samplers.parallel_sampler as ps
 
 
 def test_parallel_sampler():
@@ -220,7 +225,6 @@ def test_parallel_sampler():
     ps.populate_task(env, policy, scope=1)
     ps.close()
 
-from ast_toolbox.algos.go_explore import CellPool
 
 def test_go_explore():
     cell_pool = CellPool(filename='./test_pool.dat', use_score_weight=True)
@@ -229,7 +233,6 @@ def test_go_explore():
     cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=1.0,
                        state=None, reward=1.0, chosen=0, is_goal=True)
 
-from examples.AV.example_runner_ba_av import runner
 
 def test_example_runner_ba_av():
     sim = ExampleAVSimulator()
@@ -241,4 +244,3 @@ def test_example_runner_ba_av():
     with patch('examples.AV.example_runner_ba_av.compress_pickle.dump', side_effect=MemoryError):
         with patch('examples.AV.example_runner_ba_av.LocalTFRunner.train', new=lambda x: 0):
             runner(env_args={'id': 'ast_toolbox:GoExploreAST-v1'}, algo_args={'expert_trajectory': [expert_trajectory] * 50})
-

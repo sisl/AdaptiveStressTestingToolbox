@@ -1,6 +1,8 @@
 import time
+
 # import ast_toolbox.mcts.mctstracker as mctstracker
 import numpy as np
+
 
 class DPWParams:
 	def __init__(self, d, gamma, ec, n, k, alpha, clear_nodes): #like constructor self must be as the first
@@ -142,17 +144,3 @@ def rollout(tree, s, depth):
 		sp,r = tree.f.model.getNextState(s,a)
 		qval = (r+rollout(tree,sp,depth-1))
 		return qval
-
-
-
-
-
-
-
-
-
-
-
-
-
-

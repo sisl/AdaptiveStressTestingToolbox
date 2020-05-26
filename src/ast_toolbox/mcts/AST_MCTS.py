@@ -1,6 +1,8 @@
 import numpy as np
+
 import ast_toolbox.mcts.MCTSdpw as MCTSdpw
 import ast_toolbox.mcts.MDP as MDP
+
 
 class StressTestResults:
 	def __init__(self,rewards,action_seqs,q_values):
@@ -51,4 +53,3 @@ def stress_test2(ast,mcts_params,top_paths,verbose=True,return_tree=False):
 		return results,tree.s_tree
 	else:
 		return results
-

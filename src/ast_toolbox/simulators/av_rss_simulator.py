@@ -1,9 +1,12 @@
 #import base Simulator class
-from ast_toolbox.simulators import ExampleAVSimulator
 #Used for math and debugging
 import numpy as np
+
 # import ast_toolbox.simulators.rss_metrics as rss
+from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.simulators import rss_metrics as rss
+
+
 #Define the class
 class AVRSSSimulator(ExampleAVSimulator):
     """

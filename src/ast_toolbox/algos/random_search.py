@@ -1,12 +1,13 @@
+import time
 from enum import Enum
 from enum import unique
 
 import numpy as np
 import tensorflow as tf
-import time
 from garage.misc import logger
 from garage.tf.algos import BatchPolopt
 from garage.tf.misc import tensor_utils
+
 
 class RandomSearch(BatchPolopt):
     def __init__(self,

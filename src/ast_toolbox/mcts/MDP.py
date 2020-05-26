@@ -1,5 +1,7 @@
-import numpy as np
 import time
+
+import numpy as np
+
 
 def identity(*args):
     if len(args) == 1:

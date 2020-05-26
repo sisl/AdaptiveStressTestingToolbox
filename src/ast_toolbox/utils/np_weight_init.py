@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
-from garage.misc.tensor_utils import flatten_tensors, unflatten_tensors
+from garage.misc.tensor_utils import flatten_tensors
+from garage.misc.tensor_utils import unflatten_tensors
+
 
 #initializ parameter with numpy (easier for seeding)
 #bias initialzied with0, weight initialzied with XavierUniformInitializer

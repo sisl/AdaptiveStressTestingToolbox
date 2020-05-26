@@ -1,26 +1,28 @@
 # Import the example classes
-from ast_toolbox.simulators import ExampleAVSimulator
-from ast_toolbox.rewards import ExampleAVReward
-from ast_toolbox.spaces import ExampleAVSpaces
+import pickle
 
-# Import the AST classes
-from ast_toolbox.envs import ASTEnv
-from ast_toolbox.samplers import ASTVectorizedSampler
-from ast_toolbox.algos import MCTS
-from ast_toolbox.algos import MCTSBV
-from ast_toolbox.algos import MCTSRS
-import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+import fire
+import numpy as np
+# Useful imports
+# from example_save_trials import *
+import tensorflow as tf
 # Import the necessary garage classes
 # from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 # from garage.misc import logger
 from garage.experiment import run_experiment
 from garage.tf.experiment import LocalTFRunner
-# Useful imports
-# from example_save_trials import *
-import tensorflow as tf
-import pickle
-import fire
-import numpy as np
+
+import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+from ast_toolbox.algos import MCTS
+from ast_toolbox.algos import MCTSBV
+from ast_toolbox.algos import MCTSRS
+# Import the AST classes
+from ast_toolbox.envs import ASTEnv
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.samplers import ASTVectorizedSampler
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.spaces import ExampleAVSpaces
+
 
 def runner(
            mcts_type=None,

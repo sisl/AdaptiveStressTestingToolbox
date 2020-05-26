@@ -1,7 +1,10 @@
-from ast_toolbox.simulators import ASTSimulator
-import numpy as np
 import pickle as pickle
+
+import numpy as np
 from garage.tf.misc import tensor_utils
+
+from ast_toolbox.simulators import ASTSimulator
+
 
 #Define the class
 class NNSUTSimulator(ASTSimulator):

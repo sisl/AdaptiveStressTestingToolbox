@@ -1,8 +1,8 @@
 # import base class
-from ast_toolbox.rewards import ASTReward
-
 # useful packages for math and debugging
 import numpy as np
+
+from ast_toolbox.rewards import ASTReward
 
 
 # Define the class, inherit from the base

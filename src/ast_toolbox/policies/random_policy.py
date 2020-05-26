@@ -1,12 +1,12 @@
 import numpy as np
 import tensorflow as tf
-
 from garage.misc import logger
 from garage.tf.misc import tensor_utils
 from garage.tf.policies import Policy
-from garage.tf.spaces import Box,Discrete
-
+from garage.tf.spaces import Box
+from garage.tf.spaces import Discrete
 from gym.utils import seeding
+
 
 class RandomDistribution:
     def __init__(self, space, seed=None):

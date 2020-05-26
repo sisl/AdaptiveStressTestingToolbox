@@ -1,8 +1,7 @@
 import pickle
 
-from dowel import logger
 import numpy as np
-
+from dowel import logger
 from garage.experiment import deterministic
 from garage.sampler.stateful_pool import SharedGlobal
 from garage.sampler.stateful_pool import singleton_pool

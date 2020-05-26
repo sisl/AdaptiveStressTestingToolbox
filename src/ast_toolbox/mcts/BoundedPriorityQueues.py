@@ -1,6 +1,8 @@
-from depq import DEPQ
 import copy
+
 import numpy as np
+from depq import DEPQ
+
 
 class BoundedPriorityQueue:
 	def __init__(self,N):

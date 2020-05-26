@@ -2,6 +2,7 @@ import ast_toolbox.mcts.AdaptiveStressTesting as AST
 import ast_toolbox.mcts.AdaptiveStressTestingRandomSeed as AST_RS
 from ast_toolbox.algos.mcts import MCTS
 
+
 class MCTSRS(MCTS):
 	"""
 	MCTS with Random Seed as action

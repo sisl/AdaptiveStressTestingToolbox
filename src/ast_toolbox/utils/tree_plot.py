@@ -1,9 +1,11 @@
-import pydot
 import uuid
-import numpy as np
+
 import matplotlib as mpl
-mpl.use('Agg')
+import numpy as np
+import pydot
 from matplotlib import pyplot as plt
+
+mpl.use('Agg')
 
 def get_root(tree):
 	for s in tree.keys():
@@ -66,4 +68,3 @@ def plot_node_num(tree,path,format="svg"):
 	plt.xlabel('Depth')
 	plt.ylabel('Node Number')        
 	plt.savefig(filename)
-

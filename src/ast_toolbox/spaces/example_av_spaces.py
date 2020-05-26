@@ -1,6 +1,8 @@
-from ast_toolbox.spaces import ASTSpaces
-from gym.spaces.box import Box
 import numpy as np
+from gym.spaces.box import Box
+
+from ast_toolbox.spaces import ASTSpaces
+
 
 class ExampleAVSpaces(ASTSpaces):
     def __init__(self,

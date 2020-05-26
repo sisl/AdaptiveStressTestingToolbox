@@ -1,5 +1,6 @@
 import argparse
 
+
 def get_ga_parser(log_dir='./'):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--exp_name', type=str, default="cartpole")

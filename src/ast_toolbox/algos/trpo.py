@@ -1,14 +1,16 @@
+import time
 from enum import Enum
 from enum import unique
+
+import numpy as np
+import tensorflow as tf
+from garage.misc import logger
+from garage.sampler.utils import rollout
 from garage.tf.algos import NPO
 from garage.tf.algos.npo import PGLoss
 from garage.tf.optimizers import ConjugateGradientOptimizer
 from garage.tf.optimizers import PenaltyLbfgsOptimizer
-import time
-from garage.misc import logger
-import tensorflow as tf
-from garage.sampler.utils import rollout
-import numpy as np
+
 
 @unique
 class KLConstraint(Enum):

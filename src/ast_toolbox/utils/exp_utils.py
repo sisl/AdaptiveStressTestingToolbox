@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def log_mean_exp(x, dim):
     """
     Compute the log(mean(exp(x), dim)) in a numerically stable manner

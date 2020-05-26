@@ -1,7 +1,8 @@
 import csv
 import os.path
-from matplotlib import pyplot as plt
+
 import numpy as np
+from matplotlib import pyplot as plt
 
 n_trial = 5
 top_k = 10

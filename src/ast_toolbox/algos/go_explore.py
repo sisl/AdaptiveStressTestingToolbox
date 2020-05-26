@@ -1,20 +1,21 @@
 """Natural Policy Gradient Optimization."""
-from enum import Enum, unique
-
-import numpy as np
-
-from garage.tf.algos.batch_polopt import BatchPolopt
-from cached_property import cached_property
-from dowel import logger, tabular
-import sys
+import contextlib
+import os
 import pdb
-import time
-
-from bsddb3 import db
 import pickle
 import shelve
-import os
-import contextlib
+import sys
+import time
+from enum import Enum
+from enum import unique
+
+import numpy as np
+from bsddb3 import db
+from cached_property import cached_property
+from dowel import logger
+from dowel import tabular
+from garage.tf.algos.batch_polopt import BatchPolopt
+
 
 class Cell():
 

@@ -1,29 +1,31 @@
 # Import the example classes
-from ast_toolbox.simulators import ExampleAVSimulator
+import pickle
+import shelve
+
+import fire
+import gym
+import numpy as np
+# Useful imports
+# from example_save_trials import *
+import tensorflow as tf
+from bsddb3 import db
+from garage.envs.normalized_env import normalize
+from garage.experiment import run_experiment
+from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.tf.envs.base import TfEnv
+from garage.tf.experiment import LocalTFRunner
+
+# Import the necessary garage classes
+from ast_toolbox.algos import GoExplore
+from ast_toolbox.policies import GoExplorePolicy
 from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.samplers import BatchSampler
+from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
 
-# Import the necessary garage classes
-from ast_toolbox.algos import GoExplore
-from garage.tf.envs.base import TfEnv
-from ast_toolbox.policies import GoExplorePolicy
-from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.envs.normalized_env import normalize
-from garage.experiment import run_experiment
-from garage.tf.experiment import LocalTFRunner
-from ast_toolbox.samplers import BatchSampler
-import gym
 
-# Useful imports
-# from example_save_trials import *
-import tensorflow as tf
-import fire
-from bsddb3 import db
-import pickle
-import shelve
-import numpy as np
 
 #
 # parser = argparse.ArgumentParser()

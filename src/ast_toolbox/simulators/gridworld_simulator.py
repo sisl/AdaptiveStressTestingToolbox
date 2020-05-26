@@ -1,8 +1,9 @@
 # from garage.envs.base import GarageEnv
 # from garage.envs.base import Step
 # from garage.spaces import Box
-from ast_toolbox.simulators import ASTSimulator
 import numpy as np
+
+from ast_toolbox.simulators import ASTSimulator
 
 
 class GridworldSimulator(ASTSimulator):

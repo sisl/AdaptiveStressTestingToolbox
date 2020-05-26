@@ -1,26 +1,28 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-# from garage.tf.algos.trpo import TRPO
-from src.ast_toolbox import TfEnv
-from garage.misc import logger
-
-from src.ast_toolbox.rewards import ASTRewardS
-from src.ast_toolbox import ASTEnv
-from CartPole.cartpole_simulator import CartpoleSimulator
-
-from src.ast_toolbox.algos.mctsrs import MCTSRS
-
-import os.path as osp
 import argparse
+import csv
+import math
+import os
+import os.path as osp
+
+import joblib
+import numpy as np
+import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 # from example_save_trials import *
 import tensorflow as tf
-import joblib
-import math
-import numpy as np
+from CartPole.cartpole_simulator import CartpoleSimulator
+from garage.misc import logger
+# from garage.tf.algos.trpo import TRPO
+from src.ast_toolbox import ASTEnv
+from src.ast_toolbox import TfEnv
+from src.ast_toolbox.algos.mctsrs import MCTSRS
+from src.ast_toolbox.rewards import ASTRewardS
 
-import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
-import csv
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
+
+
+
+
+
 # Logger Params
 parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default='cartpole')

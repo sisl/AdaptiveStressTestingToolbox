@@ -1,19 +1,21 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
+import os.path as osp
+import time
 
-from garage.tf.algos.trpo import TRPO
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-
+import joblib
+import numpy as np
+import tensorflow as tf
 from CartPole.cartpole import CartPoleEnv
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.misc import logger
+from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
-from garage.misc import logger
-import os.path as osp
-import tensorflow as tf
-import joblib
-import time
-import numpy as np
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
+
+
+
 
 env = TfEnv(CartPoleEnv(use_seed=False))
 

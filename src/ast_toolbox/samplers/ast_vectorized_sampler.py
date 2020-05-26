@@ -1,9 +1,9 @@
+import numpy as np
 from garage.sampler.on_policy_vectorized_sampler import OnPolicyVectorizedSampler
 
-import numpy as np
-
-from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.simulators import ExampleAVSimulator
+
 
 class ASTVectorizedSampler(OnPolicyVectorizedSampler):
     def __init__(self, algo, env, n_envs = 1, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):

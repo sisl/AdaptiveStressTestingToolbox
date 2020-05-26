@@ -1,6 +1,8 @@
 # useful packages for math and debugging
-import numpy as np
 import pdb
+
+import numpy as np
+
 
 # Define the class, inherit from the base
 class ActionModel(object):

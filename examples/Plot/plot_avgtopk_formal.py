@@ -1,10 +1,13 @@
 import csv
 import os.path
-import matplotlib 
+
+import matplotlib
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib2tikz import save as tikz_save
+
 matplotlib.rcParams.update({'font.size': 10, 'font.family':'Times New Roman',\
                             'text.usetex': True})
-from matplotlib import pyplot as plt
-import numpy as np
 
 n_trial = 10
 top_k = 1
@@ -135,6 +138,5 @@ plt.xlabel('Step Number')
 # plt.ylabel('Average Top '+str(top_k) +' Reward')    
 plt.ylabel('Average Best Return')     
 fig.savefig(plot_path+plot_name+'.pdf', bbox_inches='tight')
-from matplotlib2tikz import save as tikz_save
 tikz_save(plot_path+plot_name+'.tex')
 plt.close(fig)

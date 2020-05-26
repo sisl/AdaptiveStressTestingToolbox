@@ -1,12 +1,14 @@
-import pickle
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm
-import matplotlib.colors as colors
-import matplotlib.animation
-
 import pdb
+import pickle
+
+import matplotlib.animation
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+
+
 def render_paths_heatmap_gif(filepath, gif_file=None, frames=10):
     ped_x_max = 3.0
     ped_y_max = 10.0

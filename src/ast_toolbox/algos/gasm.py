@@ -1,11 +1,12 @@
-from garage.misc import ext
 import garage.misc.logger as logger
-from garage.tf.misc import tensor_utils
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from garage.misc import ext
+from garage.tf.misc import tensor_utils
 
 from ast_toolbox.algos import GA
 from ast_toolbox.optimizers import DirectionConstraintOptimizer
+
 
 class GASM(GA):
 	"""
@@ -155,4 +156,3 @@ class GASM(GA):
 	# 		print(divergence)
 	# 		self.divergences[p] = divergence
 	# 	return dict()
-

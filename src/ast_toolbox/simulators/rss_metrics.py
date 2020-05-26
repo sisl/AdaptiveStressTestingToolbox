@@ -1,6 +1,7 @@
 from copy import copy
-import numpy as np
 from enum import Enum
+
+import numpy as np
 
 
 # The state of a car at the specified timestep

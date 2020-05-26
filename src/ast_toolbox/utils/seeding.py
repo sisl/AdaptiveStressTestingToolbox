@@ -1,10 +1,11 @@
 import hashlib
-import numpy as np
 import os
 import random as _random
-from six import integer_types
 import struct
 import sys
+
+import numpy as np
+from six import integer_types
 
 # from gym import error
 

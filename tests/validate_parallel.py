@@ -1,20 +1,19 @@
 # Import the example classes
-from ast_toolbox.simulators import ExampleAVSimulator
-from ast_toolbox.rewards import ExampleAVReward
-from ast_toolbox.spaces import ExampleAVSpaces
+from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
-from garage.tf.experiment import LocalTFRunner
-
-# Import the AST classes
-from ast_toolbox.envs import ASTEnv
-from ast_toolbox.samplers import ASTVectorizedSampler
-
+from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
+from garage.tf.experiment import LocalTFRunner
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.envs.normalized_env import normalize
+
+# Import the AST classes
+from ast_toolbox.envs import ASTEnv
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.samplers import ASTVectorizedSampler
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.spaces import ExampleAVSpaces
 
 # Useful imports
 
