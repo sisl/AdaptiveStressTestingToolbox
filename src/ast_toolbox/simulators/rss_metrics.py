@@ -56,6 +56,8 @@ class Response(Enum):
     ImproperBoth = 3
 
 # Dangerous descriptors
+
+
 class Dangerous(Enum):
     Safe = 0
     LongitudinallyDangerous = 1
@@ -120,7 +122,7 @@ def is_proper(tb_lat, tb_long, c1, c2, lat_params, long_params):
         resp1 = Response.Proper if lat1 else Response.ImproperLateral
         resp2 = Response.Proper if lat2 else Response.ImproperLateral
     else:
-        if c1.vy <=0:
+        if c1.vy <= 0:
             prefix = "Note: Swapped (and flipped y dimension) c1 (vy=" + str(c1.vy) + ") and c2 (vy=" + str(c2.vy) + \
                      ") so that c1 has positive velocity. "
             c1, c2 = swap_and_flip_y(c1, c2)
@@ -137,18 +139,18 @@ def is_proper(tb_lat, tb_long, c1, c2, lat_params, long_params):
 
 # Returns a tuple containing whether each car had a proper lateral response at the given timestep
 # c1 is to the left of c2
-def is_proper_lat(tb, c1, c2, p, prefix = ""):
+def is_proper_lat(tb, c1, c2, p, prefix=""):
     t = c1.t
     # Before the blame time any response is appropriate
     if t < tb:
         reason = prefix + "Current t=" + str(t) + ", is before blame time, tb=" + str(tb)
         return True, reason, True, reason
-    elif t >= tb and t <= tb+p.rho:
+    elif t >= tb and t <= tb + p.rho:
         # Both cars can do any lateral action as long as |a| < a_lat_max_acc
-        reason1 =  prefix + "After blame time before response: c1.ax=" + str(c1.ax) +  " and p.a_lat_max_acc=" + \
-                   str(p.a_lat_max_acc) + ". A proper response has abs(c1.ax) < p.a_lat_max_acc"
+        reason1 = prefix + "After blame time before response: c1.ax=" + str(c1.ax) + " and p.a_lat_max_acc=" + \
+            str(p.a_lat_max_acc) + ". A proper response has abs(c1.ax) < p.a_lat_max_acc"
         reason2 = prefix + "After blame time before response: c2.ax=" + str(c2.ax) + " and p.a_lat_max_acc=" + \
-                  str(p.a_lat_max_acc) + ". A proper response has abs(c2.ax) < p.a_lat_max_acc"
+            str(p.a_lat_max_acc) + ". A proper response has abs(c2.ax) < p.a_lat_max_acc"
         return abs(c1.ax) < p.a_lat_max_acc, reason1, abs(c2.ax) < p.a_lat_max_acc, reason2
     else:
         is_proper_c1 = None
@@ -156,28 +158,28 @@ def is_proper_lat(tb, c1, c2, p, prefix = ""):
         if c1.vx > 0:
             # c1 must apply lateral acceleration of at most -a_lat_min_brake
             reason1 = prefix + "In response time (with c1.vx=" + str(c1.vx) + " > 0): c1.ax=" + str(c1.ax) + \
-                      " and -p.a_lat_min_brake=" + str(-p.a_lat_max_acc) + \
-                      ". A proper response requires c1.ax <= -p.a_lat_min_brake"
+                " and -p.a_lat_min_brake=" + str(-p.a_lat_max_acc) + \
+                ". A proper response requires c1.ax <= -p.a_lat_min_brake"
             is_proper_c1 = c1.ax <= -p.a_lat_min_brake
         else:
             # After a lateral velocity of 0 has been reached then c1 can have any non-positive lateral velocity
             # (acceleration?)
             reason1 = prefix + "In response time (with c1.vx=" + str(c1.vx) + \
-                      "<=0). A proper response requires any non-positive lateral velocity"
+                "<=0). A proper response requires any non-positive lateral velocity"
             is_proper_c1 = c1.vx <= 0
 
         is_proper_c2 = None
         reason2 = "Error"
         if c2.vx < 0:
             # c2 must apply a lateral accerlation of at least a_lat_min_brake
-            reason2 = prefix +  "In response time (with c2.vx=" + str(c2.vx) + " < 0): c2.ax=" + str(c2.ax) + \
-                      " and p.a_lat_min_brake=" + str(p.a_lat_max_acc) + \
-                      ". A proper response requires c2.ax >= p.a_lat_min_brake"
+            reason2 = prefix + "In response time (with c2.vx=" + str(c2.vx) + " < 0): c2.ax=" + str(c2.ax) + \
+                " and p.a_lat_min_brake=" + str(p.a_lat_max_acc) + \
+                ". A proper response requires c2.ax >= p.a_lat_min_brake"
             is_proper_c2 = c2.ax >= p.a_lat_min_brake
         else:
             # c2 cn have any non-negative lateral velocity (acceleration?)
             reason2 = prefix + "In response time (with c2.vx=" + str(c2.vx) + \
-                      ">=0). A proper response requires any non-negative lateral velocity"
+                ">=0). A proper response requires any non-negative lateral velocity"
             is_proper_c2 = c2.vx >= 0
 
         return is_proper_c1, reason1, is_proper_c2, reason2
@@ -197,43 +199,43 @@ def is_proper_long(tb, c1, c2, p, prefix=""):
 
     if same_dir(c1.vy, c2.vy):
         prefix = prefix + "Same direction (c1.vy=" + str(c1.vy) + ", c2.vy=" + str(c2.vy) + ")"
-        if t >= tb and t <= tb+p.rho:
+        if t >= tb and t <= tb + p.rho:
             # c1's acceleration must be at most a_max_acc
             # c2's acceleration must be at least -a_max_brake
             reason1 = prefix + "After blame time before response: c1.ay=" + str(c1.ay) + \
-                      ", p.a_max_acc=" +  str(p.a_max_acc) + ". A proper response requires c1.ay <= p.a_max_acc"
+                ", p.a_max_acc=" + str(p.a_max_acc) + ". A proper response requires c1.ay <= p.a_max_acc"
             reason2 = prefix + "After blame time before response: c2.ay=" + str(c2.ay) + \
-                      ", -p.a_max_brake=" + str(-p.a_max_brake) + ". A proper response requires c2.ay >= -p.a_max_brake"
+                ", -p.a_max_brake=" + str(-p.a_max_brake) + ". A proper response requires c2.ay >= -p.a_max_brake"
             return c1.ay <= p.a_max_acc, reason1, c2.ay >= -p.a_max_brake, reason2
         elif is_dangerous_d(d, dmin) and t > tb + p.rho:
             # c1's acceleration must be at most -a_min_brake
             # c2's acceleration must be at least -a_max_brake'
             reason1 = prefix + "In response time (still dangerous): c1.ay=" + str(c1.ay) + \
-                      ", -p.a_min_brake1=" + str(-p.a_min_brake1) + \
-                      ". A proper response requires c1.ay <= -p.a_min_brake1"
+                ", -p.a_min_brake1=" + str(-p.a_min_brake1) + \
+                ". A proper response requires c1.ay <= -p.a_min_brake1"
             reason2 = prefix + "In response time (still dangerous): c2.ay=" + str(c2.ay) + \
-                      ", -p.a_max_brake=" + str(-p.a_max_brake) + ". A proper response requires c2.ay >= -p.a_max_brake"
+                ", -p.a_max_brake=" + str(-p.a_max_brake) + ". A proper response requires c2.ay >= -p.a_max_brake"
             return c1.ay <= -p.a_min_brake1, reason1, c2.ay >= -p.a_max_brake, reason2
         elif not is_dangerous_d(d, dmin) and t > tb + p.rho:
             # c1's acceleration must be non-positive
             # c2's acceleration must be non-negative
             reason1 = prefix + "In response time (no longer dangerous): c1.ay=" + str(c1.ay) + \
-                      ". A proper response requires c1.ay be non-positive"
-            reason2 = prefix + "In response time (no longer dangerous): c2.ay=" +  str(c2.ay) + \
-                      ". A proper response requires c2.ay be non-negative"
+                ". A proper response requires c1.ay be non-positive"
+            reason2 = prefix + "In response time (no longer dangerous): c2.ay=" + str(c2.ay) + \
+                ". A proper response requires c2.ay be non-negative"
             return c1.ay <= 0, reason1, c2.ay >= 0, reason2
         else:
             raise Exception("Invalid state")
-    #elif opp_dir(c1.vy, c2.vy):
+    # elif opp_dir(c1.vy, c2.vy):
     else:
-        prefix = prefix  + "Opposite direction (c1.vy=" + str(c1.vy) + ", c2.vy=" +  str(c2.vy) + ")"
-        if t >= tb and t <= tb+p.rho:
+        prefix = prefix + "Opposite direction (c1.vy=" + str(c1.vy) + ", c2.vy=" + str(c2.vy) + ")"
+        if t >= tb and t <= tb + p.rho:
             # c1's acceleration must be at most a_max_acc
             # c2's accerlation must be at least -a_max_acc
-            reason1 = prefix +  "After blame time before response: c1.ay=" + str(c1.ay) + ", p.a_max_acc=" + \
-                      str(p.a_max_acc) + ". A proper response requires c1.ay <= p.a_max_acc"
+            reason1 = prefix + "After blame time before response: c1.ay=" + str(c1.ay) + ", p.a_max_acc=" + \
+                str(p.a_max_acc) + ". A proper response requires c1.ay <= p.a_max_acc"
             reason2 = prefix + "After blame time before response: c2.ay=" + str(c2.ay) + ", -p.a_max_acc=" + \
-                      str(-p.a_max_acc) + ". A proper response requires c2.ay >= -p.a_max_acc"
+                str(-p.a_max_acc) + ". A proper response requires c2.ay >= -p.a_max_acc"
             return c1.ay <= p.a_max_acc, reason1, c2.ay >= -p.a_max_acc, reason2
 
         is_proper_c1 = None
@@ -241,13 +243,13 @@ def is_proper_long(tb, c1, c2, p, prefix=""):
         if c1.vy > 0 and t > tb + p.rho:
             # c1's acceleration must be at most -a_min_brake1
             reason1 = prefix + "In response time (with c1.vy = " + str(c1.vy) + " > 0): c1.ay=" + str(c1.ay) + \
-                      ", -p.a_min_brake1=" + str(-p.a_min_brake1) +  \
-                      ". A proper response requires c1.ay <= -p.a_min_brake1"
+                ", -p.a_min_brake1=" + str(-p.a_min_brake1) +  \
+                ". A proper response requires c1.ay <= -p.a_min_brake1"
             is_proper_c1 = c1.ay <= -p.a_min_brake1
         elif c1.vy <= 0 and t > tb + p.rho:
             # c1's acceleration can be any non-positive acceleration
             reason1 = prefix + "In response time (with c1.vy = " + str(c1.vy) + " <= 0): c1.ay=" + str(c1.ay) + \
-                      ". A proper response requires that c1 have any non-positive acceleration"
+                ". A proper response requires that c1 have any non-positive acceleration"
             is_proper_c1 = c1.ay <= 0
         else:
             raise Exception("Invalid state")
@@ -255,12 +257,12 @@ def is_proper_long(tb, c1, c2, p, prefix=""):
         if c2.vy < 0 and t > tb + p.rho:
             # c2's acceleration must be at most -a_min_brake2
             reason2 = prefix + "In response time (with c2.vy = " + str(c2.vy) + " < 0): c2.ay=" + str(c2.ay) + \
-                      ", p.a_min_brake2=" + str(p.a_min_brake2) + ". A proper response requires c2.ay >= p.a_min_brake2"
+                ", p.a_min_brake2=" + str(p.a_min_brake2) + ". A proper response requires c2.ay >= p.a_min_brake2"
             is_proper_c2 = c2.ay >= p.a_min_brake2
         elif c2.vy >= 0 and t > tb + p.rho:
             # c2's acceleration can be any non-nonegative acceleration
             reason2 = prefix + "In response time (with c2.vy = " + str(c2.vy) + " >= 0): c2.ay=" + str(c2.ay) + \
-                      ". A proper response requires that c2 have any non-negative acceleration"
+                ". A proper response requires that c2 have any non-negative acceleration"
             is_proper_c2 = c2.ay >= 0
         else:
             raise Exception("Invalid State")
@@ -277,7 +279,7 @@ def same_dir(v1, v2):
 
 # returns true if the vehicles are moving in the opposite direction or if one is stopped
 def opp_dir(v1, v2):
-    return v1 >=0 and v2 <= 0
+    return v1 >= 0 and v2 <= 0
 
 
 # Given the car distance d, and the min safe distance dmin, return if d is safe
@@ -287,8 +289,8 @@ def is_dangerous_d(d, dmin):
 
 # Get the danger level of a state in both the longitudinal and lateral directions
 def is_dangerous(c1, c2, lat_params, long_params):
-    return Dangerous(is_long_dangerous(c1, c2, long_params)*Dangerous.LongitudinallyDangerous.value + \
-           is_lat_dangerous(c1, c2, lat_params)*Dangerous.LaterallyDangerous.value)
+    return Dangerous(is_long_dangerous(c1, c2, long_params) * Dangerous.LongitudinallyDangerous.value +
+                     is_lat_dangerous(c1, c2, lat_params) * Dangerous.LaterallyDangerous.value)
 
 
 # Check if a longitudinal configuration is dangerous
@@ -325,28 +327,28 @@ def longitudinal_dmin(v1, v2, long_params):
 # Get the minimum longitudnal safe distance when cars are moving in the same direction given the velocities and
 # the stopping params
 def longitudinal_dmin_same_dir(v1, v2, p):
-    dmin = p.mu + v1*p.rho + 0.5*p.a_max_acc*p.rho**2 + (v1 + p.rho*p.a_max_acc)**2/(2*p.a_min_brake1) - \
-           v2**2/(2*p.a_max_brake)
+    dmin = p.mu + v1 * p.rho + 0.5 * p.a_max_acc * p.rho**2 + (v1 + p.rho * p.a_max_acc)**2 / (2 * p.a_min_brake1) - \
+        v2**2 / (2 * p.a_max_brake)
     dmin = max(dmin, 0)
     return dmin
 
 
 # Get the minimum longitudnal safe distance when cars are moving in opposite directions given the velocities and the
 # stopping params
-def longitudinal_dmin_opp_dir(v1, v2,  p):
-    v1rho = v1 + p.rho*p.a_max_acc
-    v2rho = abs(v2) + p.rho*p.a_max_acc
-    dmin = p.mu + (v1 + v1rho)*p.rho/2 + v1rho**2/(2*p.a_min_brake1) + (abs(v2) + v2rho)*p.rho/2 + \
-           v2rho**2/(2*p.a_min_brake2)
+def longitudinal_dmin_opp_dir(v1, v2, p):
+    v1rho = v1 + p.rho * p.a_max_acc
+    v2rho = abs(v2) + p.rho * p.a_max_acc
+    dmin = p.mu + (v1 + v1rho) * p.rho / 2 + v1rho**2 / (2 * p.a_min_brake1) + (abs(v2) + v2rho) * p.rho / 2 + \
+        v2rho**2 / (2 * p.a_min_brake2)
     return dmin
 
 
 # Get the minimum lateral safe distance based on car velocities and stopping parameters
 # Note that c1 is to the left of c2
 def lateral_dmin(v1, v2, p):
-    v1rho = v1 + p.rho*p.a_lat_max_acc
-    v2rho = v2 - p.rho*p.a_lat_max_acc
-    dmin = (v1 + v1rho)*p.rho/2 + v1rho**2 / (2*p.a_lat_min_brake) - ((v2 + v2rho)*p.rho/2 -
-                                                                     v2rho**2/(2*p.a_lat_min_brake))
-    dmin = max(0,dmin) + p.mu
+    v1rho = v1 + p.rho * p.a_lat_max_acc
+    v2rho = v2 - p.rho * p.a_lat_max_acc
+    dmin = (v1 + v1rho) * p.rho / 2 + v1rho**2 / (2 * p.a_lat_min_brake) - ((v2 + v2rho) * p.rho / 2 -
+                                                                            v2rho**2 / (2 * p.a_lat_min_brake))
+    dmin = max(0, dmin) + p.mu
     return dmin

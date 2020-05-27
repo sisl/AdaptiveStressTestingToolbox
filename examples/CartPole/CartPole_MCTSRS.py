@@ -16,10 +16,7 @@ from src.ast_toolbox import TfEnv
 from src.ast_toolbox.algos.mctsrs import MCTSRS
 from src.ast_toolbox.rewards import ASTRewardS
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 # Logger Params
@@ -57,36 +54,36 @@ top_paths = BPQ.BoundedPriorityQueue(top_k)
 np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
-	# Create env
+    # Create env
 
-	data = joblib.load("../Cartpole/control_policy.pkl")
-	sut = data['policy']
-	reward_function = ASTRewardS()
+    data = joblib.load("../Cartpole/control_policy.pkl")
+    sut = data['policy']
+    reward_function = ASTRewardS()
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=True)
-	env = ASTEnv(open_loop=False,
-								 simulator=simulator,
-								 fixed_init_state=True,
-								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-								 reward_function=reward_function,
-								 )
-	env = TfEnv(env)
+    simulator = CartpoleSimulator(sut=sut, max_path_length=100, use_seed=True)
+    env = ASTEnv(open_loop=False,
+                 simulator=simulator,
+                 fixed_init_state=True,
+                 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+                 reward_function=reward_function,
+                 )
+    env = TfEnv(env)
 
-	algo = MCTSRS(
-	    env=env,
-		stress_test_num=2,
-		max_path_length=100,
-		ec=100.0,
-		n_itr=1,
-		k=0.5,
-		alpha=0.85,
-		seed=0,
-		rsg_length=2,
-		clear_nodes=True,
-		log_interval=1000,
-	    top_paths=top_paths,
-	    plot_tree=True,
-	    plot_path=args.log_dir+'/tree'
-	    )
+    algo = MCTSRS(
+        env=env,
+        stress_test_num=2,
+        max_path_length=100,
+        ec=100.0,
+        n_itr=1,
+        k=0.5,
+        alpha=0.85,
+        seed=0,
+        rsg_length=2,
+        clear_nodes=True,
+        log_interval=1000,
+        top_paths=top_paths,
+        plot_tree=True,
+        plot_path=args.log_dir + '/tree'
+    )
 
-	algo.train()
+    algo.train()

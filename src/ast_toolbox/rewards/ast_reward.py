@@ -1,8 +1,6 @@
 
-import pdb
 
 # useful packages for math and debugging
-import numpy as np
 
 
 # Define the class, inherit from the base

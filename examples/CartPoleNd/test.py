@@ -18,10 +18,7 @@ from src.ast_toolbox import ASTEnv
 from src.ast_toolbox import TfEnv
 from src.ast_toolbox.rewards import ASTRewardS
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 # Logger Params
@@ -59,87 +56,87 @@ top_paths = BPQ.BoundedPriorityQueue(top_k)
 np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
-	# Create env
-	# data = joblib.load("../CartPole/ControlPolicy/itr_"+str(args.sut_itr)+".pkl")
-	data = joblib.load("../CartPole/Data/Train/itr_5.pkl")
-	sut = data['policy']
-	reward_function = ASTRewardS()
-	# sut_param = np.copy(sut.get_param_values(trainable=True))
+    # Create env
+    # data = joblib.load("../CartPole/ControlPolicy/itr_"+str(args.sut_itr)+".pkl")
+    data = joblib.load("../CartPole/Data/Train/itr_5.pkl")
+    sut = data['policy']
+    reward_function = ASTRewardS()
+    # sut_param = np.copy(sut.get_param_values(trainable=True))
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
-	env = ASTEnv(open_loop=False,
-								 simulator=simulator,
-								 fixed_init_state=True,
-								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-								 reward_function=reward_function,
-								 )
-	env = TfEnv(env)
-	print(env.vectorized)
-	# Create policy
-	policy = GaussianMLPPolicy(
-	    name='ast_agent',
-	    env_spec=env.spec,
-	    hidden_sizes=(64, 32)
-	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=ast_spec,
-	#                             hidden_dim=128,
-	#                             use_peepholes=True)
-	
-	params = policy.get_params()
-	sess.run(tf.variables_initializer(params))
+    simulator = CartpoleSimulator(sut=sut, max_path_length=100, use_seed=False, nd=1)
+    env = ASTEnv(open_loop=False,
+                 simulator=simulator,
+                 fixed_init_state=True,
+                 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+                 reward_function=reward_function,
+                 )
+    env = TfEnv(env)
+    print(env.vectorized)
+    # Create policy
+    policy = GaussianMLPPolicy(
+        name='ast_agent',
+        env_spec=env.spec,
+        hidden_sizes=(64, 32)
+    )
+    # policy = GaussianLSTMPolicy(name='lstm_policy',
+    #                             env_spec=ast_spec,
+    #                             hidden_dim=128,
+    #                             use_peepholes=True)
 
-	# Instantiate the garage objects
-	baseline = LinearFeatureBaseline(env_spec=env.spec)
-	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+    params = policy.get_params()
+    sess.run(tf.variables_initializer(params))
 
-	algo = TRPO(
-	    env=env,
-	    policy=policy,
-	    baseline=baseline,
-	    batch_size=4000,
-	    step_size=0.1,
-	    n_itr=5,
-	    store_paths=True,
-	    # optimizer= optimizer,
-	    max_path_length=100,
-	    top_paths = top_paths,
-	    plot=False,
-	    )
+    # Instantiate the garage objects
+    baseline = LinearFeatureBaseline(env_spec=env.spec)
+    # optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo.train(sess=sess, init_var=False)
+    algo = TRPO(
+        env=env,
+        policy=policy,
+        baseline=baseline,
+        batch_size=4000,
+        step_size=0.1,
+        n_itr=5,
+        store_paths=True,
+        # optimizer= optimizer,
+        max_path_length=100,
+        top_paths=top_paths,
+        plot=False,
+    )
 
-	# print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))
+    algo.train(sess=sess, init_var=False)
 
-	from src.ast_toolbox.algos.mcts import MCTS
-	top_paths2 = BPQ.BoundedPriorityQueue(top_k)
-	algo = MCTS(
-	    env=env,
-		stress_test_num=1,
-		max_path_length=100,
-		ec=100.0,
-		n_itr=50,
-		k=0.5,
-		alpha=0.5,#0.85,
-		clear_nodes=False,
-		log_interval=1000,
-	    top_paths=top_paths2,
-	    plot_tree=True,
-	    plot_path=args.log_dir+'/tree'
-	    )
+    # print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))
 
-	algo.train()
+    from src.ast_toolbox.algos.mcts import MCTS
+    top_paths2 = BPQ.BoundedPriorityQueue(top_k)
+    algo = MCTS(
+        env=env,
+        stress_test_num=1,
+        max_path_length=100,
+        ec=100.0,
+        n_itr=50,
+        k=0.5,
+        alpha=0.5,  # 0.85,
+        clear_nodes=False,
+        log_interval=1000,
+        top_paths=top_paths2,
+        plot_tree=True,
+        plot_path=args.log_dir + '/tree'
+    )
 
-	import src.ast_toolbox.mcts.AdaptiveStressTesting as AST
-	import src.ast_toolbox.mcts.ASTSim as ASTSim
+    algo.train()
 
-	# ast_params = AST.ASTParams(100,0,False)
-	# ast = AST.AdaptiveStressTest(p=ast_params, env=env, top_paths=top_paths)
-	print("~~~~~~~~~~~~~~~~~~check TRPO reward consistance~~~~~~~~~~~~~~~")
+    import src.ast_toolbox.mcts.AdaptiveStressTesting as AST
+    import src.ast_toolbox.mcts.ASTSim as ASTSim
 
-	for (r,actions) in top_paths:
-		print(np.mean(np.clip(actions,-1.0,1.0)))
-		action_seq = [AST.ASTAction(a) for a in actions]
-		reward, _ = ASTSim.play_sequence(algo.ast, action_seq, sleeptime=0.0)
-		print("predic reward: ",r)
-		print("actual reward: ",reward)	
+    # ast_params = AST.ASTParams(100,0,False)
+    # ast = AST.AdaptiveStressTest(p=ast_params, env=env, top_paths=top_paths)
+    print("~~~~~~~~~~~~~~~~~~check TRPO reward consistance~~~~~~~~~~~~~~~")
+
+    for (r, actions) in top_paths:
+        print(np.mean(np.clip(actions, -1.0, 1.0)))
+        action_seq = [AST.ASTAction(a) for a in actions]
+        reward, _ = ASTSim.play_sequence(algo.ast, action_seq, sleeptime=0.0)
+        print("predic reward: ", r)
+        print("actual reward: ", reward)

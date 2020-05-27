@@ -16,10 +16,7 @@ from src.ast_toolbox import TfEnv
 from src.ast_toolbox.algos.mcts import MCTS
 from src.ast_toolbox.rewards import ASTRewardS
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 # Logger Params
@@ -57,36 +54,36 @@ top_paths = BPQ.BoundedPriorityQueue(top_k)
 np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
-	# Create env
-	# control_policy_path = "../CartPole/Data/Train/itr_5.pkl"
-	control_policy_path = "../CartPole/control_policy.pkl"
-	print(control_policy_path)
-	data = joblib.load(control_policy_path)
-	sut = data['policy']
-	reward_function = ASTRewardS()
+    # Create env
+    # control_policy_path = "../CartPole/Data/Train/itr_5.pkl"
+    control_policy_path = "../CartPole/control_policy.pkl"
+    print(control_policy_path)
+    data = joblib.load(control_policy_path)
+    sut = data['policy']
+    reward_function = ASTRewardS()
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
-	env = ASTEnv(open_loop=False,
-								 simulator=simulator,
-								 fixed_init_state=True,
-								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-								 reward_function=reward_function,
-								 )
-	env = TfEnv(env)
+    simulator = CartpoleSimulator(sut=sut, max_path_length=100, use_seed=False, nd=1)
+    env = ASTEnv(open_loop=False,
+                 simulator=simulator,
+                 fixed_init_state=True,
+                 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+                 reward_function=reward_function,
+                 )
+    env = TfEnv(env)
 
-	algo = MCTS(
-	    env=env,
-		stress_test_num=2,
-		max_path_length=100,
-		ec=10.0,
-		n_itr=100,
-		k=0.5,
-		alpha=0.5,
-		clear_nodes=False,
-		log_interval=1000,
-	    top_paths=top_paths,
-	    plot_tree=True,
-	    plot_path=args.log_dir+'/tree'
-	    )
+    algo = MCTS(
+        env=env,
+        stress_test_num=2,
+        max_path_length=100,
+        ec=10.0,
+        n_itr=100,
+        k=0.5,
+        alpha=0.5,
+        clear_nodes=False,
+        log_interval=1000,
+        top_paths=top_paths,
+        plot_tree=True,
+        plot_path=args.log_dir + '/tree'
+    )
 
-	algo.train()
+    algo.train()

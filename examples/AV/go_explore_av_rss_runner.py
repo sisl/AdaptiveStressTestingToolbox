@@ -4,9 +4,9 @@ import pdb
 
 import fire
 import gym
+import numpy as np
 import tensorflow as tf
 # Useful imports
-from example_save_trials import *
 from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
@@ -26,7 +26,7 @@ from ast_toolbox.spaces import ExampleAVSpaces
 # Import the AST classes
 
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 #
 # parser = argparse.ArgumentParser()
@@ -41,6 +41,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 # batch_size = 4000
 # max_path_length = 50
 # n_envs = batch_size // max_path_length
+
 
 def runner(exp_name='av',
            use_ram=False,
@@ -65,7 +66,6 @@ def runner(exp_name='av',
         batch_size = max_path_length * n_parallel
 
     def run_task(snapshot_config, *_):
-
 
         config = tf.ConfigProto(device_count={'GPU': 0})
         # config.gpu_options.allow_growth = True
@@ -111,14 +111,14 @@ def runner(exp_name='av',
                     s_0 = [-1.0, -2.0, 1.0, 11.17, -35.0]
                     #                              )
                     env1 = gym.make('ast_toolbox:GoExploreAST-v1',
-                             open_loop=False,
-                             action_only=True,
-                             fixed_init_state=True,
-                             s_0=s_0,
-                             simulator=sim,
-                             reward_function=reward_function,
-                             spaces=spaces
-                             )
+                                    open_loop=False,
+                                    action_only=True,
+                                    fixed_init_state=True,
+                                    s_0=s_0,
+                                    simulator=sim,
+                                    reward_function=reward_function,
+                                    spaces=spaces
+                                    )
                     env2 = normalize(env1)
                     env = TfEnv(env2)
 
@@ -158,8 +158,7 @@ def runner(exp_name='av',
                     # Run the experiment
                     paths = runner.train(n_epochs=n_itr, batch_size=batch_size, plot=False)
                     print(paths)
-                    best_traj = paths.trajectory * np.array([1, 1/1000, 1/1000, 1/1000, 1/1000, 1/1000, 1/1000])
-                    obs = np.expand_dims(sim.reset(s_0=s_0), axis=0)
+                    best_traj = paths.trajectory * np.array([1, 1 / 1000, 1 / 1000, 1 / 1000, 1 / 1000, 1 / 1000, 1 / 1000])
                     peds = sim._peds
                     car = np.expand_dims(sim._car, axis=0)
                     car_obs = sim._car_obs
@@ -170,7 +169,7 @@ def runner(exp_name='av',
                         car_obs = np.concatenate((car_obs, sim._car_obs), axis=0)
 
                     import matplotlib.pyplot as plt
-                    plt.scatter(car[:,2], car[:,3])
+                    plt.scatter(car[:, 2], car[:, 3])
                     plt.scatter(peds[:, 2], peds[:, 3])
                     plt.scatter(car_obs[:, 2], car_obs[:, 3])
                     pdb.set_trace()
@@ -212,4 +211,4 @@ def runner(exp_name='av',
 
 
 if __name__ == '__main__':
-  fire.Fire()
+    fire.Fire()

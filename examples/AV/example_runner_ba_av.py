@@ -23,8 +23,6 @@ from ast_toolbox.spaces import ExampleAVSpaces
 # Import the AST classes
 
 
-
-
 #
 # parser = argparse.ArgumentParser()
 # parser.add_argument('--snapshot_mode', type=str, default="gap")
@@ -54,12 +52,12 @@ def runner(
         runner_args=None,
         # log_dir='.',
 ):
-    if type(env_args) != dict or 'id' not in env_args.keys():
+    if not isinstance(env_args, dict) or 'id' not in env_args.keys():
         print('ERROR: Must supply an environment id in env_args')
         raise Exception
 
     if run_experiment_args is None:
-        run_experiment_args = {'log_dir':'.'}
+        run_experiment_args = {'log_dir': '.'}
 
     if sim_args is None:
         sim_args = {}

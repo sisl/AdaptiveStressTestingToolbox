@@ -1,20 +1,14 @@
 import os
-import os.path as osp
 import time
 
 import joblib
 import numpy as np
 import tensorflow as tf
-from CartPole.cartpole import CartPoleEnv
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.misc import logger
-from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
-from garage.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
+from .cartpole import CartPoleEnv
 
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 env = TfEnv(CartPoleEnv(use_seed=False))
@@ -42,5 +36,5 @@ with tf.Session() as sess:
         env.render()
         timestep = 0.05
         time.sleep(timestep)
-        print("step: ",path_length," total reward: ",total_r)
+        print("step: ", path_length, " total reward: ", total_r)
     # return

@@ -10,6 +10,7 @@ class GridworldSimulator(ASTSimulator):
     """
     Simulate a gridworld scenario
     """
+
     def __init__(self,
                  goal_list,
                  grid_mins,
@@ -22,9 +23,7 @@ class GridworldSimulator(ASTSimulator):
         grid_lengths = np.abs(grid_mins) + np.abs(grid_maxes) + 1
         self.goals = np.concatenate(np.unravel_index(goal_list, grid_lengths)).reshape((len(goal_list), -1)).T
 
-
         super().__init__(**kwargs)
-
 
     def simulate(self, actions, s_0):
         """
@@ -106,10 +105,9 @@ class GridworldSimulator(ASTSimulator):
         """
         perform any logging steps
         """
-        pass
 
     def clone_state(self):
         pass
 
     def restore_state(self, in_simulator_state):
-        simulator_state = in_simulator_state.copy()
+        in_simulator_state.copy()

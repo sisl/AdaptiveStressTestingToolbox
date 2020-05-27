@@ -1,11 +1,7 @@
-import pdb
 
 import numpy as np
 from dowel import logger
-from dowel import tabular
 from garage.tf.algos.ppo import PPO
-from garage.tf.algos.trpo import TRPO
-from garage.tf.optimizers import FirstOrderOptimizer
 
 
 class BackwardAlgorithm(PPO):
@@ -63,7 +59,7 @@ class BackwardAlgorithm(PPO):
                  policy,
                  baseline,
                  expert_trajectory,
-                 epochs_per_step = 10,
+                 epochs_per_step=10,
                  scope=None,
                  max_path_length=500,
                  discount=0.99,
@@ -171,7 +167,7 @@ class BackwardAlgorithm(PPO):
         last_return = None
 
         # set epoch, step numbers and maximums
-        step_num = np.minimum(self.skip_until_step, len(self.expert_trajectory)-1)
+        step_num = np.minimum(self.skip_until_step, len(self.expert_trajectory) - 1)
         num_steps = len(self.expert_trajectory) - step_num
         max_epochs = runner.train_args.n_epochs
         self.max_epochs_per_step = max_epochs // num_steps
@@ -211,12 +207,13 @@ class BackwardAlgorithm(PPO):
             for rollout_idx, rollout in enumerate(runner.step_path):
                 # pdb.set_trace()
                 # if rollout['rewards'].shape[0] == self.max_path_length:
-                    # runner.step_path[rollout_idx]['rewards'][0] = env_reward + rollout['rewards'][0]
+                # runner.step_path[rollout_idx]['rewards'][0] = env_reward + rollout['rewards'][0]
                 # else:
                 if rollout['rewards'].shape[0] < self.max_path_length:
                     runner.step_path[rollout_idx]['rewards'] = np.concatenate(([env_reward], rollout['rewards']))
-                    runner.step_path[rollout_idx]['actions'] = np.concatenate((np.expand_dims(env_action,axis=0),rollout['actions']))
-                    runner.step_path[rollout_idx]['observations'] = np.concatenate((np.expand_dims(env_observation,axis=0),rollout['observations']))
+                    runner.step_path[rollout_idx]['actions'] = np.concatenate((np.expand_dims(env_action, axis=0), rollout['actions']))
+                    runner.step_path[rollout_idx]['observations'] = np.concatenate(
+                        (np.expand_dims(env_observation, axis=0), rollout['observations']))
             last_return = self.train_once(runner.step_itr, runner.step_path)
             full_paths.append(last_return)
             runner.step_itr += 1
@@ -231,9 +228,9 @@ class BackwardAlgorithm(PPO):
 
             epochs_per_this_step += 1
 
-        print('Backward Results -- Initial Reward: ', initial_reward, ' -- Best Reward at step ', max_reward_step, ': ', max_reward, " -- Best Final Reward: ", max_final_reward)
+        print('Backward Results -- Initial Reward: ', initial_reward, ' -- Best Reward at step ',
+              max_reward_step, ': ', max_reward, " -- Best Final Reward: ", max_final_reward)
         return full_paths
-
 
     def train_once(self, itr, paths):
         paths = self.process_samples(itr, paths)
@@ -242,7 +239,6 @@ class BackwardAlgorithm(PPO):
         logger.log('Optimizing policy...')
         self.optimize_policy(itr, paths)
         return paths
-
 
         # last_return = None
         #

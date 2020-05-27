@@ -26,7 +26,6 @@ from ast_toolbox.spaces import ExampleAVSpaces
 # Import the AST classes
 
 
-
 #
 # parser = argparse.ArgumentParser()
 # parser.add_argument('--snapshot_mode', type=str, default="gap")

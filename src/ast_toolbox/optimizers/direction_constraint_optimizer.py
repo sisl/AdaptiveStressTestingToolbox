@@ -1,10 +1,8 @@
 # from garage.misc.ext import flatten_tensor_variables
-import itertools
 
 import numpy as np
 import tensorflow as tf
 from garage.misc import ext
-from garage.misc import krylov
 from garage.misc import logger
 from garage.misc.ext import sliced_fun
 from garage.tf.misc import tensor_utils
@@ -109,7 +107,7 @@ class FiniteDifferenceHvp(object):
     def build_eval(self, inputs):
         def eval(x):
             xs = tuple(self.target.flat_to_params(x, trainable=True))
-            ret = sliced_fun(self.opt_fun["f_Hx_plain"], self._num_slices)(inputs,xs) + self.reg_coeff * x
+            ret = sliced_fun(self.opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
             return ret
 
         return eval
@@ -181,7 +179,7 @@ class DirectionConstraintOptimizer():
         # constraint_term, constraint_value = leq_constraint
         constraint_term = leq_constraint
 
-        params = target.get_params(trainable=True)
+        # params = target.get_params(trainable=True)
 
         self._hvp_approach.update_opt(f=constraint_term, target=target, inputs=inputs + extra_inputs,
                                       reg_coeff=self._reg_coeff)
@@ -205,7 +203,7 @@ class DirectionConstraintOptimizer():
             extra_inputs = tuple()
         return sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
 
-    def get_magnitude(self, direction, inputs, max_constraint_val=None,extra_inputs=None, subsample_grouped_inputs=None):
+    def get_magnitude(self, direction, inputs, max_constraint_val=None, extra_inputs=None, subsample_grouped_inputs=None):
         if max_constraint_val is not None:
             self._max_constraint_val = max_constraint_val
         prev_param = np.copy(self._target.get_param_values(trainable=True))
@@ -241,9 +239,9 @@ class DirectionConstraintOptimizer():
             cur_step = ratio * flat_descent_step
             cur_param = prev_param - cur_step
             self._target.set_param_values(cur_param, trainable=True)
-            constraint_val = sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs,extra_inputs)
+            constraint_val = sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
             if self._debug_nan and np.isnan(constraint_val):
-                import ipdb;
+                import ipdb
                 ipdb.set_trace()
             if constraint_val <= self._max_constraint_val:
                 break
@@ -258,9 +256,9 @@ class DirectionConstraintOptimizer():
         # logger.log("final magnitude: " + str(-ratio*initial_step_size))
         logger.log("final kl: " + str(constraint_val))
         # logger.log("optimization finished")
-        return -ratio*initial_step_size, constraint_val
+        return -ratio * initial_step_size, constraint_val
 
-    def get_magnitudes(self, directions, inputs, max_constraint_val=None,extra_inputs=None, subsample_grouped_inputs=None):
+    def get_magnitudes(self, directions, inputs, max_constraint_val=None, extra_inputs=None, subsample_grouped_inputs=None):
         if max_constraint_val is not None:
             self._max_constraint_val = max_constraint_val
         prev_param = np.copy(self._target.get_param_values(trainable=True))
@@ -297,9 +295,9 @@ class DirectionConstraintOptimizer():
                 cur_step = ratio * flat_descent_step
                 cur_param = prev_param - cur_step
                 self._target.set_param_values(cur_param, trainable=True)
-                constraint_val = sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs,extra_inputs)
+                constraint_val = sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
                 if self._debug_nan and np.isnan(constraint_val):
-                    import ipdb;
+                    import ipdb
                     ipdb.set_trace()
                 if constraint_val <= self._max_constraint_val:
                     break
@@ -314,6 +312,6 @@ class DirectionConstraintOptimizer():
             # logger.log("final magnitude: " + str(-ratio*initial_step_size))
             logger.log("final kl: " + str(constraint_val))
             # logger.log("optimization finished")
-            magnitudes.append(-ratio*initial_step_size)
+            magnitudes.append(-ratio * initial_step_size)
             constraint_vals.append(constraint_val)
         return magnitudes, constraint_vals

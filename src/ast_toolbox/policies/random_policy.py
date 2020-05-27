@@ -1,7 +1,4 @@
 import numpy as np
-import tensorflow as tf
-from garage.misc import logger
-from garage.tf.misc import tensor_utils
 from garage.tf.policies import Policy
 from garage.tf.spaces import Box
 from garage.tf.spaces import Discrete
@@ -12,19 +9,21 @@ class RandomDistribution:
     def __init__(self, space, seed=None):
         self.space = space
         self.seed(seed)
+
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
+
     def sample(self, batch_size):
         if isinstance(self.space, Box):
             low = self.space.low
             high = self.space.high
             samples = self.np_random.uniform(
                 low=low, high=high,
-                size=(batch_size,)+low.shape).astype(np.float32)
+                size=(batch_size,) + low.shape).astype(np.float32)
         elif isinstance(self.space, Discrete):
-            n = self.space.n
-            samples = self.np_random.randint(self.n,size=batch_size)
+            self.space.n
+            samples = self.np_random.randint(self.n, size=batch_size)
         else:
             raise NotImplementedError
         return samples
@@ -35,9 +34,9 @@ class RandomDistribution:
 
     def entropy(self, info=None):
         if isinstance(self.space, Box):
-            low = self.space.low
-            high = self.space.high
-            return np.sum(np.log(h-l) for l,h in zip(low,high))
+            lows = self.space.low
+            highs = self.space.high
+            return np.sum(np.log(high - low) for low, high in zip(lows, highs))
         elif self.space == Discrete:
             return np.log(self.space.n)
 

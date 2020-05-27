@@ -9,14 +9,14 @@ from ast_toolbox.rewards import ASTReward
 # Define the class, inherit from the base
 class HeuristicReward(ASTReward):
     def __init__(self,
-                 action_model, # the action model to get the log prob from
-                 terminal_heuristic_coef=None # numpy array of coefficients for each heuristic
+                 action_model,  # the action model to get the log prob from
+                 terminal_heuristic_coef=None  # numpy array of coefficients for each heuristic
                  ):
 
         self.action_model = action_model
         self.terminal_heuristic_coef = terminal_heuristic_coef
         if self.terminal_heuristic_coef is None:
-            self.terminal_heuristic_coef = -10000*np.ones(1)
+            self.terminal_heuristic_coef = -10000 * np.ones(1)
 
         super().__init__()
 
@@ -28,12 +28,12 @@ class HeuristicReward(ASTReward):
         terminal_heuristics = info.get("terminal_heuristic", np.zeros(0))
         terminal_heuristics = np.append(np.ones(1), terminal_heuristics)
         # pdb.set_trace()
-        if (is_goal): # We found a crash
+        if (is_goal):  # We found a crash
             reward = 0
         elif (is_terminal):
             reward = np.dot(self.terminal_heuristic_coef, terminal_heuristics)  # We reached the horizon with no crash
         else:
-            reward = self.action_model.log_prob(action, **kwargs) # No crash or horizon yet
+            reward = self.action_model.log_prob(action, **kwargs)  # No crash or horizon yet
 
         if np.isnan(reward):
             print("found nan")

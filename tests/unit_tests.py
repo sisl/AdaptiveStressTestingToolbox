@@ -42,8 +42,6 @@ def test_validate_ge_ba():
     assert validate_ge_ba() is True
 
 
-
-
 def test_ast_simulator():
     sim = ASTSimulator()
     with pytest.raises(NotImplementedError):
@@ -82,8 +80,6 @@ def test_ast_simulator():
     assert sim.log() is None
 
 
-
-
 def test_example_av_simulator():
     sim = ExampleAVSimulator(car_init_x=0, car_init_y=0, max_path_length=1)
     sim.blackbox_sim_state = False
@@ -112,8 +108,6 @@ def test_example_av_simulator():
     assert np.all(obs == np.array([0, 0, 0, 0]))
 
 
-
-
 def test_ast_spaces():
     space = ASTSpaces()
 
@@ -124,13 +118,11 @@ def test_ast_spaces():
         space.observation_space()
 
 
-
-
 def test_example_av_spaces():
     space = ExampleAVSpaces(num_peds=2)
 
-    assert type(space.action_space) is Box
-    assert type(space.observation_space) is Box
+    assert isinstance(space.action_space, Box)
+    assert isinstance(space.observation_space, Box)
 
 
 def test_go_explore_ast_env():
@@ -154,11 +146,11 @@ def test_go_explore_ast_env():
     with patch('ast_toolbox.envs.go_explore_ast_env.db.DB', side_effect=db.DBError):
         assert np.all(env.reset() == np.zeros(5))
 
-
     env.p_key_list = GoExploreParameter(name='key_list', value=[0])
     env.p_max_value = GoExploreParameter(name='max_value', value=1)
     env.sample_limit = 10
     # env.p_key_list.value = [0]
+
     class Test_Pop:
         def __init__(self, fitness):
             self.fitness = fitness
@@ -198,13 +190,9 @@ def test_go_explore_ast_env():
     obs = np.array([0, 0.001, 0.0015, 0.002])
     assert np.all(env.downsample(obs) == obs)
 
-
-
     cenv = Custom_GoExploreASTEnv()
     cenv._step = 1
-    assert np.all(cenv.downsample(obs) == np.array([1,0,1,1,2]))
-
-
+    assert np.all(cenv.downsample(obs) == np.array([1, 0, 1, 1, 2]))
 
 
 def test_parallel_sampler():
@@ -229,7 +217,16 @@ def test_parallel_sampler():
 def test_go_explore():
     cell_pool = CellPool(filename='./test_pool.dat', use_score_weight=True)
     d_pool = cell_pool.open_pool(overwrite=True)
-    cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=0.0, state=None, reward=0.0, chosen=0)
+    cell_pool.d_update(
+        d_pool=d_pool,
+        observation=np.zeros(5),
+        action=np.zeros(5),
+        trajectory=np.array(
+            []),
+        score=0.0,
+        state=None,
+        reward=0.0,
+        chosen=0)
     cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=1.0,
                        state=None, reward=1.0, chosen=0, is_goal=True)
 
