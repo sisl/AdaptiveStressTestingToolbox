@@ -18,10 +18,7 @@ from src.ast_toolbox import ASTEnv
 from src.ast_toolbox import TfEnv
 from src.ast_toolbox.rewards import ASTRewardS
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 # Logger Params
@@ -59,53 +56,53 @@ top_paths = BPQ.BoundedPriorityQueue(top_k)
 np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
-	# Create env
-	data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
-	sut = data['policy']
-	reward_function = ASTRewardS()
-	# sut_param = np.copy(sut.get_param_values(trainable=True))
+    # Create env
+    data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
+    sut = data['policy']
+    reward_function = ASTRewardS()
+    # sut_param = np.copy(sut.get_param_values(trainable=True))
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
-	env = ASTEnv(open_loop=False,
-								 simulator=simulator,
-								 fixed_init_state=True,
-								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-								 reward_function=reward_function,
-								 )
-	env = TfEnv(env)
-	print(env.vectorized)
-	# Create policy
-	policy = GaussianMLPPolicy(
-	    name='ast_agent',
-	    env_spec=env.spec,
-	    hidden_sizes=(64, 32)
-	)
-	# policy = GaussianLSTMPolicy(name='lstm_policy',
-	#                             env_spec=ast_spec,
-	#                             hidden_dim=128,
-	#                             use_peepholes=True)
-	
-	params = policy.get_params()
-	sess.run(tf.variables_initializer(params))
+    simulator = CartpoleSimulator(sut=sut, max_path_length=100, use_seed=False, nd=1)
+    env = ASTEnv(open_loop=False,
+                 simulator=simulator,
+                 fixed_init_state=True,
+                 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+                 reward_function=reward_function,
+                 )
+    env = TfEnv(env)
+    print(env.vectorized)
+    # Create policy
+    policy = GaussianMLPPolicy(
+        name='ast_agent',
+        env_spec=env.spec,
+        hidden_sizes=(64, 32)
+    )
+    # policy = GaussianLSTMPolicy(name='lstm_policy',
+    #                             env_spec=ast_spec,
+    #                             hidden_dim=128,
+    #                             use_peepholes=True)
 
-	# Instantiate the garage objects
-	baseline = LinearFeatureBaseline(env_spec=env.spec)
-	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+    params = policy.get_params()
+    sess.run(tf.variables_initializer(params))
 
-	algo = TRPO(
-	    env=env,
-	    policy=policy,
-	    baseline=baseline,
-	    batch_size=4000,
-	    step_size=0.1,
-	    n_itr=50,
-	    store_paths=True,
-	    # optimizer= optimizer,
-	    max_path_length=100,
-	    top_paths = top_paths,
-	    plot=False,
-	    )
+    # Instantiate the garage objects
+    baseline = LinearFeatureBaseline(env_spec=env.spec)
+    # optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo.train(sess=sess, init_var=False)
+    algo = TRPO(
+        env=env,
+        policy=policy,
+        baseline=baseline,
+        batch_size=4000,
+        step_size=0.1,
+        n_itr=50,
+        store_paths=True,
+        # optimizer= optimizer,
+        max_path_length=100,
+        top_paths=top_paths,
+        plot=False,
+    )
 
-	# print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))
+    algo.train(sess=sess, init_var=False)
+
+    # print(np.array_equal(sut_param,sut.get_param_values(trainable=True)))

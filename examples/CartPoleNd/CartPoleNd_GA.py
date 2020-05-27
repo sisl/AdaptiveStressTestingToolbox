@@ -17,10 +17,7 @@ from src.ast_toolbox import TfEnv
 from src.ast_toolbox.algos.ga import GA
 from src.ast_toolbox.rewards import ASTRewardS
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 # Logger Params
@@ -63,51 +60,51 @@ top_paths = BPQ.BoundedPriorityQueue(top_k)
 np.random.seed(seed)
 tf.set_random_seed(seed)
 with tf.Session() as sess:
-	# Create env
-	
-	data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
-	sut = data['policy']
-	reward_function = ASTRewardS()
+    # Create env
 
-	simulator = CartpoleSimulator(sut=sut,max_path_length=100,use_seed=False,nd=1)
-	env = ASTEnv(open_loop=False,
-								 simulator=simulator,
-								 fixed_init_state=True,
-								 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
-								 reward_function=reward_function,
-								 )
-	env = TfEnv(env)
-	# Create policy
-	policy = DeterministicMLPPolicy(
-		name='ast_agent',
-		env_spec=env.spec,
-		hidden_sizes=(128, 64, 32),
-		output_nonlinearity=None,
-	)
+    data = joblib.load("../CartPole/ControlPolicy/itr_5.pkl")
+    sut = data['policy']
+    reward_function = ASTRewardS()
 
-	params = policy.get_params()
-	sess.run(tf.variables_initializer(params))
+    simulator = CartpoleSimulator(sut=sut, max_path_length=100, use_seed=False, nd=1)
+    env = ASTEnv(open_loop=False,
+                 simulator=simulator,
+                 fixed_init_state=True,
+                 s_0=[0.0, 0.0, 0.0 * math.pi / 180, 0.0],
+                 reward_function=reward_function,
+                 )
+    env = TfEnv(env)
+    # Create policy
+    policy = DeterministicMLPPolicy(
+        name='ast_agent',
+        env_spec=env.spec,
+        hidden_sizes=(128, 64, 32),
+        output_nonlinearity=None,
+    )
 
-	# Instantiate the garage objects
-	baseline = ZeroBaseline(env_spec=env.spec)
-	# optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
+    params = policy.get_params()
+    sess.run(tf.variables_initializer(params))
 
-	algo = GA(
-		env=env,
-		policy=policy,
-		baseline=baseline,
-		batch_size= 100,
-		pop_size = 100,#5,
-		elites = 20,#3,
-		keep_best = 3,#1,
-		step_size=0.01,
-		# init_step = 1.0,
-		n_itr=2,
-		store_paths=False,
-		# optimizer= optimizer,
-		max_path_length=max_path_length,
-		top_paths=top_paths,
-		plot=False,
-		)
+    # Instantiate the garage objects
+    baseline = ZeroBaseline(env_spec=env.spec)
+    # optimizer = ConjugateGradientOptimizer(hvp_approach=FiniteDifferenceHvp(base_eps=1e-5))
 
-	algo.train(sess=sess, init_var=False)
+    algo = GA(
+        env=env,
+        policy=policy,
+        baseline=baseline,
+        batch_size=100,
+        pop_size=100,  # 5,
+        elites=20,  # 3,
+        keep_best=3,  # 1,
+        step_size=0.01,
+        # init_step = 1.0,
+        n_itr=2,
+        store_paths=False,
+        # optimizer= optimizer,
+        max_path_length=max_path_length,
+        top_paths=top_paths,
+        plot=False,
+    )
+
+    algo.train(sess=sess, init_var=False)

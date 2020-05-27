@@ -71,9 +71,11 @@ def run_task(snapshot_config, *_):
 
         print("Installation successfully validated")
 
+
 def validate_install():
     run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=1)
     return True
+
 
 if __name__ == '__main__':
     validate_install()

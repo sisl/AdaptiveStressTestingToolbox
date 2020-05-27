@@ -1,8 +1,6 @@
 import os
 import os.path as osp
 
-import joblib
-import tensorflow as tf
 from CartPole.cartpole import CartPoleEnv
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.misc import logger
@@ -10,9 +8,7 @@ from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
 from garage.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"    #just use CPU
-
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
 
 log_dir = "Data/Train"
@@ -50,7 +46,7 @@ algo = TRPO(
     baseline=baseline,
     batch_size=4000,
     max_path_length=100,
-    n_itr=101,#51,
+    n_itr=101,  # 51,
     discount=0.99,
     step_size=0.01,
     plot=False,

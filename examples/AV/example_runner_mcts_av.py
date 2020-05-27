@@ -25,19 +25,19 @@ from ast_toolbox.spaces import ExampleAVSpaces
 
 
 def runner(
-           mcts_type=None,
-           env_args=None,
-           run_experiment_args=None,
-           sim_args=None,
-           reward_args=None,
-           spaces_args=None,
-           policy_args=None,
-           baseline_args=None,
-           algo_args=None,
-           runner_args=None,
-           bpq_args=None,
-           # log_dir='.',
-           ):
+    mcts_type=None,
+    env_args=None,
+    run_experiment_args=None,
+    sim_args=None,
+    reward_args=None,
+    spaces_args=None,
+    policy_args=None,
+    baseline_args=None,
+    algo_args=None,
+    runner_args=None,
+    bpq_args=None,
+    # log_dir='.',
+):
     if mcts_type is None:
         mcts_type = 'mcts'
 
@@ -127,13 +127,13 @@ def runner(
                     elif mcts_type == 'mctsbv':
                         print('mctsbv')
                         algo = MCTSBV(env=env,
-                                    top_paths=top_paths,
-                                    **algo_args)
+                                      top_paths=top_paths,
+                                      **algo_args)
                     elif mcts_type == 'mctsrs':
                         print('mctsrs')
                         algo = MCTSRS(env=env,
-                                    top_paths=top_paths,
-                                    **algo_args)
+                                      top_paths=top_paths,
+                                      **algo_args)
                     else:
                         raise NotImplementedError
 
@@ -155,7 +155,7 @@ def runner(
                         best_actions = pickle.load(f)
                     expert_trajectories = []
                     for actions in best_actions:
-                        sim.reset(s_0 = env_args['s_0'])
+                        sim.reset(s_0=env_args['s_0'])
                         path = []
                         for action in actions:
                             obs = sim.step(action)
@@ -175,5 +175,6 @@ def runner(
         **run_experiment_args,
     )
 
+
 if __name__ == '__main__':
-  fire.Fire()
+    fire.Fire()

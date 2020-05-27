@@ -46,18 +46,17 @@ from ast_toolbox.spaces import ExampleAVSpaces
 #
 # ):
 def runner(
-           env_args=None,
-           run_experiment_args=None,
-           sim_args=None,
-           reward_args=None,
-           spaces_args=None,
-           policy_args=None,
-           baseline_args=None,
-           algo_args=None,
-           runner_args=None,
-           # log_dir='.',
-           ):
-
+    env_args=None,
+    run_experiment_args=None,
+    sim_args=None,
+    reward_args=None,
+    spaces_args=None,
+    policy_args=None,
+    baseline_args=None,
+    algo_args=None,
+    runner_args=None,
+    # log_dir='.',
+):
 
     if env_args is None:
         env_args = {}
@@ -84,7 +83,7 @@ def runner(
         algo_args = {}
 
     if runner_args is None:
-        runner_args = {'n_epochs':1}
+        runner_args = {'n_epochs': 1}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -105,7 +104,6 @@ def runner(
         runner_args['batch_size'] = batch_size
 
     def run_task(snapshot_config, *_):
-
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -130,11 +128,10 @@ def runner(
 
                     # Instantiate the garage objects
                     policy = GaussianLSTMPolicy(env_spec=env.spec, **policy_args)
-                                                # name='lstm_policy',
-                                                # env_spec=env.spec,
-                                                # hidden_dim=64,
-                                                # 'use_peepholes=True)
-
+                    # name='lstm_policy',
+                    # env_spec=env.spec,
+                    # hidden_dim=64,
+                    # 'use_peepholes=True)
 
                     baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)
 
@@ -147,13 +144,13 @@ def runner(
                                optimizer=optimizer,
                                optimizer_args=optimizer_args,
                                **algo_args)
-                        # max_path_length=max_path_length,
-                        # discount=0.99,
-                        # # kl_constraint='hard',
-                        # optimizer=optimizer,
-                        # optimizer_args=optimizer_args,
-                        # lr_clip_range=1.0,
-                        # max_kl_step=1.0)
+                    # max_path_length=max_path_length,
+                    # discount=0.99,
+                    # # kl_constraint='hard',
+                    # optimizer=optimizer,
+                    # optimizer_args=optimizer_args,
+                    # lr_clip_range=1.0,
+                    # max_kl_step=1.0)
 
                     sampler_cls = ASTVectorizedSampler
 
@@ -194,8 +191,6 @@ def runner(
                     #     args.snapshot_gap = args.iters - 1
                     # example_save_trials(args.iters, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
 
-
-
     run_experiment(
         run_task,
         **run_experiment_args,
@@ -207,5 +202,6 @@ def runner(
         # n_parallel=n_parallel,
     )
 
+
 if __name__ == '__main__':
-  fire.Fire()
+    fire.Fire()
