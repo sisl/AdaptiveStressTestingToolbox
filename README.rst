@@ -58,7 +58,7 @@ Note, to combine the coverage data from all the tox environments run:
             PYTEST_ADDOPTS=--cov-append tox
 
 
-.. |build-status| image:: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg?branch=master
+.. |build-status| image:: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg
     :alt: build status
     :scale: 100%
     :target: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox
