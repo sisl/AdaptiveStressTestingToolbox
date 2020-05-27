@@ -7,6 +7,8 @@ Adaptive Stress Testing is a worst-case validation method for autonomous policie
 
 See https://ast-toolbox.readthedocs.io/en/master/ for documentation.
 
+Maintained by the Stanford Autonomous Systems Lab
+
 ========
 Overview
 ========
