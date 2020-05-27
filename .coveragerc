@@ -5,17 +5,22 @@
 #          /ast_toolbox/*
 #omit =    /ast_toolbox/utils/*
 
-[paths]
-source = src
+#[paths]
+#source = src
 
 [run]
+omit = src/ast_toolbox/utils/*
 branch = true
-source =
-    src
-    tests
+#include =
+#    src
+#    tests
+#    examples
 parallel = true
 
+
 [report]
+omit = src/ast_toolbox/utils/*
+       *migrations*
 show_missing = true
 precision = 2
-omit = *migrations*
+#omit = *migrations*
