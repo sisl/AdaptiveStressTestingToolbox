@@ -1,7 +1,8 @@
 import csv
 import os.path
-from matplotlib import pyplot as plt
+
 import numpy as np
+from matplotlib import pyplot as plt
 
 #bug! the xlabel are not aligned
 top_k = 10
@@ -42,4 +43,3 @@ for exp in exps:
     plt.ylabel('success rate')        
     fig.savefig('Data/Plot/'+'success_rate.pdf')
     plt.close(fig)
-

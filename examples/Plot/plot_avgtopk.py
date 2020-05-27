@@ -1,9 +1,11 @@
 import csv
 import os.path
-import matplotlib 
-matplotlib.rcParams.update({'font.size': 15})
-from matplotlib import pyplot as plt
+
+import matplotlib
 import numpy as np
+from matplotlib import pyplot as plt
+
+matplotlib.rcParams.update({'font.size': 15})
 
 n_trial = 10
 top_k = 1

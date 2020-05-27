@@ -1,30 +1,32 @@
 # Import the example classes
-from ast_toolbox import AVRSSSimulator
-from ast_toolbox.rewards.heuristic_reward import HeuristicReward
-from ast_toolbox import PedestrianNoiseGaussian
-from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
+import os
+import pdb
+
+import fire
+import gym
+import tensorflow as tf
+# Useful imports
+from example_save_trials import *
+from garage.envs.normalized_env import normalize
+from garage.experiment import run_experiment
+from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.tf.envs.base import TfEnv
+from garage.tf.experiment import LocalTFRunner
+
 import ast_toolbox.simulators.rss_metrics as rss
+# Import the necessary garage classes
+from ast_toolbox.algos import GoExplore
+from ast_toolbox.policies import GoExplorePolicy
+from ast_toolbox.rewards import HeuristicReward
+from ast_toolbox.rewards import PedestrianNoiseGaussian
+from ast_toolbox.samplers import BatchSampler
+from ast_toolbox.simulators.av_rss_simulator import AVRSSSimulator
+from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
 
-# Import the necessary garage classes
-from ast_toolbox.algos.go_explore import GoExplore
-from garage.tf.envs.base import TfEnv
-from ast_toolbox import GoExplorePolicy
-from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.envs.normalized_env import normalize
-from garage.experiment import run_experiment
-from garage.tf.experiment import LocalTFRunner
-from ast_toolbox import BatchSampler
-import gym
 
-# Useful imports
-from example_save_trials import *
-import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
-import tensorflow as tf
-import fire
-import pdb
 
 #
 # parser = argparse.ArgumentParser()

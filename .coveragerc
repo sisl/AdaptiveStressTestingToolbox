@@ -1,6 +1,16 @@
 # .coveragerc to control coverage.py
+
+#[paths]
+#source = src
+
+[run]
+omit = src/ast_toolbox/utils/*
+branch = true
+parallel = true
+
+
 [report]
-branch = True
-include = /examples/*
-          /ast_toolbox/*
-omit =    /ast_toolbox/utils/*
+omit = src/ast_toolbox/utils/*
+       *migrations*
+show_missing = true
+precision = 2

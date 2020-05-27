@@ -1,6 +1,7 @@
 import csv
-from matplotlib import pyplot as plt
+
 import numpy as np
+from matplotlib import pyplot as plt
 
 pre_path = './Data/AST/Lexington/GATRISInter/'
 plot_name = "GATRISInter"

@@ -1,9 +1,10 @@
-from examples.AV.example_runner_ge_av import runner as go_explore_runner
-from examples.AV.example_runner_drl_av import runner as drl_runner
-from examples.AV.example_runner_mcts_av import runner as mcts_runner
-from examples.AV.example_runner_ba_av import runner as ba_runner
-import pickle
 import pdb
+import pickle
+
+from examples.AV.example_runner_ba_av import runner as ba_runner
+from examples.AV.example_runner_drl_av import runner as drl_runner
+from examples.AV.example_runner_ge_av import runner as go_explore_runner
+from examples.AV.example_runner_mcts_av import runner as mcts_runner
 
 if __name__ == '__main__':
     # Overall settings
@@ -218,5 +219,3 @@ if __name__ == '__main__':
         bpq_args=mcts_bpq_args,
         runner_args=runner_args,
     )
-
-

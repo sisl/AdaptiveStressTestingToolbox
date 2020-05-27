@@ -1,6 +1,7 @@
-from examples.AV.example_runner_ge_av import runner as go_explore_runner
-from examples.AV.example_runner_ba_av import runner as ba_runner
 import pickle
+
+from examples.AV.example_runner_ba_av import runner as ba_runner
+from examples.AV.example_runner_ge_av import runner as go_explore_runner
 
 
 def validate_ge_ba():

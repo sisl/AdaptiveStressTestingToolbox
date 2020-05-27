@@ -1,27 +1,29 @@
 # Import the example classes
-from ast_toolbox.simulators.example_av_simulator import ExampleAVSimulator
-from ast_toolbox.rewards.example_av_reward import ExampleAVReward
-from ast_toolbox.spaces.example_av_spaces import ExampleAVSpaces
+import argparse
+# Useful imports
+import os.path as osp
 
-# Import the AST classes
-from ast_toolbox.envs.ast_env import ASTEnv
-from ast_toolbox.samplers.ast_vectorized_sampler import ASTVectorizedSampler
-
+import numpy as np
+# from example_save_trials import *
+import tensorflow as tf
+from garage.envs.normalized_env import normalize
+from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 # Import the necessary garage classes
 from garage.tf.algos.trpo import TRPO
 from garage.tf.envs.base import TfEnv
+from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
+from garage.tf.optimizers.conjugate_gradient_optimizer import FiniteDifferenceHvp
 from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.envs.normalized_env import normalize
+
+# Import the AST classes
+from ast_toolbox.envs import ASTEnv
+from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.samplers import ASTVectorizedSampler
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.spaces import ExampleAVSpaces
+
 # from garage.misc import logger
 
-# Useful imports
-import os.path as osp
-import argparse
-# from example_save_trials import *
-import tensorflow as tf
-import numpy as np
 
 # Logger Params
 parser = argparse.ArgumentParser()
@@ -166,5 +168,3 @@ with tf.Session(config=config) as sess:
         if args.snapshot_mode != "gap":
             args.snapshot_gap = args.iters - 1
         example_save_trials(algo.n_itr, args.log_dir, header, sess, save_every_n=args.snapshot_gap)
-
-
