@@ -1,20 +1,18 @@
 # from garage.envs.base import GarageEnv
 # from garage.envs.base import Step
 # from garage.spaces import Box
-import pdb
-
-import numpy as np
 
 
 class ASTSimulator(object):
     """
     Class template for a non-interactive simulator.
     """
+
     def __init__(self,
                  blackbox_sim_state=True,
                  open_loop=True,
                  fixed_initial_state=True,
-                 max_path_length = 50):
+                 max_path_length=50):
         """
         :function goal_set - function definition that accepts a state, and returns true if state is in set.
         :parameter  s_0 - the initial state of the simulator.
@@ -95,7 +93,6 @@ class ASTSimulator(object):
 
         return self.initial_conditions
 
-
     def get_reward_info(self):
         """
         returns any info needed by the reward function to calculate the current reward
@@ -116,4 +113,3 @@ class ASTSimulator(object):
         """
         perform any logging steps
         """
-        pass

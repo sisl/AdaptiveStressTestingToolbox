@@ -1,13 +1,12 @@
 import hashlib
 import os
-import random as _random
 import struct
-import sys
 
 import numpy as np
 from six import integer_types
 
 # from gym import error
+
 
 def np_random(seed=None):
     if seed is not None and not (isinstance(seed, integer_types) and 0 <= seed):
@@ -19,6 +18,7 @@ def np_random(seed=None):
     rng = np.random.RandomState()
     rng.seed(_int_list_from_bigint(hash_seed(seed)))
     return rng, seed
+
 
 def hash_seed(seed=None, max_bytes=8):
     """Any given evaluation is likely to have many PRNG's active at
@@ -44,6 +44,7 @@ def hash_seed(seed=None, max_bytes=8):
     hash = hashlib.sha512(str(seed).encode('utf8')).digest()
     return _bigint_from_bytes(hash[:max_bytes])
 
+
 def create_seed(a=None, max_bytes=8):
     """Create a strong random seed. Otherwise, Python 2 would seed using
     the system time, which might be non-robust especially in the
@@ -68,6 +69,8 @@ def create_seed(a=None, max_bytes=8):
     return a
 
 # TODO: don't hardcode sizeof_int here
+
+
 def _bigint_from_bytes(bytes):
     sizeof_int = 4
     padding = sizeof_int - len(bytes) % sizeof_int
@@ -78,6 +81,7 @@ def _bigint_from_bytes(bytes):
     for i, val in enumerate(unpacked):
         accum += 2 ** (sizeof_int * 8 * i) * val
     return accum
+
 
 def _int_list_from_bigint(bigint):
     # Special case 0

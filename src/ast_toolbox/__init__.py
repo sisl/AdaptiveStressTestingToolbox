@@ -16,16 +16,17 @@ def register(id, entry_point, force=True, **kwargs):
     )
 # logger = logging.getLogger(__name__)
 
+
 register(
     id='GoExploreAST-v0',
     entry_point='ast_toolbox.envs:GoExploreASTEnv',
-    nondeterministic = True,
+    nondeterministic=True,
 )
 
 register(
     id='GoExploreAST-v1',
     entry_point='ast_toolbox.envs:Custom_GoExploreASTEnv',
-    nondeterministic = True,
+    nondeterministic=True,
 )
 # register(
 #     id='SoccerEmptyGoal-v0',

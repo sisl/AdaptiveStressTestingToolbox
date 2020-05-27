@@ -8,10 +8,12 @@ from ast_toolbox.algos.go_explore import *
 
 
 def get_meta_filename(filename):
-    return filename+'_meta.dat'
+    return filename + '_meta.dat'
+
 
 def get_pool_filename(filename):
     return filename + '_pool.dat'
+
 
 def get_cellpool(filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL):
     # def open_pool(self, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL):
@@ -23,6 +25,7 @@ def get_cellpool(filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, p
     cell_pool_shelf = shelve.Shelf(cell_pool_db, protocol=protocol)
     return cell_pool_shelf
 
+
 def get_metadata(filename):
     metadata = None
     with contextlib.suppress(FileNotFoundError):
@@ -31,11 +34,16 @@ def get_metadata(filename):
 
     return metadata
 
+
 def plot_goal_trajectories(filename, goal_limit=None, sort_by_reward=False):
-    plot_trajectories(filename, plot_terminal=False, plot_goal=True, terminal_limit=None, goal_limit=goal_limit, sort_by_reward=sort_by_reward)
+    plot_trajectories(filename, plot_terminal=False, plot_goal=True, terminal_limit=None,
+                      goal_limit=goal_limit, sort_by_reward=sort_by_reward)
+
 
 def plot_terminal_trajectories(filename, terminal_limit=None, sort_by_reward=False):
-    plot_trajectories(filename, plot_terminal=True, plot_goal=False, terminal_limit=terminal_limit, goal_limit=None, sort_by_reward=sort_by_reward)
+    plot_trajectories(filename, plot_terminal=True, plot_goal=False, terminal_limit=terminal_limit,
+                      goal_limit=None, sort_by_reward=sort_by_reward)
+
 
 def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_limit=None, goal_limit=None, sort_by_reward=False):
     cell_pool_shelf = get_cellpool(filename)
@@ -61,12 +69,12 @@ def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_lim
             sys.stdout.flush()
 
             cell = cell_pool_shelf[key]
-            ped_trajectory = cell.state[11:13].copy().reshape((1,2))
+            ped_trajectory = cell.state[11:13].copy().reshape((1, 2))
 
             while(cell.parent is not None):
                 cell = cell_pool_shelf[cell.parent]
-                ped_trajectory = np.concatenate((cell.state[11:13].copy().reshape((1,2)), ped_trajectory))
-                plt.plot(ped_trajectory[:,0], ped_trajectory[:,1], color=(.1, .9, .1))
+                ped_trajectory = np.concatenate((cell.state[11:13].copy().reshape((1, 2)), ped_trajectory))
+                plt.plot(ped_trajectory[:, 0], ped_trajectory[:, 1], color=(.1, .9, .1))
 
     if plot_goal:
         goal_dict = metadata['goal_dict']
@@ -97,10 +105,6 @@ def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_lim
 
     plt.show()
 
-
-
-
-
     # def plot_trajectories_from_actions(filename, f_actions_to_trajectories):
 #     cell_pool_shelf = get_cellpool(filename)
 #     metadata = get_metadata(filename)
@@ -111,12 +115,14 @@ def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_lim
 
     # trajectories = f_actions_to_trajectories()
 
+
 def get_root_cell(pool, cell):
     root_cell = cell
     while(root_cell.parent is not None):
-        root_cell=pool[root_cell.parent]
+        root_cell = pool[root_cell.parent]
 
     return root_cell
+
 
 def render(car=None, ped=None, noise=None, ped_obs=None, gif=False):
     if gif:
@@ -134,20 +140,21 @@ def render(car=None, ped=None, noise=None, ped_obs=None, gif=False):
 
             ax1.set_title('Car, Actual Pedestrian, and Observed Pedestrian Trajectories')
         elif noise is not None:
-        #     Only plotting noise
+            #     Only plotting noise
             gs = GridSpec(4, 1, figure=fig)
             ax2 = fig.add_subplot(gs[0, 0])
             ax3 = fig.add_subplot(gs[1, 0])
             ax4 = fig.add_subplot(gs[2, 0])
             ax5 = fig.add_subplot(gs[3, 0])
         else:
-        #     Only plotting trajectories
+            #     Only plotting trajectories
             gs = GridSpec(1, 1, figure=fig)
             ax1 = fig.add_subplot(gs[0, 0])
             ax1.set_title('Car, Actual Pedestrian, and Observed Pedestrian Trajectories')
         if noise is not None:
             axs = [ax2, ax3, ax4, ax5]
-            ax_titles = ['Noise: Pedestrian X Velocity', 'Noise: Pedestrian Y Velocity', 'Noise: Pedestrian X Position', 'Noise: Pedestrian Y Position']
+            ax_titles = ['Noise: Pedestrian X Velocity', 'Noise: Pedestrian Y Velocity',
+                         'Noise: Pedestrian X Position', 'Noise: Pedestrian Y Position']
             x = np.arange(noise.shape[0] + 2)
             for idx, ax in enumerate(axs):
 
@@ -166,7 +173,7 @@ def render(car=None, ped=None, noise=None, ped_obs=None, gif=False):
                 ax.set_title(ax_titles[idx])
 
         if ped is not None:
-            ax1.quiver(ped[:,2], ped[:,3], ped[:,0], ped[:,1], scale = 50)
+            ax1.quiver(ped[:, 2], ped[:, 3], ped[:, 0], ped[:, 1], scale=50)
 
             ped_final_pos = ped[-1, 2:]
             rad = 0.125
@@ -177,19 +184,18 @@ def render(car=None, ped=None, noise=None, ped_obs=None, gif=False):
             ax1.add_collection(pc)
 
         if ped_obs is not None:
-            ax1.quiver(ped_obs[:,2], ped_obs[:,3], ped_obs[:,0], ped_obs[:,1], scale = 50, color='gray')
+            ax1.quiver(ped_obs[:, 2], ped_obs[:, 3], ped_obs[:, 0], ped_obs[:, 1], scale=50, color='gray')
         if car is not None:
-            ax1.quiver(car[:, 2], car[:, 3], car[:, 0], car[:, 1], scale = 500)
+            ax1.quiver(car[:, 2], car[:, 3], car[:, 0], car[:, 1], scale=500)
 
             car_final_pos = car[-1, 2:]
             x_dist = 2.5
             y_dist = 1.4
 
-            rect = Rectangle((car_final_pos[0] - x_dist/2, car_final_pos[1] - y_dist/2), x_dist, y_dist)
+            rect = Rectangle((car_final_pos[0] - x_dist / 2, car_final_pos[1] - y_dist / 2), x_dist, y_dist)
             pc = PatchCollection([rect], facecolor='red', alpha=0.2,
                                  edgecolor='red')
             ax1.add_collection(pc)
-
 
     plt.show()
     return

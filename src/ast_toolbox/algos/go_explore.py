@@ -6,8 +6,6 @@ import pickle
 import shelve
 import sys
 import time
-from enum import Enum
-from enum import unique
 
 import numpy as np
 from bsddb3 import db
@@ -22,7 +20,7 @@ class Cell():
     def __init__(self, use_score_weight=True):
         # print("Creating new Cell:", self)
         # Number of times this was chosen and seen
-        self._times_visited=0
+        self._times_visited = 0
         self._times_chosen = 0
         self._times_chosen_since_improved = 0
         self._score = -np.inf
@@ -43,7 +41,7 @@ class Cell():
         self.use_score_weight = use_score_weight
 
     def __eq__(self, other):
-        if type(other) != type(self):
+        if not isinstance(other, type(self)):
             return False
         if np.all(self.observation == other.observation):
             return True
@@ -145,11 +143,10 @@ class Cell():
         self.reset_cached_property('count_subscores')
         self.reset_cached_property('fitness')
 
-
     @cached_property
     def fitness(self):
         # return max(1, self.score)
-        return self.score_weight*(self.count_subscores + 1)
+        return self.score_weight * (self.count_subscores + 1)
 
     @cached_property
     def count_subscores(self):
@@ -184,7 +181,7 @@ class Cell():
     @cached_property
     def score_weight(self):
         if self.use_score_weight:
-            score_weight = 1/max([abs(self._value_approx), 1])
+            score_weight = 1 / max([abs(self._value_approx), 1])
         else:
             score_weight = 1.0  # Not sampling based on score right now
         # Set chance of sampling to 0 if this cell is a terminal state
@@ -195,8 +192,9 @@ class Cell():
     def __hash__(self):
         return hash((self.observation.tostring()))
 
+
 class CellPool():
-    def __init__(self, filename = 'database', discount=0.99, flag=db.DB_RDONLY, flag2='r', use_score_weight=True):
+    def __init__(self, filename='database', discount=0.99, flag=db.DB_RDONLY, flag2='r', use_score_weight=True):
         # print("Creating new Cell Pool:", self)
         # self.guide = set()
 
@@ -234,24 +232,24 @@ class CellPool():
         if self.best_cell is not None:
             best_cell_key = str(hash(self.best_cell.observation.tostring()))
         save_dict = {
-                    'key_list':self.key_list,
-                    'goal_dict':self.goal_dict,
-                    'terminal_dict':self.terminal_dict,
-                    'max_value':self.max_value,
-                    'max_score':self.max_score,
-                    'max_reward':self.max_reward,
-                    'use_score_weight': self.use_score_weight,
-                    'best_cell':best_cell_key,
+            'key_list': self.key_list,
+            'goal_dict': self.goal_dict,
+            'terminal_dict': self.terminal_dict,
+            'max_value': self.max_value,
+            'max_score': self.max_score,
+            'max_reward': self.max_reward,
+            'use_score_weight': self.use_score_weight,
+            'best_cell': best_cell_key,
         }
         dirname = os.path.dirname(self.meta_filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        with open( self.meta_filename, "wb" ) as f:
+        with open(self.meta_filename, "wb") as f:
             pickle.dump(save_dict, f)
 
     def load(self, cell_pool_shelf):
         with contextlib.suppress(FileNotFoundError):
-            with open( self.meta_filename, "rb" ) as f:
+            with open(self.meta_filename, "rb") as f:
                 save_dict = pickle.load(f)
 
                 self.key_list = save_dict['key_list']
@@ -344,7 +342,6 @@ class CellPool():
     #     else:
     #         self.d_pool[cell] = cell
 
-
     # def get_cell(self, index):
     #     return self.pool[index]
     #
@@ -352,12 +349,13 @@ class CellPool():
     #     index = np.random.randint(0, self.length)
     #     return self.get_cell(index)
 
-    def d_update(self, d_pool, observation, action, trajectory, score, state, parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
+    def d_update(self, d_pool, observation, action, trajectory, score, state,
+                 parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
         # pdb.set_trace()
-        #This tests to see if the observation is already in the matrix
+        # This tests to see if the observation is already in the matrix
 
         obs_hash = str(hash(observation.tostring()))
-        if not obs_hash in d_pool:
+        if obs_hash not in d_pool:
             # Make a new cell, add to pool
             # self.guide.add(observation)
             cell = Cell(self.use_score_weight)
@@ -431,7 +429,7 @@ class CellPool():
         if obs_hash is not None:
             cell = d_pool[obs_hash]
             v = cell.score + self.discount * value
-            cell.value_approx = (v - cell.value_approx)/cell.times_visited + cell.value_approx
+            cell.value_approx = (v - cell.value_approx) / cell.times_visited + cell.value_approx
             d_pool[obs_hash] = cell
             if cell.parent is not None:
                 self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
@@ -456,7 +454,7 @@ class GoExplore(BatchPolopt):
                  # robustify_max,
                  # robustify_algo,
                  # robustify_policy,
-                 save_paths_gap = 0,
+                 save_paths_gap=0,
                  save_paths_path=None,
                  overwrite_db=True,
                  use_score_weight=True,
@@ -594,9 +592,9 @@ class GoExplore(BatchPolopt):
         if len(self.cell_pool.key_list) == 0:
             obs, state = self.env.get_first_cell()
         # pdb.set_trace()
-            self.cell_pool.d_update(d_pool=d_pool, observation=self.downsample(obs, step=-1), action=obs, trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
+            self.cell_pool.d_update(d_pool=d_pool, observation=self.downsample(obs, step=-1), action=obs,
+                                    trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
             self.cell_pool.sync_pool(cell_pool_shelf=d_pool)
-
 
         self.max_cum_reward = self.cell_pool.max_reward
         self.best_cell = self.cell_pool.best_cell
@@ -613,17 +611,15 @@ class GoExplore(BatchPolopt):
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
         self.env.set_param_values([None], robustify_state=True, debug=False)
 
-
         # for cell in d_pool.values():
 
-            # if cell.score == 0.0 and cell.reward >= self.max_cum_reward and cell.observation is not None and cell.parent is not None:
-                # pdb.set_trace()
-                # print(cell.observation, cell.score, cell.reward)
-
-                # self.max_cum_reward = cell.reward
-                # self.best_cell = cell
+        # if cell.score == 0.0 and cell.reward >= self.max_cum_reward and cell.observation is not None and cell.parent is not None:
         # pdb.set_trace()
+        # print(cell.observation, cell.score, cell.reward)
 
+        # self.max_cum_reward = cell.reward
+        # self.best_cell = cell
+        # pdb.set_trace()
 
         # pdb.set_trace()
         # self.policy.set_param_values({"cell_num":-1,
@@ -635,7 +631,6 @@ class GoExplore(BatchPolopt):
         # self.env.append_cell(Cell())
         # self.env.set_param_values(self.env.pool, pool=True)
         # self.env.set_param_values([np.random.randint(0,100)], debug=True,test_var=True)
-
 
     def get_itr_snapshot(self, itr):
         """
@@ -692,8 +687,8 @@ class GoExplore(BatchPolopt):
                         # Get the chosen cell that was root of this rollout
                         # root_obs = self.downsample(obs=samples_data['env_infos']['root_action'][i,j,:],
                         #                            step=samples_data['env_infos']['state'][i, j, -1]-1)
-                        root_cell = d_pool[str(hash(samples_data['env_infos']['root_action'][i,j,:].tostring()))]
-                        #Update the chosen/visited count
+                        root_cell = d_pool[str(hash(samples_data['env_infos']['root_action'][i, j, :].tostring()))]
+                        # Update the chosen/visited count
                         self.cell_pool.d_update(d_pool=d_pool,
                                                 observation=root_cell.observation,
                                                 action=root_cell.action,
@@ -706,15 +701,15 @@ class GoExplore(BatchPolopt):
                                                 is_terminal=root_cell.is_terminal,
                                                 chosen=1)
                         # self.cell_pool.d_update(d_pool=d_pool,observation=root_cell.observation,trajectory=root_cell.trajectory,score=root_cell.score,state=root_cell.state,parent=root_cell.parent,reward=root_cell.reward,chosen=1)
-                        #Update trajectory info to root cell state
+                        # Update trajectory info to root cell state
                         cum_reward = root_cell.reward
                         cum_traj = root_cell.trajectory
                         if cum_traj.shape[0] > 0:
-                            cum_traj = np.concatenate((cum_traj, root_cell.action.reshape((1,6))), axis=0)
-                        parent = str(hash(samples_data['env_infos']['root_action'][i,j,:].tostring()))
+                            cum_traj = np.concatenate((cum_traj, root_cell.action.reshape((1, 6))), axis=0)
+                        parent = str(hash(samples_data['env_infos']['root_action'][i, j, :].tostring()))
                         root_step = root_cell.state[-1] + 1
                         # pdb.set_trace()
-                    except:
+                    except BaseException:
                         print('----------ERROR - failed to retrieve root cell--------------------')
                         pdb.set_trace()
                         break
@@ -735,7 +730,7 @@ class GoExplore(BatchPolopt):
                 cum_reward += score
                 state = samples_data['env_infos']['state'][i, j, :]
                 is_terminal = samples_data['env_infos']['is_terminal'][i, j]
-                is_goal =samples_data['env_infos']['is_goal'][i, j]
+                is_goal = samples_data['env_infos']['is_goal'][i, j]
                 # if j >48:
                 #     print(j)
                 #     pdb.set_trace()
@@ -764,7 +759,6 @@ class GoExplore(BatchPolopt):
         print(new_cells, " new cells (", 100 * new_cells / total_cells, "%)")
         print(total_cells, " samples processed in ", time.time() - start, " seconds")
 
-
         self.cell_pool.sync_and_close_pool(cell_pool_shelf=d_pool)
         # self.cell_pool.d_pool.close()
         # self.env.set_param_values([self.cell_pool], pool=True, debug=True)
@@ -775,9 +769,8 @@ class GoExplore(BatchPolopt):
             with open(self.save_paths_path + '/paths_itr_' + str(itr) + '.p', 'wb') as f:
                 pickle.dump(samples_data, f)
 
-
-        if os.path.getsize(self.cell_pool.pool_filename) /1000/1000/1000 > self.max_db_size:
-            print ('------------ERROR: MAX DB SIZE REACHED------------')
+        if os.path.getsize(self.cell_pool.pool_filename) / 1000 / 1000 / 1000 > self.max_db_size:
+            print('------------ERROR: MAX DB SIZE REACHED------------')
             sys.exit()
         print('\n---------- Max Score: ', self.max_cum_reward, ' ----------------\n')
         tabular.record('MaxReturn', self.max_cum_reward)

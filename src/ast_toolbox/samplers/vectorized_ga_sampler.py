@@ -3,13 +3,11 @@ import pickle
 
 import garage.misc.logger as logger
 import numpy as np
-import tensorflow as tf
 from garage.misc import special
 from garage.misc import tensor_utils
 from garage.sampler import utils
 from garage.sampler.base import BaseSampler
 from garage.sampler.stateful_pool import ProgBarCounter
-from garage.tf.envs.parallel_vec_env_executor import ParallelVecEnvExecutor
 from garage.tf.envs.vec_env_executor import VecEnvExecutor
 
 
@@ -119,8 +117,8 @@ class VectorizedGASampler(BaseSampler):
         for idx, path in enumerate(paths):
             path_baselines = np.append(all_path_baselines[idx], 0)
             deltas = path["rewards"] + \
-                     self.algo.discount * path_baselines[1:] - \
-                     path_baselines[:-1]
+                self.algo.discount * path_baselines[1:] - \
+                path_baselines[:-1]
             path["advantages"] = special.discount_cumsum(
                 deltas, self.algo.discount * self.algo.gae_lambda)
             path["returns"] = special.discount_cumsum(path["rewards"], self.algo.discount)

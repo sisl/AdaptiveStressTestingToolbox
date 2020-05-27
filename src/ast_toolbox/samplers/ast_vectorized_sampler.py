@@ -6,7 +6,7 @@ from ast_toolbox.simulators import ExampleAVSimulator
 
 
 class ASTVectorizedSampler(OnPolicyVectorizedSampler):
-    def __init__(self, algo, env, n_envs = 1, open_loop = True, sim = ExampleAVSimulator(), reward_function = ExampleAVReward()):
+    def __init__(self, algo, env, n_envs=1, open_loop=True, sim=ExampleAVSimulator(), reward_function=ExampleAVReward()):
         # pdb.set_trace()
         self.open_loop = open_loop
         self.sim = sim
@@ -24,17 +24,17 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
                 # actions = path['env_infos']['info']['actions']
                 actions = path['actions']
                 # pdb.set_trace()
-                end_idx, info = self.sim.simulate(actions = actions, s_0 = s_0)
+                end_idx, info = self.sim.simulate(actions=actions, s_0=s_0)
                 if end_idx >= 0:
                     # pdb.set_trace()
                     self.slice_dict(path, end_idx)
                 rewards = self.reward_function.give_reward(
-                    action = actions[end_idx],
-                    info = self.sim.get_reward_info()
+                    action=actions[end_idx],
+                    info=self.sim.get_reward_info()
                 )
                 # pdb.set_trace()
                 path["rewards"][end_idx] = rewards
-                info[:,-1] = path["rewards"][:info.shape[0]]
+                info[:, -1] = path["rewards"][:info.shape[0]]
                 path['env_infos']['cache'] = info
 
         return paths
@@ -42,7 +42,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
     def slice_dict(self, in_dict, slice_idx):
         for key, value in in_dict.items():
             # pdb.set_trace()
-            if type(value) is dict:
+            if isinstance(value, dict):
                 in_dict[key] = self.slice_dict(value, slice_idx)
             else:
                 in_dict[key][slice_idx + 1:, ...] = np.zeros_like(value[slice_idx + 1:, ...])

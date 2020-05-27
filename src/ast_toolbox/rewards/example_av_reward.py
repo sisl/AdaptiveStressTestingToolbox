@@ -32,7 +32,7 @@ class ExampleAVReward(ASTReward):
 
         # update reward and done bool
 
-        if (is_goal): # We found a crash
+        if (is_goal):  # We found a crash
             reward = 0
         elif (is_terminal):
             # reward = 0
@@ -40,15 +40,14 @@ class ExampleAVReward(ASTReward):
             if self.use_heuristic:
                 heuristic_reward = np.min(np.linalg.norm(dist, axis=1))
             else:
-            # No Herusitic
+                # No Herusitic
                 heuristic_reward = 0
-            reward = -100000 - 10000 * heuristic_reward # We reached
+            reward = -100000 - 10000 * heuristic_reward  # We reached
             # the horizon with no crash
         else:
-            reward = -self.mahalanobis_d(action) # No crash or horizon yet
+            reward = -self.mahalanobis_d(action)  # No crash or horizon yet
 
         return reward
-
 
     def mahalanobis_d(self, action):
         # Mean action is 0

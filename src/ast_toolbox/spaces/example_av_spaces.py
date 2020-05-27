@@ -7,7 +7,7 @@ from ast_toolbox.spaces import ASTSpaces
 class ExampleAVSpaces(ASTSpaces):
     def __init__(self,
                  num_peds=1,
-                 max_path_length = 50,
+                 max_path_length=50,
                  v_des=11.17,
                  x_accel_low=-1.0,
                  y_accel_low=-1.0,
@@ -23,7 +23,7 @@ class ExampleAVSpaces(ASTSpaces):
                  y_v_high=10.0,
                  car_init_x=-35.0,
                  car_init_y=0.0,
-                 action_only = True,
+                 action_only=True,
                  ):
 
         # Constant hyper-params -- set by user

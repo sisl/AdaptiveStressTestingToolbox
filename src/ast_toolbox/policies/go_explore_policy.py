@@ -52,7 +52,6 @@ class GoExplorePolicy(StochasticPolicy):
         """
         Log extra information per iteration based on the collected paths
         """
-        pass
 
     @property
     def vectorized(self):
@@ -67,12 +66,10 @@ class GoExplorePolicy(StochasticPolicy):
         """
         Clean up operation
         """
-        pass
 
     @property
     def distribution(self):
         return self.dist
-
 
     def dist_info(self, obs, state_infos):
         """
@@ -86,7 +83,6 @@ class GoExplorePolicy(StochasticPolicy):
         :return:
         """
         return dict(mean=None, log_std=self.log_std)
-
 
     def dist_info_sym(self, obs_var, state_info_vars, name='dist_info_sym'):
         raise NotImplementedError

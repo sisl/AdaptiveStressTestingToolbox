@@ -135,6 +135,7 @@ class JointParameterized(Parameterized):
         # only return unique parameters
         return sorted(set(params), key=hash)
 
+
 class GoExploreParameter():
     def __init__(self, name, value, **tags):
         self.name = name
@@ -442,7 +443,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         except db.DBError:
             print("DBError")
             obs = self.env_reset()
-        except:
+        except BaseException:
             print("Failed to get state from database")
             pdb.set_trace()
             obs = self.env_reset()
@@ -550,16 +551,16 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             self.p_robustify_state = GoExploreParameter("robustify_state", self.robustify_state)
             self.params_set = True
 
-        if tags.pop("db_filename", False) == True:
+        if tags.pop("db_filename", False):
             return [self.p_db_filename]
 
-        if tags.pop("key_list", False) == True:
+        if tags.pop("key_list", False):
             return [self.p_key_list]
 
-        if tags.pop("max_value", False) == True:
+        if tags.pop("max_value", False):
             return [self.p_max_value]
 
-        if tags.pop("robustify_state", False) == True:
+        if tags.pop("robustify_state", False):
             return [self.p_robustify_state]
 
         return [self.p_db_filename, self.p_key_list, self.p_max_value, self.p_robustify_state]  # , self.p_downsampler]

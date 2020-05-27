@@ -6,18 +6,18 @@ from garage.tf.misc import tensor_utils
 from ast_toolbox.simulators import ASTSimulator
 
 
-#Define the class
+# Define the class
 class NNSUTSimulator(ASTSimulator):
     """
     neural network system under test simulator
     """
 
     def __init__(self,
-    			 env,
-    			 sut, #system under test, in this case is a NN policy
+                 env,
+                 sut,  # system under test, in this case is a NN policy
                  **kwargs):
 
-        #initialize the base Simulator
+        # initialize the base Simulator
         self.env = env
         self.sut = sut
         self.path_length = 0
@@ -42,11 +42,11 @@ class NNSUTSimulator(ASTSimulator):
         path_length = 0
         done = False
         o_ast, o = self.env.ast_reset(s_0)
-        self._info  = []
+        self._info = []
 
         # Take simulation steps unbtil horizon is reached
         while (path_length < self.c_max_path_length) and (not done):
-            #get the action from the list
+            # get the action from the list
             ast_action = actions[path_length]
             action, agent_info = self.sut.get_action(o)
             o_ast, o, done = self.env.ast_step(action, ast_action)
@@ -116,7 +116,7 @@ class NNSUTSimulator(ASTSimulator):
         else:
             return None
 
-    def seed(self,seed):
+    def seed(self, seed):
         return self.env.seed(seed)
 
     @property
@@ -128,11 +128,12 @@ class NNSUTSimulator(ASTSimulator):
         return self.env.ast_action_space
 
     def vec_env_executor(self, n_envs, max_path_length, reward_function,
-                            fixed_init_state, init_state, open_loop):
+                         fixed_init_state, init_state, open_loop):
         envs = [pickle.loads(pickle.dumps(self.env)) for _ in range(n_envs)]
         return InnerVecEnvExecutor(envs, self.sut, reward_function,
-                    fixed_init_state, init_state,
-                    max_path_length, open_loop)
+                                   fixed_init_state, init_state,
+                                   max_path_length, open_loop)
+
 
 class InnerVecEnvExecutor(object):
     def __init__(self, envs, sut, reward_function, fixed_init_state, init_state, max_path_length, open_loop):
@@ -151,21 +152,20 @@ class InnerVecEnvExecutor(object):
         self.ts += 1
 
         ast_action_n = action_n
-        os = [np.reshape(env.get_observation(),env.observation_space.shape) for env in self.envs]
+        os = [np.reshape(env.get_observation(), env.observation_space.shape) for env in self.envs]
         action_n, action_info_n = self.sut.get_actions(os)
         if "mean" in action_info_n:
             action_n = action_info_n["mean"]
         elif "prob" in action_info_n:
-            action_n = np.argmax(action_info_n["prob"],axis=1)
+            action_n = np.argmax(action_info_n["prob"], axis=1)
         if self.sut.recurrent:
             self.sut.prev_actions = self.sut.action_space.flatten_n(action_n)
         # action = self.env.action_space.sample()
-        # results = [np.reshape(env.ast_step(action, ast_action),env.ast_observation_space.shape) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
-        results = [env.ast_step(action, ast_action) for (action,ast_action,env) in zip(action_n, ast_action_n, self.envs)]
+        results = [env.ast_step(action, ast_action) for (action, ast_action, env) in zip(action_n, ast_action_n, self.envs)]
         if self.open_loop:
             obs = [self._init_state for env in self.envs]
         else:
-            obs = [np.reshape(ob,env.ast_observation_space.shape) for (ob,env) in zip(list(zip(*results))[0],self.envs)]
+            obs = [np.reshape(ob, env.ast_observation_space.shape) for (ob, env) in zip(list(zip(*results))[0], self.envs)]
 
         obs = np.asarray(obs)
         dones = list(zip(*results))[2]
@@ -174,10 +174,10 @@ class InnerVecEnvExecutor(object):
             dones[self.ts >= self.max_path_length] = True
 
         infos = [env.ast_get_reward_info() for env in self.envs]
-        for (i,info) in enumerate(infos):
+        for (i, info) in enumerate(infos):
             info['is_terminal'] = dones[i]
-        rewards = [self.reward_function.give_reward(action=action,info=info)\
-                    for (action,info) in zip(ast_action_n, infos)]
+        rewards = [self.reward_function.give_reward(action=action, info=info)
+                   for (action, info) in zip(ast_action_n, infos)]
         env_infos = infos
 
         rewards = np.asarray(rewards)

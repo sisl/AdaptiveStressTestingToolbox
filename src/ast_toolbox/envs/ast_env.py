@@ -11,7 +11,7 @@ from ast_toolbox.simulators import ExampleAVSimulator
 
 
 class ASTEnv(gym.Env):
-# class ASTEnv(GarageEnv):
+    # class ASTEnv(GarageEnv):
     def __init__(self,
                  open_loop=True,
                  blackbox_sim_state=True,
@@ -21,8 +21,8 @@ class ASTEnv(gym.Env):
                  reward_function=None,
                  spaces=None):
         # Constant hyper-params -- set by user
-        self.open_loop=open_loop
-        self.blackbox_sim_state = blackbox_sim_state #is this redundant?
+        self.open_loop = open_loop
+        self.blackbox_sim_state = blackbox_sim_state  # is this redundant?
         self.spaces = spaces
         # These are set by reset, not the user
         self._done = False

@@ -87,6 +87,7 @@ def _worker_set_policy_params(g, params, scope=None):
     # import pdb; pdb.set_trace()
     g.policy.set_param_values(params)
 
+
 def _worker_set_env_params(g, params, scope=None):
     g = _get_scoped_g(g, scope)
     g.env.set_param_values(params)
