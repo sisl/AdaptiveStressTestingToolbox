@@ -16,9 +16,6 @@ matrix:
     - env:
         - TOXENV=py36-cover,codecov
       python: '3.6'
-    - env:
-        - TOXENV=py36-nocov
-      python: '3.6'
 before_install:
   - python --version
   - uname -a
