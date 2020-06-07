@@ -11,7 +11,7 @@ class BoundedPriorityQueue:
 
     def enqueue(self, k, v, make_copy=False):
         if isinstance(k, np.ndarray):
-            for pair in self.pq.queue:
+            for pair in self.pq.data:
                 if np.array_equal(k, pair[0]):
                     return
         elif k in [pair[0] for pair in self.pq]:

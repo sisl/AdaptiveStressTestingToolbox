@@ -2,9 +2,8 @@
 
 import numpy as np
 import tensorflow as tf
-from garage.misc import ext
-from garage.misc import logger
-from garage.misc.ext import sliced_fun
+from garage.tf.optimizers.utils import LazyDict, sliced_fun
+from dowel import logger
 from garage.tf.misc import tensor_utils
 
 
@@ -12,7 +11,7 @@ class PerlmutterHvp(object):
     def __init__(self, num_slices=1):
         self.target = None
         self.reg_coeff = None
-        self.opt_fun = None
+        self._opt_fun = None
         self._num_slices = num_slices
 
     def update_opt(self, f, target, inputs, reg_coeff):
@@ -39,7 +38,7 @@ class PerlmutterHvp(object):
                     Hx_plain_splits[idx] = tf.zeros_like(param)
             return tensor_utils.flatten_tensor_variables(Hx_plain_splits)
 
-        self.opt_fun = ext.LazyDict(
+        self._opt_fun = LazyDict(
             f_Hx_plain=lambda: tensor_utils.compile_function(
                 inputs=inputs + xs,
                 outputs=Hx_plain(),
@@ -50,10 +49,21 @@ class PerlmutterHvp(object):
     def build_eval(self, inputs):
         def eval(x):
             xs = tuple(self.target.flat_to_params(x, trainable=True))
-            ret = sliced_fun(self.opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
+            ret = sliced_fun(self._opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
             return ret
 
         return eval
+
+    def __getstate__(self):
+        """Object.__getstate__.
+
+        Returns:
+            dict: the state to be pickled for the instance.
+
+        """
+        new_dict = self.__dict__.copy()
+        del new_dict['_opt_fun']
+        return new_dict
 
 
 class FiniteDifferenceHvp(object):
@@ -83,19 +93,19 @@ class FiniteDifferenceHvp(object):
             param_val = self.target.get_param_values(trainable=True)
             eps = np.cast['float32'](self.base_eps / (np.linalg.norm(param_val) + 1e-8))
             self.target.set_param_values(param_val + eps * flat_xs, trainable=True)
-            flat_grad_dvplus = self.opt_fun["f_grad"](*inputs_)
+            flat_grad_dvplus = self._opt_fun["f_grad"](*inputs_)
             self.target.set_param_values(param_val, trainable=True)
             if self.symmetric:
                 self.target.set_param_values(param_val - eps * flat_xs, trainable=True)
-                flat_grad_dvminus = self.opt_fun["f_grad"](*inputs_)
+                flat_grad_dvminus = self._opt_fun["f_grad"](*inputs_)
                 hx = (flat_grad_dvplus - flat_grad_dvminus) / (2 * eps)
                 self.target.set_param_values(param_val, trainable=True)
             else:
-                flat_grad = self.opt_fun["f_grad"](*inputs_)
+                flat_grad = self._opt_fun["f_grad"](*inputs_)
                 hx = (flat_grad_dvplus - flat_grad) / eps
             return hx
 
-        self.opt_fun = ext.LazyDict(
+        self._opt_fun = LazyDict(
             f_grad=lambda: tensor_utils.compile_function(
                 inputs=inputs,
                 outputs=flat_grad,
@@ -107,13 +117,24 @@ class FiniteDifferenceHvp(object):
     def build_eval(self, inputs):
         def eval(x):
             xs = tuple(self.target.flat_to_params(x, trainable=True))
-            ret = sliced_fun(self.opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
+            ret = sliced_fun(self._opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
             return ret
 
         return eval
 
+    def __getstate__(self):
+        """Object.__getstate__.
 
-class DirectionConstraintOptimizer():
+        Returns:
+            dict: the state to be pickled for the instance.
+
+        """
+        new_dict = self.__dict__.copy()
+        del new_dict['_opt_fun']
+        return new_dict
+
+
+class DirectionConstraintOptimizer:
     """
     Performs constrained optimization via line search.
     """
@@ -189,7 +210,7 @@ class DirectionConstraintOptimizer():
         self._max_constraint_val = np.inf
         self._constraint_name = constraint_name
 
-        self._opt_fun = ext.LazyDict(
+        self._opt_fun = LazyDict(
             f_constraint=lambda: tensor_utils.compile_function(
                 inputs=inputs + extra_inputs,
                 outputs=constraint_term,
@@ -315,3 +336,14 @@ class DirectionConstraintOptimizer():
             magnitudes.append(-ratio * initial_step_size)
             constraint_vals.append(constraint_val)
         return magnitudes, constraint_vals
+
+    def __getstate__(self):
+        """Object.__getstate__.
+
+        Returns:
+            dict: the state to be pickled for the instance.
+
+        """
+        new_dict = self.__dict__.copy()
+        del new_dict['_opt_fun']
+        return new_dict

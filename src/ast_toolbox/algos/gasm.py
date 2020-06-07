@@ -1,7 +1,8 @@
-import garage.misc.logger as logger
+from dowel import logger
+from dowel import tabular
 import numpy as np
 import tensorflow as tf
-from garage.misc import ext
+# from garage.misc import ext
 from garage.tf.misc import tensor_utils
 
 from ast_toolbox.algos import GA
@@ -29,41 +30,60 @@ class GASM(GA):
 
     def init_opt(self):
         is_recurrent = int(self.policy.recurrent)
-        obs_var = self.env.observation_space.new_tensor_variable(
-            'obs',
-            extra_dims=1 + is_recurrent,
-        )
-        action_var = self.env.action_space.new_tensor_variable(
-            'action',
-            extra_dims=1 + is_recurrent,
-        )
-        advantage_var = tensor_utils.new_tensor(
-            'advantage',
-            ndim=1 + is_recurrent,
-            dtype=tf.float32,
-        )
+        # obs_var = self.env_spec.observation_space.new_tensor_variable(
+        #     'obs',
+        #     extra_dims=1 + is_recurrent,
+        # )
+        # action_var = self.env_spec.action_space.new_tensor_variable(
+        #     'action',
+        #     extra_dims=1 + is_recurrent,
+        # )
+        if is_recurrent:
+            obs_var = tf.compat.v1.placeholder(
+                    tf.float32,
+                    shape=[None, None, self.env_spec.observation_space.flat_dim],
+                    name='obs')
+            action_var = tf.compat.v1.placeholder(
+                    tf.float32,
+                    shape=[None, None, self.env_spec.action_space.flat_dim],
+                    name='obs')
+        else:
+            obs_var = tf.compat.v1.placeholder(
+                    tf.float32,
+                    shape=[None, self.env_spec.observation_space.flat_dim],
+                    name='obs')
+            action_var = tf.compat.v1.placeholder(
+                    tf.float32,
+                    shape=[None, self.env_spec.action_space.flat_dim],
+                    name='obs')
+
+        # advantage_var = tensor_utils.new_tensor(
+        #     'advantage',
+        #     ndim=1 + is_recurrent,
+        #     dtype=tf.float32,
+        # )
 
         state_info_vars = {
-            k: tf.placeholder(tf.float32, shape=[None] * (1 + is_recurrent) + list(shape), name=k)
+            k: tf.compat.v1.placeholder(tf.float32, shape=[None] * (1 + is_recurrent) + list(shape), name=k)
             for k, shape in self.policy.state_info_specs
         }
         state_info_vars_list = [state_info_vars[k] for k in self.policy.state_info_keys]
 
         if is_recurrent:
-            valid_var = tf.placeholder(tf.float32, shape=[None, None], name="valid")
+            valid_var = tf.compat.v1.placeholder(tf.float32, shape=[None, None], name="valid")
         else:
-            valid_var = tf.placeholder(tf.float32, shape=[None], name="valid")
+            valid_var = tf.compat.v1.placeholder(tf.float32, shape=[None], name="valid")
 
-        # npath_var = tf.placeholder(tf.int32, shape=(), name="npath")
-        npath_var = tf.placeholder(tf.int32, shape=[None], name="npath")  # in order to work with sliced_fn
+        # npath_var = tf.compat.v1.placeholder(tf.int32, shape=(), name="npath")
+        npath_var = tf.compat.v1.placeholder(tf.int32, shape=[None], name="npath")  # in order to work with sliced_fn
 
-        actions = self.policy.get_action_sym(obs_var)
+        actions = self.policy.get_action_sym(obs_var,name='policy_action')
         divergence = tf.reduce_sum(tf.reduce_sum(tf.square(actions - action_var), -1) * valid_var) / tf.reduce_sum(valid_var)
 
         input_list = [
             obs_var,
             action_var,
-            advantage_var,
+            # advantage_var,
         ] + state_info_vars_list
 
         input_list.append(valid_var)
@@ -84,15 +104,18 @@ class GASM(GA):
         )
         return dict()
 
-    def extra_recording(self, itr, p):
-        logger.record_tabular('Divergence', self.divergences[p])
+    def extra_recording(self, itr):
+        tabular.record('Max Divergence', np.max(self.divergences))
+        tabular.record('Min Divergence', np.min(self.divergences))
+        tabular.record('Mean Divergence', np.mean(self.divergences))
         return None
 
     def data2inputs(self, samples_data):
-        all_input_values = tuple(ext.extract(
-            samples_data,
-            "observations", "actions", "advantages"
-        ))
+        # all_input_values = tuple(ext.extract(
+        #     samples_data,
+        #     "observations", "actions", "advantages"
+        # ))
+        all_input_values = (samples_data["observations"],samples_data["actions"]) #,samples_data["advantages"])
         agent_infos = samples_data["agent_infos"]
         state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
         all_input_values += tuple(state_info_list)
@@ -135,6 +158,19 @@ class GASM(GA):
             self.divergences[p] = constraint_val
         return new_seeds, new_magnitudes
 
+    def __getstate__(self):
+        """Get state."""
+        data = self.__dict__.copy()
+        del data['f_divergence']
+        return data
+
+    def __setstate__(self, state):
+        """Set state."""
+        self.__dict__ = state
+        self._name_scope = tf.name_scope(self.name)
+        self.init_opt()
+
+    # for debug
     # def optimize_policy(self, itr, all_paths):
     # 	fitness = self.get_fitness(itr, all_paths)
     # 	self.select_parents(fitness)

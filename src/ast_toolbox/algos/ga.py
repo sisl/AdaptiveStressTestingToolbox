@@ -1,12 +1,14 @@
 import time
 
-# from garage.tf.samplers.vectorized_sampler import VectorizedSampler
-import garage.misc.logger as logger
+from dowel import logger, tabular
 import numpy as np
 import tensorflow as tf
 from garage.tf.algos.batch_polopt import BatchPolopt
+from garage.sampler.batch_sampler import BatchSampler
+from garage.misc import tensor_utils as np_tensor_utils
+from garage.tf.misc import tensor_utils
+# from ast_toolbox.samplers import VectorizedGASampler
 
-from ast_toolbox.samplers import VectorizedGASampler
 from ast_toolbox.utils import seeding
 
 
@@ -18,6 +20,8 @@ class GA(BatchPolopt):
     def __init__(
             self,
             top_paths=None,
+            n_itr=2,
+            batch_size=500,
             step_size=0.01,
             step_size_anneal=1.0,
             pop_size=5,
@@ -42,6 +46,8 @@ class GA(BatchPolopt):
         self.top_paths = top_paths
         self.best_mean = -np.inf
         self.best_var = 0.0
+        self.n_itr = n_itr
+        self.batch_size = batch_size
         self.step_size = step_size
         self.step_size_anneal = step_size_anneal
         self.pop_size = pop_size
@@ -51,11 +57,12 @@ class GA(BatchPolopt):
         self.log_interval = log_interval
         self.init_step = init_step
 
-        self.seeds = np.zeros([kwargs['n_itr'], pop_size], dtype=int)
-        self.magnitudes = np.zeros([kwargs['n_itr'], pop_size])
+        self.seeds = np.zeros([n_itr, pop_size], dtype=int)
+        self.magnitudes = np.zeros([n_itr, pop_size])
         self.parents = np.zeros(pop_size, dtype=int)
         self.np_random, seed = seeding.np_random()  # used in set_params
-        super(GA, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
+        # super(GA, self).__init__(**kwargs, sampler_cls=VectorizedGASampler)
+        super(GA, self).__init__(**kwargs)
 
     def initial(self):
         self.seeds[0, :] = np.random.randint(low=0, high=int(2**16),
@@ -67,71 +74,55 @@ class GA(BatchPolopt):
     def init_opt(self):
         return dict()
 
-    def train(self, sess=None, init_var=False):
-        created_session = True if (sess is None) else False
-        if sess is None:
-            sess = tf.Session()
-            sess.__enter__()
-        if init_var:
-            sess.run(tf.global_variables_initializer())
-        self.start_worker(sess)
-        time.time()
+    # def start_worker(self):
+    #     self.sampler.start_worker()
+
+    # def shutdown_worker(self):
+    #     self.sampler.shutdown_worker()
+
+    def train(self, runner):
         self.initial()
 
-        for itr in range(self.n_itr):
-            time.time()
-            with logger.prefix('itr #%d | ' % itr):
-                all_paths = {}
-                for p in range(self.pop_size):
-                    with logger.prefix('idv #%d | ' % p):
-                        logger.log("Updating Params")
-                        self.set_params(itr, p)
-                        # print(self.policy.get_param_values(trainable=True))
-                        logger.log("Obtaining samples...")
-                        paths = self.obtain_samples(itr)
-                        logger.log("Processing samples...")
-                        samples_data = self.process_samples(itr, paths)
-                        # print([np.mean(path["actions"],-1) for path in paths])
+        for itr in runner.step_epochs():
+            all_paths = {}
+            for p in range(self.pop_size):
+                with logger.prefix('idv #%d | ' % p):
+                    logger.log("Updating Params")
+                    self.set_params(itr, p)
+                    logger.log("Obtaining samples...")
+                    paths = self.obtain_samples(itr, runner)
+                    logger.log("Processing samples...")
+                    samples_data = self.process_samples(itr, paths)
 
-                        # all_paths[p]=paths
-                        all_paths[p] = samples_data
+                    # all_paths[p]=paths
+                    all_paths[p] = samples_data
 
-                        logger.log("Logging diagnostics...")
-                        self.log_diagnostics(paths)
-                        # logger.log("Saving snapshot...")
-                        # snap = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
-                        # if self.store_paths:
-                        # 	snap["paths"] = samples_data["paths"]
-                        # logger.save_itr_params(itr, snap)
-                        # logger.log("Saved")
+                    # logger.log("Logging diagnostics...")
+                    # self.log_diagnostics(paths)
 
-                        self.record_tabular(itr, p)
+            logger.log("Optimizing Population...")
+            self.optimize_policy(itr, all_paths)
+            self.step_size = self.step_size * self.step_size_anneal
+            self.record_tabular(itr)
+            runner.step_itr += 1
+        return None
 
-                logger.log("Optimizing Population...")
-                self.optimize_policy(itr, all_paths)
-                self.step_size = self.step_size * self.step_size_anneal
+    def record_tabular(self, itr):
+        tabular.record('Itr', itr)
+        tabular.record('StepNum', self.stepNum)
+        # This causes tabular logging inconsistant
+        # if self.top_paths is not None:
+        #     for (topi, path) in enumerate(self.top_paths):
+        #         tabular.record('reward ' + str(topi), path[0])
+        tabular.record('BestMean', self.best_mean)
+        tabular.record('BestVar', self.best_var)
+        tabular.record('StepSize', self.step_size)
+        tabular.record('Max Magnitude', np.max(self.magnitudes[itr, :]))
+        tabular.record('Min Magnitude', np.min(self.magnitudes[itr, :]))
+        tabular.record('Mean Magnitude', np.mean(self.magnitudes[itr, :]))
+        self.extra_recording(itr)
 
-        self.shutdown_worker()
-        if created_session:
-            sess.close()
-
-    def record_tabular(self, itr, p):
-        if self.stepNum % self.log_interval == 0:
-            logger.record_tabular('Itr', itr)
-            logger.record_tabular('Ind', p)
-            logger.record_tabular('StepNum', self.stepNum)
-            if self.top_paths is not None:
-                for (topi, path) in enumerate(self.top_paths):
-                    logger.record_tabular('reward ' + str(topi), path[0])
-            logger.record_tabular('BestMean', self.best_mean)
-            logger.record_tabular('BestVar', self.best_var)
-            logger.record_tabular('parent', self.parents[p])
-            logger.record_tabular('StepSize', self.step_size)
-            logger.record_tabular('Magnitude', self.magnitudes[itr, p])
-            self.extra_recording(itr, p)
-            logger.dump_tabular(with_prefix=False)
-
-    def extra_recording(self, itr, p):
+    def extra_recording(self, itr):
         return None
 
     def set_params(self, itr, p):
@@ -192,9 +183,10 @@ class GA(BatchPolopt):
         self.magnitudes = new_magnitudes
         return dict()
 
-    def obtain_samples(self, itr):
+    def obtain_samples(self, itr, runner):
         self.stepNum += self.batch_size
-        paths = self.sampler.obtain_samples(itr)
+        # paths = self.sampler.obtain_samples(itr)
+        paths = runner.obtain_samples(runner.step_itr)
         undiscounted_returns = [sum(path["rewards"]) for path in paths]
         if np.mean(undiscounted_returns) > self.best_mean:
             self.best_mean = np.mean(undiscounted_returns)
@@ -204,11 +196,138 @@ class GA(BatchPolopt):
             [self.top_paths.enqueue(action_seq, R, make_copy=True) for (action_seq, R) in zip(action_seqs, undiscounted_returns)]
         return paths
 
+    def process_samples(self, itr, paths):
+        """Return processed sample data based on the collected paths.
+        (same as in bath_polopt without entropy and tabular recording)
+        Args:
+            itr (int): Iteration number.
+            paths (list[dict]): A list of collected paths.
+
+        Returns:
+            dict: Processed sample data, with key
+                * observations: (numpy.ndarray)
+                * actions: (numpy.ndarray)
+                * rewards: (numpy.ndarray)
+                * baselines: (numpy.ndarray)
+                * returns: (numpy.ndarray)
+                * valids: (numpy.ndarray)
+                * agent_infos: (dict)
+                * env_infos: (dict)
+                * paths: (list[dict])
+                * average_return: (numpy.float64)
+
+        """
+        baselines = []
+        returns = []
+
+        max_path_length = self.max_path_length
+
+        if self.flatten_input:
+            paths = [
+                dict(
+                    observations=(self.env_spec.observation_space.flatten_n(
+                        path['observations'])),
+                    actions=(
+                        self.env_spec.action_space.flatten_n(  # noqa: E126
+                            path['actions'])),
+                    rewards=path['rewards'],
+                    env_infos=path['env_infos'],
+                    agent_infos=path['agent_infos']) for path in paths
+            ]
+        else:
+            paths = [
+                dict(
+                    observations=path['observations'],
+                    actions=(
+                        self.env_spec.action_space.flatten_n(  # noqa: E126
+                            path['actions'])),
+                    rewards=path['rewards'],
+                    env_infos=path['env_infos'],
+                    agent_infos=path['agent_infos']) for path in paths
+            ]
+
+        if hasattr(self.baseline, 'predict_n'):
+            all_path_baselines = self.baseline.predict_n(paths)
+        else:
+            all_path_baselines = [
+                self.baseline.predict(path) for path in paths
+            ]
+
+        for idx, path in enumerate(paths):
+            path_baselines = np.append(all_path_baselines[idx], 0)
+            deltas = (path['rewards'] + self.discount * path_baselines[1:] -
+                      path_baselines[:-1])
+            path['advantages'] = np_tensor_utils.discount_cumsum(
+                deltas, self.discount * self.gae_lambda)
+            path['deltas'] = deltas
+
+        for idx, path in enumerate(paths):
+            # baselines
+            path['baselines'] = all_path_baselines[idx]
+            baselines.append(path['baselines'])
+
+            # returns
+            path['returns'] = np_tensor_utils.discount_cumsum(
+                path['rewards'], self.discount)
+            returns.append(path['returns'])
+
+        # make all paths the same length
+        obs = [path['observations'] for path in paths]
+        obs = tensor_utils.pad_tensor_n(obs, max_path_length)
+
+        actions = [path['actions'] for path in paths]
+        actions = tensor_utils.pad_tensor_n(actions, max_path_length)
+
+        rewards = [path['rewards'] for path in paths]
+        rewards = tensor_utils.pad_tensor_n(rewards, max_path_length)
+
+        returns = [path['returns'] for path in paths]
+        returns = tensor_utils.pad_tensor_n(returns, max_path_length)
+
+        baselines = tensor_utils.pad_tensor_n(baselines, max_path_length)
+
+        agent_infos = [path['agent_infos'] for path in paths]
+        agent_infos = tensor_utils.stack_tensor_dict_list([
+            tensor_utils.pad_tensor_dict(p, max_path_length)
+            for p in agent_infos
+        ])
+
+        env_infos = [path['env_infos'] for path in paths]
+        env_infos = tensor_utils.stack_tensor_dict_list([
+            tensor_utils.pad_tensor_dict(p, max_path_length) for p in env_infos
+        ])
+
+        valids = [np.ones_like(path['returns']) for path in paths]
+        valids = tensor_utils.pad_tensor_n(valids, max_path_length)
+
+        average_discounted_return = (np.mean(
+            [path['returns'][0] for path in paths]))
+
+        undiscounted_returns = [sum(path['rewards']) for path in paths]
+        self.episode_reward_mean.extend(undiscounted_returns)
+
+        # ent = np.sum(self.policy.distribution.entropy(agent_infos) *
+        #              valids) / np.sum(valids)
+
+        samples_data = dict(
+            observations=obs,
+            actions=actions,
+            rewards=rewards,
+            baselines=baselines,
+            returns=returns,
+            valids=valids,
+            agent_infos=agent_infos,
+            env_infos=env_infos,
+            paths=paths,
+            average_return=np.mean(undiscounted_returns),
+        )
+
+        return samples_data
+
     def get_itr_snapshot(self, itr, samples_data):
         # pdb.set_trace()
         return dict(
             itr=itr,
             policy=self.policy,
             seeds=self.seeds,
-            env=self.env,
         )

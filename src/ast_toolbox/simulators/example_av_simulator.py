@@ -164,7 +164,7 @@ class ExampleAVSimulator(ASTSimulator):
 
         # grab simulation state, if interactive
         self.observe()
-        self.observation = self._env_obs
+        self.observation = np.ndarray.flatten(self._env_obs)
         # record step variables
         self.log()
 
@@ -236,7 +236,6 @@ class ExampleAVSimulator(ASTSimulator):
         # self._env_obs = self._measurements
         # self._car_obs = self._measurements
         self.observation = np.ndarray.flatten(self._measurements)
-
         # self.observation = obs
         return self.observation_return()
 
