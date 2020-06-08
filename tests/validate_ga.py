@@ -62,9 +62,9 @@ def validate_ga():
     sim_args['max_path_length'] = max_path_length
 
     for ga_type in ['ga','gasm']:
-      run_experiment_args['log_dir'] = exp_log_dir + '/'+ga_type
-      run_experiment_args['exp_name'] = ga_type
-      ga_algo_args = {'max_path_length': max_path_length,
+        run_experiment_args['log_dir'] = exp_log_dir + '/'+ga_type
+        run_experiment_args['exp_name'] = ga_type
+        ga_algo_args = {'max_path_length': max_path_length,
                         'batch_size': 100,
                         'pop_size': 5,
                         'truncation_size': 3,
@@ -73,18 +73,18 @@ def validate_ga():
                         'n_itr': 2,
                         'log_interval': 100,
                         }
-      ga_runner(
-          ga_type=ga_type,
-          env_args=env_args,
-          run_experiment_args=run_experiment_args,
-          sim_args=sim_args,
-          reward_args=reward_args,
-          spaces_args=spaces_args,
-          policy_args=policy_args,
-          algo_args=ga_algo_args,
-          bpq_args=ga_bpq_args,
-          runner_args=runner_args,
-      )
+        ga_runner(
+            ga_type=ga_type,
+            env_args=env_args,
+            run_experiment_args=run_experiment_args,
+            sim_args=sim_args,
+            reward_args=reward_args,
+            spaces_args=spaces_args,
+            policy_args=policy_args,
+            algo_args=ga_algo_args,
+            bpq_args=ga_bpq_args,
+            runner_args=runner_args,
+            )
 
     return True
 

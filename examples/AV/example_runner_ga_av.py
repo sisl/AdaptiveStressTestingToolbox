@@ -1,6 +1,3 @@
-# Import the example classes
-import pickle
-
 import fire
 import numpy as np
 # Useful imports
