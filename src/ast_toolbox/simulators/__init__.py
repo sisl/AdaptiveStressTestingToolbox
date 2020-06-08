@@ -2,4 +2,3 @@
 from .ast_simulator import ASTSimulator  # noqa
 from .av_rss_simulator import AVRSSSimulator  # noqa
 from .example_av_simulator import ExampleAVSimulator  # noqa
-from .nn_sut_simulator import NNSUTSimulator  # noqa
