@@ -9,6 +9,7 @@ from tests.validate_drl import validate_drl
 from tests.validate_ge_ba import validate_ge_ba
 from tests.validate_install import validate_install
 from tests.validate_mcts import validate_mcts
+from tests.validate_ga import validate_ga
 from tests.validate_parallel import validate_parallel
 
 import ast_toolbox.samplers.parallel_sampler as ps
@@ -36,6 +37,10 @@ def test_validate_drl():
 
 def test_validate_mcts():
     assert validate_mcts() is True
+
+
+def test_validate_ga():
+    assert validate_ga() is True
 
 
 def test_validate_ge_ba():
