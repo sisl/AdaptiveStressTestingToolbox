@@ -23,7 +23,7 @@ class ExampleAVSpaces(ASTSpaces):
                  y_v_high=10.0,
                  car_init_x=-35.0,
                  car_init_y=0.0,
-                 action_only=True,
+                 open_loop=True,
                  ):
 
         # Constant hyper-params -- set by user
@@ -44,7 +44,7 @@ class ExampleAVSpaces(ASTSpaces):
         self.c_y_v_high = y_v_high
         self.c_car_init_x = car_init_x
         self.c_car_init_y = car_init_y
-        self.action_only = action_only
+        self.open_loop = open_loop
         self.low_start_bounds = [-1.0, -6.0, -1.0, 5.0, 0.0, -6.0, 0.0, 5.0]
         self.high_start_bounds = [1.0, -1.0, 0.0, 9.0, 1.0, -2.0, 1.0, 9.0]
         self.v_start = [1.0, -1.0, 1.0, -1.0]
@@ -79,7 +79,7 @@ class ExampleAVSpaces(ASTSpaces):
             high = np.hstack(
                 (high, np.array([self.c_x_v_high, self.c_y_v_high, self.c_x_boundary_high, self.c_y_boundary_high])))
 
-        if self.action_only:
+        if self.open_loop:
             low = self.low_start_bounds[:self.c_num_peds * 2]
             low = low + np.ndarray.tolist(0.0 * np.array(self.v_start))[:self.c_num_peds]
             low = low + [0.75 * self.c_v_des]
@@ -95,5 +95,4 @@ class ExampleAVSpaces(ASTSpaces):
                 low = low + [1.25 * self.c_car_init_x]
                 high = high + [0.75 * self.c_car_init_x]
 
-        # pdb.set_trace()
         return Box(low=np.array(low), high=np.array(high), dtype=np.float32)
