@@ -1,10 +1,7 @@
-import time
 
 from dowel import logger, tabular
 import numpy as np
-import tensorflow as tf
 from garage.tf.algos.batch_polopt import BatchPolopt
-from garage.sampler.batch_sampler import BatchSampler
 from garage.misc import tensor_utils as np_tensor_utils
 from garage.tf.misc import tensor_utils
 # from ast_toolbox.samplers import VectorizedGASampler
@@ -300,8 +297,8 @@ class GA(BatchPolopt):
         valids = [np.ones_like(path['returns']) for path in paths]
         valids = tensor_utils.pad_tensor_n(valids, max_path_length)
 
-        average_discounted_return = (np.mean(
-            [path['returns'][0] for path in paths]))
+        # average_discounted_return = (np.mean(
+        #     [path['returns'][0] for path in paths]))
 
         undiscounted_returns = [sum(path['rewards']) for path in paths]
         self.episode_reward_mean.extend(undiscounted_returns)

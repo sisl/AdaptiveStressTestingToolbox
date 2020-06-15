@@ -1,8 +1,6 @@
-from dowel import logger
 from dowel import tabular
 import numpy as np
 import tensorflow as tf
-# from garage.misc import ext
 from garage.tf.misc import tensor_utils
 
 from ast_toolbox.algos import GA
@@ -40,22 +38,22 @@ class GASM(GA):
         # )
         if is_recurrent:
             obs_var = tf.compat.v1.placeholder(
-                    tf.float32,
-                    shape=[None, None, self.env_spec.observation_space.flat_dim],
-                    name='obs')
+                tf.float32,
+                shape=[None, None, self.env_spec.observation_space.flat_dim],
+                name='obs')
             action_var = tf.compat.v1.placeholder(
-                    tf.float32,
-                    shape=[None, None, self.env_spec.action_space.flat_dim],
-                    name='obs')
+                tf.float32,
+                shape=[None, None, self.env_spec.action_space.flat_dim],
+                name='obs')
         else:
             obs_var = tf.compat.v1.placeholder(
-                    tf.float32,
-                    shape=[None, self.env_spec.observation_space.flat_dim],
-                    name='obs')
+                tf.float32,
+                shape=[None, self.env_spec.observation_space.flat_dim],
+                name='obs')
             action_var = tf.compat.v1.placeholder(
-                    tf.float32,
-                    shape=[None, self.env_spec.action_space.flat_dim],
-                    name='obs')
+                tf.float32,
+                shape=[None, self.env_spec.action_space.flat_dim],
+                name='obs')
 
         # advantage_var = tensor_utils.new_tensor(
         #     'advantage',
@@ -77,7 +75,7 @@ class GASM(GA):
         # npath_var = tf.compat.v1.placeholder(tf.int32, shape=(), name="npath")
         npath_var = tf.compat.v1.placeholder(tf.int32, shape=[None], name="npath")  # in order to work with sliced_fn
 
-        actions = self.policy.get_action_sym(obs_var,name='policy_action')
+        actions = self.policy.get_action_sym(obs_var, name='policy_action')
         divergence = tf.reduce_sum(tf.reduce_sum(tf.square(actions - action_var), -1) * valid_var) / tf.reduce_sum(valid_var)
 
         input_list = [
@@ -115,7 +113,7 @@ class GASM(GA):
         #     samples_data,
         #     "observations", "actions", "advantages"
         # ))
-        all_input_values = (samples_data["observations"],samples_data["actions"]) #,samples_data["advantages"])
+        all_input_values = (samples_data["observations"], samples_data["actions"])  # ,samples_data["advantages"])
         agent_infos = samples_data["agent_infos"]
         state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
         all_input_values += tuple(state_info_list)

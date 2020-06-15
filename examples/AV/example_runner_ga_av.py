@@ -36,7 +36,7 @@ def runner(
     # log_dir='.',
 ):
     if ga_type is None:
-        mcts_type = 'ga'
+        pass
 
     if env_args is None:
         env_args = {}
@@ -127,10 +127,10 @@ def runner(
                     top_paths = BPQ.BoundedPriorityQueue(**bpq_args)
 
                     sampler_cls = ASTVectorizedSampler
-                    sampler_args={"open_loop": False,
-                                 "sim": sim,
-                                 "reward_function": reward_function,
-                                 "n_envs": n_parallel}
+                    sampler_args = {"open_loop": False,
+                                    "sim": sim,
+                                    "reward_function": reward_function,
+                                    "n_envs": n_parallel}
 
                     if ga_type == 'ga':
                         print('ga')
@@ -156,10 +156,7 @@ def runner(
                     local_runner.setup(algo=algo,
                                        env=env,
                                        sampler_cls=sampler_cls,
-                                       sampler_args={"open_loop": False,
-                                                     "sim": sim,
-                                                     "reward_function": reward_function,
-                                                     "n_envs": n_parallel})
+                                       sampler_args=sampler_args)
 
                     # Run the experiment
                     local_runner.train(**runner_args)
