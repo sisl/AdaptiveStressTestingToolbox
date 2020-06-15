@@ -1,8 +1,8 @@
-import pdb # Used for debugging
+import pdb  # Used for debugging
 
-import numpy as np # Used for math
+import numpy as np  # Used for math
 
-from ast_toolbox.simulators import ASTSimulator # import base Simulator class
+from ast_toolbox.simulators import ASTSimulator  # import base Simulator class
 
 
 # Define the class
