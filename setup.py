@@ -22,6 +22,12 @@ def read(*names, **kwargs):
     ) as fh:
         return fh.read()
 
+# Dependencies for optional features
+EXTRAS = {}
+
+EXTRAS['all'] = list(set(sum(EXTRAS.values(), [])))
+
+EXTRAS['ge'] = ['bsddb3']
 
 setup(
     name='ast-toolbox',
@@ -76,11 +82,7 @@ setup(
     install_requires=[
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
-    extras_require={
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
-    },
+    extras_require=EXTRAS,
     setup_requires=[
         'pytest-runner',
     ],
