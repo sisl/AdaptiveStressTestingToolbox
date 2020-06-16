@@ -4,17 +4,16 @@ import numpy as np
 # from example_save_trials import *
 import tensorflow as tf
 # Import the necessary garage classes
-from garage.np.baselines.zero_baseline import ZeroBaseline
-from garage.tf.policies.continuous_mlp_policy import ContinuousMLPPolicy
 from garage.experiment import run_experiment
-from garage.tf.experiment import LocalTFRunner
+from garage.np.baselines.zero_baseline import ZeroBaseline
 from garage.tf.envs import TfEnv
+from garage.tf.experiment import LocalTFRunner
+from garage.tf.policies.continuous_mlp_policy import ContinuousMLPPolicy
 
+# Import the AST classes
 import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 from ast_toolbox.algos import GA
 from ast_toolbox.algos import GASM
-
-# Import the AST classes
 from ast_toolbox.envs import ASTEnv
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler

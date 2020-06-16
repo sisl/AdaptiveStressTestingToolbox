@@ -2,9 +2,10 @@
 
 import numpy as np
 import tensorflow as tf
-from garage.tf.optimizers.utils import LazyDict, sliced_fun
 from dowel import logger
 from garage.tf.misc import tensor_utils
+from garage.tf.optimizers.utils import LazyDict
+from garage.tf.optimizers.utils import sliced_fun
 
 
 class PerlmutterHvp(object):

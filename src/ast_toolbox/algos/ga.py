@@ -1,12 +1,14 @@
-
-from dowel import logger, tabular
+import gym.utils.seeding as seeding
 import numpy as np
-from garage.tf.algos.batch_polopt import BatchPolopt
+from dowel import logger
+from dowel import tabular
 from garage.misc import tensor_utils as np_tensor_utils
+from garage.tf.algos.batch_polopt import BatchPolopt
 from garage.tf.misc import tensor_utils
-# from ast_toolbox.samplers import VectorizedGASampler
 
-from ast_toolbox.utils import seeding
+# from ast_toolbox.utils import seeding
+
+# from ast_toolbox.samplers import VectorizedGASampler
 
 
 class GA(BatchPolopt):

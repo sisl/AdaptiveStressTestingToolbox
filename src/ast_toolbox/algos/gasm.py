@@ -1,6 +1,6 @@
-from dowel import tabular
 import numpy as np
 import tensorflow as tf
+from dowel import tabular
 from garage.tf.misc import tensor_utils
 
 from ast_toolbox.algos import GA
