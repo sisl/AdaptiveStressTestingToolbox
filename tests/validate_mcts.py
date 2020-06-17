@@ -45,10 +45,6 @@ def validate_mcts():
 
     # MCTS Settings
 
-    mcts_policy_args = {}
-
-    mcts_baseline_args = {}
-
     mcts_bpq_args = {'N': 10}
 
     exp_log_dir = base_log_dir
@@ -83,8 +79,6 @@ def validate_mcts():
                 sim_args=sim_args,
                 reward_args=reward_args,
                 spaces_args=spaces_args,
-                policy_args=mcts_policy_args,
-                baseline_args=mcts_baseline_args,
                 algo_args=mcts_algo_args,
                 bpq_args=mcts_bpq_args,
                 runner_args=runner_args,
