@@ -1,4 +1,5 @@
 graft docs
+prune docs/build
 graft src
 graft ci
 graft tests

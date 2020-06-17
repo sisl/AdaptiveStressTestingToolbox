@@ -42,7 +42,7 @@ def validate_ga():
     reward_args = {'use_heuristic': True}
 
     # spaces settings
-    spaces_args = {'action_only': False}
+    spaces_args = {'open_loop': False}
 
     # policy settings
     policy_args = {
