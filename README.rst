@@ -11,7 +11,7 @@ A toolbox for worst-case validation of autonomous policies
 
 Adaptive Stress Testing is a worst-case validation method for autonomous policies. This toolbox is being actively developed by the Stanford Intelligent Systems Lab.
 
-See https://ast-toolbox.readthedocs.io/en/master/ for documentation.
+See https://ast-toolbox.readthedocs.io/en/latest/ for documentation.
 
 Maintained by the Stanford Autonomous Systems Lab
 
@@ -48,7 +48,7 @@ Documentation
 =============
 
 
-https://ast-toolbox.readthedocs.io/en/master/index.html
+https://ast-toolbox.readthedocs.io/en/latest/
 
 
 Development
@@ -77,21 +77,21 @@ Note, to combine the coverage data from all the tox environments run:
 
 
 .. |build-status| image:: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg
-    :alt: build status
+    :alt: Build Status
     :scale: 100%
     :target: https://travis-ci.org/sisl/AdaptiveStressTestingToolbox
 
-.. |docs| image:: https://readthedocs.org/projects/ast-toolbox/badge/?version=master
-    :alt: build status
+.. |docs| image:: https://readthedocs.org/projects/ast-toolbox/badge/?version=latest
+    :alt: Documentation Status
     :scale: 100%
-    :target: https://ast-toolbox.readthedocs.io/en/master/?badge=master
+    :target: https://ast-toolbox.readthedocs.io/en/latest/?badge=latest
 
 .. |coverage| image:: https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox/branch/master/graph/badge.svg
-    :alt: build status
+    :alt: Code Coverage
     :scale: 100%
     :target: https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox
 
 .. |license| image:: https://img.shields.io/badge/license-MIT-yellow.svg
-    :alt: build status
+    :alt: License
     :scale: 100%
     :target: https://github.com/sisl/AdaptiveStressTestingToolbox/blob/master/LICENSE
