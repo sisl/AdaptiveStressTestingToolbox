@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from examples.AV.example_runner_ga_av import runner as ga_runner
 
 
@@ -42,7 +43,7 @@ def validate_ga():
     reward_args = {'use_heuristic': True}
 
     # spaces settings
-    spaces_args = {'action_only': False}
+    spaces_args = {'open_loop': False}
 
     # policy settings
     policy_args = {

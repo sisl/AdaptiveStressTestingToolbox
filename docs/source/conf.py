@@ -2,16 +2,13 @@
 from __future__ import unicode_literals
 
 import os
+import sys
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-import sys
-
-sys.path.insert(0, os.path.abspath('.'))
-
-sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath(''))
+sys.path.insert(0, os.path.abspath('/'))
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -35,8 +32,8 @@ version = release = '2020.06.01.dev1'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/sisl/AdaptiveStressTestingToolbox/issues/%s', '#'),
-    'pr': ('https://github.com/sisl/AdaptiveStressTestingToolbox/pull/%s', 'PR #'),
+    'issue': ('https://https://github.com/sisl/mark-koren/AdaptiveStressTestingToolbox/issues/%s', '#'),
+    'pr': ('https://https://github.com/sisl/mark-koren/AdaptiveStressTestingToolbox/pull/%s', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

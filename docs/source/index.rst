@@ -6,6 +6,7 @@ Contents
    :maxdepth: 2
 
    readme
+   tutorial
    installation
    usage
    reference/index

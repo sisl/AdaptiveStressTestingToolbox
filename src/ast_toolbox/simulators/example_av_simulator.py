@@ -1,9 +1,8 @@
-# import base Simulator class
-import pdb
+import pdb  # Used for debugging
 
-import numpy as np
+import numpy as np  # Used for math
 
-from ast_toolbox.simulators import ASTSimulator  # Used for math and debugging
+from ast_toolbox.simulators import ASTSimulator  # import base Simulator class
 
 
 # Define the class
@@ -225,16 +224,6 @@ class ExampleAVSimulator(ASTSimulator):
         self._car_obs = self._measurements
 
         # return the initial simulation state
-        # if self.blackbox_sim_state:
-        #     obs = s_0
-        #     # obs = self._action
-        # else:
-        # self._car = np.array([self.c_v_des, 0.0, self.c_car_init_x, self.c_car_init_y])
-        # self._car_accel = np.zeros((2))
-        # self._peds[:, 0:4] = np.array([0.0, 1.0, -0.5, -4.0])
-        # self._measurements = self._peds
-        # self._env_obs = self._measurements
-        # self._car_obs = self._measurements
         self.observation = np.ndarray.flatten(self._measurements)
         # self.observation = obs
         return self.observation_return()

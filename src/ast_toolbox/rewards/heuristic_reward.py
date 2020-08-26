@@ -1,4 +1,3 @@
-
 # useful packages for math and debugging
 import numpy as np
 

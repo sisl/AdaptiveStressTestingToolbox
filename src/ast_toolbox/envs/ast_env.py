@@ -98,7 +98,7 @@ class ASTEnv(gym.Env):
         return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
-                    cache=self._info,
+                    # cache=self._info,
                     actions=action_return,
                     # step = self._step -1,
                     # real_actions=self._action,

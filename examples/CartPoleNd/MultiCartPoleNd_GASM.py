@@ -5,7 +5,6 @@ import os.path as osp
 
 import joblib
 import numpy as np
-import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 # from example_save_trials import *
 import tensorflow as tf
 from CartPole.cartpole_simulator import CartpoleSimulator
@@ -13,6 +12,8 @@ from CartPole.cartpole_simulator import CartpoleSimulator
 from garage.baselines.zero_baseline import ZeroBaseline
 from garage.misc import logger
 from garage.tf.policies.deterministic_mlp_policy import DeterministicMLPPolicy
+
+import src.ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 # Log Params
 from src.ast_toolbox import ASTEnv
 from src.ast_toolbox import TfEnv
