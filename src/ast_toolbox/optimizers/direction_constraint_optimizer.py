@@ -1,7 +1,7 @@
 import numpy as np
 from dowel import logger
 from garage.tf.misc import tensor_utils
-from garage.tf.optimizers.conjugate_gradient_optimizer import PerlmutterHvp
+from garage.tf.optimizers.conjugate_gradient_optimizer import PearlmutterHvp
 from garage.tf.optimizers.utils import LazyDict
 from garage.tf.optimizers.utils import sliced_fun
 
@@ -48,7 +48,7 @@ class DirectionConstraintOptimizer:
         self._debug_nan = debug_nan
         self._accept_violation = accept_violation
         if hvp_approach is None:
-            hvp_approach = PerlmutterHvp(num_slices)
+            hvp_approach = PearlmutterHvp(num_slices)
         self._hvp_approach = hvp_approach
 
     def update_opt(self, target, leq_constraint, inputs, extra_inputs=None, constraint_name="constraint", *args,
