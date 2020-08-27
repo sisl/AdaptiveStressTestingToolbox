@@ -35,6 +35,8 @@ extlinks = {
     'issue': ('https://https://github.com/sisl/mark-koren/AdaptiveStressTestingToolbox/issues/%s', '#'),
     'pr': ('https://https://github.com/sisl/mark-koren/AdaptiveStressTestingToolbox/pull/%s', 'PR #'),
 }
+linkcheck_retries = 3
+
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
