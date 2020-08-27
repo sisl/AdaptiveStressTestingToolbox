@@ -74,7 +74,7 @@ class DirectionConstraintOptimizer:
 
         # params = target.get_params(trainable=True)
 
-        self._hvp_approach.update_opt(f=constraint_term, target=target, inputs=inputs + extra_inputs,
+        self._hvp_approach.update_hvp(f=constraint_term, target=target, inputs=inputs + extra_inputs,
                                       reg_coeff=self._reg_coeff)
 
         self._target = target
