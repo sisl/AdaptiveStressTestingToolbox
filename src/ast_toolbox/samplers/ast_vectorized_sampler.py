@@ -1,6 +1,5 @@
 import numpy as np
 from garage.sampler.on_policy_vectorized_sampler import OnPolicyVectorizedSampler
-
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.simulators import ExampleAVSimulator
 
@@ -15,7 +14,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
 
     def obtain_samples(self, itr, batch_size=None, whole_paths=False):
         # pdb.set_trace()
-        paths = super().obtain_samples(itr)
+        paths = super().obtain_samples(itr, batch_size)
         # pdb.set_trace()
         if self.open_loop:
             for path in paths:
@@ -25,6 +24,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
                 actions = path['actions']
                 # pdb.set_trace()
                 end_idx, info = self.sim.simulate(actions=actions, s_0=s_0)
+                # print('----- Back from simulate: ', end_idx)
                 if end_idx >= 0:
                     # pdb.set_trace()
                     self.slice_dict(path, end_idx)
@@ -32,10 +32,13 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
                     action=actions[end_idx],
                     info=self.sim.get_reward_info()
                 )
+                # print('----- Back from rewards: ', rewards)
                 # pdb.set_trace()
                 path["rewards"][end_idx] = rewards
-                info[:, -1] = path["rewards"][:info.shape[0]]
-                path['env_infos']['cache'] = info
+                # info[:, -1] = path["rewards"][:info.shape[0]]
+                # path['env_infos']['sim_info'] = info
+                path['env_infos']['sim_info'] = np.zeros_like(path["rewards"])
+                # import pdb; pdb.set_trace()
 
         return paths
 
