@@ -92,7 +92,7 @@ class ToyAVSimulator():
             self.step_simulation(self._action)
 
             # check if a crash has occurred. If so return the timestep, otherwise continue
-            if self.detect_collision():
+            if self.collision_detected():
                 return path_length, np.array(self._info)
             path_length = path_length + 1
 
@@ -201,7 +201,7 @@ class ToyAVSimulator():
         # self.observation = obs
         return self.observation
 
-    def detect_collision(self):
+    def collision_detected(self):
         """
         returns whether the current state is in the goal set
         :return: boolean, true if current state is in goal set.

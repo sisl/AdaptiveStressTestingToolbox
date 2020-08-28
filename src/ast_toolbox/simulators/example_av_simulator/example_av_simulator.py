@@ -14,60 +14,64 @@ class ExampleAVSimulator(ASTSimulator):
 
     def __init__(self,
                  num_peds=1,
-                 dt=0.1,
-                 alpha=0.85,
-                 beta=0.005,
-                 v_des=11.17,
-                 delta=4.0,
-                 t_headway=1.5,
-                 a_max=3.0,
-                 s_min=4.0,
-                 d_cmf=2.0,
-                 d_max=9.0,
-                 min_dist_x=2.5,
-                 min_dist_y=1.4,
-                 car_init_x=-35.0,
-                 car_init_y=0.0,
+                 simulator_args=None,
+                 # dt=0.1,
+                 # alpha=0.85,
+                 # beta=0.005,
+                 # v_des=11.17,
+                 # delta=4.0,
+                 # t_headway=1.5,
+                 # a_max=3.0,
+                 # s_min=4.0,
+                 # d_cmf=2.0,
+                 # d_max=9.0,
+                 # min_dist_x=2.5,
+                 # min_dist_y=1.4,
+                 # car_init_x=-35.0,
+                 # car_init_y=0.0,
                  # blackbox_sim_state = True,
                  **kwargs):
         # Constant hyper-params -- set by user
         self.c_num_peds = num_peds
-        self.c_dt = dt
-        self.c_alpha = alpha
-        self.c_beta = beta
-        self.c_v_des = v_des
-        self.c_delta = delta
-        self.c_t_headway = t_headway
-        self.c_a_max = a_max
-        self.c_s_min = s_min
-        self.c_d_cmf = d_cmf
-        self.c_d_max = d_max
-        self.c_min_dist = np.array([min_dist_x, min_dist_y])
-        self.c_car_init_x = car_init_x
-        self.c_car_init_y = car_init_y
+        if simulator_args is None:
+            simulator_args = {}
+
+        # self.c_dt = dt
+        # self.c_alpha = alpha
+        # self.c_beta = beta
+        # self.c_v_des = v_des
+        # self.c_delta = delta
+        # self.c_t_headway = t_headway
+        # self.c_a_max = a_max
+        # self.c_s_min = s_min
+        # self.c_d_cmf = d_cmf
+        # self.c_d_max = d_max
+        # self.c_min_dist = np.array([min_dist_x, min_dist_y])
+        # self.c_car_init_x = car_init_x
+        # self.c_car_init_y = car_init_y
         # self.blackbox_sim_state = blackbox_sim_state
 
         # These are set by reset, not the user
-        self._car = np.zeros((4))
-        self._car_accel = np.zeros((2))
-        self._peds = np.zeros((self.c_num_peds, 4))
-        self._measurements = np.zeros((self.c_num_peds, 4))
-        self._car_obs = np.zeros((self.c_num_peds, 4))
-        self._env_obs = np.zeros((self.c_num_peds, 4))
-        self._done = False
-        self._reward = 0.0
-        self._info = []
-        self._step = 0
-        self._path_length = 0
-        # self._action = None
+        # self._car = np.zeros((4))
+        # self._car_accel = np.zeros((2))
+        # self._peds = np.zeros((self.c_num_peds, 4))
+        # self._measurements = np.zeros((self.c_num_peds, 4))
+        # self._car_obs = np.zeros((self.c_num_peds, 4))
+        # self._env_obs = np.zeros((self.c_num_peds, 4))
+        # self._done = False
+        # self._reward = 0.0
+        # self._info = []
+        # self._step = 0
+        # self._path_length = 0
+        # # self._action = None
         self._action = np.array([0] * (6 * self.c_num_peds))
-        self._first_step = True
-        self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
-        self.y = np.random.rand(self.c_num_peds) * 14 - 5
-        self.x = np.random.rand(self.c_num_peds) * 4 - 2
-        self._state = None
+        # self._first_step = True
+        # self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
+        # self.y = np.random.rand(self.c_num_peds) * 14 - 5
+        # self.x = np.random.rand(self.c_num_peds) * 4 - 2
+        # self._state = None
         # TODO: Handle toy simulator parameters
-        self.simulator = ToyAVSimulator()
+        self.simulator = ToyAVSimulator(num_peds=num_peds, **simulator_args)
 
         # initialize the base Simulator
         super().__init__(**kwargs)
@@ -105,6 +109,7 @@ class ExampleAVSimulator(ASTSimulator):
         """
         # grab simulation state, if interactive
         self.observation = np.ndarray.flatten(self.simulator.step_simulation(action))
+
         return self.observation_return()
 
     def reset(self, s_0):
@@ -116,6 +121,7 @@ class ExampleAVSimulator(ASTSimulator):
         """
 
         # return the initial simulation state
+        super(ExampleAVSimulator, self).reset(s_0=s_0)
         self.observation = np.ndarray.flatten(self.simulator.reset(s_0))
         # self.observation = obs
         return self.observation_return()
@@ -129,26 +135,26 @@ class ExampleAVSimulator(ASTSimulator):
         return {"peds": sim_state['peds'],
                 "car": sim_state['car'],
                 "is_goal": self.is_goal(),
-                "is_terminal": sim_state['is_terminal']}
+                "is_terminal": self.is_terminal()}
 
     def is_goal(self):
         """
         returns whether the current state is in the goal set
         :return: boolean, true if current state is in goal set.
         """
-        return self.simulator.detect_collision()
+        return self.simulator.collision_detected()
 
     def log(self):
         # Create a cache of step specific variables for post-simulation analysis
+        sim_state = self.simulator.get_ground_truth()
         cache = np.hstack([0.0,  # Dummy, will be filled in with trial # during post processing in save_trials.py
-                           self._step,
-                           np.ndarray.flatten(self._car),
-                           np.ndarray.flatten(self._peds),
-                           np.ndarray.flatten(self._action),
-                           np.ndarray.flatten(self._car_obs),
+                           sim_state['step'],
+                           np.ndarray.flatten(sim_state['car']),
+                           np.ndarray.flatten(sim_state['peds']),
+                           np.ndarray.flatten(sim_state['action']),
+                           np.ndarray.flatten(sim_state['car_obs']),
                            0.0])
         self._info.append(cache)
-        self._step += 1
 
     # def sensors(self, car, peds, noise):
     #
@@ -216,8 +222,8 @@ class ExampleAVSimulator(ASTSimulator):
     #     if np.any(np.isnan(self._peds)):
     #         pdb.set_trace()
 
-    def observe(self):
-        self._env_obs = self._peds - self._car
+    # def observe(self):
+    #     self._env_obs = self._peds - self._car
 
     def clone_state(self):
         simulator_state = self.simulator.get_ground_truth()
@@ -256,7 +262,7 @@ class ExampleAVSimulator(ASTSimulator):
             # if self._action is None:
             # return np.array([0] * (6*self.c_num_peds))
             # return self._action
-        return self._env_obs
+        return self.simulator._env_obs
 
     def render(self, car, ped, noise, gif=False):
         if gif:
