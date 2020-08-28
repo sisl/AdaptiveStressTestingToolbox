@@ -17,7 +17,7 @@ from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from ast_toolbox.algos import BackwardAlgorithm
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import BatchSampler
-from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.simulators.example_av_simulator.example_av_ast_simulator import ExampleAVASTSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
@@ -127,40 +127,44 @@ def runner(
         # config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
-
-                # Instantiate the example classes
-                sim = ExampleAVSimulator(**sim_args)
-                reward_function = ExampleAVReward(**reward_args)
-                spaces = ExampleAVSpaces(**spaces_args)
-
-                # Create the environment
-                # env1 = GoExploreASTEnv(open_loop=False,
-                #                              blackbox_sim_state=True,
-                #                              fixed_init_state=True,
-                #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
-                #                              simulator=sim,
-                #                              reward_function=reward_function,
-                #                              spaces=spaces
-                #                              )
-                env1 = gym.make(id=env_args.pop('id'),
-                                simulator=sim,
-                                reward_function=reward_function,
-                                spaces=spaces,
-                                **env_args)
-                env2 = normalize(env1)
-                env = TfEnv(env2)
-
-                sampler_cls = BatchSampler
-                # sampler_args = {'n_envs': n_parallel}
-                sampler_args = {}
-                # expert_trajectory_file = log_dir + '/expert_trajectory.p'
-                # with open(expert_trajectory_file, 'rb') as f:
-                #     expert_trajectory = pickle.load(f)
-
-                #
-                # #Run backwards algorithm to robustify
                 with LocalTFRunner(
-                        snapshot_config=snapshot_config, sess=sess) as local_runner:
+                    snapshot_config=snapshot_config, sess=sess) as local_runner:
+                    # Instantiate the example classes
+                    sim = ExampleAVASTSimulator(**sim_args)
+                    reward_function = ExampleAVReward(**reward_args)
+                    spaces = ExampleAVSpaces(**spaces_args)
+
+                    # Create the environment
+                    # env1 = GoExploreASTEnv(open_loop=False,
+                    #                              blackbox_sim_state=True,
+                    #                              fixed_init_state=True,
+                    #                              s_0=[-0.5, -4.0, 1.0, 11.17, -35.0],
+                    #                              simulator=sim,
+                    #                              reward_function=reward_function,
+                    #                              spaces=spaces
+                    #                              )
+                    env1 = gym.make(id=env_args.pop('id'),
+                                    simulator=sim,
+                                    reward_function=reward_function,
+                                    spaces=spaces,
+                                    **env_args)
+                    env2 = normalize(env1)
+                    env = TfEnv(env2)
+
+                    sampler_cls = BatchSampler
+                    # sampler_args = {'n_envs': n_parallel}
+                    sampler_args = {"open_loop": env_args['open_loop'],
+                                    "sim": sim,
+                                    "reward_function": reward_function,
+                                    'n_envs': n_parallel}
+                    # expert_trajectory_file = log_dir + '/expert_trajectory.p'
+                    # with open(expert_trajectory_file, 'rb') as f:
+                    #     expert_trajectory = pickle.load(f)
+
+                    #
+                    # #Run backwards algorithm to robustify
+                # with LocalTFRunner(
+                #         snapshot_config=snapshot_config, sess=sess) as local_runner:
 
                     policy = GaussianLSTMPolicy(env_spec=env.spec, **policy_args)
                     # name='lstm_policy',

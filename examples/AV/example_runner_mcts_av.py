@@ -20,7 +20,7 @@ from ast_toolbox.algos import MCTSRS
 from ast_toolbox.envs import ASTEnv
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler
-from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.simulators.example_av_simulator.example_av_ast_simulator import ExampleAVASTSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 
@@ -96,7 +96,7 @@ def runner(
                         snapshot_config=snapshot_config, max_cpus=4, sess=sess) as local_runner:
 
                     # Instantiate the example classes
-                    sim = ExampleAVSimulator(**sim_args)
+                    sim = ExampleAVASTSimulator(**sim_args)
                     reward_function = ExampleAVReward(**reward_args)
                     spaces = ExampleAVSpaces(**spaces_args)
 
