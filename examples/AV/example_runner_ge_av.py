@@ -20,7 +20,7 @@ from ast_toolbox.algos import GoExplore
 from ast_toolbox.policies import GoExplorePolicy
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import BatchSampler
-from ast_toolbox.simulators.example_av_simulator.example_av_ast_simulator import ExampleAVASTSimulator
+from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
@@ -133,7 +133,7 @@ def runner(
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
                 # Instantiate the example classes
-                sim = ExampleAVASTSimulator(**sim_args)
+                sim = ExampleAVSimulator(**sim_args)
                 # blackbox_sim_state=True,
                 # open_loop=False,
                 # fixed_initial_state=True,

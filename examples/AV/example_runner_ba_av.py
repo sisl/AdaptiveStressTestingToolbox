@@ -17,7 +17,7 @@ from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
 from ast_toolbox.algos import BackwardAlgorithm
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import BatchSampler
-from ast_toolbox.simulators.example_av_simulator.example_av_ast_simulator import ExampleAVASTSimulator
+from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 # Import the AST classes
@@ -130,7 +130,7 @@ def runner(
                 with LocalTFRunner(
                     snapshot_config=snapshot_config, sess=sess) as local_runner:
                     # Instantiate the example classes
-                    sim = ExampleAVASTSimulator(**sim_args)
+                    sim = ExampleAVSimulator(**sim_args)
                     reward_function = ExampleAVReward(**reward_args)
                     spaces = ExampleAVSpaces(**spaces_args)
 

@@ -15,13 +15,13 @@ from garage.tf.experiment import LocalTFRunner
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
 from garage.tf.optimizers.conjugate_gradient_optimizer import FiniteDifferenceHvp
 # from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
-from ast_toolbox.policies.my_gaussian_lstm import GaussianLSTMPolicy
+from garage.tf.policies import GaussianLSTMPolicy
 
 # Import the AST classes
 from ast_toolbox.envs import ASTEnv
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler
-from ast_toolbox.simulators.example_av_simulator.example_av_ast_simulator import ExampleAVASTSimulator
+from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
 
@@ -92,7 +92,7 @@ def runner(
                 with LocalTFRunner(
                         snapshot_config=snapshot_config, max_cpus=4, sess=sess) as local_runner:
                     # Instantiate the example classes
-                    sim = ExampleAVASTSimulator(**sim_args)
+                    sim = ExampleAVSimulator(**sim_args)
                     reward_function = ExampleAVReward(**reward_args)
                     spaces = ExampleAVSpaces(**spaces_args)
 
