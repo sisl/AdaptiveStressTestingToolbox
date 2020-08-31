@@ -43,6 +43,9 @@ def validate_mcts():
     # spaces settings
     spaces_args = {}
 
+    sampler_args = {'n_envs': 1,
+                    'open_loop': False}
+
     # MCTS Settings
 
     mcts_bpq_args = {'N': 10}
@@ -82,6 +85,7 @@ def validate_mcts():
                 algo_args=mcts_algo_args,
                 bpq_args=mcts_bpq_args,
                 runner_args=runner_args,
+                sampler_args=sampler_args
             )
 
     return True

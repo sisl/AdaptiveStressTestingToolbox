@@ -35,6 +35,7 @@ def runner(
     baseline_args=None,
     algo_args=None,
     runner_args=None,
+    sampler_args=None,
     save_expert_trajectory=False,
 ):
 
@@ -64,6 +65,9 @@ def runner(
 
     if runner_args is None:
         runner_args = {'n_epochs': 1}
+
+    if sampler_args is None:
+        sampler_args = {}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -122,15 +126,14 @@ def runner(
                                **algo_args)
 
                     sampler_cls = ASTVectorizedSampler
+                    sampler_args['sim'] = sim
+                    sampler_args['reward_function'] = reward_function
 
                     local_runner.setup(
                         algo=algo,
                         env=env,
                         sampler_cls=sampler_cls,
-                        sampler_args={"open_loop": env_args['open_loop'],
-                                      "sim": sim,
-                                      "reward_function": reward_function,
-                                      'n_envs': n_parallel})
+                        sampler_args=sampler_args)
 
                     # Run the experiment
                     local_runner.train(**runner_args)

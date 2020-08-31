@@ -50,6 +50,7 @@ def runner(
         baseline_args=None,
         algo_args=None,
         runner_args=None,
+        sampler_args=None,
         # log_dir='.',
 ):
     if not isinstance(env_args, dict) or 'id' not in env_args.keys():
@@ -80,6 +81,9 @@ def runner(
 
     if runner_args is None:
         runner_args = {'n_epochs': 1}
+
+    if sampler_args is None:
+        sampler_args = {}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -153,10 +157,13 @@ def runner(
 
                     sampler_cls = BatchSampler
                     # sampler_args = {'n_envs': n_parallel}
-                    sampler_args = {"open_loop": env_args['open_loop'],
-                                    "sim": sim,
-                                    "reward_function": reward_function,
-                                    'n_envs': n_parallel}
+                    # sampler_args = {"open_loop": env_args['open_loop'],
+                    #                 "sim": sim,
+                    #                 "reward_function": reward_function,
+                    #                 'n_envs': n_parallel}
+                    sampler_args['sim'] = sim
+                    sampler_args['reward_function'] = reward_function
+
                     # expert_trajectory_file = log_dir + '/expert_trajectory.p'
                     # with open(expert_trajectory_file, 'rb') as f:
                     #     expert_trajectory = pickle.load(f)

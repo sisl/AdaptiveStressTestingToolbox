@@ -46,6 +46,9 @@ def validate_ge_ba():
     # spaces settings
     spaces_args = {}
 
+    sampler_args = {'n_envs': 1,
+                    'open_loop': False}
+
     # Go-Explore Settings
 
     ge_algo_args = {'db_filename': None,
@@ -114,6 +117,7 @@ def validate_ge_ba():
         baseline_args=ge_baseline_args,
         algo_args=ge_algo_args,
         runner_args=runner_args,
+        sampler_args=sampler_args
     )
 
     with open(run_experiment_args['log_dir'] + '/expert_trajectory.p', 'rb') as f:
@@ -132,6 +136,7 @@ def validate_ge_ba():
         baseline_args=ba_baseline_args,
         algo_args=ba_algo_args,
         runner_args=runner_args,
+        sampler_args=sampler_args
     )
 
     return True

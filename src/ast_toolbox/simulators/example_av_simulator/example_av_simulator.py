@@ -92,7 +92,7 @@ class ExampleAVSimulator(ASTSimulator):
                         terminal_index should be returned as -1.
 
         """
-        return self.simulator.run_simulation(actions=actions, s_0=s_0, max_simulation_steps=self.c_max_path_length)
+        return self.simulator.run_simulation(actions=actions, s_0=s_0, simulation_horizon=self.c_max_path_length)
 
     def closed_loop_step(self, action):
         """
@@ -239,6 +239,7 @@ class ExampleAVSimulator(ASTSimulator):
 
 
     def restore_state(self, in_simulator_state):
+        # Set ground truth of actual simulator
         simulator_state = {}
 
         simulator_state['step'] = in_simulator_state[0]
@@ -252,9 +253,16 @@ class ExampleAVSimulator(ASTSimulator):
         simulator_state['car_obs'] = in_simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds, 4))
         simulator_state['action'] = in_simulator_state[car_obs_end_index:car_obs_end_index + self._action.shape[0]]
         simulator_state['initial_conditions'] = in_simulator_state[car_obs_end_index + self._action.shape[0]:]
-        self._info = []
 
         self.simulator.set_ground_truth(simulator_state)
+
+        # Set wrapper state variables
+        self._info = []
+        self.initial_conditions = simulator_state['initial_conditions']
+        self._is_terminal = simulator_state['is_terminal']
+        self._path_length = simulator_state['path_length']
+
+
 
     def _get_obs(self):
         if self.blackbox_sim_state:

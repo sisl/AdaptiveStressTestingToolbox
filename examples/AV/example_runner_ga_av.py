@@ -32,6 +32,7 @@ def runner(
     algo_args=None,
     runner_args=None,
     bpq_args=None,
+    sampler_args=None,
     # log_dir='.',
 ):
     if ga_type is None:
@@ -60,6 +61,9 @@ def runner(
 
     if runner_args is None:
         runner_args = {}
+
+    if sampler_args is None:
+        sampler_args = {}
 
     if bpq_args is None:
         bpq_args = {}
@@ -126,10 +130,8 @@ def runner(
                     top_paths = BPQ.BoundedPriorityQueue(**bpq_args)
 
                     sampler_cls = ASTVectorizedSampler
-                    sampler_args = {"open_loop": False,
-                                    "sim": sim,
-                                    "reward_function": reward_function,
-                                    "n_envs": n_parallel}
+                    sampler_args['sim'] = sim
+                    sampler_args['reward_function'] = reward_function
 
                     if ga_type == 'ga':
                         print('ga')
