@@ -282,6 +282,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         done : a boolean, indicating whether the episode has ended
         info : a dictionary containing other diagnostic information from the previous action
         """
+        self._env_state_before_action = self._env_state.copy()
+
         self._action = action
         self._actions.append(action)
         action_return = self._action
@@ -327,7 +329,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                     actions=action_return,
                     # step = self._step -1,
                     # real_actions=self._action,
-                    state=self._env_state,
+                    state=self._env_state_before_action,
                     root_action=self.root_action,
                     is_terminal=self.simulator.is_terminal(),
                     is_goal=self.simulator.is_goal())
@@ -350,8 +352,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             if self.p_robustify_state is not None and self.p_robustify_state.value is not None and len(
                     self.p_robustify_state.value) > 0:
                 state = self.p_robustify_state.value
-                print('-----------Robustify Init-----------------')
-                print('-----------Robustify Init: ', state, ' -----------------')
+                # print('-----------Robustify Init-----------------')
+                # print('-----------Robustify Init: ', state, ' -----------------')
                 self.simulator.restore_state(state[:-2])
                 obs = self.simulator._get_obs()
                 self._done = False
@@ -360,6 +362,12 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 # pdb.set_trace()
 
                 self.robustify = True
+
+                self._simulator_state = self.simulator.clone_state()
+                self._env_state = np.concatenate((self._simulator_state,
+                                                  np.array([self._cum_reward]),
+                                                  np.array([self._step])),
+                                                 axis=0)
                 return self._init_state
             # pdb.set_trace()
             # start = time.time()
@@ -421,6 +429,12 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             else:
                 print("Reset from start")
                 obs = self.env_reset()
+
+            self._simulator_state = self.simulator.clone_state()
+            self._env_state = np.concatenate((self._simulator_state,
+                                              np.array([self._cum_reward]),
+                                              np.array([self._step])),
+                                             axis=0)
             # pdb.set_trace()
         except db.DBBusyError:
             print("DBBusyError")

@@ -57,8 +57,6 @@ def test_ast_simulator():
     with pytest.raises(NotImplementedError):
         sim.step(None)
     with pytest.raises(NotImplementedError):
-        sim.reset(None)
-    with pytest.raises(NotImplementedError):
         sim.get_reward_info()
     with pytest.raises(NotImplementedError):
         sim.is_goal()
@@ -78,15 +76,19 @@ def test_ast_simulator():
 
     sim.blackbox_sim_state = False
     assert np.all(sim.observation_return() == np.array([1, 1, 1, 1]))
+    assert np.all(sim.reset(np.array([0, 0, 0, 0, 0])) == np.array([1, 1, 1, 1]))
 
     sim.blackbox_sim_state = True
     assert np.all(sim.observation_return() == np.array([0, 0, 0, 0, 0]))
+    assert np.all(sim.reset(np.array([0, 0, 0, 0, 0])) == np.array([0, 0, 0, 0, 0]))
 
     assert sim.log() is None
 
 
 def test_example_av_simulator():
-    sim = ExampleAVSimulator(car_init_x=0, car_init_y=0, max_path_length=1)
+    simulator_args = {'car_init_x': 0,
+                      'car_init_y': 0}
+    sim = ExampleAVSimulator(simulator_args=simulator_args, max_path_length=1)
     sim.blackbox_sim_state = False
 
     # check reset
@@ -245,4 +247,10 @@ def test_example_runner_ba_av():
                          'observation': np.zeros(5)}
     with patch('examples.AV.example_runner_ba_av.compress_pickle.dump', side_effect=MemoryError):
         with patch('examples.AV.example_runner_ba_av.LocalTFRunner.train', new=lambda x: 0):
-            runner(env_args={'id': 'ast_toolbox:GoExploreAST-v1'}, algo_args={'expert_trajectory': [expert_trajectory] * 50})
+            runner(
+                env_args={
+                    'id': 'ast_toolbox:GoExploreAST-v1'},
+                algo_args={
+                    'expert_trajectory': [expert_trajectory] *
+                    50,
+                    'max_epochs': 10})

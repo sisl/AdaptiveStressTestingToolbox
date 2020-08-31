@@ -1,5 +1,9 @@
 # Import the example classes
+import os
+import pickle
+
 import fire
+import numpy as np
 # Useful imports
 import tensorflow as tf
 from garage.envs.normalized_env import normalize
@@ -11,7 +15,8 @@ from garage.tf.envs.base import TfEnv
 from garage.tf.experiment import LocalTFRunner
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
 from garage.tf.optimizers.conjugate_gradient_optimizer import FiniteDifferenceHvp
-from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+# from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies import GaussianLSTMPolicy
 
 # Import the AST classes
 from ast_toolbox.envs import ASTEnv
@@ -31,6 +36,8 @@ def runner(
     baseline_args=None,
     algo_args=None,
     runner_args=None,
+    sampler_args=None,
+    save_expert_trajectory=False,
 ):
 
     if env_args is None:
@@ -59,6 +66,9 @@ def runner(
 
     if runner_args is None:
         runner_args = {'n_epochs': 1}
+
+    if sampler_args is None:
+        sampler_args = {}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -117,18 +127,45 @@ def runner(
                                **algo_args)
 
                     sampler_cls = ASTVectorizedSampler
+                    sampler_args['sim'] = sim
+                    sampler_args['reward_function'] = reward_function
 
                     local_runner.setup(
                         algo=algo,
                         env=env,
                         sampler_cls=sampler_cls,
-                        sampler_args={"open_loop": False,
-                                      "sim": sim,
-                                      "reward_function": reward_function,
-                                      'n_envs': n_parallel})
+                        sampler_args=sampler_args)
 
                     # Run the experiment
                     local_runner.train(**runner_args)
+
+                    if save_expert_trajectory:
+                        last_iter_filename = os.path.join(run_experiment_args['log_dir'],
+                                                          'itr_' + str(runner_args['n_epochs'] - 1) + '.pkl')
+                        with open(last_iter_filename, 'rb') as f:
+                            last_iter_data = pickle.load(f)
+
+                        best_rollout_idx = np.argmax(np.array([np.sum(rollout['rewards']) for rollout in last_iter_data['paths']]))
+                        best_rollout = last_iter_data['paths'][best_rollout_idx]
+                        expert_trajectory = []
+                        collision_step = 1 + np.amax(np.nonzero(best_rollout['rewards']))
+                        if collision_step == best_rollout['rewards'].shape[0]:
+                            print('NO COLLISION FOUND IN ANY TRAJECTORY - NOT SAVING EXPERT TRAJECTORY')
+                        else:
+                            for step_num in range(collision_step + 1):
+                                expert_trajectory_step = {}
+                                expert_trajectory_step['action'] = best_rollout['env_infos']['actions'][step_num, :]
+                                expert_trajectory_step['observation'] = best_rollout['observations'][step_num, :]
+                                expert_trajectory_step['reward'] = best_rollout['rewards'][step_num]
+                                expert_trajectory_step['state'] = best_rollout['env_infos']['state'][step_num, :]
+
+                                expert_trajectory.append(expert_trajectory_step)
+
+                            expert_trajectory_filename = os.path.join(run_experiment_args['log_dir'], 'expert_trajectory.pkl')
+                            with open(expert_trajectory_filename, 'wb') as f:
+                                pickle.dump(expert_trajectory, f)
+
+                    print('done!')
 
     run_experiment(
         run_task,

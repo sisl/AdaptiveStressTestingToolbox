@@ -30,6 +30,9 @@ def validate_drl():
                 's_0': s_0,
                 }
 
+    sampler_args = {'n_envs': 1,
+                    'open_loop': False}
+
     # simulation settings
     sim_args = {'blackbox_sim_state': True,
                 'open_loop': False,
@@ -81,6 +84,7 @@ def validate_drl():
         baseline_args=drl_baseline_args,
         algo_args=drl_algo_args,
         runner_args=runner_args,
+        sampler_args=sampler_args
     )
 
     return True

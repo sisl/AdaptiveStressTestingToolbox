@@ -51,6 +51,9 @@ def validate_ga():
         'output_nonlinearity': tf.nn.tanh,
     }
 
+    sampler_args = {'n_envs': 1,
+                    'open_loop': False}
+
     # GA Settings
 
     ga_bpq_args = {'N': 10}
@@ -84,6 +87,7 @@ def validate_ga():
             policy_args=policy_args,
             algo_args=ga_algo_args,
             bpq_args=ga_bpq_args,
+            sampler_args=sampler_args,
             runner_args=runner_args,
         )
 

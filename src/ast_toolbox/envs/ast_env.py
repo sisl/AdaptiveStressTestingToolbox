@@ -1,4 +1,3 @@
-import pdb
 
 import gym
 import numpy as np
@@ -69,6 +68,8 @@ class ASTEnv(gym.Env):
         done : a boolean, indicating whether the episode has ended
         info : a dictionary containing other diagnostic information from the previous action
         """
+        self._env_state_before_action = self._env_state.copy()
+
         self._action = action
         self._actions.append(action)
         action_return = self._action
@@ -86,23 +87,24 @@ class ASTEnv(gym.Env):
         self._cum_reward += self._reward
         # Update instance attributes
         self._step = self._step + 1
+
         self._simulator_state = self.simulator.clone_state()
         self._env_state = np.concatenate((self._simulator_state,
                                           np.array([self._cum_reward]),
                                           np.array([self._step])),
                                          axis=0)
-        if self._done:
-            self.simulator.simulate(self._actions, self._init_state)
-            if not (self.simulator.is_goal() or self.simulator.is_terminal()):
-                pdb.set_trace()
+        # if self._done:
+        #     self.simulator.simulate(self._actions, self._init_state)
+        #     if not (self.simulator.is_goal() or self.simulator.is_terminal()):
+        #         pdb.set_trace()
         return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
-                    # cache=self._info,
+                    sim_info=self._info,
                     actions=action_return,
                     # step = self._step -1,
                     # real_actions=self._action,
-                    state=self._env_state,
+                    state=self._env_state_before_action,
                     # root_action=self.root_action,
                     is_terminal=self.simulator.is_terminal(),
                     is_goal=self.simulator.is_goal())
@@ -134,6 +136,12 @@ class ASTEnv(gym.Env):
         obs = np.array(self.simulator.reset(self._init_state))
         if not self._fixed_init_state:
             obs = np.concatenate((obs, np.array(self._init_state)), axis=0)
+
+        self._simulator_state = self.simulator.clone_state()
+        self._env_state = np.concatenate((self._simulator_state,
+                                          np.array([self._cum_reward]),
+                                          np.array([self._step])),
+                                         axis=0)
 
         return obs
 
