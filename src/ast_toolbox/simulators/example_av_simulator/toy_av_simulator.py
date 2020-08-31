@@ -3,6 +3,8 @@ import pdb  # Used for debugging
 import numpy as np  # Used for math
 
 # Define the class
+
+
 class ToyAVSimulator():
     """
     Class template for a non-interactive simulator.
@@ -64,8 +66,7 @@ class ToyAVSimulator():
         self.x = np.random.rand(self.c_num_peds) * 4 - 2
         self._state = None
 
-
-    def run_simulation(self, actions, s_0, max_simulation_steps):
+    def run_simulation(self, actions, s_0, simulation_horizon):
         """
         Run/finish the simulation
         Input
@@ -83,8 +84,10 @@ class ToyAVSimulator():
         self.reset(s_0)
         self._info = []
 
+        simulation_horizon = np.minimum(simulation_horizon, len(actions))
+
         # Take simulation steps unbtil horizon is reached
-        while path_length < max_simulation_steps:
+        while path_length < simulation_horizon:
             # get the action from the list
             self._action = actions[path_length]
 
@@ -298,7 +301,7 @@ class ToyAVSimulator():
         self._env_obs = self._peds - self._car
 
     def get_ground_truth(self):
-        return {'step':self._step,
+        return {'step': self._step,
                 'path_length': self._path_length,
                 'is_terminal': self._is_terminal,
                 'car': self._car,
@@ -321,7 +324,7 @@ class ToyAVSimulator():
         # return simulator_state
 
     def set_ground_truth(self, in_simulator_state):
-        simulator_state = in_simulator_state.copy()
+        in_simulator_state.copy()
 
         self._step = in_simulator_state['step']
         self._path_length = in_simulator_state['path_length']
@@ -345,7 +348,6 @@ class ToyAVSimulator():
         # self._action = simulator_state[car_obs_end_index:car_obs_end_index + self._action.shape[0]]
         # self.initial_conditions = simulator_state[car_obs_end_index + self._action.shape[0]:]
         # self._info = []
-
 
     def render(self, car, ped, noise, gif=False):
         if gif:

@@ -30,7 +30,7 @@ def validate_drl():
                 's_0': s_0,
                 }
 
-    sampler_args = {'n_envs':1,
+    sampler_args = {'n_envs': 1,
                     'open_loop': False}
 
     # simulation settings

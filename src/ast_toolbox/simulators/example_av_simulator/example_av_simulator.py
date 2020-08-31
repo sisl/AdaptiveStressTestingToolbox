@@ -1,11 +1,11 @@
-import pdb  # Used for debugging
-
 import numpy as np  # Used for math
 
 from ast_toolbox.simulators import ASTSimulator  # import base Simulator class
 from ast_toolbox.simulators.example_av_simulator import ToyAVSimulator
 
 # Define the class
+
+
 class ExampleAVSimulator(ASTSimulator):
     """
     Class template for a non-interactive simulator.
@@ -228,15 +228,14 @@ class ExampleAVSimulator(ASTSimulator):
     def clone_state(self):
         simulator_state = self.simulator.get_ground_truth()
         return np.concatenate((np.array([simulator_state['step']]),
-                                          np.array([simulator_state['path_length']]),
-                                          np.array([int(simulator_state['is_terminal'])]),
-                                          simulator_state['car'],
-                                          simulator_state['car_accel'],
-                                          simulator_state['peds'].flatten(),
-                                          simulator_state['car_obs'].flatten(),
-                                          simulator_state['action'].flatten(),
-                                          simulator_state['initial_conditions']), axis=0)
-
+                               np.array([simulator_state['path_length']]),
+                               np.array([int(simulator_state['is_terminal'])]),
+                               simulator_state['car'],
+                               simulator_state['car_accel'],
+                               simulator_state['peds'].flatten(),
+                               simulator_state['car_obs'].flatten(),
+                               simulator_state['action'].flatten(),
+                               simulator_state['initial_conditions']), axis=0)
 
     def restore_state(self, in_simulator_state):
         # Set ground truth of actual simulator
@@ -261,8 +260,6 @@ class ExampleAVSimulator(ASTSimulator):
         self.initial_conditions = simulator_state['initial_conditions']
         self._is_terminal = simulator_state['is_terminal']
         self._path_length = simulator_state['path_length']
-
-
 
     def _get_obs(self):
         if self.blackbox_sim_state:

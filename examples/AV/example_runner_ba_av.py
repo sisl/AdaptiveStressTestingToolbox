@@ -132,7 +132,7 @@ def runner(
         with tf.Session(config=config) as sess:
             with tf.variable_scope('AST', reuse=tf.AUTO_REUSE):
                 with LocalTFRunner(
-                    snapshot_config=snapshot_config, sess=sess) as local_runner:
+                        snapshot_config=snapshot_config, sess=sess) as local_runner:
                     # Instantiate the example classes
                     sim = ExampleAVSimulator(**sim_args)
                     reward_function = ExampleAVReward(**reward_args)

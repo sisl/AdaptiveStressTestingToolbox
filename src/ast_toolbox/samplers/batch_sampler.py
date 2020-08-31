@@ -51,14 +51,14 @@
 #             return paths_truncated
 import numpy as np
 import tensorflow as tf
-
 from garage.sampler.base import BaseSampler
 from garage.sampler.stateful_pool import singleton_pool
 from garage.sampler.utils import truncate_paths
 
-from ast_toolbox.samplers import parallel_sampler
 from ast_toolbox.rewards import ExampleAVReward
+from ast_toolbox.samplers import parallel_sampler
 from ast_toolbox.simulators import ExampleAVSimulator
+
 
 def worker_init_tf(g):
     """Initialize the tf.Session on a worker."""
@@ -70,6 +70,7 @@ def worker_init_tf_vars(g):
     """Initialize the policy parameters on a worker."""
     g.sess.run(tf.compat.v1.global_variables_initializer())
 
+
 class BatchSampler(BaseSampler):
     """Collects samples in parallel using a stateful pool of workers.
 
@@ -79,7 +80,8 @@ class BatchSampler(BaseSampler):
 
     """
 
-    def __init__(self, algo, env, n_envs=1,  open_loop=True, batch_simulate=False, sim=ExampleAVSimulator(), reward_function=ExampleAVReward()):
+    def __init__(self, algo, env, n_envs=1, open_loop=True, batch_simulate=False,
+                 sim=ExampleAVSimulator(), reward_function=ExampleAVReward()):
         # pdb.set_trace()
         super(BatchSampler, self).__init__(algo, env)
         self.n_envs = n_envs
