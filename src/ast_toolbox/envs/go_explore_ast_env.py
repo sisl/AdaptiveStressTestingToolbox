@@ -6,13 +6,10 @@ from contextlib import contextmanager
 
 import gym
 import numpy as np
-import tensorflow as tf
 from bsddb3 import db
 from cached_property import cached_property
 from garage.envs.base import Step
 from garage.envs.env_spec import EnvSpec
-from garage.misc.tensor_utils import flatten_tensors
-from garage.misc.tensor_utils import unflatten_tensors
 
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.simulators import ExampleAVSimulator
@@ -52,59 +49,6 @@ class Parameterized:
         if tag_tuple not in self._cached_params:
             self._cached_params[tag_tuple] = self.get_params_internal(**tags)
         return self._cached_params[tag_tuple]
-
-    def get_param_dtypes(self, **tags):
-        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
-        if tag_tuple not in self._cached_param_dtypes:
-            params = self.get_params(**tags)
-            param_values = tf.get_default_session().run(params)
-            self._cached_param_dtypes[tag_tuple] = [
-                val.dtype for val in param_values
-            ]
-        return self._cached_param_dtypes[tag_tuple]
-
-    def get_param_shapes(self, **tags):
-        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
-        if tag_tuple not in self._cached_param_shapes:
-            params = self.get_params(**tags)
-            param_values = tf.get_default_session().run(params)
-            self._cached_param_shapes[tag_tuple] = [
-                val.shape for val in param_values
-            ]
-        return self._cached_param_shapes[tag_tuple]
-
-    def get_param_values(self, **tags):
-        params = self.get_params(**tags)
-        param_values = tf.get_default_session().run(params)
-        return flatten_tensors(param_values)
-
-    def set_param_values(self, flattened_params, name=None, **tags):
-        with tf.name_scope(name, 'set_param_values', [flattened_params]):
-            debug = tags.pop('debug', False)
-            param_values = unflatten_tensors(flattened_params,
-                                             self.get_param_shapes(**tags))
-            ops = []
-            feed_dict = dict()
-            for param, dtype, value in zip(
-                    self.get_params(**tags), self.get_param_dtypes(**tags),
-                    param_values):
-                if param not in self._cached_assign_ops:
-                    assign_placeholder = tf.placeholder(
-                        dtype=param.dtype.base_dtype)
-                    assign_op = tf.assign(param, assign_placeholder)
-                    self._cached_assign_ops[param] = assign_op
-                    self._cached_assign_placeholders[
-                        param] = assign_placeholder
-                ops.append(self._cached_assign_ops[param])
-                feed_dict[self._cached_assign_placeholders[
-                    param]] = value.astype(dtype)
-                if debug:
-                    print('setting value of %s' % param.name)
-            tf.get_default_session().run(ops, feed_dict=feed_dict)
-
-    def flat_to_params(self, flattened_params, **tags):
-        return unflatten_tensors(flattened_params,
-                                 self.get_param_shapes(**tags))
 
     # def __getstate__(self):
     #     d = Serializable.__getstate__(self)
