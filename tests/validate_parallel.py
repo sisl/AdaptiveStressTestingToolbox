@@ -70,7 +70,7 @@ def run_task(snapshot_config, *_):
 
 
 def validate_parallel():
-    run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=2)
+    run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=2, log_dir='./data/parallel')
     return True
 
 

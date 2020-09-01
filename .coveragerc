@@ -5,6 +5,7 @@
 
 [run]
 omit = src/ast_toolbox/utils/*
+       examples/*
 branch = true
 parallel = true
 

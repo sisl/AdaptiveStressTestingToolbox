@@ -73,7 +73,7 @@ def run_task(snapshot_config, *_):
 
 
 def validate_install():
-    run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=1)
+    run_experiment(run_task, snapshot_mode='last', seed=1, n_parallel=1, log_dir='./data/install')
     return True
 
 

@@ -6,6 +6,7 @@ from bsddb3 import db
 from gym.spaces.box import Box
 
 import ast_toolbox.samplers.parallel_sampler as ps
+from ast_toolbox.algos.go_explore import Cell
 from ast_toolbox.algos.go_explore import CellPool
 from ast_toolbox.envs.go_explore_ast_env import Custom_GoExploreASTEnv
 from ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv
@@ -14,7 +15,7 @@ from ast_toolbox.simulators import ASTSimulator
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ASTSpaces
 from ast_toolbox.spaces import ExampleAVSpaces
-from examples.AV.example_runner_ba_av import runner
+from examples.AV.example_runner_ba_av import runner as ba_runner
 from tests.validate_drl import validate_drl
 from tests.validate_ga import validate_ga
 from tests.validate_ge_ba import validate_ge_ba
@@ -156,6 +157,7 @@ def test_go_explore_ast_env():
     env.p_key_list = GoExploreParameter(name='key_list', value=[0])
     env.p_max_value = GoExploreParameter(name='max_value', value=1)
     env.sample_limit = 10
+
     # env.p_key_list.value = [0]
 
     class Test_Pop:
@@ -201,6 +203,12 @@ def test_go_explore_ast_env():
     cenv._step = 1
     assert np.all(cenv.downsample(obs) == np.array([1, 0, 1, 1, 2]))
 
+    assert isinstance(env.observation_space, Box)
+    assert isinstance(env.action_space, Box)
+
+    env._info = 'test'
+    assert env.get_cache_list() == 'test'
+
 
 def test_parallel_sampler():
     # env = TfEnv(env_name='CartPole-v1')
@@ -222,6 +230,27 @@ def test_parallel_sampler():
 
 
 def test_go_explore():
+    cell1 = Cell(use_score_weight=False)
+    cell2 = Cell(use_score_weight=False)
+    cell1.observation = np.zeros(5)
+    cell2.observation = np.zeros(5)
+
+    assert cell1 != np.zeros(5)
+    assert cell1 == cell2
+
+    cell2.observation = np.ones(5)
+    assert cell1 != cell2
+
+    assert cell1.is_root
+    assert cell1.step == 0
+
+    cell1.fitness
+    assert 'fitness' in cell1.__dict__
+    cell1.times_visited = 1
+    assert 'fitness' not in cell1.__dict__
+
+    assert hash(cell1) == hash((cell1.observation.tostring()))
+
     cell_pool = CellPool(filename='./test_pool.dat', use_score_weight=True)
     d_pool = cell_pool.open_pool(overwrite=True)
     cell_pool.d_update(
@@ -247,10 +276,29 @@ def test_example_runner_ba_av():
                          'observation': np.zeros(5)}
     with patch('examples.AV.example_runner_ba_av.compress_pickle.dump', side_effect=MemoryError):
         with patch('examples.AV.example_runner_ba_av.LocalTFRunner.train', new=lambda x: 0):
-            runner(
+            ba_runner(
                 env_args={
                     'id': 'ast_toolbox:GoExploreAST-v1'},
                 algo_args={
                     'expert_trajectory': [expert_trajectory] *
                     50,
                     'max_epochs': 10})
+
+# def test_example_runner_drl_av():
+#     # Create mock data from last iteration
+#     mock_steps = 3
+#     mock_env_info = {'actions':np.zeros((mock_steps, 5)),
+#                  'state':np.zeros((mock_steps, 5)),}
+#     mock_path = {'rewards':np.zeros(mock_steps),
+#                  'observations':np.zeros((mock_steps, 5)),
+#                  'env_infos':mock_env_info}
+#     mock_paths = [mock_path]
+#     mock_last_iter_data = {'paths':mock_paths}
+#
+#
+#     with patch('examples.AV.test_example_runner_drl_av.LocalTFRunner.train'):
+#         drl_runner(save_expert_trajectory=False)
+#         with patch('examples.AV.test_example_runner_drl_av.open'):
+#             with patch('examples.AV.test_example_runner_drl_av.pickle.load', return_value = mock_last_iter_data):
+#                 with patch('examples.AV.test_example_runner_drl_av.pickle.dump'):
+#                     drl_runner(save_expert_trajectory=True)
