@@ -15,7 +15,7 @@ from ast_toolbox.simulators import ASTSimulator
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ASTSpaces
 from ast_toolbox.spaces import ExampleAVSpaces
-from examples.AV.example_runner_ba_av import runner
+from examples.AV.example_runner_ba_av import runner as ba_runner
 from tests.validate_drl import validate_drl
 from tests.validate_ga import validate_ga
 from tests.validate_ge_ba import validate_ge_ba
@@ -209,6 +209,7 @@ def test_go_explore_ast_env():
     env._info = 'test'
     assert env.get_cache_list() == 'test'
 
+
 def test_parallel_sampler():
     # env = TfEnv(env_name='CartPole-v1')
     #
@@ -275,10 +276,29 @@ def test_example_runner_ba_av():
                          'observation': np.zeros(5)}
     with patch('examples.AV.example_runner_ba_av.compress_pickle.dump', side_effect=MemoryError):
         with patch('examples.AV.example_runner_ba_av.LocalTFRunner.train', new=lambda x: 0):
-            runner(
+            ba_runner(
                 env_args={
                     'id': 'ast_toolbox:GoExploreAST-v1'},
                 algo_args={
                     'expert_trajectory': [expert_trajectory] *
                     50,
                     'max_epochs': 10})
+
+# def test_example_runner_drl_av():
+#     # Create mock data from last iteration
+#     mock_steps = 3
+#     mock_env_info = {'actions':np.zeros((mock_steps, 5)),
+#                  'state':np.zeros((mock_steps, 5)),}
+#     mock_path = {'rewards':np.zeros(mock_steps),
+#                  'observations':np.zeros((mock_steps, 5)),
+#                  'env_infos':mock_env_info}
+#     mock_paths = [mock_path]
+#     mock_last_iter_data = {'paths':mock_paths}
+#
+#
+#     with patch('examples.AV.test_example_runner_drl_av.LocalTFRunner.train'):
+#         drl_runner(save_expert_trajectory=False)
+#         with patch('examples.AV.test_example_runner_drl_av.open'):
+#             with patch('examples.AV.test_example_runner_drl_av.pickle.load', return_value = mock_last_iter_data):
+#                 with patch('examples.AV.test_example_runner_drl_av.pickle.dump'):
+#                     drl_runner(save_expert_trajectory=True)
