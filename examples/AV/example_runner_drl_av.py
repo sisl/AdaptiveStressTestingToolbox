@@ -1,9 +1,7 @@
 # Import the example classes
 import os
-import pickle
 
 import fire
-import numpy as np
 # Useful imports
 import tensorflow as tf
 from garage.envs.normalized_env import normalize
@@ -24,6 +22,7 @@ from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.utils.go_explore_utils import load_convert_and_save_expert_trajectory
 
 
 def runner(
@@ -140,30 +139,12 @@ def runner(
                     local_runner.train(**runner_args)
 
                     if save_expert_trajectory:
-                        last_iter_filename = os.path.join(run_experiment_args['log_dir'],
-                                                          'itr_' + str(runner_args['n_epochs'] - 1) + '.pkl')
-                        with open(last_iter_filename, 'rb') as f:
-                            last_iter_data = pickle.load(f)
-
-                        best_rollout_idx = np.argmax(np.array([np.sum(rollout['rewards']) for rollout in last_iter_data['paths']]))
-                        best_rollout = last_iter_data['paths'][best_rollout_idx]
-                        expert_trajectory = []
-                        collision_step = 1 + np.amax(np.nonzero(best_rollout['rewards']))
-                        if collision_step == best_rollout['rewards'].shape[0]:
-                            print('NO COLLISION FOUND IN ANY TRAJECTORY - NOT SAVING EXPERT TRAJECTORY')
-                        else:
-                            for step_num in range(collision_step + 1):
-                                expert_trajectory_step = {}
-                                expert_trajectory_step['action'] = best_rollout['env_infos']['actions'][step_num, :]
-                                expert_trajectory_step['observation'] = best_rollout['observations'][step_num, :]
-                                expert_trajectory_step['reward'] = best_rollout['rewards'][step_num]
-                                expert_trajectory_step['state'] = best_rollout['env_infos']['state'][step_num, :]
-
-                                expert_trajectory.append(expert_trajectory_step)
-
-                            expert_trajectory_filename = os.path.join(run_experiment_args['log_dir'], 'expert_trajectory.pkl')
-                            with open(expert_trajectory_filename, 'wb') as f:
-                                pickle.dump(expert_trajectory, f)
+                        load_convert_and_save_expert_trajectory(last_iter_filename=os.path.join(run_experiment_args['log_dir'],
+                                                                                                'itr_' +
+                                                                                                str(runner_args['n_epochs'] - 1) +
+                                                                                                '.pkl'),
+                                                                expert_trajectory_filename=os.path.join(run_experiment_args['log_dir'],
+                                                                                                        'expert_trajectory.pkl'))
 
                     print('done!')
 

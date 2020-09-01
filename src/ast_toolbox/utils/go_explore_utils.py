@@ -1,3 +1,5 @@
+import pickle
+
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from matplotlib.gridspec import GridSpec
@@ -5,6 +7,37 @@ from matplotlib.patches import Circle
 from matplotlib.patches import Rectangle
 
 from ast_toolbox.algos.go_explore import *
+
+
+def convert_itr_data_to_expert_trajectory(last_iter_data):
+    best_rollout_idx = np.argmax(np.array([np.sum(rollout['rewards']) for rollout in last_iter_data['paths']]))
+    best_rollout = last_iter_data['paths'][best_rollout_idx]
+    expert_trajectory = []
+    collision_step = 1 + np.amax(np.nonzero(best_rollout['rewards']))
+    if collision_step == best_rollout['rewards'].shape[0]:
+        print('NO COLLISION FOUND IN ANY TRAJECTORY - NOT SAVING EXPERT TRAJECTORY')
+    else:
+        for step_num in range(collision_step + 1):
+            expert_trajectory_step = {}
+            expert_trajectory_step['action'] = best_rollout['env_infos']['actions'][step_num, :]
+            expert_trajectory_step['observation'] = best_rollout['observations'][step_num, :]
+            expert_trajectory_step['reward'] = best_rollout['rewards'][step_num]
+            expert_trajectory_step['state'] = best_rollout['env_infos']['state'][step_num, :]
+
+            expert_trajectory.append(expert_trajectory_step)
+
+    return expert_trajectory
+
+
+def load_convert_and_save_expert_trajectory(last_iter_filename, expert_trajectory_filename):
+    with open(last_iter_filename, 'rb') as f:
+        last_iter_data = pickle.load(f)
+
+    expert_trajectory = convert_itr_data_to_expert_trajectory(last_iter_data=last_iter_data)
+
+    if len(expert_trajectory) > 0:
+        with open(expert_trajectory_filename, 'wb') as f:
+            pickle.dump(expert_trajectory, f)
 
 
 def get_meta_filename(filename):
