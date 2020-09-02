@@ -27,6 +27,9 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
 ]
+# sphinx.ext.autodoc config
+autodoc_mock_imports = ["bsddb3"]
+
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'AdaptiveStressTestingToolbox'
@@ -57,12 +60,14 @@ html_sidebars = {
 }
 html_short_title = '%s-%s' % (project, version)
 
+# sphinx.ext.intersphinx config
 intersphinx_mapping = {
     'garage_latest': ('https://garage.readthedocs.io/en/latest/', None),
     'garage': ('https://garage.readthedocs.io/en/v2019.10.1/', None),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
 
+# sphinx.ext.napoleon config
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_use_ivar = True
