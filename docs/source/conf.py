@@ -7,8 +7,9 @@ import sys
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(''))
-sys.path.insert(0, os.path.abspath('/'))
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../src/ast_toolbox'))
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -27,7 +28,7 @@ project = 'AdaptiveStressTestingToolbox'
 year = '2018-2020'
 author = 'Stanford Intelligent Systems Laboratory'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '2020.06.01.dev1'
+version = release = '2020.09.01.dev1'
 
 pygments_style = 'trac'
 templates_path = ['.']
