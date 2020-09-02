@@ -83,7 +83,6 @@ def validate_ge_ba():
                     'stop_entropy_gradient': False,
                     'entropy_method': 'no_entropy',
                     'name': 'PPO',
-                    'log_dir': None,
                     }
 
     ba_baseline_args = {}
