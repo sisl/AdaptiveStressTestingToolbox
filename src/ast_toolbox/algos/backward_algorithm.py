@@ -6,82 +6,48 @@ from garage.tf.algos.ppo import PPO
 
 
 class BackwardAlgorithm(PPO):
-    """Backward Algorithm from Salimans and Chen.
+    """Backward Algorithm from Salimans and Chen [1]_.
 
-    See .
+    Parameters
+    ----------
+    env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
+        The environment
+    policy : :py:class:`garage.tf.policies.Policy`
+        The policy
+    expert_trajectory : array_like[dict]
+        The expert trajectory, an array_like where each member represents a timestep in a trajectory.
+        The array_like should be 1-D and in chronological order.
+        Each member of the array_like is a dictionary with the following keys:
+            - state : The simulator state at that timestep (pre-action).
+            - reward : The reward at that timestep (post-action).
+            - observation : The simulation observation at that timestep (post-action).
+            - action : The action taken at that timestep.
+    epochs_per_step : int, optional
+        Maximum number of epochs to run per step of the trajectory.
+    max_epochs : int, optional
+        Maximum number of total epochs to run. If not set, defaults to ``epochs_per_step`` times the number of steps
+        in the ``expert_trajectory``
+    skip_until_step : int, optional
+        Skip training for a certain number of steps at the start, counted backwards from the end of the trajectory.
+        For example, if this is set to 3 for an ``expert_trajectory`` of length 10, training will start from step 7.
+    max_path_length : int, optional
+        Maximum length of a single rollout.
+    kwargs :
+        Keyword arguments passed to :doc:`garage.tf.algos.PPO <garage:_apidoc/garage.tf.algos>`
 
-    Args:
-        env_spec (garage.envs.EnvSpec): Environment specification.
-        policy (garage.tf.policies.base.Policy): Policy.
-        baseline (garage.tf.baselines.Baseline): The baseline.
-        scope (str): Scope for identifying the algorithm.
-            Must be specified if running multiple algorithms
-            simultaneously, each using different environments
-            and policies.
-        max_path_length (int): Maximum length of a single rollout.
-        discount (float): Discount.
-        gae_lambda (float): Lambda used for generalized advantage
-            estimation.
-        center_adv (bool): Whether to rescale the advantages
-            so that they have mean 0 and standard deviation 1.
-        positive_adv (bool): Whether to shift the advantages
-            so that they are always positive. When used in
-            conjunction with center_adv the advantages will be
-            standardized before shifting.
-        fixed_horizon (bool): Whether to fix horizon.
-        pg_loss (str): A string from: 'vanilla', 'surrogate',
-            'surrogate_clip'. The type of loss functions to use.
-        lr_clip_range (float): The limit on the likelihood ratio between
-            policies, as in PPO.
-        max_kl_step (float): The maximum KL divergence between old and new
-            policies, as in TRPO.
-        optimizer (object): The optimizer of the algorithm. Should be the
-            optimizers in garage.tf.optimizers.
-        optimizer_args (dict): The arguments of the optimizer.
-        policy_ent_coeff (float): The coefficient of the policy entropy.
-            Setting it to zero would mean no entropy regularization.
-        use_softplus_entropy (bool): Whether to estimate the softmax
-            distribution of the entropy to prevent the entropy from being
-            negative.
-        use_neg_logli_entropy (bool): Whether to estimate the entropy as the
-            negative log likelihood of the action.
-        stop_entropy_gradient (bool): Whether to stop the entropy gradient.
-        entropy_method (str): A string from: 'max', 'regularized',
-            'no_entropy'. The type of entropy method to use. 'max' adds the
-            dense entropy to the reward for each time step. 'regularized' adds
-            the mean entropy to the surrogate objective. See
-            https://arxiv.org/abs/1805.00909 for more details.
-        name (str): The name of the algorithm.
+    References
+    ----------
+    .. [1] Salimans, Tim, and Richard Chen. "Learning Montezuma's Revenge from a Single Demonstration." arXiv preprint arXiv:1812.03381 (2018). https://arxiv.org/abs/1812.03381
     """
-
     def __init__(self,
                  env,
-                 env_spec,
                  policy,
-                 baseline,
                  expert_trajectory,
                  epochs_per_step=10,
                  max_epochs=None,
                  skip_until_step=0,
-                 scope=None,
                  max_path_length=500,
-                 discount=0.99,
-                 gae_lambda=1,
-                 center_adv=True,
-                 positive_adv=False,
-                 fixed_horizon=False,
-                 pg_loss='surrogate_clip',
-                 lr_clip_range=0.01,
-                 max_kl_step=0.01,
-                 optimizer=None,
-                 optimizer_args=None,
-                 policy_ent_coeff=0.0,
-                 use_softplus_entropy=False,
-                 use_neg_logli_entropy=False,
-                 stop_entropy_gradient=False,
-                 entropy_method='no_entropy',
-                 name='PPO',
-                 log_dir=None):
+                 **kwargs):
 
         self.max_epochs_per_step = epochs_per_step
         # Input settings related to expert trajectory
@@ -110,35 +76,24 @@ class BackwardAlgorithm(PPO):
 
         self.env.set_param_values([None], robustify_state=True, debug=False)
 
-        super().__init__(
-            env_spec=env_spec,
-            policy=policy,
-            baseline=baseline,
-            scope=scope,
-            max_path_length=max_path_length,
-            discount=discount,
-            gae_lambda=gae_lambda,
-            center_adv=center_adv,
-            positive_adv=positive_adv,
-            fixed_horizon=fixed_horizon,
-            pg_loss=pg_loss,
-            lr_clip_range=lr_clip_range,
-            max_kl_step=max_kl_step,
-            optimizer=optimizer,
-            optimizer_args=optimizer_args,
-            policy_ent_coeff=policy_ent_coeff,
-            use_softplus_entropy=use_softplus_entropy,
-            use_neg_logli_entropy=use_neg_logli_entropy,
-            stop_entropy_gradient=stop_entropy_gradient,
-            entropy_method=entropy_method,
-            name=name,
-            # log_dir=log_dir
-        )
+        super(BackwardAlgorithm, self).__init__(policy=policy,
+                                                max_path_length=max_path_length,
+                                                **kwargs)
 
     def train(self, runner):
+        """Obtain samplers and start actual training for each epoch.
 
-        last_return = None
+        Parameters
+        ----------
+        runner : :py:class:`garage.experiment.LocalRunner <garage:garage.experiment.LocalRunner>`
+            ``LocalRunner`` is passed to give algorithm the access to ``runner.step_epochs()``, which provides services
+            such as snapshotting and sampler control.
 
+        Returns
+        -------
+        full_paths : array_like
+            A list of the path data from each epoch
+        """
         max_reward = -np.inf
         max_reward_step = -1
         max_final_reward = -np.inf
@@ -147,11 +102,7 @@ class BackwardAlgorithm(PPO):
         full_paths = []
         runner.train_args.n_epochs = self.max_epochs
         # done = False
-        for epoch in self.get_next_epoch(runner=runner):
-            # Get the rollouts
-
-            epoch_itr = epoch[0]
-            epoch_paths = epoch[1]
+        for epoch_itr, epoch_paths in self.get_next_epoch(runner=runner):
             # Modify each rollout to include the expert trajectory data up to the step num (where the agent started)
             for rollout_idx, rollout in enumerate(epoch_paths):
 
@@ -191,6 +142,20 @@ class BackwardAlgorithm(PPO):
         return full_paths
 
     def train_once(self, itr, paths):
+        """Perform one step of policy optimization given one batch of samples.
+
+        Parameters
+        ----------
+        itr : int
+            Iteration number.
+        paths : list[dict]
+            A list of collected paths.
+
+        Returns
+        -------
+        paths : list[dict]
+            A list of processed paths
+        """
         paths = self.process_samples(itr, paths)
 
         self.log_diagnostics(paths)
@@ -199,7 +164,21 @@ class BackwardAlgorithm(PPO):
         return paths
 
     def get_next_epoch(self, runner):
-        """ Wrapper of garage's runner.step_epochs() generator to handle initialization to correct trajectory state"""
+        """ Wrapper of garage's :py:meth:`runner.step_epochs() <garage:garage.experiment.local_runner.LocalRunner.step_epochs>` generator to handle initialization to correct trajectory state
+
+        Parameters
+        ----------
+        runner : :py:class:`garage.experiment.LocalRunner <garage:garage.experiment.LocalRunner>`
+            ``LocalRunner`` is passed to give algorithm the access to ``runner.step_epochs()``, which provides services
+            such as snapshotting and sampler control.
+
+        Yields
+        -------
+        runner.step_itr : int
+            The current epoch number
+        runner.obtain_samples(runner.step_itr): list[dict]
+            A list of sampled rollouts for the current epoch
+        """
         try:
             iteration_num = self.first_iteration_num
             self.step_num = self.first_step_num
@@ -210,7 +189,7 @@ class BackwardAlgorithm(PPO):
 
             for epoch_num in itertools.takewhile(lambda x: not self.done, runner.step_epochs()):
 
-                yield (runner.step_itr, runner.obtain_samples(runner.step_itr))
+                yield runner.step_itr, runner.obtain_samples(runner.step_itr)
 
                 runner.step_itr += 1
                 epochs_per_this_step += 1
@@ -239,6 +218,9 @@ class BackwardAlgorithm(PPO):
             pass
 
     def set_env_to_expert_trajectory_step(self):
+        """ Updates the algorithm to use the data from ``expert_trajectory`` up to the current step.
+
+        """
         self.env_state = self.expert_trajectory[self.step_num]['state']
         self.env_reward = np.array([step['reward'] for step in self.expert_trajectory[:self.step_num]])
         self.env_action = np.array([step['action'] for step in self.expert_trajectory[:self.step_num]])
