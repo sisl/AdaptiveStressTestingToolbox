@@ -210,7 +210,6 @@ class CellPool():
 
         self.use_score_weight = use_score_weight
 
-
     def save(self):
         best_cell_key = None
         if self.best_cell is not None:
@@ -400,7 +399,6 @@ class GoExplore(BatchPolopt):
                  overwrite_db=True,
                  use_score_weight=True,
                  **kwargs):
-
         """
         :param env_spec: Environment specification.
         :type env_spec: EnvSpec
@@ -445,11 +443,10 @@ class GoExplore(BatchPolopt):
                          **kwargs)
 
     def train(self, runner):
-        last_return = None
         self.policy = self.go_explore_policy
         for epoch in runner.step_epochs():
             runner.step_path = runner.obtain_samples(runner.step_itr)
-            last_return = self.train_once(runner.step_itr, runner.step_path)
+            self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
 
     def train_once(self, itr, paths):
