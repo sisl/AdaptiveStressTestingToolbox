@@ -6,3 +6,12 @@ Changelog
 ----------------------------
 
 * First release on PyPI.
+
+2020.09.01.dev1 (2020-09-01)
+----------------------------
+
+* Update documentation
+* Start adding docstrings
+* Fix for Backward Algorithm
+* Separate the toy AV simulator from the AST wrapper
+* Change AST environments to save the cloned sim state from pre-action, not post-action

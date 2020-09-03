@@ -21,11 +21,14 @@ Maintained by the Stanford Autonomous Systems Lab
 Installation
 ============
 
-At the command line::
+Pip Installation Method
+-----------------------
+
+You can install the latest stable release from pypi::
 
     pip install ast-toolbox
 
-You can also install the in-development version with::
+You can also install the latest version with::
 
     pip install git+ssh://git@https://github.com/sisl/AdaptiveStressTestingToolbox.git@master
 
@@ -44,21 +47,35 @@ Once you have the Berkeley DB system dependency met, you can install the toolbox
 
    pip install ast-toolbox[ge]
 
+Git Installation Method
+-----------------------
+If you are interested in development, you should clone the repo. You can use https::
+
+   git clone https://github.com/sisl/AdaptiveStressTestingToolbox.git
+
+You can also use ssh::
+
+   git clone git@github.com:sisl/AdaptiveStressTestingToolbox.git
+
+If you are on Linux, use the following commands to setup the Toolbox::
+
+   cd AdaptiveStressTestingToolbox
+   git submodule update --init --recursive
+   sudo chmod a+x scripts/install_all.sh
+   sudo scripts/install_all.sh
+   source scripts/setup.sh
+
 Documentation
 =============
 
 
-https://ast-toolbox.readthedocs.io/en/latest/
+You can find our `documentation <https://ast-toolbox.readthedocs.io/en/latest/>`_ on readthedocs.
 
 
 Development
 ===========
 
-To run the all tests run::
-
-    tox
-
-Note, to combine the coverage data from all the tox environments run:
+Please see our `Contributions Guide <https://ast-toolbox.readthedocs.io/en/doc_strings1/contributing.html>`_.
 
 .. list-table::
     :widths: 10 90

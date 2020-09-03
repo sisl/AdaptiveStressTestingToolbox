@@ -195,24 +195,11 @@ class Cell():
 
 class CellPool():
     def __init__(self, filename='database', discount=0.99, flag=db.DB_RDONLY, flag2='r', use_score_weight=True):
-        # print("Creating new Cell Pool:", self)
-        # self.guide = set()
 
-        # import pdb; pdb.set_trace()
-        # self.pool = [self.init_cell]
-        # self.guide = self.init_cell.observation
         self.length = 0
         self._filename = filename
         self.discount = discount
 
-        # self.d_pool = {}
-
-        # pool_DB = db.DB()
-        # print('Creating Cell Pool with flag:', flag)
-        # print(filename)
-        # pool_DB.open(filename + '_pool.dat', dbname=None, dbtype=db.DB_HASH, flags=flag)
-        # pool_DB = None
-        # self.d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         self.key_list = []
         self.goal_dict = {}
         self.terminal_dict = {}
@@ -222,10 +209,6 @@ class CellPool():
         self.best_cell = None
 
         self.use_score_weight = use_score_weight
-
-        # self.d_pool = shelve.BsdDbShelf(pool_DB)
-        # self.d_pool = shelve.open('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
-        # self.d_pool = shelve.DbfilenameShelf('/home/mkoren/Scratch/cellpool-shelf2', flag=flag2)
 
     def save(self):
         best_cell_key = None
@@ -310,44 +293,6 @@ class CellPool():
     @cached_property
     def meta_filename(self):
         return self._filename + '_meta.dat'
-
-    # def create(self, d_pool):
-    #
-    #     self.init_cell = Cell()
-    #     self.init_cell.observation = np.zeros((1,128))
-    #     self.init_cell.trajectory = None
-    #     self.init_cell.score = -np.inf
-    #     self.init_cell.reward = -np.inf
-    #     self.init_cell.state = None
-    #     self.init_cell.times_chosen = 0
-    #     self.init_cell.times_visited = 1
-    #     # self.d_pool = shelve.open('cellpool-shelf', flag=flag)
-    #
-    #     d_pool[str(hash(self.init_cell))] = self.init_cell
-    #     self.key_list.append(str(hash(self.init_cell)))
-    #     self.length = 1
-    #     self.max_value = self.init_cell.fitness
-        # import pdb; pdb.set_trace()
-
-    # def append(self, cell):
-    #     # pdb.set_trace()
-    #     # if observation not in self.guide:
-    #     #     self.guide.add(observation)
-    #     #     cell = Cell()
-    #     #     cell.observation = observation
-    #     #     self.pool.append(cell)
-    #     #     self.length += 1
-    #     if cell in self.d_pool:
-    #         self.d_pool[cell].seen += 1
-    #     else:
-    #         self.d_pool[cell] = cell
-
-    # def get_cell(self, index):
-    #     return self.pool[index]
-    #
-    # def get_random_cell(self):
-    #     index = np.random.randint(0, self.length)
-    #     return self.get_cell(index)
 
     def d_update(self, d_pool, observation, action, trajectory, score, state,
                  parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
@@ -449,49 +394,11 @@ class GoExplore(BatchPolopt):
                  env_spec,
                  policy,
                  baseline,
-                 # robust_policy,
-                 # robust_baseline,
-                 # robustify_max,
-                 # robustify_algo,
-                 # robustify_policy,
                  save_paths_gap=0,
                  save_paths_path=None,
                  overwrite_db=True,
                  use_score_weight=True,
                  **kwargs):
-
-        # algo = TRPO(
-        #     env_spec=env.spec,
-        #     policy=policy,
-        #     baseline=baseline,
-        #     max_path_length=max_path_length,
-        #     discount=0.99,
-        #     kl_constraint='hard',
-        #     optimizer=optimizer,
-        #     optimizer_args=optimizer_args,
-        #     lr_clip_range=1.0,
-        #     max_kl_step=1.0)
-
-        # env,
-        # policy,
-        # baseline,
-        # scope = None,
-        # n_itr = +500,
-        # start_itr = 0,
-        # batch_size = 5000,
-        # max_path_length = 500,
-        # discount = 0.99,
-        # gae_lambda = 1,
-        # plot = False,
-        # pause_for_plot = False,
-        # center_adv = True,
-        # positive_adv = False,
-        # store_paths = False,
-        # whole_paths = True,
-        # fixed_horizon = False,
-        # sampler_cls = None,
-        # sampler_args = None,
-        # force_batch_sampler = False,
         """
         :param env_spec: Environment specification.
         :type env_spec: EnvSpec
@@ -543,24 +450,6 @@ class GoExplore(BatchPolopt):
             last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
 
-        # pdb.set_trace()
-        # self.policy = self.robust_policy
-        # self.backward_algorithm = BackwardAlgorithm(
-        #     env=self.env,
-        #     env_spec=self.env_spec,
-        #     policy=self.robust_policy,
-        #     baseline=self.robust_baseline,
-        #     expert_trajectory=last_return.trajectory.tolist(),
-        #     epochs_per_step=10)
-        # pdb.set_trace()
-        # return self.backward_algorithm.train(runner=runner,batch_size=batch_size)
-
-        # self.robustify = True
-        # self.init_opt()
-        # for epoch in range(self.robustify_max):
-        #     runner.step_path = runner.obtain_samples(runner.step_itr,
-        #                                              batch_size)
-        #     last_return = self.train_once(runner.step_itr, runner.step_path)
         return last_return
 
     def train_once(self, itr, paths):
@@ -580,18 +469,11 @@ class GoExplore(BatchPolopt):
         Initialize the optimization procedure. If using tensorflow, this may
         include declaring all the variables and compiling functions
         """
-        # pdb.set_trace()
-        # self.temp_index = 0
-        # pool_DB = db.DB()
-        # pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
         self.cell_pool = CellPool(filename=self.db_filename, use_score_weight=self.use_score_weight)
 
-        # self.cell_pool.create()
-        # obs = self.env.downsample(self.env.env.env.reset())
         d_pool = self.cell_pool.open_pool(overwrite=self.overwrite_db)
         if len(self.cell_pool.key_list) == 0:
             obs, state = self.env.get_first_cell()
-        # pdb.set_trace()
             self.cell_pool.d_update(d_pool=d_pool, observation=self.downsample(obs, step=-1), action=obs,
                                     trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
             self.cell_pool.sync_pool(cell_pool_shelf=d_pool)
@@ -600,37 +482,10 @@ class GoExplore(BatchPolopt):
         self.best_cell = self.cell_pool.best_cell
 
         self.cell_pool.close_pool(cell_pool_shelf=d_pool)
-        # self.cell_pool.d_pool.close()
-        # cell = Cell()
-        # cell.observation = np.zeros(128)
-        # self.temp_index += 1
-        # self.cell_pool.append(cell)
-        # self.cell_pool.update(observation=np.zeros(128), trajectory=None, score=-np.infty, state=None)
         self.env.set_param_values([self.cell_pool.pool_filename], db_filename=True, debug=False)
         self.env.set_param_values([self.cell_pool.key_list], key_list=True, debug=False)
         self.env.set_param_values([self.cell_pool.max_value], max_value=True, debug=False)
         self.env.set_param_values([None], robustify_state=True, debug=False)
-
-        # for cell in d_pool.values():
-
-        # if cell.score == 0.0 and cell.reward >= self.max_cum_reward and cell.observation is not None and cell.parent is not None:
-        # pdb.set_trace()
-        # print(cell.observation, cell.score, cell.reward)
-
-        # self.max_cum_reward = cell.reward
-        # self.best_cell = cell
-        # pdb.set_trace()
-
-        # pdb.set_trace()
-        # self.policy.set_param_values({"cell_num":-1,
-        #                               "stateful_num":-1,
-        #                               "cell_pool": self.cell_pool})
-        # self.policy.set_cell_pool(self.cell_pool)
-        # self.env.set_cell_pool(self.cell_pool)
-        # GoExploreTfEnv.pool.append(Cell())
-        # self.env.append_cell(Cell())
-        # self.env.set_param_values(self.env.pool, pool=True)
-        # self.env.set_param_values([np.random.randint(0,100)], debug=True,test_var=True)
 
     def get_itr_snapshot(self, itr):
         """
@@ -648,15 +503,11 @@ class GoExplore(BatchPolopt):
 
         start = time.time()
 
-        # pool_DB = db.DB()
-        # pool_DB.open(self.db_filename, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE)
-        # d_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
         d_pool = self.cell_pool.open_pool()
 
         new_cells = 0
         total_cells = 0
-        # self.cell_pool.d_pool.open()
-        # pdb.set_trace()
+
         for i in range(samples_data['observations'].shape[0]):
             sys.stdout.write("\rProcessing Trajectory {0} / {1}".format(i, samples_data['observations'].shape[0]))
             sys.stdout.flush()
@@ -683,10 +534,6 @@ class GoExplore(BatchPolopt):
                 if j == 0:
                     # chosen = 1
                     try:
-                        # root_cell = d_pool[str(hash(observation_data[i, j, :].tostring()))]
-                        # Get the chosen cell that was root of this rollout
-                        # root_obs = self.downsample(obs=samples_data['env_infos']['root_action'][i,j,:],
-                        #                            step=samples_data['env_infos']['state'][i, j, -1]-1)
                         root_cell = d_pool[str(hash(samples_data['env_infos']['root_action'][i, j, :].tostring()))]
                         # Update the chosen/visited count
                         self.cell_pool.d_update(d_pool=d_pool,
@@ -778,7 +625,5 @@ class GoExplore(BatchPolopt):
     def downsample(self, obs, step=None):
         # import pdb; pdb.set_trace()
         obs = obs * 1000
-        # if step is None:
-        #     step = self._step
 
         return np.concatenate((np.array([step]), obs), axis=0).astype(int)
