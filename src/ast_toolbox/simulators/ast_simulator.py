@@ -78,7 +78,11 @@ class ASTSimulator(object):
         -------
         observation : the initial observation of the space. (Initial reward is assumed to be 0.)
         """
-        raise NotImplementedError
+        self.initial_conditions = s_0
+        self._is_terminal = False
+        self._path_length = 0
+
+        return self.observation_return()
 
     def observation_return(self):
         """

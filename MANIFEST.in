@@ -21,6 +21,8 @@ include README.rst
 include .gitmodules
 include requirements.txt
 include scripts/setup.sh
+include scripts/setup.bat
+include scripts/install_all.sh
 
 include tox.ini .travis.yml .appveyor.yml
 include test.test

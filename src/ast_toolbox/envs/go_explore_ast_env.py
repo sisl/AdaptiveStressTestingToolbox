@@ -6,13 +6,10 @@ from contextlib import contextmanager
 
 import gym
 import numpy as np
-import tensorflow as tf
 from bsddb3 import db
 from cached_property import cached_property
 from garage.envs.base import Step
 from garage.envs.env_spec import EnvSpec
-from garage.misc.tensor_utils import flatten_tensors
-from garage.misc.tensor_utils import unflatten_tensors
 
 from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.simulators import ExampleAVSimulator
@@ -52,59 +49,6 @@ class Parameterized:
         if tag_tuple not in self._cached_params:
             self._cached_params[tag_tuple] = self.get_params_internal(**tags)
         return self._cached_params[tag_tuple]
-
-    def get_param_dtypes(self, **tags):
-        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
-        if tag_tuple not in self._cached_param_dtypes:
-            params = self.get_params(**tags)
-            param_values = tf.get_default_session().run(params)
-            self._cached_param_dtypes[tag_tuple] = [
-                val.dtype for val in param_values
-            ]
-        return self._cached_param_dtypes[tag_tuple]
-
-    def get_param_shapes(self, **tags):
-        tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
-        if tag_tuple not in self._cached_param_shapes:
-            params = self.get_params(**tags)
-            param_values = tf.get_default_session().run(params)
-            self._cached_param_shapes[tag_tuple] = [
-                val.shape for val in param_values
-            ]
-        return self._cached_param_shapes[tag_tuple]
-
-    def get_param_values(self, **tags):
-        params = self.get_params(**tags)
-        param_values = tf.get_default_session().run(params)
-        return flatten_tensors(param_values)
-
-    def set_param_values(self, flattened_params, name=None, **tags):
-        with tf.name_scope(name, 'set_param_values', [flattened_params]):
-            debug = tags.pop('debug', False)
-            param_values = unflatten_tensors(flattened_params,
-                                             self.get_param_shapes(**tags))
-            ops = []
-            feed_dict = dict()
-            for param, dtype, value in zip(
-                    self.get_params(**tags), self.get_param_dtypes(**tags),
-                    param_values):
-                if param not in self._cached_assign_ops:
-                    assign_placeholder = tf.placeholder(
-                        dtype=param.dtype.base_dtype)
-                    assign_op = tf.assign(param, assign_placeholder)
-                    self._cached_assign_ops[param] = assign_op
-                    self._cached_assign_placeholders[
-                        param] = assign_placeholder
-                ops.append(self._cached_assign_ops[param])
-                feed_dict[self._cached_assign_placeholders[
-                    param]] = value.astype(dtype)
-                if debug:
-                    print('setting value of %s' % param.name)
-            tf.get_default_session().run(ops, feed_dict=feed_dict)
-
-    def flat_to_params(self, flattened_params, **tags):
-        return unflatten_tensors(flattened_params,
-                                 self.get_param_shapes(**tags))
 
     # def __getstate__(self):
     #     d = Serializable.__getstate__(self)
@@ -282,6 +226,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         done : a boolean, indicating whether the episode has ended
         info : a dictionary containing other diagnostic information from the previous action
         """
+        self._env_state_before_action = self._env_state.copy()
+
         self._action = action
         self._actions.append(action)
         action_return = self._action
@@ -327,7 +273,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                     actions=action_return,
                     # step = self._step -1,
                     # real_actions=self._action,
-                    state=self._env_state,
+                    state=self._env_state_before_action,
                     root_action=self.root_action,
                     is_terminal=self.simulator.is_terminal(),
                     is_goal=self.simulator.is_goal())
@@ -350,8 +296,8 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             if self.p_robustify_state is not None and self.p_robustify_state.value is not None and len(
                     self.p_robustify_state.value) > 0:
                 state = self.p_robustify_state.value
-                print('-----------Robustify Init-----------------')
-                print('-----------Robustify Init: ', state, ' -----------------')
+                # print('-----------Robustify Init-----------------')
+                # print('-----------Robustify Init: ', state, ' -----------------')
                 self.simulator.restore_state(state[:-2])
                 obs = self.simulator._get_obs()
                 self._done = False
@@ -360,6 +306,12 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 # pdb.set_trace()
 
                 self.robustify = True
+
+                self._simulator_state = self.simulator.clone_state()
+                self._env_state = np.concatenate((self._simulator_state,
+                                                  np.array([self._cum_reward]),
+                                                  np.array([self._step])),
+                                                 axis=0)
                 return self._init_state
             # pdb.set_trace()
             # start = time.time()
@@ -421,6 +373,12 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             else:
                 print("Reset from start")
                 obs = self.env_reset()
+
+            self._simulator_state = self.simulator.clone_state()
+            self._env_state = np.concatenate((self._simulator_state,
+                                              np.array([self._cum_reward]),
+                                              np.array([self._step])),
+                                             axis=0)
             # pdb.set_trace()
         except db.DBBusyError:
             print("DBBusyError")

@@ -53,6 +53,7 @@ def runner(
         baseline_args=None,
         algo_args=None,
         runner_args=None,
+        sampler_args=None,
         # log_dir='.',
 ):
     # exp_name='av',
@@ -101,6 +102,9 @@ def runner(
 
     if runner_args is None:
         runner_args = {'n_epochs': 1}
+
+    if sampler_args is None:
+        sampler_args = {}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -194,7 +198,8 @@ def runner(
 
                 sampler_cls = BatchSampler
                 # sampler_args = {'n_envs': n_parallel}
-                sampler_args = {}
+                sampler_args['sim'] = sim
+                sampler_args['reward_function'] = reward_function
 
                 with LocalTFRunner(snapshot_config=snapshot_config, sess=sess) as local_runner:
                     local_runner.setup(algo=algo,

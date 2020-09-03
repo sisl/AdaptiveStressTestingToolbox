@@ -23,6 +23,23 @@ def read(*names, **kwargs):
         return fh.read()
 
 
+REQUIRED = ['garage==2019.10.1',
+            # 'numpy>=1.14.5',
+            'gym==0.12.4',
+            'python-dateutil',
+            'dowel',
+            'joblib',
+            'cached_property',
+            'akro',
+            'glfw',
+            'pyprind',
+            'cma',
+            'fire',
+            'depq',
+            'compress_pickle',
+            'pydot',
+            ]
+
 # Dependencies for optional features
 EXTRAS = {}
 
@@ -32,7 +49,7 @@ EXTRAS['ge'] = ['bsddb3']
 
 setup(
     name='ast-toolbox',
-    version='2020.06.01.dev1',
+    version='2020.09.01.dev1',
     license='MIT',
     description='A toolbox for worst-case validation of autonomous policies',
     long_description='%s\n%s' % (
@@ -80,9 +97,7 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
-    install_requires=[
-        # eg: 'aspectlib==1.1.1', 'six>=1.7',
-    ],
+    install_requires=REQUIRED,
     extras_require=EXTRAS,
     setup_requires=[
         'pytest-runner',

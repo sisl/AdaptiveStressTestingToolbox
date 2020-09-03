@@ -1,4 +1,6 @@
 # Import the example classes
+import os
+
 import fire
 # Useful imports
 import tensorflow as tf
@@ -11,7 +13,8 @@ from garage.tf.envs.base import TfEnv
 from garage.tf.experiment import LocalTFRunner
 from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
 from garage.tf.optimizers.conjugate_gradient_optimizer import FiniteDifferenceHvp
-from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+# from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+from garage.tf.policies import GaussianLSTMPolicy
 
 # Import the AST classes
 from ast_toolbox.envs import ASTEnv
@@ -19,6 +22,7 @@ from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.utils.go_explore_utils import load_convert_and_save_expert_trajectory
 
 
 def runner(
@@ -31,6 +35,8 @@ def runner(
     baseline_args=None,
     algo_args=None,
     runner_args=None,
+    sampler_args=None,
+    save_expert_trajectory=False,
 ):
 
     if env_args is None:
@@ -59,6 +65,9 @@ def runner(
 
     if runner_args is None:
         runner_args = {'n_epochs': 1}
+
+    if sampler_args is None:
+        sampler_args = {}
 
     if 'n_parallel' in run_experiment_args:
         n_parallel = run_experiment_args['n_parallel']
@@ -117,18 +126,27 @@ def runner(
                                **algo_args)
 
                     sampler_cls = ASTVectorizedSampler
+                    sampler_args['sim'] = sim
+                    sampler_args['reward_function'] = reward_function
 
                     local_runner.setup(
                         algo=algo,
                         env=env,
                         sampler_cls=sampler_cls,
-                        sampler_args={"open_loop": False,
-                                      "sim": sim,
-                                      "reward_function": reward_function,
-                                      'n_envs': n_parallel})
+                        sampler_args=sampler_args)
 
                     # Run the experiment
                     local_runner.train(**runner_args)
+
+                    if save_expert_trajectory:
+                        load_convert_and_save_expert_trajectory(last_iter_filename=os.path.join(run_experiment_args['log_dir'],
+                                                                                                'itr_' +
+                                                                                                str(runner_args['n_epochs'] - 1) +
+                                                                                                '.pkl'),
+                                                                expert_trajectory_filename=os.path.join(run_experiment_args['log_dir'],
+                                                                                                        'expert_trajectory.pkl'))
+
+                    print('done!')
 
     run_experiment(
         run_task,

@@ -1,138 +1,9 @@
-# from garage.misc.ext import flatten_tensor_variables
-
 import numpy as np
-import tensorflow as tf
 from dowel import logger
 from garage.tf.misc import tensor_utils
+from garage.tf.optimizers.conjugate_gradient_optimizer import PearlmutterHvp
 from garage.tf.optimizers.utils import LazyDict
 from garage.tf.optimizers.utils import sliced_fun
-
-
-class PerlmutterHvp(object):
-    def __init__(self, num_slices=1):
-        self.target = None
-        self.reg_coeff = None
-        self._opt_fun = None
-        self._num_slices = num_slices
-
-    def update_opt(self, f, target, inputs, reg_coeff):
-        self.target = target
-        self.reg_coeff = reg_coeff
-        params = target.get_params(trainable=True)
-
-        constraint_grads = tf.gradients(f, xs=params)
-        for idx, (grad, param) in enumerate(zip(constraint_grads, params)):
-            if grad is None:
-                constraint_grads[idx] = tf.zeros_like(param)
-
-        xs = tuple([tensor_utils.new_tensor_like(p.name.split(":")[0], p) for p in params])
-
-        def Hx_plain():
-            Hx_plain_splits = tf.gradients(
-                tf.reduce_sum(
-                    tf.stack([tf.reduce_sum(g * x) for g, x in zip(constraint_grads, xs)])
-                ),
-                params
-            )
-            for idx, (Hx, param) in enumerate(zip(Hx_plain_splits, params)):
-                if Hx is None:
-                    Hx_plain_splits[idx] = tf.zeros_like(param)
-            return tensor_utils.flatten_tensor_variables(Hx_plain_splits)
-
-        self._opt_fun = LazyDict(
-            f_Hx_plain=lambda: tensor_utils.compile_function(
-                inputs=inputs + xs,
-                outputs=Hx_plain(),
-                log_name="f_Hx_plain",
-            ),
-        )
-
-    def build_eval(self, inputs):
-        def eval(x):
-            xs = tuple(self.target.flat_to_params(x, trainable=True))
-            ret = sliced_fun(self._opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
-            return ret
-
-        return eval
-
-    def __getstate__(self):
-        """Object.__getstate__.
-
-        Returns:
-            dict: the state to be pickled for the instance.
-
-        """
-        new_dict = self.__dict__.copy()
-        del new_dict['_opt_fun']
-        return new_dict
-
-
-class FiniteDifferenceHvp(object):
-    def __init__(self, base_eps=1e-8, symmetric=True, grad_clip=None, num_slices=1):
-        self.base_eps = base_eps
-        self.symmetric = symmetric
-        self.grad_clip = grad_clip
-        self._num_slices = num_slices
-
-    def update_opt(self, f, target, inputs, reg_coeff):
-        self.target = target
-        self.reg_coeff = reg_coeff
-
-        params = target.get_params(trainable=True)
-
-        constraint_grads = tf.gradients(f, xs=params)
-        for idx, (grad, param) in enumerate(zip(constraint_grads, params)):
-            if grad is None:
-                constraint_grads[idx] = tf.zeros_like(param)
-
-        flat_grad = tensor_utils.flatten_tensor_variables(constraint_grads)
-
-        def f_Hx_plain(*args):
-            inputs_ = args[:len(inputs)]
-            xs = args[len(inputs):]
-            flat_xs = np.concatenate([np.reshape(x, (-1,)) for x in xs])
-            param_val = self.target.get_param_values(trainable=True)
-            eps = np.cast['float32'](self.base_eps / (np.linalg.norm(param_val) + 1e-8))
-            self.target.set_param_values(param_val + eps * flat_xs, trainable=True)
-            flat_grad_dvplus = self._opt_fun["f_grad"](*inputs_)
-            self.target.set_param_values(param_val, trainable=True)
-            if self.symmetric:
-                self.target.set_param_values(param_val - eps * flat_xs, trainable=True)
-                flat_grad_dvminus = self._opt_fun["f_grad"](*inputs_)
-                hx = (flat_grad_dvplus - flat_grad_dvminus) / (2 * eps)
-                self.target.set_param_values(param_val, trainable=True)
-            else:
-                flat_grad = self._opt_fun["f_grad"](*inputs_)
-                hx = (flat_grad_dvplus - flat_grad) / eps
-            return hx
-
-        self._opt_fun = LazyDict(
-            f_grad=lambda: tensor_utils.compile_function(
-                inputs=inputs,
-                outputs=flat_grad,
-                log_name="f_grad",
-            ),
-            f_Hx_plain=lambda: f_Hx_plain,
-        )
-
-    def build_eval(self, inputs):
-        def eval(x):
-            xs = tuple(self.target.flat_to_params(x, trainable=True))
-            ret = sliced_fun(self._opt_fun["f_Hx_plain"], self._num_slices)(inputs, xs) + self.reg_coeff * x
-            return ret
-
-        return eval
-
-    def __getstate__(self):
-        """Object.__getstate__.
-
-        Returns:
-            dict: the state to be pickled for the instance.
-
-        """
-        new_dict = self.__dict__.copy()
-        del new_dict['_opt_fun']
-        return new_dict
 
 
 class DirectionConstraintOptimizer:
@@ -177,7 +48,7 @@ class DirectionConstraintOptimizer:
         self._debug_nan = debug_nan
         self._accept_violation = accept_violation
         if hvp_approach is None:
-            hvp_approach = PerlmutterHvp(num_slices)
+            hvp_approach = PearlmutterHvp(num_slices)
         self._hvp_approach = hvp_approach
 
     def update_opt(self, target, leq_constraint, inputs, extra_inputs=None, constraint_name="constraint", *args,
@@ -203,7 +74,7 @@ class DirectionConstraintOptimizer:
 
         # params = target.get_params(trainable=True)
 
-        self._hvp_approach.update_opt(f=constraint_term, target=target, inputs=inputs + extra_inputs,
+        self._hvp_approach.update_hvp(f=constraint_term, target=target, inputs=inputs + extra_inputs,
                                       reg_coeff=self._reg_coeff)
 
         self._target = target
@@ -279,64 +150,6 @@ class DirectionConstraintOptimizer:
         logger.log("final kl: " + str(constraint_val))
         # logger.log("optimization finished")
         return -ratio * initial_step_size, constraint_val
-
-    def get_magnitudes(self, directions, inputs, max_constraint_val=None, extra_inputs=None, subsample_grouped_inputs=None):
-        if max_constraint_val is not None:
-            self._max_constraint_val = max_constraint_val
-        prev_param = np.copy(self._target.get_param_values(trainable=True))
-        inputs = tuple(inputs)
-        if extra_inputs is None:
-            extra_inputs = tuple()
-
-        if self._subsample_factor < 1:
-            if subsample_grouped_inputs is None:
-                subsample_grouped_inputs = [inputs]
-            subsample_inputs = tuple()
-            for inputs_grouped in subsample_grouped_inputs:
-                n_samples = len(inputs_grouped[0])
-                inds = np.random.choice(
-                    n_samples, int(n_samples * self._subsample_factor), replace=False)
-                subsample_inputs += tuple([x[inds] for x in inputs_grouped])
-        else:
-            subsample_inputs = inputs
-
-        Hx = self._hvp_approach.build_eval(subsample_inputs + extra_inputs)
-
-        magnitudes = []
-        constraint_vals = []
-        for descent_direction in directions:
-            initial_step_size = np.sqrt(
-                2.0 * self._max_constraint_val * (1. / (descent_direction.dot(Hx(descent_direction)) + 1e-8))
-            )
-            if np.isnan(initial_step_size):
-                initial_step_size = 1.
-            flat_descent_step = initial_step_size * descent_direction
-
-            n_iter = 0
-            for n_iter, ratio in enumerate(self._backtrack_ratio ** np.arange(self._max_backtracks)):
-                cur_step = ratio * flat_descent_step
-                cur_param = prev_param - cur_step
-                self._target.set_param_values(cur_param, trainable=True)
-                constraint_val = sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
-                if self._debug_nan and np.isnan(constraint_val):
-                    import ipdb
-                    ipdb.set_trace()
-                if constraint_val <= self._max_constraint_val:
-                    break
-            if (np.isnan(constraint_val) or constraint_val >= self._max_constraint_val) and not self._accept_violation:
-                logger.log("Line search condition violated. Rejecting the step!")
-                if np.isnan(constraint_val):
-                    logger.log("Violated because constraint %s is NaN" % self._constraint_name)
-                if constraint_val >= self._max_constraint_val:
-                    logger.log("Violated because constraint %s is violated" % self._constraint_name)
-                self._target.set_param_values(prev_param, trainable=True)
-            # logger.log("backtrack iters: %d" % n_iter)
-            # logger.log("final magnitude: " + str(-ratio*initial_step_size))
-            logger.log("final kl: " + str(constraint_val))
-            # logger.log("optimization finished")
-            magnitudes.append(-ratio * initial_step_size)
-            constraint_vals.append(constraint_val)
-        return magnitudes, constraint_vals
 
     def __getstate__(self):
         """Object.__getstate__.
