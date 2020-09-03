@@ -16,7 +16,13 @@ from garage.tf.algos.batch_polopt import BatchPolopt
 
 
 class Cell():
+    """A representation of a state visited during exploration.
 
+    Parameters
+    ----------
+    use_score_weight : bool
+        Whether or not to scale the cell's fitness by a function of the cell's score
+    """
     def __init__(self, use_score_weight=True):
         # print("Creating new Cell:", self)
         # Number of times this was chosen and seen
@@ -49,19 +55,47 @@ class Cell():
             return False
 
     def reset_cached_property(self, cached_property):
+        """Removes cached properties so they will be recalculated on next access.
+
+        Parameters
+        ----------
+        cached_property : str
+            The cached_property key to remove from the class dict.
+        """
         if cached_property in self.__dict__:
             del self.__dict__[cached_property]
 
     @property
     def is_root(self):
+        """Checks if the cell is the root of the tree (trajectory length is 0).
+
+        Returns
+        -------
+        bool
+            Whether the cell is root or not
+        """
         return len(self.trajectory) == 0
 
     @property
     def step(self):
+        """How many steps led to the current cell.
+
+        Returns
+        -------
+        int
+            Length of the trajectory.
+        """
         return len(self.trajectory)
 
     @property
     def reward(self):
+        """The reward obtained in the current cell.
+
+        Returns
+        -------
+        float
+            The reward.
+        """
         return self._reward
 
     @reward.setter
@@ -72,6 +106,13 @@ class Cell():
 
     @property
     def value_approx(self):
+        """The approximate value of the current cell, based on backpropigation of previous rollouts.
+
+        Returns
+        -------
+        float
+            The value approximation.
+        """
         return self._value_approx
 
     @value_approx.setter
@@ -82,6 +123,13 @@ class Cell():
 
     @property
     def is_terminal(self):
+        """Whether or not the current cell is a terminal state.
+
+        Returns
+        -------
+        bool
+            Is the current cell terminal.
+        """
         return self._is_terminal
 
     @is_terminal.setter
@@ -92,6 +140,13 @@ class Cell():
 
     @property
     def is_goal(self):
+        """Whether or not the current cell is a goal state.
+
+        Returns
+        -------
+        bool
+            Is the current cell a goal.
+        """
         return self._is_goal
 
     @is_goal.setter
@@ -102,6 +157,13 @@ class Cell():
 
     @property
     def score(self):
+        """The `score` obtained in the current cell.
+
+        Returns
+        -------
+        float
+            The score.
+        """
         return self._score
 
     @score.setter
@@ -112,6 +174,13 @@ class Cell():
 
     @property
     def times_visited(self):
+        """How many times the current cell has been visited during all rollouts.
+
+        Returns
+        -------
+        int
+            Number of times visited.
+        """
         return self._times_visited
 
     @times_visited.setter
@@ -123,6 +192,13 @@ class Cell():
 
     @property
     def times_chosen(self):
+        """How many times the current cell has been chosen to start a rollout.
+
+        Returns
+        -------
+        int
+            Number of times chosen.
+        """
         return self._times_chosen
 
     @times_chosen.setter
@@ -134,6 +210,14 @@ class Cell():
 
     @property
     def times_chosen_since_improved(self):
+        """How many times the current cell has been chosen to start a rollout since the last time the cell was updated
+        with an improved score or trajectory.
+
+        Returns
+        -------
+        int
+            Number of times chosen since last improved.
+        """
         return self._times_chosen_since_improved
 
     @times_chosen_since_improved.setter
@@ -145,17 +229,39 @@ class Cell():
 
     @cached_property
     def fitness(self):
+        """The `fitness` score of the cell. Cells are sampled with probability proportional to their `fitness` score.
+
+        Returns
+        -------
+        float
+            The fitness score of the cell.
+        """
         # return max(1, self.score)
         return self.score_weight * (self.count_subscores + 1)
 
     @cached_property
     def count_subscores(self):
+        """A function of `times_chosen_subscore`, `times_chosen_since_improved_subscore`, and `times_visited_subscore`
+        that is used in calculating the cell's `fitness` score.
+
+        Returns
+        -------
+        float
+            The count subscore of the cell.
+        """
         return (self.times_chosen_subscore +
                 self.times_chosen_since_improved_subscore +
                 self.times_visited_subscore)
 
     @cached_property
     def times_chosen_subscore(self):
+        """A function of `times_chosen` that is used in calculating the cell's `times_chosen_subscore` score.
+
+        Returns
+        -------
+        float
+            The `times_chosen_subscore`
+        """
         weight = 0.1
         power = 0.5
         eps1 = 0.001
@@ -164,6 +270,14 @@ class Cell():
 
     @cached_property
     def times_chosen_since_improved_subscore(self):
+        """A function of `times_chosen_since_improved` that is used in calculating the cell's
+        `times_chosen_since_improved_subscore` score.
+
+        Returns
+        -------
+        float
+            The `times_chosen_since_improved_subscore`
+        """
         weight = 0.0
         power = 0.5
         eps1 = 0.001
@@ -172,14 +286,30 @@ class Cell():
 
     @cached_property
     def times_visited_subscore(self):
+        """A function of `_times_visited` that is used in calculating the cell's
+        `times_visited_subscore` score.
+
+        Returns
+        -------
+        float
+            The `times_visited_subscore`
+        """
         weight = 0.3
         power = 0.5
         eps1 = 0.001
         eps2 = 0.00001
-        return weight * (1 / (self.times_chosen + eps1)) ** power + eps2
+        return weight * (1 / (self._times_visited + eps1)) ** power + eps2
 
     @cached_property
     def score_weight(self):
+        """A heuristic function basedon the cell's score, and other values, to bias the rollouts towards high-scoring
+        areas.
+
+        Returns
+        -------
+        float
+            The cell's `score_weight`
+        """
         if self.use_score_weight:
             score_weight = 1 / max([abs(self._value_approx), 1])
         else:
@@ -194,7 +324,18 @@ class Cell():
 
 
 class CellPool():
-    def __init__(self, filename='database', discount=0.99, flag=db.DB_RDONLY, flag2='r', use_score_weight=True):
+    """A hashtree data structure containing and updating all of the cells seen during rollouts.
+
+    Parameters
+    ----------
+    filename : str, optional
+        The base name for the database files. The CellPool saves a `[filename]_pool.dat` and a `[filename]_meta.dat`.
+    discount : float, optional
+        Discount factor used in calculating a cell's value approximation.
+    use_score_weight : bool
+        Whether or not to scale a cell's fitness by a function of the cell's score
+    """
+    def __init__(self, filename='database', discount=0.99, use_score_weight=True):
 
         self.length = 0
         self._filename = filename
@@ -211,6 +352,9 @@ class CellPool():
         self.use_score_weight = use_score_weight
 
     def save(self):
+        """Save the CellPool to disk.
+
+        """
         best_cell_key = None
         if self.best_cell is not None:
             best_cell_key = str(hash(self.best_cell.observation.tostring()))
@@ -231,6 +375,13 @@ class CellPool():
             pickle.dump(save_dict, f)
 
     def load(self, cell_pool_shelf):
+        """Load a CellPool from disk.
+
+        Parameters
+        ----------
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database.
+        """
         with contextlib.suppress(FileNotFoundError):
             with open(self.meta_filename, "rb") as f:
                 save_dict = pickle.load(f)
@@ -248,6 +399,28 @@ class CellPool():
                     self.best_cell = cell_pool_shelf[best_cell_key]
 
     def open_pool(self, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL, overwrite=False):
+        """Open the database that the CellPool uses to store cells.
+
+        Parameters
+        ----------
+        dbname : string
+
+        dbtype : int, optional
+            Specifies the type of database to open. Use enumerations provided by
+            `bsddb3 <https://www.jcea.es/programacion/pybsddb_doc/db.html#open>`_.
+        flags : int, optional
+            Specifies the configuration of the database to open. Use enumerations provided by
+            `bsddb3 <https://www.jcea.es/programacion/pybsddb_doc/db.html#open>`_.
+        protocol : int, optional
+            Specifies the data stream format used by
+            `pickle <https://docs.python.org/3/library/pickle.html#data-stream-format>`_.
+        overwrite : bool, optional
+            Indicates if an existing database should be overwritten if found.
+        Returns
+        -------
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database.
+        """
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function opens the database and
         # loads the latest meta data, the returns the database.
@@ -260,6 +433,13 @@ class CellPool():
         return cell_pool_shelf
 
     def sync_pool(self, cell_pool_shelf):
+        """Syncs the pool, ensuring that the database on disk is up-to-date.
+
+        Parameters
+        ----------
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database
+        """
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function syncs the given database and
         # saves the latest meta data.
@@ -267,6 +447,13 @@ class CellPool():
         self.save()
 
     def close_pool(self, cell_pool_shelf):
+        """Close the database that the CellPool uses to store cells.
+
+        Parameters
+        ----------
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database
+        """
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function closes the given database and
         # saves the latest meta data.
@@ -274,6 +461,13 @@ class CellPool():
         self.save()
 
     def sync_and_close_pool(self, cell_pool_shelf):
+        """Sync and then close the database that the CellPool uses to store cells.
+
+        Parameters
+        ----------
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database
+        """
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function syncs and closes the given
         # database and saves the latest meta data.
@@ -282,25 +476,79 @@ class CellPool():
         self.save()
 
     def delete_pool(self):
+        """Remove the CellPool files saved on disk.
+
+        """
         with contextlib.suppress(FileNotFoundError):
             os.remove(self.pool_filename)
             os.remove(self.meta_filename)
 
     @cached_property
     def pool_filename(self):
+        """The CellPool database filename.
+
+        Returns
+        -------
+        str
+            The CellPool database filename.
+        """
         return self._filename + '_pool.dat'
 
     @cached_property
     def meta_filename(self):
+        """The CellPool metadata filename.
+
+        Returns
+        -------
+        str
+            The CellPool metadata filename.
+        """
         return self._filename + '_meta.dat'
 
-    def d_update(self, d_pool, observation, action, trajectory, score, state,
+    def d_update(self, cell_pool_shelf, observation, action, trajectory, score, state,
                  parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
+        """Runs the update algorithm for the CellPool. The process is:
+        1. Create a cell from the given data.
+        2. Check if the cell already exists in the CellPool.
+        3. If the cell already exists and our version is better (higher fitness or shorter trajectory), update the
+        existing cell.
+        4. If the cell already exists and our version is not better, end.
+        5. If the cell does not already exists, add the new cell to the CellPool
+
+        Parameters
+        ----------
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database.
+        observation : array_like
+            The observation seen in the current cell.
+        action : array_like
+            The action taken in the current cell.
+        trajectory : array_like
+            The trajectory leading to the current cell.
+        score : float
+            The score at the current cell.
+        state : array_like
+            The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
+        parent : int, optional
+            The hash key of the cell immediately preceding the current cell in the trajectory.
+        is_terminal : bool, optional
+            Whether the current cell is a terminal state.
+        is_goal : bool, optional
+            Whether the current cell is a goal state.
+        reward : float, optional
+            The reward obtained at the current cell.
+        chosen : int, optional
+            Whether the current cell was chosen to start the rollout.
+        Returns
+        -------
+        bool
+            True if a new cell was added to the CellPool, False otherwise
+        """
         # pdb.set_trace()
         # This tests to see if the observation is already in the matrix
 
         obs_hash = str(hash(observation.tostring()))
-        if obs_hash not in d_pool:
+        if obs_hash not in cell_pool_shelf:
             # Make a new cell, add to pool
             # self.guide.add(observation)
             cell = Cell(self.use_score_weight)
@@ -319,7 +567,7 @@ class CellPool():
             cell.is_terminal = is_terminal
             cell.is_goal = is_goal
 
-            d_pool[obs_hash] = cell
+            cell_pool_shelf[obs_hash] = cell
             self.length += 1
             self.key_list.append(obs_hash)
             if cell.fitness > self.max_value:
@@ -331,11 +579,11 @@ class CellPool():
             elif is_terminal:
                 self.terminal_dict[obs_hash] = cell.reward
 
-            self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
+            self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, cell_pool_shelf=cell_pool_shelf)
 
             return True
         else:
-            cell = d_pool[obs_hash]
+            cell = cell_pool_shelf[obs_hash]
             if score > cell.score:
                 # Cell exists, but new version is better. Overwrite
                 cell.score = score
@@ -360,31 +608,65 @@ class CellPool():
 
             cell.times_visited += 1
             cell.times_chosen += chosen
-            d_pool[obs_hash] = cell
+            cell_pool_shelf[obs_hash] = cell
             if cell.fitness > self.max_value:
                 self.max_value = cell.fitness
             if cell.score > self.max_score:
                 self.max_score = score
 
-            self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
+            self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, cell_pool_shelf=cell_pool_shelf)
 
         return False
 
-    def value_approx_update(self, value, obs_hash, d_pool):
+    def value_approx_update(self, value, obs_hash, cell_pool_shelf):
+        """Recursively calculate a value approximation through back-propagation.
+
+        Parameters
+        ----------
+        value : Value approximation of the previous cell.
+        obs_hash : Hash key of the current cell.
+        cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
+            A `shelve.Shelf` wrapping a bsddb3 database.
+        """
         if obs_hash is not None:
-            cell = d_pool[obs_hash]
+            cell = cell_pool_shelf[obs_hash]
             v = cell.score + self.discount * value
             cell.value_approx = (v - cell.value_approx) / cell.times_visited + cell.value_approx
-            d_pool[obs_hash] = cell
+            cell_pool_shelf[obs_hash] = cell
             if cell.parent is not None:
-                self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, d_pool=d_pool)
+                self.value_approx_update(value=cell.value_approx, obs_hash=cell.parent, cell_pool_shelf=cell_pool_shelf)
 
 
 class GoExplore(BatchPolopt):
     """
     Base class for batch sampling-based policy optimization methods.
     This includes various policy gradient methods like vpg, npg, ppo, trpo,
-    etc.
+    etc.    Parameters
+    ----------
+    db_filename : str
+        The base path and name for the database files. The CellPool saves a `[filename]_pool.dat` and a `[filename]_meta.dat`.
+    max_db_size : int
+        Maximum allowable size (in GB) of the CellPool database.
+        Algorithm will immediately stop and exit if this size is exceeded.
+    env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
+        The environment
+    env_spec : :py:class:`garage.envs.EnvSpec`
+        Environment specification.
+    policy : :py:class:`garage.tf.policies.Policy`
+        The policy
+    baseline : :py:class:`garage.np.baselines.Baseline`
+        The baseline
+    save_paths_gap : int, optional
+        How many epochs to skip between saving out full paths. Set to `1` to save every epoch.
+        Set to `0` to disable saving.
+    save_paths_path : str, optional
+        Path to the directory where paths should be saved. Set to `None` to disable saving.
+    overwrite_db : bool, optional
+        Indicates if an existing database should be overwritten if found.
+    use_score_weight : bool
+        Whether or not to scale the cell's fitness by a function of the cell's score
+    kwargs :
+        Keyword arguments passed to :doc:`garage.tf.algos.BatchPolopt <garage:_apidoc/garage.tf.algos.batch_polopt>`
     """
 
     def __init__(self,
@@ -399,25 +681,6 @@ class GoExplore(BatchPolopt):
                  overwrite_db=True,
                  use_score_weight=True,
                  **kwargs):
-        """
-        :param env_spec: Environment specification.
-        :type env_spec: EnvSpec
-        :param policy: Policy
-        :type policy: Policy
-        :param baseline: Baseline
-        :param scope: Scope for identifying the algorithm. Must be specified if
-         running multiple algorithms
-        simultaneously, each using different environments and policies
-        :param max_path_length: Maximum length of a single rollout.
-        :param discount: Discount.
-        :param gae_lambda: Lambda used for generalized advantage estimation.
-        :param center_adv: Whether to rescale the advantages so that they have
-         mean 0 and standard deviation 1.
-        :param positive_adv: Whether to shift the advantages so that they are
-         always positive. When used in conjunction with center_adv the
-         advantages will be standardized before shifting.
-        :return:
-        """
 
         self.db_filename = db_filename
         self.overwrite_db = overwrite_db
@@ -443,6 +706,19 @@ class GoExplore(BatchPolopt):
                          **kwargs)
 
     def train(self, runner):
+        """Obtain samplers and start actual training for each epoch.
+
+        Parameters
+        ----------
+        runner : :py:class:`garage.experiment.LocalRunner <garage:garage.experiment.LocalRunner>`
+            ``LocalRunner`` is passed to give algorithm the access to ``runner.step_epochs()``, which provides services
+            such as snapshotting and sampler control.
+
+        Returns
+        -------
+        last_return : :py:class:`ast_toolbox.algos.go_explore.Cell`
+            The highest scoring cell found so far
+        """
         last_return = None
         self.policy = self.go_explore_policy
         for epoch in runner.step_epochs():
@@ -453,6 +729,20 @@ class GoExplore(BatchPolopt):
         return last_return
 
     def train_once(self, itr, paths):
+        """Perform one step of policy optimization given one batch of samples.
+
+        Parameters
+        ----------
+        itr : int
+            Iteration number.
+        paths : list[dict]
+            A list of collected paths.
+
+        Returns
+        -------
+        best_cell : :py:class:`ast_toolbox.algos.go_explore.Cell`
+            The highest scoring cell found so far
+        """
         paths = self.process_samples(itr, paths)
 
         self.log_diagnostics(paths)
@@ -461,20 +751,20 @@ class GoExplore(BatchPolopt):
         return self.best_cell
 
     def init_opt(self):
-
-        # if self.robustify:
-        #     self.env.set_param_values([None], robustify_state=True, debug=False)
-        self.max_cum_reward = -np.inf
         """
         Initialize the optimization procedure. If using tensorflow, this may
         include declaring all the variables and compiling functions
         """
+        # if self.robustify:
+        #     self.env.set_param_values([None], robustify_state=True, debug=False)
+        self.max_cum_reward = -np.inf
+
         self.cell_pool = CellPool(filename=self.db_filename, use_score_weight=self.use_score_weight)
 
         d_pool = self.cell_pool.open_pool(overwrite=self.overwrite_db)
         if len(self.cell_pool.key_list) == 0:
             obs, state = self.env.get_first_cell()
-            self.cell_pool.d_update(d_pool=d_pool, observation=self.downsample(obs, step=-1), action=obs,
+            self.cell_pool.d_update(cell_pool_shelf=d_pool, observation=self.downsample(obs, step=-1), action=obs,
                                     trajectory=np.array([]), score=0.0, state=state, reward=0.0, chosen=0)
             self.cell_pool.sync_pool(cell_pool_shelf=d_pool)
 
@@ -491,6 +781,16 @@ class GoExplore(BatchPolopt):
         """
         Returns all the data that should be saved in the snapshot for this
         iteration.
+
+        Parameters
+        ----------
+        itr : int
+            The current epoch number.
+
+        Returns
+        -------
+        dict
+            A dict containing the current iteration number, the current policy, and the current baseline.
         """
         # pdb.set_trace()
         return dict(
@@ -500,7 +800,15 @@ class GoExplore(BatchPolopt):
         )
 
     def optimize_policy(self, itr, samples_data):
+        """Optimize the policy using the samples.
 
+        Parameters
+        ----------
+        itr : int
+            The current epoch number.
+        samples_data : dict
+            The data from the sampled rollouts.
+        """
         start = time.time()
 
         d_pool = self.cell_pool.open_pool()
@@ -536,7 +844,7 @@ class GoExplore(BatchPolopt):
                     try:
                         root_cell = d_pool[str(hash(samples_data['env_infos']['root_action'][i, j, :].tostring()))]
                         # Update the chosen/visited count
-                        self.cell_pool.d_update(d_pool=d_pool,
+                        self.cell_pool.d_update(cell_pool_shelf=d_pool,
                                                 observation=root_cell.observation,
                                                 action=root_cell.action,
                                                 trajectory=root_cell.trajectory,
@@ -581,7 +889,7 @@ class GoExplore(BatchPolopt):
                 # if j >48:
                 #     print(j)
                 #     pdb.set_trace()
-                if self.cell_pool.d_update(d_pool=d_pool,
+                if self.cell_pool.d_update(cell_pool_shelf=d_pool,
                                            observation=observation,
                                            action=action,
                                            trajectory=trajectory,
@@ -623,6 +931,20 @@ class GoExplore(BatchPolopt):
         tabular.record('MaxReturn', self.max_cum_reward)
 
     def downsample(self, obs, step=None):
+        """Create a downsampled approximation of the observed simulation state.
+
+        Parameters
+        ----------
+        obs : array_like
+            The observed simulation state.
+        step : int, optional
+            The current iteration number
+
+        Returns
+        -------
+        array_like
+            The downsampled approximation of the observed simulation state.
+        """
         # import pdb; pdb.set_trace()
         obs = obs * 1000
 
