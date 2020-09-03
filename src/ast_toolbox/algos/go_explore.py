@@ -443,11 +443,14 @@ class GoExplore(BatchPolopt):
                          **kwargs)
 
     def train(self, runner):
+        last_return = None
         self.policy = self.go_explore_policy
         for epoch in runner.step_epochs():
             runner.step_path = runner.obtain_samples(runner.step_itr)
-            self.train_once(runner.step_itr, runner.step_path)
+            last_return = self.train_once(runner.step_itr, runner.step_path)
             runner.step_itr += 1
+
+        return last_return
 
     def train_once(self, itr, paths):
         paths = self.process_samples(itr, paths)
