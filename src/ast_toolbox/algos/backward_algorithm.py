@@ -37,8 +37,10 @@ class BackwardAlgorithm(PPO):
 
     References
     ----------
-    .. [1] Salimans, Tim, and Richard Chen. "Learning Montezuma's Revenge from a Single Demonstration." arXiv preprint arXiv:1812.03381 (2018). https://arxiv.org/abs/1812.03381
+    .. [1] Salimans, Tim, and Richard Chen. "Learning Montezuma's Revenge from a Single Demonstration."
+     arXiv preprint arXiv:1812.03381 (2018). https://arxiv.org/abs/1812.03381
     """
+
     def __init__(self,
                  env,
                  policy,
@@ -164,7 +166,9 @@ class BackwardAlgorithm(PPO):
         return paths
 
     def get_next_epoch(self, runner):
-        """ Wrapper of garage's :py:meth:`runner.step_epochs() <garage:garage.experiment.local_runner.LocalRunner.step_epochs>` generator to handle initialization to correct trajectory state
+        """ Wrapper of garage's :py:meth:`runner.step_epochs()
+        <garage:garage.experiment.local_runner.LocalRunner.step_epochs>`
+        generator to handle initialization to correct trajectory state
 
         Parameters
         ----------
