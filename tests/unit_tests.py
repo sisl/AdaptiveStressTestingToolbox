@@ -258,7 +258,7 @@ def test_go_explore():
     cell_pool = CellPool(filename='./test_pool.dat', use_score_weight=True)
     d_pool = cell_pool.open_pool(overwrite=True)
     cell_pool.d_update(
-        d_pool=d_pool,
+        cell_pool_shelf=d_pool,
         observation=np.zeros(5),
         action=np.zeros(5),
         trajectory=np.array(
@@ -267,7 +267,7 @@ def test_go_explore():
         state=None,
         reward=0.0,
         chosen=0)
-    cell_pool.d_update(d_pool=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=1.0,
+    cell_pool.d_update(cell_pool_shelf=d_pool, observation=np.zeros(5), action=np.zeros(5), trajectory=np.array([]), score=1.0,
                        state=None, reward=1.0, chosen=0, is_goal=True)
 
 
