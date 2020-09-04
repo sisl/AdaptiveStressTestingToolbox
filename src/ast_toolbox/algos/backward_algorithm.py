@@ -1,3 +1,4 @@
+"""`Backward Algorithm <https://arxiv.org/abs/1812.03381>`_ from Salimans and Chen"""
 import itertools
 
 import numpy as np
@@ -6,7 +7,7 @@ from garage.tf.algos.ppo import PPO
 
 
 class BackwardAlgorithm(PPO):
-    """Backward Algorithm from Salimans and Chen [1]_.
+    r"""Backward Algorithm from Salimans and Chen [1]_.
 
     Parameters
     ----------
@@ -38,7 +39,7 @@ class BackwardAlgorithm(PPO):
     References
     ----------
     .. [1] Salimans, Tim, and Richard Chen. "Learning Montezuma's Revenge from a Single Demonstration."
-     arXiv preprint arXiv:1812.03381 (2018). https://arxiv.org/abs/1812.03381
+     arXiv preprint arXiv:1812.03381 (2018). `<https://arxiv.org/abs/1812.03381>`_
     """
 
     def __init__(self,
@@ -83,7 +84,7 @@ class BackwardAlgorithm(PPO):
                                                 **kwargs)
 
     def train(self, runner):
-        """Obtain samplers and start actual training for each epoch.
+        r"""Obtain samplers and start actual training for each epoch.
 
         Parameters
         ----------
@@ -144,7 +145,7 @@ class BackwardAlgorithm(PPO):
         return full_paths
 
     def train_once(self, itr, paths):
-        """Perform one step of policy optimization given one batch of samples.
+        r"""Perform one step of policy optimization given one batch of samples.
 
         Parameters
         ----------
@@ -166,7 +167,7 @@ class BackwardAlgorithm(PPO):
         return paths
 
     def get_next_epoch(self, runner):
-        """ Wrapper of garage's :py:meth:`runner.step_epochs()
+        r"""Wrapper of garage's :py:meth:`runner.step_epochs()
         <garage:garage.experiment.local_runner.LocalRunner.step_epochs>`
         generator to handle initialization to correct trajectory state
 
@@ -222,7 +223,7 @@ class BackwardAlgorithm(PPO):
             pass
 
     def set_env_to_expert_trajectory_step(self):
-        """ Updates the algorithm to use the data from ``expert_trajectory`` up to the current step.
+        r"""Updates the algorithm to use the data from ``expert_trajectory`` up to the current step.
 
         """
         self.env_state = self.expert_trajectory[self.step_num]['state']

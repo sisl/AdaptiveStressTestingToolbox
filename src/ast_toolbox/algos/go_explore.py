@@ -1,4 +1,4 @@
-"""Natural Policy Gradient Optimization."""
+"""Implementation of the `Go-Explore <https://arxiv.org/abs/1901.10995>`_ algorithm."""
 import contextlib
 import os
 import pdb
@@ -16,7 +16,7 @@ from garage.tf.algos.batch_polopt import BatchPolopt
 
 
 class Cell():
-    """A representation of a state visited during exploration.
+    r"""A representation of a state visited during exploration.
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ class Cell():
             return False
 
     def reset_cached_property(self, cached_property):
-        """Removes cached properties so they will be recalculated on next access.
+        r"""Removes cached properties so they will be recalculated on next access.
 
         Parameters
         ----------
@@ -67,7 +67,7 @@ class Cell():
 
     @property
     def is_root(self):
-        """Checks if the cell is the root of the tree (trajectory length is 0).
+        r"""Checks if the cell is the root of the tree (trajectory length is 0).
 
         Returns
         -------
@@ -78,7 +78,7 @@ class Cell():
 
     @property
     def step(self):
-        """How many steps led to the current cell.
+        r"""How many steps led to the current cell.
 
         Returns
         -------
@@ -89,7 +89,7 @@ class Cell():
 
     @property
     def reward(self):
-        """The reward obtained in the current cell.
+        r"""The reward obtained in the current cell.
 
         Returns
         -------
@@ -106,7 +106,7 @@ class Cell():
 
     @property
     def value_approx(self):
-        """The approximate value of the current cell, based on backpropigation of previous rollouts.
+        r"""The approximate value of the current cell, based on backpropigation of previous rollouts.
 
         Returns
         -------
@@ -123,7 +123,7 @@ class Cell():
 
     @property
     def is_terminal(self):
-        """Whether or not the current cell is a terminal state.
+        r"""Whether or not the current cell is a terminal state.
 
         Returns
         -------
@@ -140,7 +140,7 @@ class Cell():
 
     @property
     def is_goal(self):
-        """Whether or not the current cell is a goal state.
+        r"""Whether or not the current cell is a goal state.
 
         Returns
         -------
@@ -157,7 +157,7 @@ class Cell():
 
     @property
     def score(self):
-        """The `score` obtained in the current cell.
+        r"""The `score` obtained in the current cell.
 
         Returns
         -------
@@ -174,7 +174,7 @@ class Cell():
 
     @property
     def times_visited(self):
-        """How many times the current cell has been visited during all rollouts.
+        r"""How many times the current cell has been visited during all rollouts.
 
         Returns
         -------
@@ -192,7 +192,7 @@ class Cell():
 
     @property
     def times_chosen(self):
-        """How many times the current cell has been chosen to start a rollout.
+        r"""How many times the current cell has been chosen to start a rollout.
 
         Returns
         -------
@@ -210,7 +210,7 @@ class Cell():
 
     @property
     def times_chosen_since_improved(self):
-        """How many times the current cell has been chosen to start a rollout since the last time the cell was updated
+        r"""How many times the current cell has been chosen to start a rollout since the last time the cell was updated
         with an improved score or trajectory.
 
         Returns
@@ -229,7 +229,7 @@ class Cell():
 
     @cached_property
     def fitness(self):
-        """The `fitness` score of the cell. Cells are sampled with probability proportional to their `fitness` score.
+        r"""The `fitness` score of the cell. Cells are sampled with probability proportional to their `fitness` score.
 
         Returns
         -------
@@ -241,7 +241,7 @@ class Cell():
 
     @cached_property
     def count_subscores(self):
-        """A function of `times_chosen_subscore`, `times_chosen_since_improved_subscore`, and `times_visited_subscore`
+        r"""A function of `times_chosen_subscore`, `times_chosen_since_improved_subscore`, and `times_visited_subscore`
         that is used in calculating the cell's `fitness` score.
 
         Returns
@@ -255,7 +255,7 @@ class Cell():
 
     @cached_property
     def times_chosen_subscore(self):
-        """A function of `times_chosen` that is used in calculating the cell's `times_chosen_subscore` score.
+        r"""A function of `times_chosen` that is used in calculating the cell's `times_chosen_subscore` score.
 
         Returns
         -------
@@ -270,7 +270,7 @@ class Cell():
 
     @cached_property
     def times_chosen_since_improved_subscore(self):
-        """A function of `times_chosen_since_improved` that is used in calculating the cell's
+        r"""A function of `times_chosen_since_improved` that is used in calculating the cell's
         `times_chosen_since_improved_subscore` score.
 
         Returns
@@ -286,7 +286,7 @@ class Cell():
 
     @cached_property
     def times_visited_subscore(self):
-        """A function of `_times_visited` that is used in calculating the cell's
+        r"""A function of `_times_visited` that is used in calculating the cell's
         `times_visited_subscore` score.
 
         Returns
@@ -302,7 +302,7 @@ class Cell():
 
     @cached_property
     def score_weight(self):
-        """A heuristic function basedon the cell's score, and other values, to bias the rollouts towards high-scoring
+        r"""A heuristic function basedon the cell's score, and other values, to bias the rollouts towards high-scoring
         areas.
 
         Returns
@@ -324,7 +324,7 @@ class Cell():
 
 
 class CellPool():
-    """A hashtree data structure containing and updating all of the cells seen during rollouts.
+    r"""A hashtree data structure containing and updating all of the cells seen during rollouts.
 
     Parameters
     ----------
@@ -352,7 +352,7 @@ class CellPool():
         self.use_score_weight = use_score_weight
 
     def save(self):
-        """Save the CellPool to disk.
+        r"""Save the CellPool to disk.
 
         """
         best_cell_key = None
@@ -375,7 +375,7 @@ class CellPool():
             pickle.dump(save_dict, f)
 
     def load(self, cell_pool_shelf):
-        """Load a CellPool from disk.
+        r"""Load a CellPool from disk.
 
         Parameters
         ----------
@@ -399,7 +399,7 @@ class CellPool():
                     self.best_cell = cell_pool_shelf[best_cell_key]
 
     def open_pool(self, dbname=None, dbtype=db.DB_HASH, flags=db.DB_CREATE, protocol=pickle.HIGHEST_PROTOCOL, overwrite=False):
-        """Open the database that the CellPool uses to store cells.
+        r"""Open the database that the CellPool uses to store cells.
 
         Parameters
         ----------
@@ -433,7 +433,7 @@ class CellPool():
         return cell_pool_shelf
 
     def sync_pool(self, cell_pool_shelf):
-        """Syncs the pool, ensuring that the database on disk is up-to-date.
+        r"""Syncs the pool, ensuring that the database on disk is up-to-date.
 
         Parameters
         ----------
@@ -447,7 +447,7 @@ class CellPool():
         self.save()
 
     def close_pool(self, cell_pool_shelf):
-        """Close the database that the CellPool uses to store cells.
+        r"""Close the database that the CellPool uses to store cells.
 
         Parameters
         ----------
@@ -461,7 +461,7 @@ class CellPool():
         self.save()
 
     def sync_and_close_pool(self, cell_pool_shelf):
-        """Sync and then close the database that the CellPool uses to store cells.
+        r"""Sync and then close the database that the CellPool uses to store cells.
 
         Parameters
         ----------
@@ -476,7 +476,7 @@ class CellPool():
         self.save()
 
     def delete_pool(self):
-        """Remove the CellPool files saved on disk.
+        r"""Remove the CellPool files saved on disk.
 
         """
         with contextlib.suppress(FileNotFoundError):
@@ -485,7 +485,7 @@ class CellPool():
 
     @cached_property
     def pool_filename(self):
-        """The CellPool database filename.
+        r"""The CellPool database filename.
 
         Returns
         -------
@@ -496,7 +496,7 @@ class CellPool():
 
     @cached_property
     def meta_filename(self):
-        """The CellPool metadata filename.
+        r"""The CellPool metadata filename.
 
         Returns
         -------
@@ -507,7 +507,7 @@ class CellPool():
 
     def d_update(self, cell_pool_shelf, observation, action, trajectory, score, state,
                  parent=None, is_terminal=False, is_goal=False, reward=-np.inf, chosen=0):
-        """Runs the update algorithm for the CellPool. The process is:
+        r"""Runs the update algorithm for the CellPool. The process is:
         1. Create a cell from the given data.
         2. Check if the cell already exists in the CellPool.
         3. If the cell already exists and our version is better (higher fitness or shorter trajectory), update the
@@ -619,7 +619,7 @@ class CellPool():
         return False
 
     def value_approx_update(self, value, obs_hash, cell_pool_shelf):
-        """Recursively calculate a value approximation through back-propagation.
+        r"""Recursively calculate a value approximation through back-propagation.
 
         Parameters
         ----------
@@ -638,10 +638,7 @@ class CellPool():
 
 
 class GoExplore(BatchPolopt):
-    """
-    Base class for batch sampling-based policy optimization methods.
-    This includes various policy gradient methods like vpg, npg, ppo, trpo,
-    etc.    Parameters
+    r"""Implementation of the Go-Explore[1]_ algorithm that is compatible with AST[2]_.
     ----------
     db_filename : str
         The base path and name for the database files. The CellPool saves a `[filename]_pool.dat` and a `[filename]_meta.dat`.
@@ -667,6 +664,13 @@ class GoExplore(BatchPolopt):
         Whether or not to scale the cell's fitness by a function of the cell's score
     kwargs :
         Keyword arguments passed to :doc:`garage.tf.algos.BatchPolopt <garage:_apidoc/garage.tf.algos.batch_polopt>`
+
+    References
+    ----------
+    .. [1] Ecoffet, Adrien, et al. "Go-explore: a new approach for hard-exploration problems."
+        arXiv preprint arXiv:1901.10995 (2019). `<https://arxiv.org/abs/1901.10995>`_
+    .. [2] Koren, Mark, and Mykel J. Kochenderfer. "Adaptive Stress Testing without Domain Heuristics
+        using Go-Explore." arXiv preprint arXiv:2004.04292 (2020). `<https://arxiv.org/abs/2004.04292>`_
     """
 
     def __init__(self,

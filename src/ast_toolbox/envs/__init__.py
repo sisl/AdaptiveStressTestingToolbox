@@ -1,4 +1,4 @@
-"""Environments for formulating validation as an AST RL problem"""
+"""Environments for formulating validation as an AST reinforcement learning problem"""
 import importlib
 if importlib.util.find_spec('bsddb3') is not None:
     # Only load bsddb3 dependent packages if it is installed
