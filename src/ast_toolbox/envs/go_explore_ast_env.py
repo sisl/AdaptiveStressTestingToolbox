@@ -3,7 +3,6 @@ import pdb
 import pickle
 import random
 import shelve
-from contextlib import contextmanager
 
 import gym
 import numpy as np
@@ -16,6 +15,7 @@ from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
+
 class Parameterized:
     r"""A slimmed down version of the (deprecated) Parameterized class from garage for passing parameters to
     environments.
@@ -25,6 +25,7 @@ class Parameterized:
     access to things like a database.
 
     """
+
     def __init__(self):
         self._cached_params = {}
         self._cached_param_dtypes = {}
@@ -66,6 +67,7 @@ class GoExploreParameter():
     value : value
         Value of the parameter.
     """
+
     def __init__(self, name, value):
         self.name = name
         self.value = value
@@ -125,6 +127,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
     spaces : :py:class:`ast_toolbox.spaces.ASTSpaces`
         The observation and action space definitions, inheriting from `ast_toolbox.spaces.ASTSpaces`.
     """
+
     def __init__(self,
                  open_loop=True,
                  blackbox_sim_state=True,
@@ -661,6 +664,7 @@ class Custom_GoExploreASTEnv(GoExploreASTEnv):
 
         Example class of how to overload downsample to make the environment work for different environments.
     """
+
     def downsample(self, obs, step=None):
         """Create a downsampled approximation of the observed simulation state.
 

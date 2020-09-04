@@ -23,6 +23,7 @@ class Cell():
     use_score_weight : bool
         Whether or not to scale the cell's fitness by a function of the cell's score
     """
+
     def __init__(self, use_score_weight=True):
         # print("Creating new Cell:", self)
         # Number of times this was chosen and seen
@@ -335,6 +336,7 @@ class CellPool():
     use_score_weight : bool
         Whether or not to scale a cell's fitness by a function of the cell's score
     """
+
     def __init__(self, filename='database', discount=0.99, use_score_weight=True):
 
         self.length = 0
