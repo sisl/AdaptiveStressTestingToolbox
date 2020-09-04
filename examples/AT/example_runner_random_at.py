@@ -11,8 +11,8 @@ from garage.tf.experiment import LocalTFRunner
 # Import the AST classes
 # import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 from ast_toolbox.algos.random_search import RandomSearch
-from ast_toolbox.policies.random_policy import RandomPolicy
 from ast_toolbox.envs import ASTEnv
+from ast_toolbox.policies.random_policy import RandomPolicy
 from ast_toolbox.rewards import ExampleATReward
 from ast_toolbox.samplers import ASTVectorizedSampler
 from ast_toolbox.simulators import ExampleATSimulator

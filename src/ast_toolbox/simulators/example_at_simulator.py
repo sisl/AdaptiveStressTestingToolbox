@@ -1,13 +1,15 @@
-from ast_toolbox.simulators import ASTSimulator  # import base Simulator class
-import numpy as np  # Used for math
-import matlab.engine
-import torch
 import os
-from pprint import pprint  # pretty print (for lists)
 import sys
+from pprint import pprint  # pretty print (for lists)
+
+import matlab.engine
+import numpy as np  # Used for math
+import torch
+
+from ast_toolbox.simulators import ASTSimulator  # import base Simulator class
+
 sys.path.insert(0, '../stlcg/src')
 import stlcg  # noqa
-
 
 # globalize MATLAB engine for DRL.
 try:

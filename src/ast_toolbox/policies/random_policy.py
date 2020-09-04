@@ -1,8 +1,7 @@
 import numpy as np
 from garage.tf.policies import Policy
-from gym.spaces.box import Box
 from gym.spaces import Discrete
-
+from gym.spaces.box import Box
 from gym.utils import seeding
 
 

@@ -1,7 +1,9 @@
-from dowel import logger, tabular
-from garage.misc import tensor_utils
-import numpy as np
 import collections
+
+import numpy as np
+from dowel import logger
+from dowel import tabular
+from garage.misc import tensor_utils
 
 
 # pylint: disable=too-few-public-methods

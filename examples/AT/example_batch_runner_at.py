@@ -1,11 +1,12 @@
 # NOTE, run this from the root AdaptiveStressTestingToolbox directory.
 
+import os
+
+import numpy as np
+
 from examples.AT.example_runner_drl_at import runner as drl_runner
 from examples.AT.example_runner_mcts_at import runner as mcts_runner
 from examples.AT.example_runner_random_at import runner as random_runner
-
-import numpy as np
-import os
 
 if __name__ == '__main__':
     # overall settings

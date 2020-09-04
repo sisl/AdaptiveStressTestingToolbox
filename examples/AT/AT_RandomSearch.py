@@ -4,21 +4,22 @@ import os
 import os.path as osp
 
 import numpy as np
-import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 # from example_save_trials import *
 import tensorflow as tf
+from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
+from garage.misc import logger
+
+import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+from ast_toolbox import TfEnv
+from ast_toolbox.algos.random_search import RandomSearch
+# Import the AST classes
+from ast_toolbox.envs import ASTEnv
+from ast_toolbox.policies.random_policy import RandomPolicy
+from ast_toolbox.rewards import ExampleATReward
+from ast_toolbox.simulators import ExampleATSimulator
 
 # from CartPole.cartpole_simulator import CartpoleSimulator
 
-from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
-from garage.misc import logger
-from ast_toolbox import TfEnv
-from ast_toolbox.algos.random_search import RandomSearch
-from ast_toolbox.policies.random_policy import RandomPolicy
-# Import the AST classes
-from ast_toolbox.envs import ASTEnv
-from ast_toolbox.rewards import ExampleATReward
-from ast_toolbox.simulators import ExampleATSimulator
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
