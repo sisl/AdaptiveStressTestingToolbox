@@ -1,10 +1,8 @@
 import argparse
 import csv
-import math
 import os
 import os.path as osp
 
-import joblib
 import numpy as np
 import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 # from example_save_trials import *
@@ -12,19 +10,15 @@ import tensorflow as tf
 
 # from CartPole.cartpole_simulator import CartpoleSimulator
 
-import garage
 from garage.baselines.linear_feature_baseline import LinearFeatureBaseline
 from garage.misc import logger
-from ast_toolbox import ASTEnv
 from ast_toolbox import TfEnv
 from ast_toolbox.algos.random_search import RandomSearch
 from ast_toolbox.policies.random_policy import RandomPolicy
 # Import the AST classes
 from ast_toolbox.envs import ASTEnv
 from ast_toolbox.rewards import ExampleATReward
-from ast_toolbox.samplers import ASTVectorizedSampler
 from ast_toolbox.simulators import ExampleATSimulator
-from ast_toolbox.spaces import ExampleATSpaces
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # just use CPU
 
@@ -34,7 +28,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--exp_name', type=str, default='at_random_search')
 # parser.add_argument('--nd', type=int, default=1)
 # parser.add_argument('--sut_itr', type=int, default=5)
-parser.add_argument('--n_trial', type=int, default=10)  #?
+parser.add_argument('--n_trial', type=int, default=10)
 parser.add_argument('--trial_start', type=int, default=0)
 parser.add_argument('--n_itr', type=int, default=200)
 parser.add_argument('--batch_size', type=int, default=40)
@@ -52,9 +46,6 @@ tf.set_random_seed(0)
 sess = tf.Session()
 sess.__enter__()
 
-# Instantiate the env
-# data = joblib.load("../CartPole/ControlPolicy/itr_" + str(args.sut_itr) + ".pkl")
-# sut = data['policy']
 reward_function = ExampleATReward()
 
 sim_args = {'blackbox_sim_state': True,
@@ -64,7 +55,7 @@ sim_args = {'blackbox_sim_state': True,
             }
 simulator = ExampleATSimulator(**sim_args)
 
-env = TfEnv(ASTEnv(open_loop=open_loop,
+env = TfEnv(ASTEnv(open_loop=False,
                    simulator=simulator,
                    fixed_init_state=True,
                    s_0=np.array([0]),

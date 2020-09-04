@@ -2,7 +2,6 @@
 import fire
 # Useful imports
 import tensorflow as tf
-from garage.envs.normalized_env import normalize
 from garage.experiment import run_experiment
 from garage.np.baselines.linear_feature_baseline import LinearFeatureBaseline
 # Import the necessary garage classes
@@ -10,7 +9,7 @@ from garage.tf.envs.base import TfEnv
 from garage.tf.experiment import LocalTFRunner
 
 # Import the AST classes
-import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
+# import ast_toolbox.mcts.BoundedPriorityQueues as BPQ
 from ast_toolbox.algos.random_search import RandomSearch
 from ast_toolbox.policies.random_policy import RandomPolicy
 from ast_toolbox.envs import ASTEnv
@@ -113,7 +112,7 @@ def runner(
 
                     baseline = LinearFeatureBaseline(env_spec=env.spec, **baseline_args)
 
-                    top_paths = BPQ.BoundedPriorityQueue(**bpq_args)
+                    # top_paths = BPQ.BoundedPriorityQueue(**bpq_args)
                     algo = RandomSearch(
                         # env=env,
                         env_spec=env.spec,
@@ -148,4 +147,3 @@ def runner(
 
 if __name__ == '__main__':
     fire.Fire()
-

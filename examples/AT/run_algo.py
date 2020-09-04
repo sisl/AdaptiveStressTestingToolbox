@@ -4,7 +4,7 @@
 import os
 from shutil import copyfile
 
-AT = "AT2" # "AT1" or "AT2"
+AT = "AT2"  # "AT1" or "AT2"
 os.environ["AT"] = AT
 
 for i in range(10):

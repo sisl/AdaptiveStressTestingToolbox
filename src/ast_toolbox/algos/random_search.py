@@ -5,7 +5,6 @@ import collections
 
 
 # pylint: disable=too-few-public-methods
-# TODO. Needed?
 class RandomSearch:
     """Naive random search (i.e. direct Monte Carlo).
 
@@ -30,7 +29,6 @@ class RandomSearch:
         self._episode_reward_mean = collections.deque(maxlen=100)
         self._best_return = -np.inf
 
-
     def train(self, runner):
         """Obtain samplers and start actual training for each epoch.
 
@@ -43,7 +41,7 @@ class RandomSearch:
                 logger.log("Obtaining samples...")
                 paths = runner.obtain_samples(itr)
                 logger.log("Processing samples...")
-                samples_data = self.process_samples(itr, paths)
+                # samples_data = self.process_samples(itr, paths)
 
                 if not (self.top_paths is None):
                     undiscounted_returns = [sum(path["rewards"]) for path in paths]
@@ -57,7 +55,6 @@ class RandomSearch:
                         tabular.record('reward ' + str(topi), path[0])
 
                 logger.log(tabular)
-
 
     def process_samples(self, itr, paths):
         """Process sample data based on the collected paths.
@@ -85,7 +82,7 @@ class RandomSearch:
         tabular.record('AverageDiscountedReturn', average_discounted_return)
         tabular.record('AverageReturn', average_return)
         tabular.record('Extras/EpisodeRewardMean',
-                np.mean(self._episode_reward_mean))
+                       np.mean(self._episode_reward_mean))
         tabular.record('NumTrajs', len(paths))
         tabular.record('StdReturn', np.std(undiscounted_returns))
         max_return = np.max(undiscounted_returns)

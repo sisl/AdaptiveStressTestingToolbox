@@ -10,5 +10,5 @@ from .mcts import MCTS  # noqa
 from .mctsbv import MCTSBV  # noqa
 from .mctsrs import MCTSRS  # noqa
 
-from .random_search import RandomSearch
+from .random_search import RandomSearch  # noqa
 # from .trpo import TRPO

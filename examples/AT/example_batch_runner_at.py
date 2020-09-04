@@ -1,7 +1,5 @@
 # NOTE, run this from the root AdaptiveStressTestingToolbox directory.
 
-import pickle
-
 from examples.AT.example_runner_drl_at import runner as drl_runner
 from examples.AT.example_runner_mcts_at import runner as mcts_runner
 from examples.AT.example_runner_random_at import runner as random_runner
@@ -12,11 +10,11 @@ import os
 if __name__ == '__main__':
     # overall settings
     base_log_dir = './data'
-    max_path_length = 4 # (FalStar MCTS used 6)
+    max_path_length = 4  # (FalStar MCTS used 6)
     s_0 = np.array([0])
 
     if os.environ.get("SEED") is not None:
-        seed = os.environ["SEED"] # When running `run_algo.py` to get different seeds
+        seed = os.environ["SEED"]  # When running `run_algo.py` to get different seeds
     else:
         seed = 0
     print("Using seed: ", seed)
@@ -29,7 +27,7 @@ if __name__ == '__main__':
                            'seed': seed,
                            'n_parallel': 1,
                            'tabular_log_file': 'progress.csv',
-                           'python_command': 'python3' # because /usr/bin/python is version 3.
+                           'python_command': 'python3'  # because /usr/bin/python is version 3.
                            }
 
     # runner settings
@@ -86,16 +84,15 @@ if __name__ == '__main__':
                       'log_interval': max_path_length,
                       'plot_tree': False,
                       'plot_path': None,
-                      'log_dir': None, # set below.
-                     }
+                      'log_dir': None,  # set below.
+                      }
 
     mcts_bpq_args = {'N': 1}
-
 
     # Random search settings
     random_algo_args = {'max_path_length': max_path_length,
                         'discount': 1.0,
-                       }
+                        }
     random_bpq_args = {'N': 1}
 
     exp_log_dir = base_log_dir
@@ -104,8 +101,8 @@ if __name__ == '__main__':
 
     # NOTE: os.environ.get("ALGO") when running from `run_algo.py`
     algo_from_env = os.environ.get("ALGO")
-    if algo_from_env == None:
-        algo2run = "drl" # default to run DRL
+    if algo_from_env is None:
+        algo2run = "drl"  # default to run DRL
     else:
         algo2run = algo_from_env
 
