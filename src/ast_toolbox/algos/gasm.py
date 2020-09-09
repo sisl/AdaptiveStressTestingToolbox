@@ -9,24 +9,35 @@ from ast_toolbox.optimizers import DirectionConstraintOptimizer
 
 class GASM(GA):
     """
-    Genetic Algorithm with Safe Mutation
+    Deep Genetic Algorithm [1]_ with Safe Mutation [2]_.
+
+    Parameters
+    ----------
+    step_size : float, optional
+        The constraint on the KL divergence of each mutation
+    kwargs :
+        Keyword arguments passed to `ast_toolbox.algos.ga.GA`
+
+    References
+    ----------
+    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for training deep neural networks for reinforcement learning."
+     arXiv preprint arXiv:1712.06567 (2017).
+    .. [2] Lehman, Joel, et al. "Safe mutations for deep and recurrent neural networks through output gradients."
+     Proceedings of the Genetic and Evolutionary Computation Conference. 2018.
     """
 
     def __init__(
             self,
-            optimizer=None,
+            step_size=0.01,
             **kwargs):
-        """
-        :param step_size: the constraint on the KL divergence of each mutation
-        """
+
         self.divergences = np.zeros(kwargs['pop_size'])
-        if optimizer is None:
-            self.optimizer = DirectionConstraintOptimizer()
-        else:
-            self.optimizer = optimizer
-        super(GASM, self).__init__(**kwargs)
+        self.optimizer = DirectionConstraintOptimizer()
+        super(GASM, self).__init__(**kwargs, step_size=step_size)
 
     def init_opt(self):
+        """Initiate trainer internal tensorflow operations
+        """
         is_recurrent = int(self.policy.recurrent)
         # obs_var = self.env_spec.observation_space.new_tensor_variable(
         #     'obs',
@@ -103,16 +114,32 @@ class GASM(GA):
         return dict()
 
     def extra_recording(self, itr):
+        """Record extra training statistics per-iteration
+
+        Parameters
+        ----------
+        itr : int 
+            The iteration number
+        """
         tabular.record('Max Divergence', np.max(self.divergences))
         tabular.record('Min Divergence', np.min(self.divergences))
         tabular.record('Mean Divergence', np.mean(self.divergences))
         return None
 
     def data2inputs(self, samples_data):
-        # all_input_values = tuple(ext.extract(
-        #     samples_data,
-        #     "observations", "actions", "advantages"
-        # ))
+        """Transfer the processed data samples to training inputs
+
+        Parameters
+        ----------
+        samples_data : dict
+            The processed data samples
+
+        Returns
+        -------
+        all_input_values : tuple
+            The input used in training
+        """
+
         all_input_values = (samples_data["observations"], samples_data["actions"])  # ,samples_data["advantages"])
         agent_infos = samples_data["agent_infos"]
         state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
@@ -133,6 +160,27 @@ class GASM(GA):
         return all_input_values
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
+        """Generate new random seeds and magnitudes for the next generation. 
+            The first self.keep_best seeds are set to no-mutation value (0). 
+
+        Parameters
+        ----------
+        itr : int 
+            The iteration number
+        new_seeds : :py:class:`numpy.ndarry`
+            The original seeds
+        new_magnitudes : :py:class:`numpy.ndarry`
+            The original magnitudes
+        all_paths : list[dict]
+            The collected paths from the sampler
+
+        Returns
+        -------
+        new_seeds : :py:class:`numpy.ndarry`
+            The new seeds
+        new_magnitudes : :py:class:`numpy.ndarry`
+            The new magnitudes
+        """
         self.seeds = np.copy(new_seeds)
         self.magnitudes = np.copy(new_magnitudes)
         new_seeds[itr + 1, :] = np.random.randint(low=0, high=int(2**16),
@@ -157,13 +205,19 @@ class GASM(GA):
         return new_seeds, new_magnitudes
 
     def __getstate__(self):
-        """Get state."""
+        """Get the internal state.
+
+        Returns
+        -------
+        data : dict
+            The intertal state dict
+        """
         data = self.__dict__.copy()
         del data['f_divergence']
         return data
 
     def __setstate__(self, state):
-        """Set state."""
+        """Set the internal state."""
         self.__dict__ = state
         self._name_scope = tf.name_scope(self.name)
         self.init_opt()
