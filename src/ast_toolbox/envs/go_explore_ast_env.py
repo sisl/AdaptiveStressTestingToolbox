@@ -376,7 +376,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 # print('-----------Robustify Init-----------------')
                 # print('-----------Robustify Init: ', state, ' -----------------')
                 self.simulator.restore_state(state[:-2])
-                obs = self.simulator._get_obs()
+                obs = self.simulator.observation_return()
                 self._done = False
                 self._cum_reward = state[-2]
                 self._step = state[-1]
@@ -415,7 +415,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                         if cell.score == 0.0 and cell.parent is not None:
                             print("Reset to cell with score 0.0 ---- terminal: ", self.simulator.is_terminal(),
                                   " goal: ", self.simulator.is_goal(), " obs: ", cell.observation)
-                        obs = self.simulator._get_obs()
+                        obs = self.simulator.observation_return()
                         self._done = False
                         self._cum_reward = cell.state[-2]
                         self._step = cell.state[-1]
@@ -654,9 +654,6 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             The downsampled approximation of the observed simulation state.
         """
         return obs
-
-    def _get_obs(self):
-        return self.simulator._get_obs()
 
 
 class Custom_GoExploreASTEnv(GoExploreASTEnv):

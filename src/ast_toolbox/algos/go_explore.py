@@ -652,9 +652,9 @@ class GoExplore(BatchPolopt):
     env_spec : :py:class:`garage.envs.EnvSpec`
         Environment specification.
     policy : :py:class:`garage.tf.policies.Policy`
-        The policy
+        The policy.
     baseline : :py:class:`garage.np.baselines.Baseline`
-        The baseline
+        The baseline.
     save_paths_gap : int, optional
         How many epochs to skip between saving out full paths. Set to `1` to save every epoch.
         Set to `0` to disable saving.

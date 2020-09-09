@@ -21,7 +21,7 @@ class ASTEnv(gym.Env):
         is also False.
     blackbox_sim_state : bool
         True if the true simulation state can not be observed, in which case actions and the initial conditions are
-        used as the observation. False if the simulation state can be observed, in which case it will be used
+        used as the observation. False if the simulation state can be observed, in which case it will be used.
     fixed_init_state : bool
         True if the initial state is fixed, False to sample the initial state for each rollout from the observaation
         space.
@@ -229,8 +229,13 @@ class ASTEnv(gym.Env):
         """
         self.simulator.log()
 
-    def render(self):
+    def render(self, **kwargs):
         r"""Calls the simulator's `render` function, if it exists.
+
+        Parameters
+        ----------
+        kwargs :
+            Keyword arguments used in the simulators `render` function.
 
         Returns
         -------
@@ -238,7 +243,7 @@ class ASTEnv(gym.Env):
             Returns the output of the simulator's `render` function, or None if the simulator has no `render` function.
         """
         if hasattr(self.simulator, "render") and callable(getattr(self.simulator, "render")):
-            return self.simulator.render()
+            return self.simulator.render(**kwargs)
         else:
             return None
 

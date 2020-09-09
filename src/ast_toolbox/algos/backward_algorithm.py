@@ -12,9 +12,9 @@ class BackwardAlgorithm(PPO):
     Parameters
     ----------
     env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
-        The environment
+        The environment.
     policy : :py:class:`garage.tf.policies.Policy`
-        The policy
+        The policy.
     expert_trajectory : array_like[dict]
         The expert trajectory, an array_like where each member represents a timestep in a trajectory.
         The array_like should be 1-D and in chronological order.
