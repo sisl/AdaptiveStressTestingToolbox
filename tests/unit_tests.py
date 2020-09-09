@@ -56,11 +56,7 @@ def test_ast_simulator():
     sim = ASTSimulator()
     with pytest.raises(NotImplementedError):
         sim.simulate(None, None)
-    with pytest.raises(NotImplementedError):
-        sim.closed_loop_step(None)
     sim.open_loop = False
-    with pytest.raises(NotImplementedError):
-        sim.step(None)
     with pytest.raises(NotImplementedError):
         sim.get_reward_info()
     with pytest.raises(NotImplementedError):
@@ -82,10 +78,16 @@ def test_ast_simulator():
     sim.blackbox_sim_state = False
     assert np.all(sim.observation_return() == np.array([1, 1, 1, 1]))
     assert np.all(sim.reset(np.array([0, 0, 0, 0, 0])) == np.array([1, 1, 1, 1]))
+    sim.open_loop = False
+    assert np.all(sim.closed_loop_step(action=np.array([])) == np.array([1, 1, 1, 1]))
+    sim.open_loop = True
 
     sim.blackbox_sim_state = True
     assert np.all(sim.observation_return() == np.array([0, 0, 0, 0, 0]))
     assert np.all(sim.reset(np.array([0, 0, 0, 0, 0])) == np.array([0, 0, 0, 0, 0]))
+    sim.open_loop = False
+    assert np.all(sim.closed_loop_step(action=np.array([])) == np.array([0, 0, 0, 0, 0]))
+    sim.open_loop = True
 
     assert sim.log() is None
 
@@ -179,7 +181,6 @@ def test_go_explore_ast_env():
     env.simulator.blackbox_sim_state = True
     env.simulator.initial_conditions = np.zeros(5)
     # import pdb; pdb.set_trace()
-    assert np.all(env._get_obs() == np.zeros(5))
     env.render(car=None, ped=None, noise=None)
 
     env._init_state = np.array([0, 0, 0, 1, 0])

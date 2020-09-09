@@ -23,6 +23,7 @@ class ExampleAVReward(ASTReward):
         Whether to include a heuristic in the reward based on how close the pedestrian is to the vehicle
         at the end of the trajectory.
     """
+
     def __init__(self,
                  num_peds=1,
                  cov_x=0.1,

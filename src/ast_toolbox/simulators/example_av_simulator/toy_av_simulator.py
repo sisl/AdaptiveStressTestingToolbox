@@ -193,7 +193,7 @@ class ToyAVSimulator():
 
         # take new measurements and noise them
         noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
-        self._measurements = self.sensors(self._car, self._peds, noise)
+        self._measurements = self.sensors(self._peds, noise)
 
         # filter out the noise with an alpha-beta tracker
         self._car_obs = self.tracker(self._car_obs, self._measurements)
@@ -473,4 +473,3 @@ class ToyAVSimulator():
 
         self.observe()
         self.observation = self._env_obs
-

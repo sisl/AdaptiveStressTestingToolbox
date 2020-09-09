@@ -1,5 +1,6 @@
 """Class to define the action and observation spaces of an AST problem."""
 
+
 class ASTSpaces(object):
     """Class to define the action and observation spaces of an AST problem.
 
@@ -15,6 +16,7 @@ class ASTSpaces(object):
     sampled at uniform from the observation_space.
 
     """
+
     def __init__(self):
         pass
 

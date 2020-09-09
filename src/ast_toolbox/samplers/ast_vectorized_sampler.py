@@ -31,6 +31,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
         The reward function, inheriting from `ast_toolbox.rewards.ASTReward`.
 
     """
+
     def __init__(self, algo, env, n_envs=1, open_loop=True, sim=ExampleAVSimulator(), reward_function=ExampleAVReward()):
 
         # pdb.set_trace()

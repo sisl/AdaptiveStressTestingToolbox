@@ -210,4 +210,3 @@ class ExampleAVSimulator(ASTSimulator):
         self.initial_conditions = np.array(simulator_state['initial_conditions'])
         self._is_terminal = simulator_state['is_terminal']
         self._path_length = simulator_state['path_length']
-

@@ -14,6 +14,7 @@ class GoExplorePolicy(StochasticPolicy):
     name : str
         Name for the tensors.
     """
+
     def __init__(self, env_spec, name='GoExplorePolicy'):
 
         self.dist = DiagonalGaussian(dim=env_spec.action_space.flat_dim)
@@ -89,7 +90,6 @@ class GoExplorePolicy(StochasticPolicy):
         dones : array_like
             Bool that indicates terminal state(s).
         """
-        pass
 
     def log_diagnostics(self, paths):
         """

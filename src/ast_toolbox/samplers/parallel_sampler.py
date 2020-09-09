@@ -2,9 +2,8 @@
 import pickle
 import signal
 
-from dowel import logger
 import numpy as np
-
+from dowel import logger
 from garage.experiment import deterministic
 from garage.sampler.stateful_pool import SharedGlobal
 from garage.sampler.stateful_pool import singleton_pool
@@ -140,7 +139,6 @@ def _worker_set_policy_params(g, params, scope=None):
     g.policy.set_param_values(params)
 
 
-
 def _worker_set_env_params(g, params, scope=None):
     g = _get_scoped_g(g, scope)
     g.env.set_param_values(params)
@@ -155,6 +153,7 @@ def _worker_collect_one_path(g, max_path_length, scope=None):
 def sample_paths(policy_params,
                  max_samples,
                  max_path_length=np.inf,
+                 env_params=None,
                  scope=None):
     """Sample paths from each worker.
 
@@ -178,8 +177,13 @@ def sample_paths(policy_params,
     singleton_pool.run_each(_worker_set_policy_params,
                             [(policy_params, scope)] *
                             singleton_pool.n_parallel)
+
+    if env_params is not None:
+        singleton_pool.run_each(_worker_set_env_params,
+                                [(env_params, scope)] *
+                                singleton_pool.n_parallel)
+
     return singleton_pool.run_collect(_worker_collect_one_path,
                                       threshold=max_samples,
                                       args=(max_path_length, scope),
                                       show_prog_bar=True)
-

@@ -1,5 +1,6 @@
 """Class template to wrap a simulator for interaction with AST."""
 
+
 class ASTSimulator(object):
     """Class template to wrap a simulator for interaction with AST.
 
@@ -185,7 +186,6 @@ class ASTSimulator(object):
         """
         perform any logging steps
         """
-        pass
 
     def clone_state(self):
         """Clone the simulator state for later resetting.
@@ -199,7 +199,6 @@ class ASTSimulator(object):
             An array of all the simulation state variables.
 
         """
-        pass
 
     def restore_state(self, in_simulator_state):
         """Reset the simulation deterministically to a previously cloned state.
@@ -213,7 +212,6 @@ class ASTSimulator(object):
             An array of all the simulation state variables.
 
         """
-        pass
 
     def render(self, **kwargs):
         """Either renders a simulation scene or returns data used for external rendering.
@@ -223,4 +221,3 @@ class ASTSimulator(object):
         kwargs :
             Keyword arguments used in the simulators `render` function.
         """
-        pass

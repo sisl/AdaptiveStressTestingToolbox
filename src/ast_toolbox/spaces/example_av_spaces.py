@@ -50,6 +50,7 @@ class ExampleAVSpaces(ASTSpaces):
         the next action is generated. False to get interactive control, which requires that `blackbox_sim_state`
         is also False.
     """
+
     def __init__(self,
                  num_peds=1,
                  max_path_length=50,

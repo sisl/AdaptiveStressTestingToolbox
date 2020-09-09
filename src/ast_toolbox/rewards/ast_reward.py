@@ -3,6 +3,7 @@ class ASTReward(object):
     """Function to calculate the rewards for timesteps when optimizing AST solver policies.
 
     """
+
     def __init__(self):
         pass
 
@@ -13,7 +14,7 @@ class ASTReward(object):
         ----------
         action : array_like
             Action taken by the AST solver.
-        kwargs : 
+        kwargs :
             Accepts relevant info for computing the reward.
         Returns
         -------
