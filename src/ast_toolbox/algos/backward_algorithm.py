@@ -1,4 +1,4 @@
-"""`Backward Algorithm <https://arxiv.org/abs/1812.03381>`_ from Salimans and Chen"""
+"""`Backward Algorithm <https://arxiv.org/abs/1812.03381>`_ from Salimans and Chen."""
 import itertools
 
 import numpy as np
@@ -27,7 +27,7 @@ class BackwardAlgorithm(PPO):
         Maximum number of epochs to run per step of the trajectory.
     max_epochs : int, optional
         Maximum number of total epochs to run. If not set, defaults to ``epochs_per_step`` times the number of steps
-        in the ``expert_trajectory``
+        in the ``expert_trajectory``.
     skip_until_step : int, optional
         Skip training for a certain number of steps at the start, counted backwards from the end of the trajectory.
         For example, if this is set to 3 for an ``expert_trajectory`` of length 10, training will start from step 7.
@@ -95,7 +95,7 @@ class BackwardAlgorithm(PPO):
         Returns
         -------
         full_paths : array_like
-            A list of the path data from each epoch
+            A list of the path data from each epoch.
         """
         max_reward = -np.inf
         max_reward_step = -1
@@ -180,7 +180,7 @@ class BackwardAlgorithm(PPO):
         Yields
         -------
         runner.step_itr : int
-            The current epoch number
+            The current epoch number.
         runner.obtain_samples(runner.step_itr): list[dict]
             A list of sampled rollouts for the current epoch
         """

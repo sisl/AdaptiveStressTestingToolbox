@@ -1,4 +1,4 @@
-"""Algorithms for solving AST formulated RL problems"""
+"""Algorithms for solving AST formulated RL problems."""
 import importlib
 if importlib.util.find_spec('bsddb3') is not None:
     # Only load bsddb3 dependent packages if it is installed

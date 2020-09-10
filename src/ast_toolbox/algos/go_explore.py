@@ -440,7 +440,7 @@ class CellPool():
         Parameters
         ----------
         cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
-            A `shelve.Shelf` wrapping a bsddb3 database
+            A `shelve.Shelf` wrapping a bsddb3 database.
         """
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function syncs the given database and
@@ -454,7 +454,7 @@ class CellPool():
         Parameters
         ----------
         cell_pool_shelf : `shelve.Shelf <https://docs.python.org/3/library/shelve.html#shelve.Shelf>`_
-            A `shelve.Shelf` wrapping a bsddb3 database
+            A `shelve.Shelf` wrapping a bsddb3 database.
         """
         # We can't save our database as a class attribute due to pickling errors.
         # To prevent errors from code repeat, this convenience function closes the given database and
@@ -641,6 +641,7 @@ class CellPool():
 
 class GoExplore(BatchPolopt):
     r"""Implementation of the Go-Explore[1]_ algorithm that is compatible with AST[2]_.
+    Parameters
     ----------
     db_filename : str
         The base path and name for the database files. The CellPool saves a `[filename]_pool.dat` and a `[filename]_meta.dat`.
@@ -648,7 +649,7 @@ class GoExplore(BatchPolopt):
         Maximum allowable size (in GB) of the CellPool database.
         Algorithm will immediately stop and exit if this size is exceeded.
     env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
-        The environment
+        The environment.
     env_spec : :py:class:`garage.envs.EnvSpec`
         Environment specification.
     policy : :py:class:`garage.tf.policies.Policy`

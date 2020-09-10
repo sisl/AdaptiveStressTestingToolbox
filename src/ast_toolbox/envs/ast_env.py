@@ -91,19 +91,19 @@ class ASTEnv(gym.Env):
         -------
         :py:func:`garage.envs.base.Step`
             A step in the rollout. Contains the following information:
-                * observation : array_like
+                - observation : array_like
                     Agent's observation of the current environment.
-                * reward : float
+                - reward : float
                     Amount of reward due to the previous action.
-                * done : bool
+                - done : bool
                     Is the current step a terminal or goal state, ending the rollout.
-                * actions : array_like
+                - actions : array_like
                     The action taken at the current.
-                * state : array_like
+                - state : array_like
                     The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
-                * is_terminal : bool
+                - is_terminal : bool
                     Whether or not the current cell is a terminal state.
-                * is_goal : bool
+                - is_goal : bool
                     Whether or not the current cell is a goal state.
         """
         self._env_state_before_action = self._env_state.copy()
