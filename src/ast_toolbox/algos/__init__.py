@@ -14,7 +14,7 @@ if importlib.util.find_spec('bsddb3') is not None:
     from .go_explore import GoExplore  # noqa
     from .backward_algorithm import BackwardAlgorithm  # noqa
 
-    __all__.append('GoExplore', 'BackwardAlgorithm')
+    __all__ += ['GoExplore', 'BackwardAlgorithm']
 
 # from .random_search import RandomSearch
 # from .trpo import TRPO

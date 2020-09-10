@@ -58,13 +58,14 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
 
         Returns
         -------
-        list[dict]
-            Sample paths, each path with key
-                * observations: (numpy.ndarray)
-                * actions: (numpy.ndarray)
-                * rewards: (numpy.ndarray)
-                * agent_infos: (dict)
-                * env_infos: (dict)
+        : list[dict]
+            A list of sampled rollout paths.
+            Each rollout path is a dictionary with the following keys:
+                - observations (numpy.ndarray)
+                - actions (numpy.ndarray)
+                - rewards (numpy.ndarray)
+                - agent_infos (dict)
+                - env_infos (dict)
 
         """
         # pdb.set_trace()
@@ -97,8 +98,8 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
         return paths
 
     def slice_dict(self, in_dict, slice_idx):
-        """Helper function to recursively parse through a dictionary of dictionaries and arrays to slice
-            the arrays at a certain index.
+        """Helper function to recursively parse through a dictionary of dictionaries and arrays to slice \
+        the arrays at a certain index.
 
         Parameters
         ----------

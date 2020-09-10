@@ -101,7 +101,7 @@ class ExampleAVSpaces(ASTSpaces):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The action space of the reinforcement learning problem.
         """
         low = np.array([self.c_x_accel_low, self.c_y_accel_low, -3.0, -3.0, -3.0, -3.0])
@@ -119,7 +119,7 @@ class ExampleAVSpaces(ASTSpaces):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The observation space of the reinforcement learning problem.
         """
 

@@ -82,29 +82,23 @@ class ASTEnv(gym.Env):
         Run one timestep of the environment's dynamics. When end of episode
         is reached, reset() should be called to reset the environment's internal state.
 
-        Input
-        -----
+        Parameters
+        ----------
         action : array_like
-            an action provided by the environment
+            An action provided by the environment.
 
         Returns
         -------
-        :py:func:`garage.envs.base.Step`
-            A step in the rollout. Contains the following information:
-                - observation : array_like
-                    Agent's observation of the current environment.
-                - reward : float
-                    Amount of reward due to the previous action.
-                - done : bool
-                    Is the current step a terminal or goal state, ending the rollout.
-                - actions : array_like
-                    The action taken at the current.
-                - state : array_like
-                    The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
-                - is_terminal : bool
-                    Whether or not the current cell is a terminal state.
-                - is_goal : bool
-                    Whether or not the current cell is a goal state.
+        : :py:func:`garage.envs.base.Step`
+            A step in the rollout.
+            Contains the following information:
+                - observation (array_like): Agent's observation of the current environment.
+                - reward (float): Amount of reward due to the previous action.
+                - done (bool): Is the current step a terminal or goal state, ending the rollout.
+                - actions (array_like): The action taken at the current.
+                - state (array_like): The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
+                - is_terminal (bool): Whether or not the current cell is a terminal state.
+                - is_goal (bool): Whether or not the current cell is a goal state.
         """
         self._env_state_before_action = self._env_state.copy()
 
@@ -165,7 +159,7 @@ class ASTEnv(gym.Env):
     def reset(self):
         r"""Resets the state of the environment, returning an initial observation.
 
-        Outputs
+        Returns
         -------
         observation : array_like
             The initial observation of the space. (Initial reward is assumed to be 0.)
@@ -199,7 +193,7 @@ class ASTEnv(gym.Env):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The action space of the reinforcement learning problem.
         """
         if self.spaces is None:
@@ -214,7 +208,7 @@ class ASTEnv(gym.Env):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The observation space of the reinforcement learning problem.
         """
         if self.spaces is None:
@@ -264,9 +258,10 @@ class ASTEnv(gym.Env):
     def spec(self):
         r"""Returns a garage environment specification.
 
-        Returns:
-            :py:class:`garage.envs.env_spec.EnvSpec`
-                A garage environment specification.
+        Returns
+        -------
+        :py:class:`garage.envs.env_spec.EnvSpec`
+            A garage environment specification.
         """
         return EnvSpec(
             observation_space=self.observation_space,

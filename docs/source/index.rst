@@ -13,6 +13,7 @@ Contents
    contributing
    authors
    changelog
+   api
 
 Indices and tables
 ==================

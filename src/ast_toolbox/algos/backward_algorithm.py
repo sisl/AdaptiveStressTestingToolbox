@@ -19,10 +19,10 @@ class BackwardAlgorithm(PPO):
         The expert trajectory, an array_like where each member represents a timestep in a trajectory.
         The array_like should be 1-D and in chronological order.
         Each member of the array_like is a dictionary with the following keys:
-            - state : The simulator state at that timestep (pre-action).
-            - reward : The reward at that timestep (post-action).
-            - observation : The simulation observation at that timestep (post-action).
-            - action : The action taken at that timestep.
+            - state: The simulator state at that timestep (pre-action).
+            - reward: The reward at that timestep (post-action).
+            - observation: The simulation observation at that timestep (post-action).
+            - action: The action taken at that timestep.
     epochs_per_step : int, optional
         Maximum number of epochs to run per step of the trajectory.
     max_epochs : int, optional

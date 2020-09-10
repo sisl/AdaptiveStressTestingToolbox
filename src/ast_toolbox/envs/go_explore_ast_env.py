@@ -193,7 +193,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
     def sample(self, population):
         r"""Sample a cell from the cell pool with likelihood proportional to cell fitness.
 
-        The sampling is done using Stochastic Acceptance[1]_, with inspiration from John B Nelson's blog[2]_.
+        The sampling is done using Stochastic Acceptance [1]_, with inspiration from John B Nelson's blog [2]_.
 
         The sampler rejects cells until the acceptance criterea is met. If the maximum number of rejections is
         exceeded, the sampler then will sample uniformly sample a cell until it finds a cell with fitness > 0. If
@@ -265,32 +265,24 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         Run one timestep of the environment's dynamics. When end of episode
         is reached, reset() should be called to reset the environment's internal state.
 
-        Input
-        -----
+        Parameters
+        ----------
         action : array_like
-            an action provided by the environment
+            An action provided by the environment.
 
         Returns
         -------
-        :py:func:`garage.envs.base.Step`
-            A step in the rollout. Contains the following information:
-                * observation : array_like
-                    Agent's observation of the current environment.
-                * reward : float
-                    Amount of reward due to the previous action.
-                * done : bool
-                    Is the current step a terminal or goal state, ending the rollout.
-                * cache : dict
-                    A dictionary containing other diagnostic information from the current step.
-                * actions : array_like
-                    The action taken at the current.
-                * state : array_like
-                    The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
-                * is_terminal : bool
-                    Whether or not the current cell is a terminal state.
-                * is_goal : bool
-                    Whether or not the current cell is a goal state.
-
+        : :py:func:`garage.envs.base.Step`
+            A step in the rollout.
+            Contains the following information:
+                - observation (array_like): Agent's observation of the current environment.
+                - reward (float): Amount of reward due to the previous action.
+                - done (bool): Is the current step a terminal or goal state, ending the rollout.
+                - cache (dict): A dictionary containing other diagnostic information from the current step.
+                - actions (array_like): The action taken at the current.
+                - state (array_like): The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
+                - is_terminal (bool): Whether or not the current cell is a terminal state.
+                - is_goal (bool): Whether or not the current cell is a goal state.
         """
         self._env_state_before_action = self._env_state.copy()
 
@@ -362,7 +354,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         In the "Go-Explore" mode, the environment attempts to sample a cell from the cell pool. If successful,
         the simulator is reset to the cell's state. On an error, the environment is reset to the intial state.
 
-        Outputs
+        Returns
         -------
         observation : array_like
             The initial observation of the space. (Initial reward is assumed to be 0.)
@@ -461,7 +453,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
     def env_reset(self):
         r"""Resets the state of the environment, returning an initial observation.
 
-        Outputs
+        Returns
         -------
         observation : array_like
             The initial observation of the space. (Initial reward is assumed to be 0.)
@@ -492,7 +484,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The action space of the reinforcement learning problem.
         """
         if self.spaces is None:
@@ -507,7 +499,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The observation space of the reinforcement learning problem.
         """
         if self.spaces is None:
@@ -562,9 +554,10 @@ class GoExploreASTEnv(gym.Env, Parameterized):
     def spec(self):
         r"""Returns a garage environment specification.
 
-        Returns:
-            :py:class:`garage.envs.env_spec.EnvSpec`
-                A garage environment specification.
+        Returns
+        -------
+        :py:class:`garage.envs.env_spec.EnvSpec`
+            A garage environment specification.
         """
         return EnvSpec(
             observation_space=self.observation_space,

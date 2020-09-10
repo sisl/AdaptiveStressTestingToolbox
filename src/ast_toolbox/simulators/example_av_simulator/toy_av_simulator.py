@@ -55,12 +55,12 @@ class ToyAVSimulator():
     References
     ----------
     .. [1] Treiber, Martin, Ansgar Hennecke, and Dirk Helbing.
-    "Congested traffic states in empirical observations and microscopic simulations."
-    Physical review E 62.2 (2000): 1805.
-    `<https://journals.aps.org/pre/abstract/10.1103/PhysRevE.62.1805>`_
+        "Congested traffic states in empirical observations and microscopic simulations."
+        Physical review E 62.2 (2000): 1805.
+        `<https://journals.aps.org/pre/abstract/10.1103/PhysRevE.62.1805>`_
     .. [2] Rogers, Steven R. "Alpha-beta filter with correlated measurement noise."
-     IEEE Transactions on Aerospace and Electronic Systems 4 (1987): 592-594.
-     `<https://ieeexplore.ieee.org/abstract/document/4104388>`_
+        IEEE Transactions on Aerospace and Electronic Systems 4 (1987): 592-594.
+        `<https://ieeexplore.ieee.org/abstract/document/4104388>`_
     """
     # Accept parameters for defining the behavior of the system under test[SUT]
 

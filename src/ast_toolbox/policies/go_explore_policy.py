@@ -145,7 +145,7 @@ class GoExplorePolicy(StochasticPolicy):
 
         Parameters
         ----------
-        obs_var : `tf.Tensor <https://www.tensorflow.org/api_docs/python/tf/Tensor>'_
+        obs_var : `tf.Tensor <https://www.tensorflow.org/api_docs/python/tf/Tensor>`_
             Symbolic variable for observations.
         state_infos : dict
             A dictionary whose values should contain

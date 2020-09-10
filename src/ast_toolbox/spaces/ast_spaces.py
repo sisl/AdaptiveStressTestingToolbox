@@ -26,7 +26,7 @@ class ASTSpaces(object):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The action space of the reinforcement learning problem.
         """
         raise NotImplementedError
@@ -37,7 +37,7 @@ class ASTSpaces(object):
 
         Returns
         -------
-        `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
             The observation space of the reinforcement learning problem.
         """
         raise NotImplementedError

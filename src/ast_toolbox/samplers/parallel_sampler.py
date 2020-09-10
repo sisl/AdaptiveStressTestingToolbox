@@ -86,7 +86,20 @@ def _worker_terminate_task(g, scope=None):
 
 
 def populate_task(env, policy, scope=None):
-    """Set each worker's env and policy."""
+    """Set each worker's env and policy.
+
+    Parameters
+    ----------
+    env : :py:class:`ast_toolbox.envs.ASTEnv`
+        The environment.
+    policy : :py:class:`garage.tf.policies.Policy`
+        The policy.
+    scope : str
+        Scope for identifying the algorithm.
+        Must be specified if running multiple algorithms
+        simultaneously, each using different environments
+        and policies.
+    """
     logger.log('Populating workers...')
     if singleton_pool.n_parallel > 1:
         singleton_pool.run_each(
@@ -106,7 +119,12 @@ def terminate_task(scope=None):
 
     Parameters
     ----------
-    scope :
+    scope : str
+        Scope for identifying the algorithm.
+        Must be specified if running multiple algorithms
+        simultaneously, each using different environments
+        and policies.
+
     """
     singleton_pool.run_each(_worker_terminate_task,
                             [(scope, )] * singleton_pool.n_parallel)
@@ -127,7 +145,8 @@ def set_seed(seed):
 
     Parameters
     ----------
-    seed :
+    seed : int
+        The random seed to be used by the worker.
     """
     singleton_pool.run_each(_worker_set_seed,
                             [(seed + i, )

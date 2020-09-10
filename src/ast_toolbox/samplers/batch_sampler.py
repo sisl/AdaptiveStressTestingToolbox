@@ -158,8 +158,8 @@ class BatchSampler(BaseSampler):
             return paths_truncated
 
     def slice_dict(self, in_dict, slice_idx):
-        """Helper function to recursively parse through a dictionary of dictionaries and arrays to slice
-            the arrays at a certain index.
+        """Helper function to recursively parse through a dictionary of dictionaries and arrays to slice \
+        the arrays at a certain index.
 
         Parameters
         ----------
