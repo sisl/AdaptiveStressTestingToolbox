@@ -11,7 +11,7 @@ class BackwardAlgorithm(PPO):
 
     Parameters
     ----------
-    env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
+    env : :py:class:`ast_toolbox.envs.go_explore_ast_env.GoExploreASTEnv`
         The environment.
     policy : :py:class:`garage.tf.policies.Policy`
         The policy.

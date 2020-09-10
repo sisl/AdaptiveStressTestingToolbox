@@ -648,7 +648,7 @@ class GoExplore(BatchPolopt):
     max_db_size : int
         Maximum allowable size (in GB) of the CellPool database.
         Algorithm will immediately stop and exit if this size is exceeded.
-    env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
+    env : :py:class:`ast_toolbox.envs.go_explore_ast_env.GoExploreASTEnv`
         The environment.
     env_spec : :py:class:`garage.envs.EnvSpec`
         Environment specification.

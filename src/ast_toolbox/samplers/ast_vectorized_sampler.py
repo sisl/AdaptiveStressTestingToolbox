@@ -16,7 +16,7 @@ class ASTVectorizedSampler(OnPolicyVectorizedSampler):
     ----------
     algo : :py:class:`garage.np.algos.base.RLAlgorithm`
         The algorithm.
-    env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
+    env : :py:class:`ast_toolbox.envs.ASTEnv`
         The environment.
     n_envs : int
         Number of parallel environments to run.
