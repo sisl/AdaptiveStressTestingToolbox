@@ -4,24 +4,18 @@ Tutorial
 ******************
 .. _tutorial-introduction:
 
-*This tutorial is up-to-date for version 2019.6.1.RC1*
+*This tutorial is up-to-date for version 2020.09.01.dev1*
 
 1 Introduction
 ===============
 
-This tutorial is intended for readers to learn how to use this package with their own simulator.
-Familiarity with the underlying theory is recommended, but is not strictly necessary for use. Please install
-package before proceeding.
+This tutorial is intended for readers to learn how to use this package with their own simulator. Familiarity with the underlying theory is recommended, but is not strictly necessary for use. Please install the package before proceeding.
 
 .. _tutorial-about-ast:
 
 1.1 About AST
 -----------------
-Adaptive Stress Testing is a way of finding flaws in an autonomous agent. For any non-trivial problem,
-searching the space of a stochastic simulation is intractable, and grid searches do not perform well.
-By modeling the search as a Markov decision process (MDP), we can use reinforcement learning to find the
-most probable failure. AST treats the simulator as a black box, and only needs access in a few specific
-ways. To interface a simulator to the AST packages, a few things will be needed:
+Adaptive Stress Testing is a way of finding flaws in an autonomous agent. For any non-trivial problem, searching the space of a stochastic simulation is intractable, and grid searches do not perform well. By modeling the search as a Markov decision process (MDP), we can use reinforcement learning to find the most probable failure. AST treats the simulator as a black box, and only needs access in a few specific ways. To interface a simulator to the AST packages, a few things will be needed:
 
 * A **Simulator** wrapper that exposes the simulation software to this package. See :ref:`tutorial-simulation_options` for details on closed-loop vs. open-loop Simulators
 * A **Reward** function dictates the optimization goals of the algorithm.
@@ -46,20 +40,15 @@ In this tutorial, we will test a basic autonomous vehicle's ability to safely na
 2 Creating a Simulator
 ======================
 
-This sections explains how to create a wrapper that exposes your simulator to the AST package. The
-wrapper allows the AST solver to specify actions to control the stochasticity in the simulation.
-Examples of stochastic simulation elements could include an actor, like a pedestrian or a car, or noise
-elements, like on the beams of a LIDAR sensor. The simulator must be able to reset on command and
-detect if a goal state had been reached. The simulator state can be used, but is not necessary.
-Before we begin, let's define 3 different settings that tell the ASTEnv what sort of simulator it is
-interacting with.
+This sections explains how to create a wrapper that exposes your simulator to the AST package. The wrapper allows the AST solver to specify actions to control the stochasticity in the simulation. Examples of stochastic simulation elements could include an actor, like a pedestrian or a car, or noise elements, like on the beams of a LIDAR sensor. The simulator must be able to reset on command and detect if a goal state had been reached. The simulator state can be used, but is not necessary. Before we begin, let's define 3 different settings that tell the ASTEnv what sort of simulator it is interacting with.
+
+We will be wrapping an example autonomous vehicle simulator that runs a toy problem of an autonomous vehicle approaching a crosswalk with pedestrians crossing. The simulator code can be found at `ast_toolbox.simulators.example_av_simulator.toy_av_simulator.py <https://github.com/sisl/AdaptiveStressTestingToolbox/blob/master/src/ast_toolbox/simulators/example_av_simulator/toy_av_simulator.py>`_.
 
 .. _tutorial-simulation_options:
 
 2.1 Simulation Options
 ---------------------------
-Three options must be specified to inform ASTEnv what type of simulator it is interacting with.
-They are listed as follows, with the default in bold, and the actual variable name in parentheses:
+Three options must be specified to inform ASTEnv what type of simulator it is interacting with. They are listed as follows, with the default in bold, and the actual variable name in parentheses:
 
 * **Open-loop** vs. Closed-loop control (open_loop): A *closed-loop* simulation is one in which control can be injected at each step during the actual simulation run, vs an *open-loop* simulation where all actions must be specified ahead of time. Essentially, in a closed-loop system we are "closing the loop" by including the toolbox in the calculation of each timestep. For example, if a simulation is run by creating a specification file, and no other control is possible, that simulation would be open-loop. There is no inherent advantage to either mode, and open-loop will be far more common. Closed-loop mode will generally only be used by white-box systems, where closed-loop control is required.
 * **Black box simulation state** vs. White box simulation state (blackbox_sim_state): When running in *black box* simulation mode, the solver does not have access to the true state of the simulator, instead choosing actions based on the initial condition and the history of actions taken so far. If your simulator can provide access to the simulation state, it can be faster and more efficient to run in *white box* simulation mode, in which the simulation state is used as the input to the reinforcement learning algorithm at each time step. White box simulation mode requires closed-loop control.
@@ -70,39 +59,52 @@ They are listed as follows, with the default in bold, and the actual variable na
 2.2 Inheriting the Base Simulator
 ---------------------------------
 
-Start by creating a file named ``example_av_simulator.py`` in the ``simulators`` folder. Create a class titled
-``ExampleAVSimulator``, which inherits from ``Simulator``.
+Start by creating a file named ``example_av_simulator.py`` in the ``simulators`` folder. Create a class titled ``ExampleAVSimulator``, which inherits from ``Simulator``.
 
 .. code-block:: python
 
 
-   import pdb # Used for debugging
+   import numpy as np  # Used for math
 
-   import numpy as np # Used for math
+   from ast_toolbox.simulators import ASTSimulator  # import parent Simulator class
+   from ast_toolbox.simulators.example_av_simulator import ToyAVSimulator  # import the simulator to wrap
 
-   from ast_toolbox.simulators import ASTSimulator # import base Simulator class
 
+   class ExampleAVSimulator(ASTSimulator):  # Define the class
 
-   # Define the class
-   class ExampleAVSimulator(ASTSimulator):
-
-The base generator accepts for values, three of which are boolean values for the settings defined in
-:ref:`tutorial-simulation_options`:
+The base generator accepts four values, three of which are boolean values for the settings defined in :ref:`tutorial-simulation_options`:
 
 * **max_path_length**: The horizon of the simulation, in number of timesteps
 * **open_loop**: True for open-loop simulation, False for closed-loop simulation
 * **blackbox_sim_state**: True for black box simulation state, False for white box simulation state
 * **fixed_init_state**: True for fixed initial simulation state, False for generalized initial simulation state
 
-A child of the Simulator class is required to define the following five functions: ``simulate``, ``step``, ``reset``, ``get_reward_info``, and ``is_goal``. An optional ``log`` function may also be implemented.
-For use with the Go-Explore algorithm, the ``simulate`` and ``simulate`` functions must also be defined.
+A child of the ``ASTSimulator`` class is required to define the following three functions:
+   - ``simulate``.
+   - ``get_reward_info``.
+   - ``is_goal``.
+The following functions may be optionally overridden as well:
+   - ``closed_loop_step``.
+   - ``reset``.
+   - ``clone_state``.
+   - ``restore_state``.
+   - ``render``.
+Finally, it is not recommended that you touch these functions:
+   - ``step``.
+   - ``observation_return``.
+   - ``is_terminal``.
+For use with the Go-Explore algorithm, the ``clone_state`` and ``restore_state`` functions must be defined.
 
 .. _tutorial-initializing-the-example-simulator:
 
 2.3 Initializing the Example Simulator
 --------------------------------------
+Our example simulator takes 3 values:
+* **num\_peds**: The number of pedestrians in the scenario.
+* **simulator_args**: A dict of named arguments to be passed to the toy simulator.
+* **kwargs**: Any keyword arguement not listed here. In particular, the base class arguments covered in :ref:`tutorial-inheriting-the-base-simulator` should be passed to the base Simulator as one of the **kwargs.
 
-Our example simulator will control a modified version of the Intelligent Driver Model (IDM) as our system under test (SUT), while adding sensor noise and filtering it out with an alpha-beta tracker. Initial simulation conditions are needed here as well. Because of all this, the Simulator accepts a number of inputs:
+The toy simulator will control a modified version of the Intelligent Driver Model (IDM) as our system under test (SUT), while adding sensor noise and filtering it out with an alpha-beta tracker. Initial simulation conditions are needed here as well. Because of all this, the Simulator accepts a number of inputs:
 
 * **num\_peds**: The number of pedestrians in the scenario
 * **dt**: The length of the time step, in seconds
@@ -118,8 +120,6 @@ Our example simulator will control a modified version of the Intelligent Driver 
 * **min\_dist\_y**: Defines the length of the hitbox in the y direction
 * **car\_init\_x**: Specifies the initial x-position of the SUT
 * **car\_init\_y**: Specifies the initial y-position of the SUT
-* **kwargs**: Any keyword arguement not listed here. In particular, the base class arguments covered in :ref:`tutorial-inheriting-the-base-simulator` should be passed to the base Simulator as one of the **kwargs.
-
 
 In addition, there are a number of member variables that need to be initialized. The code is below:
 
@@ -127,60 +127,18 @@ In addition, there are a number of member variables that need to be initialized.
 
     def __init__(self,
                  num_peds=1,
-                 dt=0.1,
-                 alpha=0.85,
-                 beta=0.005,
-                 v_des=11.17,
-                 delta=4.0,
-                 t_headway=1.5,
-                 a_max=3.0,
-                 s_min=4.0,
-                 d_cmf=2.0,
-                 d_max=9.0,
-                 min_dist_x=2.5,
-                 min_dist_y=1.4,
-                 car_init_x=-35.0,
-                 car_init_y=0.0,
-                 # blackbox_sim_state = True,
+                 simulator_args=None,
                  **kwargs):
+
         # Constant hyper-params -- set by user
         self.c_num_peds = num_peds
-        self.c_dt = dt
-        self.c_alpha = alpha
-        self.c_beta = beta
-        self.c_v_des = v_des
-        self.c_delta = delta
-        self.c_t_headway = t_headway
-        self.c_a_max = a_max
-        self.c_s_min = s_min
-        self.c_d_cmf = d_cmf
-        self.c_d_max = d_max
-        self.c_min_dist = np.array([min_dist_x, min_dist_y])
-        self.c_car_init_x = car_init_x
-        self.c_car_init_y = car_init_y
-        # self.blackbox_sim_state = blackbox_sim_state
+        if simulator_args is None:
+            simulator_args = {}
 
-        # These are set by reset, not the user
-        self._car = np.zeros((4))
-        self._car_accel = np.zeros((2))
-        self._peds = np.zeros((self.c_num_peds, 4))
-        self._measurements = np.zeros((self.c_num_peds, 4))
-        self._car_obs = np.zeros((self.c_num_peds, 4))
-        self._env_obs = np.zeros((self.c_num_peds, 4))
-        self._done = False
-        self._reward = 0.0
-        self._info = []
-        self._step = 0
-        self._path_length = 0
-        # self._action = None
         self._action = np.array([0] * (6 * self.c_num_peds))
-        self._first_step = True
-        self.directions = np.random.randint(2, size=self.c_num_peds) * 2 - 1
-        self.y = np.random.rand(self.c_num_peds) * 14 - 5
-        self.x = np.random.rand(self.c_num_peds) * 4 - 2
-        self._state = None
+        self.simulator = ToyAVSimulator(num_peds=num_peds, **simulator_args)
 
-        # initialize the base Simulator
+        # initialize the parent ASTSimulator
         super().__init__(**kwargs)
 
 .. _tutorial-the-simulate-function:
@@ -188,320 +146,171 @@ In addition, there are a number of member variables that need to be initialized.
 2.4 The ``simulate`` function:
 ------------------------------
 
-The simulate function runs a simulation using previously generated actions from the policy to control the stochasticity. The simulate function accepts a list of actions and an initial state. It should run the simulation, then return the timestep in which the goal state was achieved, or a -1 if the horizon was reached first. In addition, this function should return any simulation info needed for post-analysis. To do this, first add the following code to the file to handle the simulation aspect:
+The simulate function runs a simulation using previously generated actions from the policy to control the stochasticity. The simulate function accepts a list of actions and an initial state. It should run the simulation, then return the timestep in which the goal state was achieved, or a -1 if the horizon was reached first. In addition, this function should return any simulation info needed for post-analysis.
 
-.. code-block:: python
-
-    def sensors(self, car, peds, noise):
-
-        measurements = peds + noise
-        return measurements
-
-    def tracker(self, observation_old, measurements):
-        observation = np.zeros_like(observation_old)
-
-        observation[:, 0:2] = observation_old[:, 0:2]
-        observation[:, 2:4] = observation_old[:, 2:4] + self.c_dt * observation_old[:, 0:2]
-        residuals = measurements[:, 2:4] - observation[:, 2:4]
-
-        observation[:, 2:4] += self.c_alpha * residuals
-        observation[:, 0:2] += self.c_beta / self.c_dt * residuals
-
-        return observation
-
-    def update_car(self, obs, v_car):
-
-        cond = np.repeat(np.resize(np.logical_and(obs[:, 3] > -1.5, obs[:, 3] < 4.5), (self.c_num_peds, 1)), 4, axis=1)
-        in_road = np.expand_dims(np.extract(cond, obs), axis=0)
-
-        if in_road.size != 0:
-            mins = np.argmin(in_road.reshape((-1, 4)), axis=0)
-            v_oth = obs[mins[3], 0]
-            s_headway = obs[mins[3], 2] - self._car[2]
-            s_headway = max(10 ** -6, abs(s_headway)) * np.sign(s_headway)  # avoid div by zero error later
-
-            del_v = v_oth - v_car
-            s_des = self.c_s_min + v_car * self.c_t_headway - v_car * del_v / (2 * np.sqrt(self.c_a_max * self.c_d_cmf))
-            if self.c_v_des > 0.0:
-                v_ratio = v_car / self.c_v_des
-            else:
-                v_ratio = 1.0
-
-            a = self.c_a_max * (1.0 - v_ratio ** self.c_delta - (s_des / s_headway) ** 2)
-
-        else:
-            del_v = self.c_v_des - v_car
-            a = del_v
-
-        if np.isnan(a):
-            pdb.set_trace()
-        # pdb.set_trace()
-        return np.clip(a, -self.c_d_max, self.c_a_max)
-
-    def move_car(self, car, accel):
-        car[2:4] += self.c_dt * car[0:2]
-        car[0:2] += self.c_dt * accel
-        return car
-
-    def update_peds(self):
-        # Update ped state from actions
-        action = self._action.reshape((self.c_num_peds, 6))[:, 0:2]
-
-        mod_a = np.hstack((action,
-                           self._peds[:, 0:2] + 0.5 * self.c_dt * action))
-        if np.any(np.isnan(mod_a)):
-            pdb.set_trace()
-
-        self._peds += self.c_dt * mod_a
-        # Enforce max abs(velocity) on pedestrians
-        self._peds[:, 0:2] = np.clip(self._peds[:, 0:2], a_min=[-4.5, -4.5], a_max=[4.5, 4.5])
-        if np.any(np.isnan(self._peds)):
-            pdb.set_trace()
-
-    def observe(self):
-        self._env_obs = self._peds - self._car
-
-The above functions handle the backend simulation of the toy problem and the SUT. Now we implement the ``simulate`` function, checking to be sure that the horizon wasn't reached:
+For the example, out toy simulator conveniently has a single function to call that already follows the same conventions. Note that in most cases, the simulate function may require significantly more API calls to the simulator, as well as changing the inputs and outputs to forms the simulator will accept and back again. Now we implement the ``simulate`` function, checking to be sure that the horizon wasn't reached:
 
 .. code-block:: python
 
     def simulate(self, actions, s_0):
-        """
-        Run/finish the simulation
-        Input
-        -----
-        action : A sequential list of actions taken by the simulation
-        Outputs
-        -------
-        (terminal_index)
-        terminal_index : The index of the action that resulted in a state in the goal set E. If no state is found
-                        terminal_index should be returned as -1.
 
-        """
-        # initialize the simulation
-        path_length = 0
-        self.reset(s_0)
-        self._info = []
+        return self.simulator.run_simulation(actions=actions, s_0=s_0, simulation_horizon=self.c_max_path_length)
 
-        # Take simulation steps unbtil horizon is reached
-        while path_length < self.c_max_path_length:
-            # get the action from the list
-            self._action = actions[path_length]
-            # pdb.set_trace()
-            # move the peds
-            self.update_peds()
+.. _tutorial-the-closed-loop-step-function-optional:
 
-            # move the car
-            self._car = self.move_car(self._car, self._car_accel)
-
-            # take new measurements and noise them
-            noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
-            self._measurements = self.sensors(self._car, self._peds, noise)
-
-            # filter out the noise with an alpha-beta tracker
-            self._car_obs = self.tracker(self._car_obs, self._measurements)
-
-            # select the SUT action for the next timestep
-            self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
-
-            # grab simulation state, if closed-loop
-            self.observe()
-
-            # record step variables
-            self.log()
-
-            # check if a crash has occurred. If so return the timestep, otherwise continue
-            if self.is_goal():
-                return path_length, np.array(self._info)
-            path_length = path_length + 1
-
-        # horizon reached without crash, return -1
-        self._is_terminal = True
-        return -1, np.array(self._info)
-
-.. _tutorial-the-closed-loop-step-function:
-
-2.5 The ``closed_loop_step`` function:
+2.5 The ``closed_loop_step`` function (Optional):
 --------------------------
 
-If a simulation is closed-loop, the ``closed_loop_step`` function should step the simulation forward at each timestep. The functions takes as input the current action. If the action is closed-loop and the simulation state is being used, return the state. Otherwise, return ``None``. If the simulation is open-loop, other per-step actions can still be put here if necessary - this function is called at each timestep either way. Since we are running the simulator open-loop in this tutorial, we could just have this function return None. However, we have implemented the function as an example of how the simulator could be run closed-loop.
+If a simulation is closed-loop, the ``closed_loop_step`` function should step the simulation forward at each timestep. The functions takes as input the current action. We return the output of ``observation_return`` function defined by the ``ASTSimulator``, which ensures we return the correct values depending on the simulator settings. It is highly recommended to use this function. If the simulation is open-loop, other per-step actions can still be put here if it is desirable - this function is called at each timestep either way. Since we are running the simulator open-loop in this tutorial, we could just have this function return None. However, we have implemented the function as an example of how the simulator could be run closed-loop.
+
+Again, our toy simulator already has a closed-loop mode that follows the same convention so we can just call the ``step_simulation`` function.
 
 .. code-block:: python
 
     def closed_loop_step(self, action):
-        """
-        Handle anything that needs to take place at each step, such as a simulation update or write to file
-        Input
-        -----
-        action : action taken on the turn
-        Outputs
-        -------
-        (terminal_index)
-        terminal_index : The index of the action that resulted in a state in the goal set E. If no state is found
-                        terminal_index should be returned as -1.
-        """
-        # return None
-
-        # get the action from the list
-        self._action = action
-
-        # move the peds
-        self.update_peds()
-
-        # move the car
-        self._car = self.move_car(self._car, self._car_accel)
-
-        # take new measurements and noise them
-        noise = self._action.reshape((self.c_num_peds, 6))[:, 2:6]
-        self._measurements = self.sensors(self._car, self._peds, noise)
-
-        # filter out the noise with an alpha-beta tracker
-        self._car_obs = self.tracker(self._car_obs, self._measurements)
-
-        # select the SUT action for the next timestep
-        self._car_accel[0] = self.update_car(self._car_obs, self._car[0])
 
         # grab simulation state, if interactive
-        self.observe()
-        self.observation = self._env_obs
-        # record step variables
-        self.log()
+        self.observation = np.ndarray.flatten(self.simulator.step_simulation(action))
 
-        # else:
-        #     obs = None
-
-        # self._path_length += 1
-        # if self._path_length >= self.c_max_path_length:
-        #     self._is_terminal = True
-
-        # if self.blackbox_sim_state:
-        #     obs = action
-
-        # pdb.set_trace()
-        # print(obs)
         return self.observation_return()
 
-.. _tutorial-the-reset-function:
+.. _tutorial-the-reset-function-optional:
 
-2.6 The ``reset`` function:
+2.6 The ``reset`` function (Optional):
 ---------------------------
 
-The reset function should return the simulation to a state where it can accept the next sequence of actions. In some cases this may mean explicitly resetting the simulation parameters, like SUT location or simulation time. It could also mean opening and initializing a new instance of the simulator (in which case the ``simulate`` function should close the current instance). Your implementation of the ``reset`` function may be something else entirely, this is highly dependent on how your simulator functions. The method takes the initial state as an input, and returns the state of the simulator after the reset actions are taken. If the simulation has a black-box simulation state, just return the initial condition parameters that were passed in.
+The reset function should return the simulation to a state where it can accept the next sequence of actions. In some cases this may mean explicitly resetting the simulation parameters, like SUT location or simulation time. It could also mean opening and initializing a new instance of the simulator (in which case the ``simulate`` function should close the current instance). Your implementation of the ``reset`` function may be something else entirely, it is highly dependent on how your simulator functions. The method takes the initial state as an input, and returns the state of the simulator after the reset actions are taken. If reset is defined, ``observation_return`` should again be used to return the correct observation type. In addition, the super class's reset must still be called.
+
+Our toy simulator already has a reset function, so we just call the super class's reset, call the toy simulator's reset, and then return ``observation_return``.
 
 .. code-block:: python
 
     def reset(self, s_0):
-        """
-        Resets the state of the environment, returning an initial observation.
-        Outputs
-        -------
-        observation : the initial observation of the space. (Initial reward is assumed to be 0.)
-        """
 
-        # initialize variables
-        self._info = []
-        self._step = 0
-        self._path_length = 0
-        self._is_terminal = False
-        self.initial_conditions = s_0
-        self._action = np.array([0] * (6 * self.c_num_peds))
-        self._first_step = True
-
-        # Get v_des if it is sampled from a range
-        v_des = self.initial_conditions[3 * self.c_num_peds]
-
-        # initialize SUT location
-        car_init_x = self.initial_conditions[3 * self.c_num_peds + 1]
-        self._car = np.array([v_des, 0.0, car_init_x, self.c_car_init_y])
-
-        # zero out the first SUT acceleration
-        self._car_accel = np.zeros((2))
-
-        # initialize pedestrian locations and velocities
-        pos = self.initial_conditions[0:2 * self.c_num_peds]
-        self.x = pos[0:self.c_num_peds * 2:2]
-        self.y = pos[1:self.c_num_peds * 2:2]
-        v_start = self.initial_conditions[2 * self.c_num_peds:3 * self.c_num_peds]
-        self._peds[0:self.c_num_peds, 0] = np.zeros((self.c_num_peds))
-        self._peds[0:self.c_num_peds, 1] = v_start
-        self._peds[0:self.c_num_peds, 2] = self.x
-        self._peds[0:self.c_num_peds, 3] = self.y
-
-        # Calculate the relative position measurements
-        self._measurements = self._peds
-        self._env_obs = self._measurements
-        self._car_obs = self._measurements
-
-        # return the initial simulation state
-        self.observation = np.ndarray.flatten(self._measurements)
-
-        # self.observation = obs
-        return self.observation_return()
+        # Call ASTSimulator's reset function (required!)
+        super(ExampleAVSimulator, self).reset(s_0=s_0)
+        # Reset the simulation
+        self.observation = np.ndarray.flatten(self.simulator.reset(s_0))
 
 .. _tutorial-the-get-reward-info-function:
 
 2.7 The ``get_reward_info`` function:
 -------------------------------------
 
-It is likely that your reward function (see :ref:`tutorial-creating-a-reward-function`) will need some information from the simulator. The reward function will be passed whatever information is returned from this function. For the example, the example reward function uses a heuristic reward to help guide the policy toward failures -- when a trajectory ends without a crash, an extra penalty is applied that scales with the distance between the SUT and the nearest pedestrian in the last timestep. To do this, both the car and pedestrian locations are returned. In addition, boolean values indicating whether a crash has been found or if the horizon has been reached are returned.
+It is likely that your reward function (see :ref:`tutorial-creating-a-reward-function`) will need some information from the simulator. The reward function will be passed whatever information is returned from this function.
+
+For the example, the example reward function uses a heuristic reward to help guide the policy toward failures -- when a trajectory ends without a crash, an extra penalty is applied that scales with the distance between the SUT and the nearest pedestrian in the last timestep. To do this, both the car and pedestrian locations are returned. In addition, boolean values indicating whether a crash has been found or if the horizon has been reached are returned. To access these values, we grab the ground truth state from the toy simulator.
 
 .. code-block:: python
 
-    def get_reward_info(self):
-        """
-        returns any info needed by the reward function to calculate the current reward
-        """
+        # Get the ground truth state from the toy simulator
+        sim_state = self.simulator.get_ground_truth()
 
-        return {"peds": self._peds,
-                "car": self._car,
+        return {"peds": sim_state['peds'],
+                "car": sim_state['car'],
                 "is_goal": self.is_goal(),
-                "is_terminal": self._is_terminal}
+                "is_terminal": self.is_terminal()}
 
 .. _tutorial-the-is-goal-function:
 
 2.8 The ``is_goal`` function:
 -----------------------------
 
-This function returns a boolean value indicating if the current state is in the goal set. In the example, this is True if the pedestrian is hit by the car. Therefore this function checks for any pedestrians in the hitbox of the SUT.
+This function returns a boolean value indicating if the current state is in the goal set.
+
+In the example, this is True if the pedestrian is hit by the car. The toy simulator has a ``collision_detected`` function that we can call to check for a collision.
 
 .. code-block:: python
 
     def is_goal(self):
-        """
-        returns whether the current state is in the goal set
-        :return: boolean, true if current state is in goal set.
-        """
-        # calculate the relative distances between the pedestrians and the car
-        dist = self._peds[:, 2:4] - self._car[2:4]
 
-        # return True if any relative distance is within the SUT's hitbox and the car is still moving
-        if (np.any(np.all(np.less_equal(abs(dist), self.c_min_dist), axis=1)) and
-                self._car[0] > 0.5):
-            return True
-
-        return False
+        # Ask the toy simulator if a collision was detected
+        return self.simulator.collision_detected()
 
 .. _tutorial-the-log-function-optional:
 
 2.9 The ``log`` function (Optional):
 ------------------------------------
 
-The log function is a way to store variables from the simulator for later access. In the example, some simulation state information is appended to a list at every timestep.
+The log function is a way to store variables from the simulator for later access.
+
+In the example, some simulation state information is appended to a list at every timestep after getting the ground truth from the toy simulator.
 
 .. code-block:: python
 
-    def log(self):
+        # Get the ground truth state from the toy simulator
+        sim_state = self.simulator.get_ground_truth()
+
         # Create a cache of step specific variables for post-simulation analysis
         cache = np.hstack([0.0,  # Dummy, will be filled in with trial # during post processing in save_trials.py
-                           self._step,
-                           np.ndarray.flatten(self._car),
-                           np.ndarray.flatten(self._peds),
-                           np.ndarray.flatten(self._action),
-                           np.ndarray.flatten(self._car_obs),
+                           sim_state['step'],
+                           np.ndarray.flatten(sim_state['car']),
+                           np.ndarray.flatten(sim_state['peds']),
+                           np.ndarray.flatten(sim_state['action']),
+                           np.ndarray.flatten(sim_state['car_obs']),
                            0.0])
-        self._info.append(cache)
-        self._step += 1
 
+        self._info.append(cache)
+
+.. _tutorial-the-clone-state-and-restore-state-functions-optional:
+
+2.10 The ``clone_state`` and ``restore_state`` functions (Optional):
+--------------------------------------------------------------------
+
+Some parts of the Toolbox (for example, Go-Explore and the Backward Algorithm) rely on deterministic resets of the simulator to find failures efficiently. The ``clone_state`` and ``restore_state`` functions provide this functionality.
+
+The ``clone_state`` function should return a 1-D numpy array with enough information to deterministically reset the simulation to an exact state.
+
+In our example, the toy simulator's ``get_ground_truth`` returns a dictionary of state variables, so we arrange them into a numpy array:
+
+.. code-block:: python
+
+    def clone_state(self):
+
+        # Get the ground truth state from the toy simulator
+        simulator_state = self.simulator.get_ground_truth()
+
+        return np.concatenate((np.array([simulator_state['step']]),
+                               np.array([simulator_state['path_length']]),
+                               np.array([int(simulator_state['is_terminal'])]),
+                               simulator_state['car'],
+                               simulator_state['car_accel'],
+                               simulator_state['peds'].flatten(),
+                               simulator_state['car_obs'].flatten(),
+                               simulator_state['action'].flatten(),
+                               simulator_state['initial_conditions']), axis=0)
+
+The ``restore_state`` function should accept a 1-D array and use it to deterministically reset it to a specific state. How you do the reset is up to you, whether it is through a reset style scenario instantiation, through running the simulator from the start back to the exact same point, or another method altogether.
+
+The toy simulator has a ``set_ground_truth`` function that sets it to a specific state, so we will use that. We take the 1-D array and translate it back into a dictionary of state variables that the toy simulator wants. We also set the state variables of the ``ExampleAVSimulator``:
+
+.. code-block:: python
+
+    def restore_state(self, in_simulator_state):
+
+        # Put the simulators state variables in dict form
+        simulator_state = {}
+
+        simulator_state['step'] = in_simulator_state[0]
+        simulator_state['path_length'] = in_simulator_state[1]
+        simulator_state['is_terminal'] = bool(in_simulator_state[2])
+        simulator_state['car'] = in_simulator_state[3:7]
+        simulator_state['car_accel'] = in_simulator_state[7:9]
+        peds_end_index = 9 + self.c_num_peds * 4
+        simulator_state['peds'] = in_simulator_state[9:peds_end_index].reshape((self.c_num_peds, 4))
+        car_obs_end_index = peds_end_index + self.c_num_peds * 4
+        simulator_state['car_obs'] = in_simulator_state[peds_end_index:car_obs_end_index].reshape((self.c_num_peds, 4))
+        simulator_state['action'] = in_simulator_state[car_obs_end_index:car_obs_end_index + self._action.shape[0]]
+        simulator_state['initial_conditions'] = in_simulator_state[car_obs_end_index + self._action.shape[0]:]
+
+        # Set ground truth of actual simulator
+        self.simulator.set_ground_truth(simulator_state)
+
+        # Set wrapper state variables
+        self._info = []
+        self.initial_conditions = np.array(simulator_state['initial_conditions'])
+        self._is_terminal = simulator_state['is_terminal']
+        self._path_length = simulator_state['path_length']
 
 .. _tutorial-creating-a-reward-function:
 
@@ -532,11 +341,9 @@ Start by creating a file named ``example_av_reward.py`` in the ``rewards`` folde
 
 .. code-block:: python
 
-   # import base class
-   # useful packages for math and debugging
-   import numpy as np
+   import numpy as np # useful packages for math
 
-   from ast_toolbox.rewards import ASTReward
+   from ast_toolbox.rewards import ASTReward # import base class
 
 
    # Define the class, inherit from the base
@@ -831,6 +638,8 @@ Create a file called ``example_runner.py`` in your working directory. Add the fo
 .. code-block:: python
 
    # Import the example classes
+   import os
+
    import fire
    # Useful imports
    import tensorflow as tf
@@ -843,7 +652,8 @@ Create a file called ``example_runner.py`` in your working directory. Add the fo
    from garage.tf.experiment import LocalTFRunner
    from garage.tf.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
    from garage.tf.optimizers.conjugate_gradient_optimizer import FiniteDifferenceHvp
-   from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+   # from garage.tf.policies.gaussian_lstm_policy import GaussianLSTMPolicy
+   from garage.tf.policies import GaussianLSTMPolicy
 
    # Import the AST classes
    from ast_toolbox.envs import ASTEnv
@@ -851,6 +661,7 @@ Create a file called ``example_runner.py`` in your working directory. Add the fo
    from ast_toolbox.samplers import ASTVectorizedSampler
    from ast_toolbox.simulators import ExampleAVSimulator
    from ast_toolbox.spaces import ExampleAVSpaces
+   from ast_toolbox.utils.go_explore_utils import load_convert_and_save_expert_trajectory
 
 .. _tutorial-specifying-the-experiment:
 
@@ -871,6 +682,8 @@ All of the classes imported earlier will now be used to specify the experiment. 
        baseline_args=None,
        algo_args=None,
        runner_args=None,
+       sampler_args=None,
+       save_expert_trajectory=False,
    ):
 
        if env_args is None:
@@ -899,6 +712,9 @@ All of the classes imported earlier will now be used to specify the experiment. 
 
        if runner_args is None:
            runner_args = {'n_epochs': 1}
+
+       if sampler_args is None:
+           sampler_args = {}
 
        if 'n_parallel' in run_experiment_args:
            n_parallel = run_experiment_args['n_parallel']
@@ -957,18 +773,18 @@ All of the classes imported earlier will now be used to specify the experiment. 
                                   **algo_args)
 
                        sampler_cls = ASTVectorizedSampler
+                       sampler_args['sim'] = sim
+                       sampler_args['reward_function'] = reward_function
 
                        local_runner.setup(
                            algo=algo,
                            env=env,
                            sampler_cls=sampler_cls,
-                           sampler_args={"open_loop": False,
-                                         "sim": sim,
-                                         "reward_function": reward_function,
-                                         'n_envs': n_parallel})
+                           sampler_args=sampler_args)
 
                        # Run the experiment
                        local_runner.train(**runner_args)
+                       print('done!')
 
        run_experiment(
            run_task,
@@ -986,10 +802,7 @@ Now create a file named ``example_batch_runner.py``. While ``example_runner.py``
 
    import pickle
 
-   from examples.AV.example_runner_ba_av import runner as ba_runner
    from examples.AV.example_runner_drl_av import runner as drl_runner
-   from examples.AV.example_runner_ge_av import runner as go_explore_runner
-   from examples.AV.example_runner_mcts_av import runner as mcts_runner
 
    if __name__ == '__main__':
        # Overall settings
@@ -1037,7 +850,6 @@ Now create a file named ``example_batch_runner.py``. While ``example_runner.py``
 
        drl_policy_args = {'name': 'lstm_policy',
                           'hidden_dim': 64,
-                          'use_peepholes': True,
                           }
 
        drl_baseline_args = {}
@@ -1072,7 +884,7 @@ Now create a file named ``example_batch_runner.py``. While ``example_runner.py``
 6 Running the Example
 =====================
 
-This section explains how to run the program, and what the results should look like. Double check that all of the files created earlier in the tutorial are correct (a correct version of each is already included in the repository). Also check that the conda environment is activated, and that rllab has been added to your ``PYTHONPATH``, as explained in the installation guide.
+This section explains how to run the program, and what the results should look like. Double check that all of the files created earlier in the tutorial are correct (a correct version of each is already included in the repository). Also check that the conda environment is activated, and that garage has been added to your ``PYTHONPATH``, as explained in the installation guide.
 
 6.1 Running from the Command Line
 ---------------------------------
