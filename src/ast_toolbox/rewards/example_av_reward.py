@@ -1,8 +1,7 @@
-# import base class
-# useful packages for math and debugging
-import numpy as np
+"""An example implementation of an ASTReward for an AV validation scenario."""
+import numpy as np  # useful packages for math
 
-from ast_toolbox.rewards import ASTReward
+from ast_toolbox.rewards import ASTReward  # import base class
 
 
 # Define the class, inherit from the base

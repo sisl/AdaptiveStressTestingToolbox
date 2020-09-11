@@ -1,13 +1,11 @@
 """Example simulator wrapper for a scenario of an AV approaching a crosswalk where some pedestrians are crossing."""
 import numpy as np  # Used for math
 
-from ast_toolbox.simulators import ASTSimulator  # import base Simulator class
-from ast_toolbox.simulators.example_av_simulator import ToyAVSimulator
-
-# Define the class
+from ast_toolbox.simulators import ASTSimulator  # import parent Simulator class
+from ast_toolbox.simulators.example_av_simulator import ToyAVSimulator  # import the simulator to wrap
 
 
-class ExampleAVSimulator(ASTSimulator):
+class ExampleAVSimulator(ASTSimulator):  # Define the class
     """Example simulator wrapper for a scenario of an AV approaching a crosswalk where some pedestrians are crossing.
 
     Wraps :py:class:`ast_toolbox.simulators.example_av_simulator.ToyAVSimulator`
@@ -111,16 +109,18 @@ class ExampleAVSimulator(ASTSimulator):
             An observation from the timestep, determined by the settings and the `observation_return` helper function.
         """
 
-        # return the initial simulation state
+        # Call ASTSimulator's reset function (required!)
         super(ExampleAVSimulator, self).reset(s_0=s_0)
+        # Reset the simulation
         self.observation = np.ndarray.flatten(self.simulator.reset(s_0))
-        # self.observation = obs
+
         return self.observation_return()
 
     def get_reward_info(self):
         """
         Returns any info needed by the reward function to calculate the current reward.
         """
+        # Get the ground truth state from the toy simulator
         sim_state = self.simulator.get_ground_truth()
 
         return {"peds": sim_state['peds'],
@@ -136,14 +136,17 @@ class ExampleAVSimulator(ASTSimulator):
         bool
             True if current state is in goal set.
         """
+        # Ask the toy simulator if a collision was detected
         return self.simulator.collision_detected()
 
     def log(self):
         """
         Perform any logging steps.
         """
-        # Create a cache of step specific variables for post-simulation analysis
+        # Get the ground truth state from the toy simulator
         sim_state = self.simulator.get_ground_truth()
+
+        # Create a cache of step specific variables for post-simulation analysis
         cache = np.hstack([0.0,  # Dummy, will be filled in with trial # during post processing in save_trials.py
                            sim_state['step'],
                            np.ndarray.flatten(sim_state['car']),
@@ -151,6 +154,7 @@ class ExampleAVSimulator(ASTSimulator):
                            np.ndarray.flatten(sim_state['action']),
                            np.ndarray.flatten(sim_state['car_obs']),
                            0.0])
+
         self._info.append(cache)
 
     def clone_state(self):
@@ -165,7 +169,9 @@ class ExampleAVSimulator(ASTSimulator):
             An array of all the simulation state variables.
 
         """
+        # Get the ground truth state from the toy simulator
         simulator_state = self.simulator.get_ground_truth()
+
         return np.concatenate((np.array([simulator_state['step']]),
                                np.array([simulator_state['path_length']]),
                                np.array([int(simulator_state['is_terminal'])]),
@@ -188,7 +194,7 @@ class ExampleAVSimulator(ASTSimulator):
             An array of all the simulation state variables.
 
         """
-        # Set ground truth of actual simulator
+        # Put the simulators state variables in dict form
         simulator_state = {}
 
         simulator_state['step'] = in_simulator_state[0]
@@ -203,6 +209,7 @@ class ExampleAVSimulator(ASTSimulator):
         simulator_state['action'] = in_simulator_state[car_obs_end_index:car_obs_end_index + self._action.shape[0]]
         simulator_state['initial_conditions'] = in_simulator_state[car_obs_end_index + self._action.shape[0]:]
 
+        # Set ground truth of actual simulator
         self.simulator.set_ground_truth(simulator_state)
 
         # Set wrapper state variables

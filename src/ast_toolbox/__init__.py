@@ -2,6 +2,8 @@
 # from gym.envs.registration import register
 import gym
 
+__version__ = '2020.09.01.dev1'
+
 
 def register(id, entry_point, force=True, **kwargs):
     env_specs = gym.envs.registry.env_specs
