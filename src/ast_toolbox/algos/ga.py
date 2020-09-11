@@ -6,6 +6,7 @@ from garage.misc import tensor_utils as np_tensor_utils
 from garage.tf.algos.batch_polopt import BatchPolopt
 from garage.tf.misc import tensor_utils
 
+
 class GA(BatchPolopt):
     """
     Deep Genetic Algorithm from Such, Felipe Petroski, et al.  [1]_.
@@ -18,11 +19,11 @@ class GA(BatchPolopt):
         Standard deviation for each mutation
     step_size_anneal : float, optional
         The linear annealing rate of step_size after each iteration
-    pop_size : int, optional 
+    pop_size : int, optional
         The population size
     truncation_size : int, optional
         The number of top-performed individuals that are chosen as parents
-    keep_best : int, optional 
+    keep_best : int, optional
         The number of top-performed individuals that remain unchanged for next generation
     f_F : string, optional
         The method used to calculate fitness: 'mean' for the average return, 'max' for the max return
@@ -33,7 +34,8 @@ class GA(BatchPolopt):
 
     References
     ----------
-    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for training deep neural networks for reinforcement learning."
+    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for
+    training deep neural networks for reinforcement learning."
      arXiv preprint arXiv:1712.06567 (2017).
     """
 
@@ -126,7 +128,7 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         """
         tabular.record('Itr', itr)
@@ -148,7 +150,7 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         """
         return None
@@ -158,9 +160,9 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
-        p : int 
+        p : int
             The individual index
         """
         for i in range(itr + 1):
@@ -185,14 +187,14 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         all_paths : list[dict]
             The collected paths from the sampler
 
         Returns
         ----------
-        fitness : list[float] 
+        fitness : list[float]
             The list of fitness of each individual
         """
         fitness = np.zeros(self.pop_size)
@@ -211,7 +213,7 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        fitness : list[float] 
+        fitness : list[float]
             The list of fitness of each individual
         """
         sort_indx = np.flip(np.argsort(fitness), axis=0)
@@ -220,12 +222,12 @@ class GA(BatchPolopt):
             sort_indx[np.random.randint(low=0, high=self.truncation_size, size=self.pop_size - self.truncation_size)]
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
-        """Generate new random seeds and magnitudes for the next generation. 
-            The first self.keep_best seeds are set to no-mutation value (0). 
+        """Generate new random seeds and magnitudes for the next generation.
+            The first self.keep_best seeds are set to no-mutation value (0).
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         new_seeds : :py:class:`numpy.ndarry`
             The original seeds
@@ -254,7 +256,7 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         all_paths : list[dict]
             The collected paths from the sampler
@@ -276,10 +278,10 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         runner : :py:class:`garage.experiment.LocalRunner <garage:garage.experiment.LocalRunner>`
-            ``LocalRunner`` is passed to give algorithm the access to ``runner.obtain_samples()``, 
+            ``LocalRunner`` is passed to give algorithm the access to ``runner.obtain_samples()``,
             which collects rollout paths from the sampler.
 
         Returns
@@ -304,7 +306,7 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         paths : list[dict]
             The collected paths from the sampler
@@ -437,7 +439,7 @@ class GA(BatchPolopt):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         samples_data : dict
             The processed data samples

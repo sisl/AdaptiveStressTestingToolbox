@@ -20,7 +20,8 @@ class GASM(GA):
 
     References
     ----------
-    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for training deep neural networks for reinforcement learning."
+    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for
+    training deep neural networks for reinforcement learning."
      arXiv preprint arXiv:1712.06567 (2017).
     .. [2] Lehman, Joel, et al. "Safe mutations for deep and recurrent neural networks through output gradients."
      Proceedings of the Genetic and Evolutionary Computation Conference. 2018.
@@ -118,7 +119,7 @@ class GASM(GA):
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         """
         tabular.record('Max Divergence', np.max(self.divergences))
@@ -160,12 +161,12 @@ class GASM(GA):
         return all_input_values
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
-        """Generate new random seeds and magnitudes for the next generation. 
-            The first self.keep_best seeds are set to no-mutation value (0). 
+        """Generate new random seeds and magnitudes for the next generation.
+            The first self.keep_best seeds are set to no-mutation value (0).
 
         Parameters
         ----------
-        itr : int 
+        itr : int
             The iteration number
         new_seeds : :py:class:`numpy.ndarry`
             The original seeds
