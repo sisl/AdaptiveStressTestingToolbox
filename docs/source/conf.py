@@ -28,7 +28,7 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 # sphinx.ext.autodoc config
-autodoc_mock_imports = ["bsddb3"]
+autodoc_mock_imports = ['bsddb3']
 autodoc_member_order = 'groupwise'
 
 source_suffix = '.rst'

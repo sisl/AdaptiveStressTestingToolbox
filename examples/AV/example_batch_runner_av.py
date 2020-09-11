@@ -142,7 +142,7 @@ if __name__ == '__main__':
     run_experiment_args['exp_name'] = 'ge'
     # run_experiment_args['tabular_log_file'] = 'progress.csv'
 
-    ge_algo_args['db_filename'] = run_experiment_args['log_dir'] + '/cellpool.dat'
+    ge_algo_args['db_filename'] = run_experiment_args['log_dir'] + '/cellpool'
     ge_algo_args['save_paths_path'] = run_experiment_args['log_dir']
     ge_algo_args['max_path_length'] = max_path_length
 

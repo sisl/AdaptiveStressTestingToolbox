@@ -1,4 +1,6 @@
+"""Original parallel sampler pool backend."""
 import pickle
+import signal
 
 import numpy as np
 from dowel import logger
@@ -9,6 +11,15 @@ from garage.sampler.utils import rollout
 
 
 def _worker_init(g, id):
+    """Initialize a worker.
+
+    Parameters
+    ----------
+    g : :py:class:`garage.sampler.stateful_pool.SharedGlobal`
+        SharedGlobal class from :py:mod:`garage.sampler.stateful_pool`.
+    id : int
+        Worker id.
+    """
     if singleton_pool.n_parallel > 1:
         import os
         os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -16,9 +27,35 @@ def _worker_init(g, id):
 
 
 def initialize(n_parallel):
-    singleton_pool.initialize(n_parallel)
-    singleton_pool.run_each(
-        _worker_init, [(id, ) for id in range(singleton_pool.n_parallel)])
+    """Initialize the worker pool.
+
+    SIGINT is blocked for all processes created in parallel_sampler to avoid
+    the creation of sleeping and zombie processes.
+
+    If the user interrupts run_experiment, there's a chance some processes
+    won't die due to a dead lock condition where one of the children in the
+    parallel sampler exits without releasing a lock once after it catches
+    SIGINT.
+
+    Later the parent tries to acquire the same lock to proceed with his
+    cleanup, but it remains sleeping waiting for the lock to be released.
+    In the meantime, all the process in parallel sampler remain in the zombie
+    state since the parent cannot proceed with their clean up.
+
+    Parameters
+    ----------
+    n_parallel : int
+        Number of workers to run in parallel.
+    """
+
+    try:
+        signal.pthread_sigmask(signal.SIG_BLOCK, [signal.SIGINT])
+        singleton_pool.initialize(n_parallel)
+        singleton_pool.run_each(_worker_init,
+                                [(id, )
+                                 for id in range(singleton_pool.n_parallel)])
+    finally:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGINT])
 
 
 def _get_scoped_g(g, scope):
@@ -49,11 +86,26 @@ def _worker_terminate_task(g, scope=None):
 
 
 def populate_task(env, policy, scope=None):
+    """Set each worker's env and policy.
+
+    Parameters
+    ----------
+    env : :py:class:`ast_toolbox.envs.ASTEnv`
+        The environment.
+    policy : :py:class:`garage.tf.policies.Policy`
+        The policy.
+    scope : str
+        Scope for identifying the algorithm.
+        Must be specified if running multiple algorithms
+        simultaneously, each using different environments
+        and policies.
+    """
     logger.log('Populating workers...')
     if singleton_pool.n_parallel > 1:
-        singleton_pool.run_each(_worker_populate_task, [
-            (pickle.dumps(env), pickle.dumps(policy), scope)
-        ] * singleton_pool.n_parallel)
+        singleton_pool.run_each(
+            _worker_populate_task,
+            [(pickle.dumps(env), pickle.dumps(policy), scope)] *
+            singleton_pool.n_parallel)
     else:
         # avoid unnecessary copying
         g = _get_scoped_g(singleton_pool.G, scope)
@@ -63,11 +115,23 @@ def populate_task(env, policy, scope=None):
 
 
 def terminate_task(scope=None):
+    """Close each worker's env and terminate each policy.
+
+    Parameters
+    ----------
+    scope : str
+        Scope for identifying the algorithm.
+        Must be specified if running multiple algorithms
+        simultaneously, each using different environments
+        and policies.
+
+    """
     singleton_pool.run_each(_worker_terminate_task,
                             [(scope, )] * singleton_pool.n_parallel)
 
 
 def close():
+    """Close the worker pool."""
     singleton_pool.close()
 
 
@@ -77,6 +141,13 @@ def _worker_set_seed(_, seed):
 
 
 def set_seed(seed):
+    """Set the seed in each worker.
+
+    Parameters
+    ----------
+    seed : int
+        The random seed to be used by the worker.
+    """
     singleton_pool.run_each(_worker_set_seed,
                             [(seed + i, )
                              for i in range(singleton_pool.n_parallel)])
@@ -84,7 +155,6 @@ def set_seed(seed):
 
 def _worker_set_policy_params(g, params, scope=None):
     g = _get_scoped_g(g, scope)
-    # import pdb; pdb.set_trace()
     g.policy.set_param_values(params)
 
 
@@ -104,27 +174,35 @@ def sample_paths(policy_params,
                  max_path_length=np.inf,
                  env_params=None,
                  scope=None):
+    """Sample paths from each worker.
+
+    Parameters
+    ----------
+    policy_params :
+        parameters for the policy. This will be updated on each worker process
+    max_samples : int
+        desired maximum number of samples to be collected. The
+        actual number of collected samples might be greater since all trajectories
+        will be rolled out either until termination or until max_path_length is
+        reached
+    max_path_length : int, optional
+        horizon / maximum length of a single trajectory
+    scope : str
+        Scope for identifying the algorithm.
+        Must be specified if running multiple algorithms
+        simultaneously, each using different environments
+        and policies.
     """
-    :param policy_params: parameters for the policy. This will be updated on
-     each worker process
-    :param max_samples: desired maximum number of samples to be collected. The
-     actual number of collected samples might be greater since all trajectories
-     will be rolled out either until termination or until max_path_length is
-     reached
-    :param max_path_length: horizon / maximum length of a single trajectory
-    :return: a list of collected paths
-    """
-    # import pdb; pdb.set_trace()
-    singleton_pool.run_each(
-        _worker_set_policy_params,
-        [(policy_params, scope)] * singleton_pool.n_parallel)
+    singleton_pool.run_each(_worker_set_policy_params,
+                            [(policy_params, scope)] *
+                            singleton_pool.n_parallel)
+
     if env_params is not None:
-        # print("should be setting env params: ", env_params)
-        singleton_pool.run_each(
-            _worker_set_env_params,
-            [(env_params, scope)] * singleton_pool.n_parallel)
-    return singleton_pool.run_collect(
-        _worker_collect_one_path,
-        threshold=max_samples,
-        args=(max_path_length, scope),
-        show_prog_bar=True)
+        singleton_pool.run_each(_worker_set_env_params,
+                                [(env_params, scope)] *
+                                singleton_pool.n_parallel)
+
+    return singleton_pool.run_collect(_worker_collect_one_path,
+                                      threshold=max_samples,
+                                      args=(max_path_length, scope),
+                                      show_prog_bar=True)

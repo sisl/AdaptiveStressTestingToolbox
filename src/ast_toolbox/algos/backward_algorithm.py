@@ -1,3 +1,4 @@
+"""`Backward Algorithm <https://arxiv.org/abs/1812.03381>`_ from Salimans and Chen."""
 import itertools
 
 import numpy as np
@@ -6,27 +7,27 @@ from garage.tf.algos.ppo import PPO
 
 
 class BackwardAlgorithm(PPO):
-    """Backward Algorithm from Salimans and Chen [1]_.
+    r"""Backward Algorithm from Salimans and Chen [1]_.
 
     Parameters
     ----------
-    env : :py:class:`ast_toolbox.envs.GoExploreASTEnv`
-        The environment
+    env : :py:class:`ast_toolbox.envs.go_explore_ast_env.GoExploreASTEnv`
+        The environment.
     policy : :py:class:`garage.tf.policies.Policy`
-        The policy
+        The policy.
     expert_trajectory : array_like[dict]
         The expert trajectory, an array_like where each member represents a timestep in a trajectory.
         The array_like should be 1-D and in chronological order.
         Each member of the array_like is a dictionary with the following keys:
-            - state : The simulator state at that timestep (pre-action).
-            - reward : The reward at that timestep (post-action).
-            - observation : The simulation observation at that timestep (post-action).
-            - action : The action taken at that timestep.
+            - state: The simulator state at that timestep (pre-action).
+            - reward: The reward at that timestep (post-action).
+            - observation: The simulation observation at that timestep (post-action).
+            - action: The action taken at that timestep.
     epochs_per_step : int, optional
         Maximum number of epochs to run per step of the trajectory.
     max_epochs : int, optional
         Maximum number of total epochs to run. If not set, defaults to ``epochs_per_step`` times the number of steps
-        in the ``expert_trajectory``
+        in the ``expert_trajectory``.
     skip_until_step : int, optional
         Skip training for a certain number of steps at the start, counted backwards from the end of the trajectory.
         For example, if this is set to 3 for an ``expert_trajectory`` of length 10, training will start from step 7.
@@ -38,7 +39,7 @@ class BackwardAlgorithm(PPO):
     References
     ----------
     .. [1] Salimans, Tim, and Richard Chen. "Learning Montezuma's Revenge from a Single Demonstration."
-     arXiv preprint arXiv:1812.03381 (2018). https://arxiv.org/abs/1812.03381
+     arXiv preprint arXiv:1812.03381 (2018). `<https://arxiv.org/abs/1812.03381>`_
     """
 
     def __init__(self,
@@ -83,7 +84,7 @@ class BackwardAlgorithm(PPO):
                                                 **kwargs)
 
     def train(self, runner):
-        """Obtain samplers and start actual training for each epoch.
+        r"""Obtain samplers and start actual training for each epoch.
 
         Parameters
         ----------
@@ -94,7 +95,7 @@ class BackwardAlgorithm(PPO):
         Returns
         -------
         full_paths : array_like
-            A list of the path data from each epoch
+            A list of the path data from each epoch.
         """
         max_reward = -np.inf
         max_reward_step = -1
@@ -144,7 +145,7 @@ class BackwardAlgorithm(PPO):
         return full_paths
 
     def train_once(self, itr, paths):
-        """Perform one step of policy optimization given one batch of samples.
+        r"""Perform one step of policy optimization given one batch of samples.
 
         Parameters
         ----------
@@ -166,7 +167,7 @@ class BackwardAlgorithm(PPO):
         return paths
 
     def get_next_epoch(self, runner):
-        """ Wrapper of garage's :py:meth:`runner.step_epochs()
+        r"""Wrapper of garage's :py:meth:`runner.step_epochs()
         <garage:garage.experiment.local_runner.LocalRunner.step_epochs>`
         generator to handle initialization to correct trajectory state
 
@@ -179,7 +180,7 @@ class BackwardAlgorithm(PPO):
         Yields
         -------
         runner.step_itr : int
-            The current epoch number
+            The current epoch number.
         runner.obtain_samples(runner.step_itr): list[dict]
             A list of sampled rollouts for the current epoch
         """
@@ -222,7 +223,7 @@ class BackwardAlgorithm(PPO):
             pass
 
     def set_env_to_expert_trajectory_step(self):
-        """ Updates the algorithm to use the data from ``expert_trajectory`` up to the current step.
+        r"""Updates the algorithm to use the data from ``expert_trajectory`` up to the current step.
 
         """
         self.env_state = self.expert_trajectory[self.step_num]['state']

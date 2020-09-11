@@ -7,6 +7,23 @@ from ast_toolbox.rewards import ASTReward
 
 # Define the class, inherit from the base
 class ExampleAVReward(ASTReward):
+    """An example implementation of an ASTReward for an AV validation scenario.
+
+    Parameters
+    ----------
+    num_peds : int
+        The number of pedestrians in the scenario.
+    cov_x : float
+        Covariance of the x-acceleration.
+    cov_y : float
+        Covariance of the y-acceleration.
+    cov_sensor_noise : float
+        Covariance of the sensor noise.
+    use_heuristic : bool
+        Whether to include a heuristic in the reward based on how close the pedestrian is to the vehicle
+        at the end of the trajectory.
+    """
+
     def __init__(self,
                  num_peds=1,
                  cov_x=0.1,
@@ -22,6 +39,19 @@ class ExampleAVReward(ASTReward):
         super().__init__()
 
     def give_reward(self, action, **kwargs):
+        """Returns the reward for a given time step.
+
+        Parameters
+        ----------
+        action : array_like
+            Action taken by the AST solver.
+        kwargs :
+            Accepts relevant info for computing the reward.
+        Returns
+        -------
+        reward : float
+            Reward based on the previous action.
+        """
         # get the info from the simulator
         info = kwargs['info']
         peds = info["peds"]
@@ -50,6 +80,24 @@ class ExampleAVReward(ASTReward):
         return reward
 
     def mahalanobis_d(self, action):
+        """Calculate the Mahalanobis distance [1]_ between the action and the mean action.
+
+        Parameters
+        ----------
+        action : array_like
+            Action taken by the AST solver.
+
+        Returns
+        -------
+        float
+            The Mahalanobis distance between the action and the mean action.
+
+        References
+        ----------
+        .. [1] Mahalanobis, Prasanta Chandra. "On the generalized distance in statistics." National Institute of
+            Science of India, 1936.
+            `<http://library.isical.ac.in:8080/jspui/bitstream/123456789/6765/1/Vol02_1936_1_Art05-pcm.pdf>`_
+        """
         # Mean action is 0
         mean = np.zeros((6 * self.c_num_peds, 1))
         # Assemble the diagonal covariance matrix

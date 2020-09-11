@@ -1,5 +1,5 @@
-"""Samplers for solving AST formualted RL problems"""
+"""Samplers for solving AST formualted RL problems."""
 from .ast_vectorized_sampler import ASTVectorizedSampler  # noqa
 from .batch_sampler import BatchSampler  # noqa
 
-# from .vectorized_ga_sampler import VectorizedGASampler
+__all__ = ['ASTVectorizedSampler', 'BatchSampler']

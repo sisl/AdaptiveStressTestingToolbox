@@ -75,7 +75,7 @@ You can find our `documentation <https://ast-toolbox.readthedocs.io/en/latest/>`
 Development
 ===========
 
-Please see our `Contributions Guide <https://ast-toolbox.readthedocs.io/en/doc_strings1/contributing.html>`_.
+Please see our `Contributions Guide <https://ast-toolbox.readthedocs.io/en/latest/contributing.html>`_.
 
 .. list-table::
     :widths: 10 90

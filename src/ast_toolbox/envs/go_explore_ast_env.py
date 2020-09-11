@@ -1,8 +1,8 @@
+"""Gym environment to turn general AST tasks into garage compatible problems with Go-Explore style resets."""
 import pdb
 import pickle
 import random
 import shelve
-from contextlib import contextmanager
 
 import gym
 import numpy as np
@@ -15,18 +15,17 @@ from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
 
-load_params = True
-
-
-@contextmanager
-def suppress_params_loading():
-    global load_params
-    load_params = False
-    yield
-    load_params = True
-
 
 class Parameterized:
+    r"""A slimmed down version of the (deprecated) Parameterized class from garage for passing parameters to
+    environments.
+
+    Garage uses pickle to handle parallelization, which limits the types of objects that can be used as class
+    attributes withing the environment. This class is a workaround, so that the parallel environments can have
+    access to things like a database.
+
+    """
+
     def __init__(self):
         self._cached_params = {}
         self._cached_param_dtypes = {}
@@ -35,81 +34,99 @@ class Parameterized:
         self._cached_assign_placeholders = {}
 
     def get_params_internal(self, **tags):
-        """
-        Internal method to be implemented which does not perform caching
+        r"""Internal method to be implemented which does not perform caching
+
+        Parameters
+        ----------
+        tags : str
+            Names of the paramters to return.
         """
         raise NotImplementedError
 
     def get_params(self, **tags):
-        """
-        Get the list of parameters, filtered by the provided tags.
+        r"""Get the list of parameters, filtered by the provided tags.
         Some common tags include 'regularizable' and 'trainable'
+
+        Parameters
+        ----------
+        tags : str
+            Names of the paramters to return.
         """
         tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
         if tag_tuple not in self._cached_params:
             self._cached_params[tag_tuple] = self.get_params_internal(**tags)
         return self._cached_params[tag_tuple]
 
-    # def __getstate__(self):
-    #     d = Serializable.__getstate__(self)
-    #     global load_params
-    #     if load_params:
-    #         d['params'] = self.get_param_values()
-    #     return d
-    #
-    # def __setstate__(self, d):
-    #     Serializable.__setstate__(self, d)
-    #     global load_params
-    #     if load_params:
-    #         tf.get_default_session().run(
-    #             tf.variables_initializer(self.get_params()))
-    #         self.set_param_values(d['params'])
-
-
-class JointParameterized(Parameterized):
-    def __init__(self, components):
-        super(JointParameterized, self).__init__()
-        self.components = components
-
-    def get_params_internal(self, **tags):
-        params = [
-            param for comp in self.components
-            for param in comp.get_params_internal(**tags)
-        ]
-        # only return unique parameters
-        return sorted(set(params), key=hash)
-
 
 class GoExploreParameter():
-    def __init__(self, name, value, **tags):
+    """A wrapper for variables that will be set as parameters in the `GoExploreASTEnv`
+    Parameters
+    ----------
+    name : str
+        Name of the parameter.
+    value : value
+        Value of the parameter.
+    """
+
+    def __init__(self, name, value):
         self.name = name
         self.value = value
-        # pdb.set_trace()
 
     def get_value(self, **kwargs):
+        r"""Return the value of the parameter.
+
+        Parameters
+        ----------
+        kwargs :
+            Extra keyword arguments (Not currently used).
+
+        Returns
+        -------
+        object
+            The value of the parameter.
+        """
         return self.value
 
     def set_value(self, value):
+        r"""Set the value of the parameter
+
+        Parameters
+        ----------
+        value : object
+            What to set the parameters `value` to.
+        """
         self.value = value
 
 
-#
-# class GoExploreASTGymEnv(gym.Env):
-#
-#     def __init__(self, test):
-#
-#         print(test)
-#
-#     def step(self, action):
-#         pass
-#
-#     def reset(self):
-#         pass
-#
-#     def render(self, mode='human'):
-#         pass
-
 class GoExploreASTEnv(gym.Env, Parameterized):
+    r"""Gym environment to turn general AST tasks into garage compatible problems with Go-Explore style resets.
+
+    Certain algorithms, such as Go-Explore and the Backwards Algorithm, require deterministic resets of the
+    simulator. `GoExploreASTEnv` handles this by cloning simulator states and saving them in a cell structure. The
+    cells are then stored in a hashed database.
+
+    Parameters
+    ----------
+    open_loop : bool
+        True if the simulation is open-loop, meaning that AST must generate all actions ahead of time, instead
+        of being able to output an action in sync with the simulator, getting an observation back before
+        the next action is generated. False to get interactive control, which requires that `blackbox_sim_state`
+        is also False.
+    blackbox_sim_state : bool
+        True if the true simulation state can not be observed, in which case actions and the initial conditions are
+        used as the observation. False if the simulation state can be observed, in which case it will be used
+    fixed_init_state : bool
+        True if the initial state is fixed, False to sample the initial state for each rollout from the observaation
+        space.
+    s_0 : array_like
+        The initial state for the simulation (ignored if `fixed_init_state` is False)
+    simulator : :py:class:`ast_toolbox.simulators.ASTSimulator`
+        The simulator wrapper, inheriting from `ast_toolbox.simulators.ASTSimulator`.
+    reward_function : :py:class:`ast_toolbox.rewards.ASTReward`
+        The reward function, inheriting from `ast_toolbox.rewards.ASTReward`.
+    spaces : :py:class:`ast_toolbox.spaces.ASTSpaces`
+        The observation and action space definitions, inheriting from `ast_toolbox.spaces.ASTSpaces`.
+    """
 
     def __init__(self,
                  open_loop=True,
@@ -174,9 +191,36 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         Parameterized.__init__(self)
 
     def sample(self, population):
-        # Proportional sampling: Stochastic Acceptance
-        # https://arxiv.org/pdf/1109.3627.pdf
-        # https://jbn.github.io/fast_proportional_selection/
+        r"""Sample a cell from the cell pool with likelihood proportional to cell fitness.
+
+        The sampling is done using Stochastic Acceptance [1]_, with inspiration from John B Nelson's blog [2]_.
+
+        The sampler rejects cells until the acceptance criterea is met. If the maximum number of rejections is
+        exceeded, the sampler then will sample uniformly sample a cell until it finds a cell with fitness > 0. If
+        the second sampling phase also exceeds the rejection limit, then the function raises an exception.
+
+        Parameters
+        ----------
+        population : list
+            A list containing the population of cells to sample from.
+
+        Returns
+        -------
+        object
+            The sampled cell.
+
+        Raises
+        ------
+        ValueError
+            If the maximum number of rejections is exceeded in both the proportional and the uniform sampling phases.
+
+        References
+        ----------
+        .. [1] Lipowski, Adam, and Dorota Lipowska. "Roulette-wheel selection via stochastic acceptance."
+        Physica A: Statistical Mechanics and its Applications 391.6 (2012): 2193-2196.
+        `<https://arxiv.org/pdf/1109.3627.pdf>`_
+        .. [2] `<https://jbn.github.io/fast_proportional_selection/>`_
+        """
         attempts = 0
         while attempts < self.sample_limit:
             attempts += 1
@@ -195,59 +239,73 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         # return population[random.choice(self.p_key_list.value)]
 
     def get_first_cell(self):
-        # obs = self.env.env.reset()
-        # state = self.env.env.clone_state()
+        r"""Returns a the observation and state of the initial state, to be used for a root cell.
+
+        Returns
+        -------
+        obs : array_like
+            Agent's observation of the current environment.
+        state : array_like
+            The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
+        """
+
         obs = self.env_reset()
         if self.blackbox_sim_state:
-            # obs = self.downsample(self.simulator.get_first_action())
             obs = self.simulator.get_first_action()
-            # else:
-        #     obs = self.env_reset()
-        # obs = self.simulator.reset(self._init_state)
+
         state = np.concatenate((self.simulator.clone_state(),
                                 np.array([self._cum_reward]),
                                 np.array([-1])),
                                axis=0)
-        # pdb.set_trace()
+
         return obs, state
 
     def step(self, action):
-        """
+        r"""
         Run one timestep of the environment's dynamics. When end of episode
         is reached, reset() should be called to reset the environment's internal state.
-        Input
-        -----
-        action : an action provided by the environment
-        Outputs
+
+        Parameters
+        ----------
+        action : array_like
+            An action provided by the environment.
+
+        Returns
         -------
-        (observation, reward, done, info)
-        observation : agent's observation of the current environment
-        reward [Float] : amount of reward due to the previous action
-        done : a boolean, indicating whether the episode has ended
-        info : a dictionary containing other diagnostic information from the previous action
+        : :py:func:`garage.envs.base.Step`
+            A step in the rollout.
+            Contains the following information:
+                - observation (array_like): Agent's observation of the current environment.
+                - reward (float): Amount of reward due to the previous action.
+                - done (bool): Is the current step a terminal or goal state, ending the rollout.
+                - cache (dict): A dictionary containing other diagnostic information from the current step.
+                - actions (array_like): The action taken at the current.
+                - state (array_like): The cloned simulation state at the current cell, used for resetting if chosen to start a rollout.
+                - is_terminal (bool): Whether or not the current cell is a terminal state.
+                - is_goal (bool): Whether or not the current cell is a goal state.
         """
         self._env_state_before_action = self._env_state.copy()
 
         self._action = action
         self._actions.append(action)
         action_return = self._action
+
         # Update simulation step
         obs = self.simulator.step(self._action)
         if (obs is None) or (self.open_loop is True) or (self.blackbox_sim_state):
-            # print('Open Loop:', obs)
+
             obs = np.array(self._init_state)
-            # if not self.robustify:
-            # action_return = self.downsample(action_return)
-        # if self.simulator.is_goal():
+
         # Add step number to differentiate identical actions
-        # obs = np.concatenate((np.array([self._step]), self.downsample(obs)), axis=0)
         if self.simulator.is_terminal() or self.simulator.is_goal():
             self._done = True
+
         # Calculate the reward for this step
         self._reward = self.reward_function.give_reward(
             action=self._action,
             info=self.simulator.get_reward_info())
         self._cum_reward += self._reward
+
         # Update instance attributes
         self._step = self._step + 1
         self._simulator_state = self.simulator.clone_state()
@@ -256,39 +314,50 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                                           np.array([self._step])),
                                          axis=0)
 
-        # if self.robustify:
-        #     # No obs?
-        #     # pdb.set_trace()
-        #     obs = self._init_state
-        # else:
-        #     # print(self.robustify_state)
-        #     obs = self.downsample(obs)
-
-        # pdb.set_trace()
-
         return Step(observation=obs,
                     reward=self._reward,
                     done=self._done,
                     cache=self._info,
                     actions=action_return,
-                    # step = self._step -1,
-                    # real_actions=self._action,
                     state=self._env_state_before_action,
                     root_action=self.root_action,
                     is_terminal=self.simulator.is_terminal(),
                     is_goal=self.simulator.is_goal())
 
     def simulate(self, actions):
+        r"""Run a full simulation rollout.
+
+        Parameters
+        ----------
+        actions : list[array_like]
+            A list of array_likes, where each member is the action taken at that step.
+
+        Returns
+        -------
+        int
+            The step of the trajectory where a collision was found, or -1 if a collision was not found.
+        dict
+            A dictionary of simulation information for logging and diagnostics.
+        """
         if not self._fixed_init_state:
             self._init_state = self.observation_space.sample()
         return self.simulator.simulate(actions, self._init_state)
 
     def reset(self, **kwargs):
-        """
-        This method is necessary to suppress a deprecated warning
-        thrown by gym.Wrapper.
+        r"""Resets the state of the environment, returning an initial observation.
 
-        Calls reset on wrapped env.
+        The reset has 2 modes.
+
+        In the "robustify" mode (self.p_robustify_state.value is not None), the simulator resets
+        the environment to `p_robustify_state.value`. It then returns the initial condition.
+
+        In the "Go-Explore" mode, the environment attempts to sample a cell from the cell pool. If successful,
+        the simulator is reset to the cell's state. On an error, the environment is reset to the intial state.
+
+        Returns
+        -------
+        observation : array_like
+            The initial observation of the space. (Initial reward is assumed to be 0.)
         """
 
         try:
@@ -299,7 +368,7 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 # print('-----------Robustify Init-----------------')
                 # print('-----------Robustify Init: ', state, ' -----------------')
                 self.simulator.restore_state(state[:-2])
-                obs = self.simulator._get_obs()
+                obs = self.simulator.observation_return()
                 self._done = False
                 self._cum_reward = state[-2]
                 self._step = state[-1]
@@ -313,46 +382,21 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                                                   np.array([self._step])),
                                                  axis=0)
                 return self._init_state
-            # pdb.set_trace()
-            # start = time.time()
+
             flag = db.DB_RDONLY
             pool_DB = db.DB()
-            # tick1 = time.time()
             pool_DB.open(self.p_db_filename.value, dbname=None, dbtype=db.DB_HASH, flags=flag)
-            # tick2 = time.time()
             dd_pool = shelve.Shelf(pool_DB, protocol=pickle.HIGHEST_PROTOCOL)
-            # tick3 = time.time()
-            # keys = dd_pool.keys()
-            # tick4_1 = time.time()
-            # list_of_keys = list(keys)
-            # tick4_2 = time.time()
-            # choice = random.choice(self.p_key_list.value)
-            # import pdb; pdb.set_trace()
-            # tick4_3 = time.time()
-            # cell = dd_pool[choice]
             cell = self.sample(dd_pool)
-            # tick5 = time.time()
             dd_pool.close()
-            # tick6 = time.time()
             pool_DB.close()
-            # tick7 = time.time()
-            # print("Make DB: ", 100*(tick1 - start)/(tick7 - start), " %")
-            # print("Open DB: ", 100*(tick2 - tick1) / (tick7 - start), " %")
-            # print("Open Shelf: ", 100*(tick4_2 - tick2) / (tick7 - start), " %")
-            # # print("Get all keys: ", 100*(tick4_1 - tick3) / (tick7 - start), " %")
-            # # print("Make list of all keys: ", 100 * (tick4_2 - tick4_1) / (tick7 - start), " %")
-            # print("Choose random cell: ", 100 * (tick4_3 - tick4_2) / (tick7 - start), " %")
-            # print("Get random cell: ", 100*(tick5 - tick4_3) / (tick7 - start), " %")
-            # print("Close shelf: ", 100*(tick6 - tick5) / (tick7 - start), " %")
-            # print("Close DB: ", 100*(tick7 - tick6) / (tick7 - start), " %")
-            # print("DB Access took: ", time.time() - start, " s")
+
             if cell.state is not None:
                 # pdb.set_trace()
                 if np.all(cell.state == 0):
                     print("-------DEFORMED CELL STATE-------")
                     obs = self.env_reset()
                 else:
-                    # print("restore state: ", cell.state)
                     self.simulator.restore_state(cell.state[:-2])
                     if self.simulator.is_terminal() or self.simulator.is_goal():
                         print('-------SAMPLED TERMINAL STATE-------')
@@ -360,16 +404,14 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                         obs = self.env_reset()
 
                     else:
-                        # print("restored")
                         if cell.score == 0.0 and cell.parent is not None:
                             print("Reset to cell with score 0.0 ---- terminal: ", self.simulator.is_terminal(),
                                   " goal: ", self.simulator.is_goal(), " obs: ", cell.observation)
-                        obs = self.simulator._get_obs()
+                        obs = self.simulator.observation_return()
                         self._done = False
                         self._cum_reward = cell.state[-2]
                         self._step = cell.state[-1]
                         self.root_action = cell.observation
-                    # print("restore obs: ", obs)
             else:
                 print("Reset from start")
                 obs = self.env_reset()
@@ -409,11 +451,12 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         return obs
 
     def env_reset(self):
-        """
-        Resets the state of the environment, returning an initial observation.
-        Outputs
+        r"""Resets the state of the environment, returning an initial observation.
+
+        Returns
         -------
-        observation : the initial observation of the space. (Initial reward is assumed to be 0.)
+        observation : array_like
+            The initial observation of the space. (Initial reward is assumed to be 0.)
         """
         self._actions = []
         if not self._fixed_init_state:
@@ -427,23 +470,22 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         self._first_step = True
         self._step = 0
         obs = np.array(self.simulator.reset(self._init_state))
-        # if self.blackbox_sim_state:
-        #     obs = np.array([0] * self.action_space.shape[0])
-        # else:
-        #     print('Not action only')
+
         if not self.blackbox_sim_state:
             obs = np.concatenate((obs, np.array(self._init_state)), axis=0)
 
-        # self.root_action = self.downsample(self._action)
         self.root_action = self._action
 
-        # obs = np.concatenate((np.array([self._step]), self.downsample(obs)), axis=0)
         return obs
 
     @property
     def action_space(self):
-        """
-        Returns a Space object
+        r"""Convenient access to the environment's action space.
+
+        Returns
+        -------
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+            The action space of the reinforcement learning problem.
         """
         if self.spaces is None:
             # return self._to_garage_space(self.simulator.action_space)
@@ -453,8 +495,12 @@ class GoExploreASTEnv(gym.Env, Parameterized):
 
     @property
     def observation_space(self):
-        """
-        Returns a Space object
+        r"""Convenient access to the environment's observation space.
+
+        Returns
+        -------
+        : `gym.spaces.Space <https://gym.openai.com/docs/#spaces>`_
+            The observation space of the reinforcement learning problem.
         """
         if self.spaces is None:
             # return self._to_garage_space(self.simulator.observation_space)
@@ -463,44 +509,72 @@ class GoExploreASTEnv(gym.Env, Parameterized):
             return self.spaces.observation_space
 
     def get_cache_list(self):
+        """Returns the environment info cache.
+
+        Returns
+        -------
+        dict
+            A dictionary containing diagnostic and logging information for the environment.
+        """
         return self._info
 
     def log(self):
+        r"""Calls the simulator's `log` function.
+
+        """
         self.simulator.log()
 
     def render(self, **kwargs):
+        r"""Calls the simulator's `render` function, if it exists.
+
+        Returns
+        -------
+        None or object
+            Returns the output of the simulator's `render` function, or None if the simulator has no `render` function.
+        """
         if hasattr(self.simulator, "render") and callable(getattr(self.simulator, "render")):
             return self.simulator.render(**kwargs)
         else:
             return None
 
     def close(self):
+        r"""Calls the simulator's `close` function, if it exists.
+
+        Returns
+        -------
+        None or object
+            Returns the output of the simulator's `close` function, or None if the simulator has no `close` function.
+        """
         if hasattr(self.simulator, "close") and callable(getattr(self.simulator, "close")):
             self.simulator.close()
         else:
             return None
 
-    def vec_env_executor(self, n_envs, max_path_length):
-        return self.simulator.vec_env_executor(n_envs, max_path_length, self.reward_function,
-                                               self._fixed_init_state, self._init_state,
-                                               self.open_loop)
-
-    def log_diagnostics(self, paths):
-        pass
-
     @cached_property
     def spec(self):
-        """
-        Returns an EnvSpec.
+        r"""Returns a garage environment specification.
 
-        Returns:
-            spec (garage.envs.EnvSpec)
+        Returns
+        -------
+        :py:class:`garage.envs.env_spec.EnvSpec`
+            A garage environment specification.
         """
         return EnvSpec(
             observation_space=self.observation_space,
             action_space=self.action_space)
 
     def get_params_internal(self, **tags):
+        r"""Returns the parameters associated with the given tags.
+
+        Parameters
+        ----------
+        tags : dict[bool]
+            For each tag, a parameter is returned if the parameter name matches the tag's key
+        Returns
+        -------
+        list
+            List of parameters
+        """
         # this lasagne function also returns all var below the passed layers
         if not self.params_set:
             self.p_db_filename = GoExploreParameter("db_filename", self.db_filename)
@@ -524,6 +598,15 @@ class GoExploreASTEnv(gym.Env, Parameterized):
         return [self.p_db_filename, self.p_key_list, self.p_max_value, self.p_robustify_state]  # , self.p_downsampler]
 
     def set_param_values(self, param_values, **tags):
+        r"""Set the values of parameters
+
+        Parameters
+        ----------
+        param_values : object
+            Value to set the parameter to.
+        tags : dict[bool]
+            For each tag, a parameter is returned if the parameter name matches the tag's key
+        """
         debug = tags.pop("debug", False)
 
         for param, value in zip(
@@ -534,19 +617,59 @@ class GoExploreASTEnv(gym.Env, Parameterized):
                 print("setting value of %s" % param.name)
 
     def get_param_values(self, **tags):
+        """Return the values of internal parameters.
+
+        Parameters
+        ----------
+        tags : dict[bool]
+            For each tag, a parameter is returned if the parameter name matches the tag's key
+
+        Returns
+        -------
+        list
+            A list of parameter values.
+        """
         return [
             param.get_value(borrow=True) for param in self.get_params(**tags)
         ]
 
     def downsample(self, obs):
-        return obs
+        """Create a downsampled approximation of the observed simulation state.
 
-    def _get_obs(self):
-        return self.simulator._get_obs()
+        Parameters
+        ----------
+        obs : array_like
+            The observed simulation state.
+
+        Returns
+        -------
+        array_like
+            The downsampled approximation of the observed simulation state.
+        """
+        return obs
 
 
 class Custom_GoExploreASTEnv(GoExploreASTEnv):
+    r"""Custom class to change how downsampling works.
+
+        Example class of how to overload downsample to make the environment work for different environments.
+    """
+
     def downsample(self, obs, step=None):
+        """Create a downsampled approximation of the observed simulation state.
+
+        Parameters
+        ----------
+        obs : array_like
+            The observed simulation state.
+        step : int, optional
+            The current iteration number
+
+        Returns
+        -------
+        array_like
+            The downsampled approximation of the observed simulation state.
+        """
         obs = obs * 1000
         if step is None:
             step = self._step
