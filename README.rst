@@ -1,13 +1,15 @@
 ===============================
 Adaptive Stress Testing Toolbox
 ===============================
+v2020.09.01.dev1
+
 |build-status| |docs| |coverage| |license|
 
 ========
 Overview
 ========
 
-A toolbox for worst-case validation of autonomous policies
+A toolbox for worst-case validation of autonomous policies.
 
 Adaptive Stress Testing is a worst-case validation method for autonomous policies. This toolbox is being actively developed by the Stanford Intelligent Systems Lab.
 

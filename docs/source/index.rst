@@ -9,11 +9,10 @@ Contents
    tutorial
    installation
    usage
-   reference/index
    contributing
    authors
    changelog
-   api
+   _apidoc/modules
 
 Indices and tables
 ==================

@@ -73,11 +73,6 @@ class ASTSimulator(object):
         checks to see if the rollout horizon has been reached, and then calls `closed_loop_step` if the simulation
         is set to `open_loop == False`.
 
-        Outputs
-        -------
-        observation : The true state simulation
-        s_0 : the intitial condition of the run
-
         Parameters
         ----------
         action : array_like

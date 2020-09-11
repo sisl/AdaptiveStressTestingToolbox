@@ -159,7 +159,7 @@ For the example, out toy simulator conveniently has a single function to call th
 .. _tutorial-the-closed-loop-step-function-optional:
 
 2.5 The ``closed_loop_step`` function (Optional):
---------------------------
+-------------------------------------------------
 
 If a simulation is closed-loop, the ``closed_loop_step`` function should step the simulation forward at each timestep. The functions takes as input the current action. We return the output of ``observation_return`` function defined by the ``ASTSimulator``, which ensures we return the correct values depending on the simulator settings. It is highly recommended to use this function. If the simulation is open-loop, other per-step actions can still be put here if it is desirable - this function is called at each timestep either way. Since we are running the simulator open-loop in this tutorial, we could just have this function return None. However, we have implemented the function as an example of how the simulator could be run closed-loop.
 
@@ -177,7 +177,7 @@ Again, our toy simulator already has a closed-loop mode that follows the same co
 .. _tutorial-the-reset-function-optional:
 
 2.6 The ``reset`` function (Optional):
----------------------------
+--------------------------------------
 
 The reset function should return the simulation to a state where it can accept the next sequence of actions. In some cases this may mean explicitly resetting the simulation parameters, like SUT location or simulation time. It could also mean opening and initializing a new instance of the simulator (in which case the ``simulate`` function should close the current instance). Your implementation of the ``reset`` function may be something else entirely, it is highly dependent on how your simulator functions. The method takes the initial state as an input, and returns the state of the simulator after the reset actions are taken. If reset is defined, ``observation_return`` should again be used to return the correct observation type. In addition, the super class's reset must still be called.
 
@@ -399,7 +399,7 @@ The respective reward for each case is as follows:
 2. R = -1E5 - 1E4 * {The distance between the car and the closest pedestrian}
 3. R = -log(1 + {likelihood of the actions take})
 
-For case 2, we use the distance between the car and the closest pedestrian as a heuristic to increase convergence speed. In the early trials, this teaches pedestrians to end closer to the car, which makes it easier to find crash trajectories (see :ref:`section 3.1`). For case 3, using the negative log-likelihood allows us to sum the rewards to find a value that is proportional to the probability of the trajectory. As a stand in for the probability of an action, we use the Mahalanobis distance, a multi-dimensional generalization of distance from the mean. Add the following helper function to your file:
+For case 2, we use the distance between the car and the closest pedestrian as a heuristic to increase convergence speed. In the early trials, this teaches pedestrians to end closer to the car, which makes it easier to find crash trajectories (see :ref:`tutorial-reward-shaping`). For case 3, using the negative log-likelihood allows us to sum the rewards to find a value that is proportional to the probability of the trajectory. As a stand in for the probability of an action, we use the Mahalanobis distance, a multi-dimensional generalization of distance from the mean. Add the following helper function to your file:
 
 .. code-block:: python
 
@@ -423,7 +423,7 @@ For case 2, we use the distance between the car and the closest pedestrian as a 
 
         return np.sqrt(dist)
 
-Now we are ready to calculate the reward. The ``give_reward`` function takes in an action, as well as the info bundle that was returned from the ``get_reward_info`` function in the ``ExampleAVSimulator`` (see :ref:`section 2.7`). The code is as follows:
+Now we are ready to calculate the reward. The ``give_reward`` function takes in an action, as well as the info bundle that was returned from the ``get_reward_info`` function in the ``ExampleAVSimulator`` (see :ref:`tutorial-the-get-reward-info-function`). The code is as follows:
 
 .. code-block:: python
 
@@ -896,7 +896,7 @@ Since everything has been configured already in the runner file, running the exa
 	mkdir data
 	python example_batch_runner.py
 
-Here we are creating a new directory for the output, and then running the batch runner we created above (see :ref:`_tutorial-running-the-experiment`). The program should run for 101 iterations, unless you have changed it. This may take some time!
+Here we are creating a new directory for the output, and then running the batch runner we created above (see :ref:`tutorial-running-the-experiment`). The program should run for 101 iterations, unless you have changed it. This may take some time!
 
 6.2 Example Output
 ------------------
