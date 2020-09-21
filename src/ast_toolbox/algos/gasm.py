@@ -14,9 +14,9 @@ class GASM(GA):
     Parameters
     ----------
     step_size : float, optional
-        The constraint on the KL divergence of each mutation
+        The constraint on the KL divergence of each mutation.
     kwargs :
-        Keyword arguments passed to `ast_toolbox.algos.ga.GA`
+        Keyword arguments passed to `ast_toolbox.algos.ga.GA`.
 
     References
     ----------
@@ -37,7 +37,7 @@ class GASM(GA):
         super(GASM, self).__init__(**kwargs, step_size=step_size)
 
     def init_opt(self):
-        """Initiate trainer internal tensorflow operations
+        """Initiate trainer internal tensorflow operations.
         """
         is_recurrent = int(self.policy.recurrent)
         # obs_var = self.env_spec.observation_space.new_tensor_variable(
@@ -115,12 +115,12 @@ class GASM(GA):
         return dict()
 
     def extra_recording(self, itr):
-        """Record extra training statistics per-iteration
+        """Record extra training statistics per-iteration.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         """
         tabular.record('Max Divergence', np.max(self.divergences))
         tabular.record('Min Divergence', np.min(self.divergences))
@@ -167,20 +167,20 @@ class GASM(GA):
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         new_seeds : :py:class:`numpy.ndarry`
-            The original seeds
+            The original seeds.
         new_magnitudes : :py:class:`numpy.ndarry`
-            The original magnitudes
+            The original magnitudes.
         all_paths : list[dict]
-            The collected paths from the sampler
+            The collected paths from the sampler.
 
         Returns
         -------
         new_seeds : :py:class:`numpy.ndarry`
-            The new seeds
+            The new seeds.
         new_magnitudes : :py:class:`numpy.ndarry`
-            The new magnitudes
+            The new magnitudes.
         """
         self.seeds = np.copy(new_seeds)
         self.magnitudes = np.copy(new_magnitudes)
@@ -211,7 +211,7 @@ class GASM(GA):
         Returns
         -------
         data : dict
-            The intertal state dict
+            The intertal state dict.
         """
         data = self.__dict__.copy()
         del data['f_divergence']

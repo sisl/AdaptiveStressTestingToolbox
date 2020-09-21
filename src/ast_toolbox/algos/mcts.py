@@ -9,7 +9,43 @@ from ast_toolbox.mcts import tree_plot
 
 class MCTS:
     """
-    MCTS
+    Monte Carlo Tress Search (MCTS) with double progressive widening (DPW) [1]_
+     using the env's action space as its action space.
+
+    Parameters
+    ----------
+    env : :py:class:`ast_toolbox.envs.go_explore_ast_env.GoExploreASTEnv`.
+        The environment.
+    max_path_length: int
+        The maximum search depth.
+    ec : float 
+        The exploration constant used in UCT equation.
+    n_itr: int 
+            The iteration number, the total numeber of environment call is approximately n_itr*max_path_length*max_path_length.
+    k : float
+        The constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha.
+    alpha : float
+        The constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha.
+    clear_nodes : bool
+        Whether to clear redundant nodes in tree.
+        Set it to True for saving memoray. Set it to False to better tree plotting
+    log_interval : int 
+        The log interval in terms of environment calls.
+    top_paths : :py:class:`ast_toolbox.mcts.BoundedPriorityQueues`, optional
+        The bounded priority queue to store top-rewarded trajectories.
+    gamma : float, optional
+        The discount factor.
+    plot_tree : bool, optional
+        Whether to plot the resulting searching tree.
+    plot_path : str, optional
+        The storing path for the tree plot.
+    plot_format : str, optional
+        The storing format for the tree plot
+
+    References
+    ----------
+    .. [1] Lee, Ritchie, et al. "Adaptive stress testing of airborne collision avoidance systems."
+     2015 IEEE/AIAA 34th Digital Avionics Systems Conference (DASC). IEEE, 2015.
     """
 
     def __init__(
@@ -31,21 +67,6 @@ class MCTS:
         plot_path=None,
         plot_format='png'
     ):
-        """
-        :param env: the task environment
-        :param max_path_length: maximum search depth
-        :param ec: exploration constant used in UCT equation
-        :param n_itr: iteration number, the total numeber of environment call is approximately
-                                        n_itr*max_path_length*max_path_length
-        :param k, alpha: the constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha
-        :param clear_nodes: whether to clear redundant nodes in tree.
-                                        Set it to True for saving memoray. Set it to False to better tree plotting
-        :param log_interval: the log interval in terms of environment calls
-        :param top_paths: a bounded priority queue to store top-rewarded trajectories
-        :param gamma: discount factor
-        :param plot_tree, plot_path, plot_format: tree plotting parameters
-        :return: No return value.
-        """
         self.env = env
         self.stress_test_mode = stress_test_mode
         self.max_path_length = max_path_length
@@ -67,10 +88,20 @@ class MCTS:
         self.n_itr = n_itr
 
     def init(self):
+        """Initiate AST internal parameters
+        """
         ast_params = AST.ASTParams(self.max_path_length, self.log_interval, self.log_tabular, self.log_dir, self.n_itr)
         self.ast = AST.AdaptiveStressTest(p=ast_params, env=self.env, top_paths=self.top_paths)
 
     def train(self, runner):
+        """Start training.
+
+        Parameters
+        ----------
+        runner : :py:class:`garage.experiment.LocalRunner <garage:garage.experiment.LocalRunner>`
+            ``LocalRunner`` is passed to give algorithm the access to ``runner.step_epochs()``, which provides services
+            such as snapshotting and sampler control.
+        """
         self.init()
         if self.plot_tree:
             if self.stress_test_mode == 2:

@@ -9,28 +9,28 @@ from garage.tf.misc import tensor_utils
 
 class GA(BatchPolopt):
     """
-    Deep Genetic Algorithm from Such, Felipe Petroski, et al.  [1]_.
+    Deep Genetic Algorithm from Such et al.  [1]_.
 
     Parameters
     ----------
     top_paths : :py:class:`ast_toolbox.mcts.BoundedPriorityQueues`, optional
-        The bounded priority queue to store top-rewarded trajectories
+        The bounded priority queue to store top-rewarded trajectories.
     step_size : float, optional
-        Standard deviation for each mutation
+        Standard deviation for each mutation.
     step_size_anneal : float, optional
-        The linear annealing rate of step_size after each iteration
+        The linear annealing rate of step_size after each iteration.
     pop_size : int, optional
         The population size
     truncation_size : int, optional
-        The number of top-performed individuals that are chosen as parents
+        The number of top-performed individuals that are chosen as parents.
     keep_best : int, optional
-        The number of top-performed individuals that remain unchanged for next generation
+        The number of top-performed individuals that remain unchanged for next generation.
     f_F : string, optional
-        The method used to calculate fitness: 'mean' for the average return, 'max' for the max return
+        The method used to calculate fitness: 'mean' for the average return, 'max' for the max return.
     log_interval : int, optional
-        The log interval in terms of environment calls
+        The log interval in terms of environment calls.
     kwargs :
-        Keyword arguments passed to :doc:`garage.tf.algos.BatchPolopt <garage:_apidoc/garage.tf.algos>`
+        Keyword arguments passed to :doc:`garage.tf.algos.BatchPolopt <garage:_apidoc/garage.tf.algos>`.
 
     References
     ----------
@@ -75,7 +75,7 @@ class GA(BatchPolopt):
         super(GA, self).__init__(**kwargs)
 
     def initial(self):
-        """Initiate trainer internal parameters
+        """Initiate trainer internal parameters.
         """
         self.seeds[0, :] = np.random.randint(low=0, high=int(2**16),
                                              size=(1, self.pop_size))
@@ -84,12 +84,12 @@ class GA(BatchPolopt):
         self.stepNum = 0
 
     def init_opt(self):
-        """Initiate trainer internal tensorflow operations
+        """Initiate trainer internal tensorflow operations.
         """
         return dict()
 
     def train(self, runner):
-        """Start training
+        """Start training.
 
         Parameters
         ----------
@@ -124,12 +124,12 @@ class GA(BatchPolopt):
         return None
 
     def record_tabular(self, itr):
-        """Record training performace per-iteration
+        """Record training performace per-iteration.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         """
         tabular.record('Itr', itr)
         tabular.record('StepNum', self.stepNum)
@@ -146,24 +146,24 @@ class GA(BatchPolopt):
         self.extra_recording(itr)
 
     def extra_recording(self, itr):
-        """Record extra training statistics per-iteration
+        """Record extra training statistics per-iteration.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         """
         return None
 
     def set_params(self, itr, p):
-        """Set the current policy paramter to the specified iteration and individual
+        """Set the current policy paramter to the specified iteration and individual.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         p : int
-            The individual index
+            The individual index.
         """
         for i in range(itr + 1):
             # print("seed: ", self.seeds[i,p])
@@ -183,19 +183,19 @@ class GA(BatchPolopt):
         self.policy.set_param_values(param_values, trainable=True)
 
     def get_fitness(self, itr, all_paths):
-        """Calculate the fitness of the collexted paths
+        """Calculate the fitness of the collexted paths.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         all_paths : list[dict]
-            The collected paths from the sampler
+            The collected paths from the sampler.
 
         Returns
         ----------
         fitness : list[float]
-            The list of fitness of each individual
+            The list of fitness of each individual.
         """
         fitness = np.zeros(self.pop_size)
         for p in range(self.pop_size):
@@ -209,12 +209,12 @@ class GA(BatchPolopt):
         return fitness
 
     def select_parents(self, fitness):
-        """Select the individuals to be the parents of the next generation
+        """Select the individuals to be the parents of the next generation.
 
         Parameters
         ----------
         fitness : list[float]
-            The list of fitness of each individual
+            The list of fitness of each individual.
         """
         sort_indx = np.flip(np.argsort(fitness), axis=0)
         self.parents[0:self.truncation_size] = sort_indx[0:self.truncation_size]
@@ -228,20 +228,20 @@ class GA(BatchPolopt):
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         new_seeds : :py:class:`numpy.ndarry`
-            The original seeds
+            The original seeds.
         new_magnitudes : :py:class:`numpy.ndarry`
-            The original magnitudes
+            The original magnitudes.
         all_paths : list[dict]
-            The collected paths from the sampler
+            The collected paths from the sampler.
 
         Returns
         -------
         new_seeds : :py:class:`numpy.ndarry`
-            The new seeds
+            The new seeds.
         new_magnitudes : :py:class:`numpy.ndarry`
-            The new magnitudes
+            The new magnitudes.
         """
         if itr + 1 < self.n_itr:
             new_seeds[itr + 1, :] = np.random.randint(low=0, high=int(2**32),
@@ -252,14 +252,14 @@ class GA(BatchPolopt):
         return new_seeds, new_magnitudes
 
     def optimize_policy(self, itr, all_paths):
-        """Update the population represented by self.seeds and self.parents
+        """Update the population represented by self.seeds and self.parents.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         all_paths : list[dict]
-            The collected paths from the sampler
+            The collected paths from the sampler.
         """
         fitness = self.get_fitness(itr, all_paths)
         self.select_parents(fitness)
@@ -274,12 +274,12 @@ class GA(BatchPolopt):
         return dict()
 
     def obtain_samples(self, itr, runner):
-        """Collect rollout samples using the current policy paramter
+        """Collect rollout samples using the current policy paramter.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         runner : :py:class:`garage.experiment.LocalRunner <garage:garage.experiment.LocalRunner>`
             ``LocalRunner`` is passed to give algorithm the access to ``runner.obtain_samples()``,
             which collects rollout paths from the sampler.
@@ -287,7 +287,7 @@ class GA(BatchPolopt):
         Returns
         -------
         paths : list[dict]
-            The collected paths from the sampler
+            The collected paths from the sampler.
         """
         self.stepNum += self.batch_size
         # paths = self.sampler.obtain_samples(itr)
@@ -307,9 +307,9 @@ class GA(BatchPolopt):
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         paths : list[dict]
-            The collected paths from the sampler
+            The collected paths from the sampler.
 
         Returns
         -------
@@ -435,14 +435,14 @@ class GA(BatchPolopt):
         return samples_data
 
     def get_itr_snapshot(self, itr, samples_data):
-        """Get the snapshot of the current population
+        """Get the snapshot of the current population.
 
         Parameters
         ----------
         itr : int
-            The iteration number
+            The iteration number.
         samples_data : dict
-            The processed data samples
+            The processed data samples.
 
         Returns
         -------
