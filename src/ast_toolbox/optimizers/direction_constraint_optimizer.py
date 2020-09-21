@@ -7,8 +7,23 @@ from garage.tf.optimizers.utils import sliced_fun
 
 
 class DirectionConstraintOptimizer:
-    """
-    Performs constrained optimization via line search.
+    """Performs constrained optimization via line search on the given gradient direction.
+
+    Parameters
+    ----------
+    cg_iters : int, optional
+        The number of CG iterations used to calculate A^-1 g.
+    reg_coeff : float, optional
+        A small value so that A -> A + reg*I.
+    subsample_factor : int, optional
+        Subsampling factor to reduce samples when using "conjugate gradient. Since the
+        computation time for the descent direction dominates, this can greatly reduce the overall computation time.
+    debug_nan : bool, optional
+        If set to True, NanGuard will be added to the compilation, and ipdb will be invoked when
+        nan is detected.
+    accept_violation : bool, optional
+        Whether to accept the descent step if it violates the line search condition after
+        exhausting all backtracking budgets.
     """
 
     def __init__(
@@ -22,18 +37,6 @@ class DirectionConstraintOptimizer:
             accept_violation=False,
             hvp_approach=None,
             num_slices=1):
-        """
-
-        :param cg_iters: The number of CG iterations used to calculate A^-1 g
-        :param reg_coeff: A small value so that A -> A + reg*I
-        :param subsample_factor: Subsampling factor to reduce samples when using "conjugate gradient. Since the
-        computation time for the descent direction dominates, this can greatly reduce the overall computation time.
-        :param debug_nan: if set to True, NanGuard will be added to the compilation, and ipdb will be invoked when
-        nan is detected
-        :param accept_violation: whether to accept the descent step if it violates the line search condition after
-        exhausting all backtracking budgets
-        :return:
-        """
         self._cg_iters = cg_iters
         self._reg_coeff = reg_coeff
         self._subsample_factor = subsample_factor
@@ -53,14 +56,20 @@ class DirectionConstraintOptimizer:
 
     def update_opt(self, target, leq_constraint, inputs, extra_inputs=None, constraint_name="constraint", *args,
                    **kwargs):
-        """
-        :param target: A parameterized object to optimize over. It should implement methods of the
-        :class:`garage.core.paramerized.Parameterized` class.
-        :param leq_constraint: A constraint provided as a tuple (f, epsilon), of the form f(*inputs) <= epsilon.
-        :param inputs: A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
-        that the first dimension of these inputs should correspond to the number of data points
-        :param extra_inputs: A list of symbolic variables as extra inputs which should not be subsampled
-        :return: No return value.
+        """Update the internal tensowflow operations.
+
+        Parameters
+        ----------
+        target : 
+            A parameterized object to optimize over. It should implement methods of the
+            :py:class:`garage.core.paramerized.Parameterized` class.
+        leq_constraint : :py:class:'tensorflow.Tensor'
+            The variable to be constrained.
+        inputs : 
+            A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
+            that the first dimension of these inputs should correspond to the number of data points.
+        extra_inputs : 
+            A list of symbolic variables as extra inputs which should not be subsampled.
         """
 
         inputs = tuple(inputs)
@@ -91,12 +100,48 @@ class DirectionConstraintOptimizer:
         )
 
     def constraint_val(self, inputs, extra_inputs=None):
+        """Calculate the constraint value.
+
+        Parameters
+        ----------
+        inputs : 
+            A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
+            that the first dimension of these inputs should correspond to the number of data points.
+        extra_inputs : optional
+            A list of symbolic variables as extra inputs which should not be subsampled.
+
+        Returns
+        -------
+        constraint_value : float
+            The value of the constrained variable.
+        """
         inputs = tuple(inputs)
         if extra_inputs is None:
             extra_inputs = tuple()
         return sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
 
     def get_magnitude(self, direction, inputs, max_constraint_val=None, extra_inputs=None, subsample_grouped_inputs=None):
+        """Calculate the update magnitude.
+
+        Parameters
+        ----------
+        direction: :py:class:'tensorflow.Tensor'
+            The gradient direction.
+        inputs : 
+            A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
+            that the first dimension of these inputs should correspond to the number of data points.
+        max_constraint_val : float, optional
+            The maximum value for the constrained variale.
+        extra_inputs : optional
+            A list of symbolic variables as extra inputs which should not be subsampled.
+        subsample_grouped_inputs : optional
+            The list of inputs that are needed to be subsampled.
+
+        Returns
+        -------
+        magnitude : float
+            The update magnitude.
+        """
         if max_constraint_val is not None:
             self._max_constraint_val = max_constraint_val
         prev_param = np.copy(self._target.get_param_values(trainable=True))
@@ -152,11 +197,12 @@ class DirectionConstraintOptimizer:
         return -ratio * initial_step_size, constraint_val
 
     def __getstate__(self):
-        """Object.__getstate__.
+        """Get the internal state.
 
-        Returns:
-            dict: the state to be pickled for the instance.
-
+        Returns
+        -------
+        data : dict
+            The intertal state dict.
         """
         new_dict = self.__dict__.copy()
         del new_dict['_opt_fun']

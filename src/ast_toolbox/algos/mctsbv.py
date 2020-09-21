@@ -4,8 +4,8 @@ from ast_toolbox.algos.mcts import MCTS
 
 
 class MCTSBV(MCTS):
-    """
-    MCTS with Blind Value search from Couetoux et al.  [1]_.
+    """Monte Carlo Tress Search (MCTS) with double progressive widening (DPW)  [1]_
+    using Blind Value search from Couetoux et al.  [2]_.
 
     Parameters
     ----------
@@ -16,7 +16,9 @@ class MCTSBV(MCTS):
 
     References
     ----------
-    .. [1] Couetoux, Adrien, Hassen Doghmen, and Olivier Teytaud. "Improving the exploration in upper confidence trees."
+    .. [1] Lee, Ritchie, et al. "Adaptive stress testing of airborne collision avoidance systems."
+     2015 IEEE/AIAA 34th Digital Avionics Systems Conference (DASC). IEEE, 2015.
+    .. [2] Couetoux, Adrien, Hassen Doghmen, and Olivier Teytaud. "Improving the exploration in upper confidence trees."
      International Conference on Learning and Intelligent Optimization. Springer, Berlin, Heidelberg, 2012.
     """
 

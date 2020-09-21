@@ -8,8 +8,7 @@ from ast_toolbox.optimizers import DirectionConstraintOptimizer
 
 
 class GASM(GA):
-    """
-    Deep Genetic Algorithm [1]_ with Safe Mutation [2]_.
+    """Deep Genetic Algorithm [1]_ with Safe Mutation [2]_.
 
     Parameters
     ----------
@@ -108,7 +107,7 @@ class GASM(GA):
         self.optimizer.update_opt(
             target=self.policy,
             # leq_constraint=(mean_kl, self.step_size),
-            leq_constraint=divergence,  # input max contraint at run time with annealing
+            leq_constraint=divergence,  # input max constraint at run time with annealing
             inputs=input_list,
             constraint_name="divergence"
         )
@@ -206,7 +205,8 @@ class GASM(GA):
         return new_seeds, new_magnitudes
 
     def __getstate__(self):
-        """Get the internal state.
+        """
+        Get the internal state.
 
         Returns
         -------

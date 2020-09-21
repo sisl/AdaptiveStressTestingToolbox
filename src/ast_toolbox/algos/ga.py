@@ -8,8 +8,7 @@ from garage.tf.misc import tensor_utils
 
 
 class GA(BatchPolopt):
-    """
-    Deep Genetic Algorithm from Such et al.  [1]_.
+    """Deep Genetic Algorithm from Such et al.  [1]_.
 
     Parameters
     ----------
