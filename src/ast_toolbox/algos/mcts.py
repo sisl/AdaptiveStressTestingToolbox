@@ -27,13 +27,17 @@ class MCTS:
         The constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha.
     clear_nodes : bool
         Whether to clear redundant nodes in tree.
-        Set it to True for saving memoray. Set it to False to better tree plotting
+        Set it to True for saving memoray. Set it to False to better tree plotting.
     log_interval : int 
         The log interval in terms of environment calls.
     top_paths : :py:class:`ast_toolbox.mcts.BoundedPriorityQueues`, optional
         The bounded priority queue to store top-rewarded trajectories.
     gamma : float, optional
         The discount factor.
+    stress_test_mode : int, optional
+        The mode of the tree search. 1 for single tree. 2 for multiple trees.
+    log_tabular : bool, optional
+        Whether to log the training statistics into a tabular file.
     plot_tree : bool, optional
         Whether to plot the resulting searching tree.
     plot_path : str, optional

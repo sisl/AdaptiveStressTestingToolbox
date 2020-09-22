@@ -1,43 +1,59 @@
 import ast_toolbox.mcts.MDP as MDP
 
-# class SampleResults:
-# 	def __init__(self,reward,action_seq):
-# 		self.reward=reward
-# 		self.action_seq=action_seq
-
-
 class AcionSequence:
+    """Sturcture storing the actions sequences.
+
+    Parameters
+    ----------
+    sequence : list
+        The list of actions.
+    index : int, optional
+        The initial action index in the sequence.
+    """
     def __init__(self, sequence, index=0):
         self.sequence = sequence
         self.index = index
 
+def action_seq_policy(action_seq, s):
+    """The policy wrapper for the action sequence.
 
-def action_seq_policy_basic(action_seq):
+    Parameters
+    ----------    
+    action_seq : :py:class:`ast_toolbox.mcts.ASTSim.AcionSequence`
+        The action sequence.
+    s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The AST state.
+
+    Returns
+    ----------
+    action : `ast_toolbox.mcts.AdaptiveStressTesting.ASTAction`
+        The AST action.
+    """
     action = action_seq.sequence[action_seq.index]
     action_seq.index += 1
     return action
 
-
-def action_seq_policy(action_seq, s):
-    return action_seq_policy_basic(action_seq)
-
-# def uniform_policy(ast,s):
-# 	return ast.random_action()
-
-# def sample(ast,verbose=True):
-# 	reward, actions = MDP.simulate(ast.transition_model,ast,uniform_policy,verbose=verbose)
-# 	return SampleResults(reward,actions)
-
-# def nsample(ast,nsamples,print_rate=1):
-# 	results=[]
-# 	for i in range(nsamples):
-# 		if i%print_rate == 1:
-# 			print("sample ",i," of ",nsamples)
-# 		results.append(sample(ast,verbose=False))
-# 	return results
-
-
 def play_sequence(ast, actions, verbose=False, sleeptime=0.0):
-    reward2, actions2 = MDP.simulate(ast.transition_model, AcionSequence(actions), action_seq_policy, verbose=verbose, sleeptime=sleeptime)
+    """Rollout the action sequence.
+
+    Parameters
+    ----------   
+    ast : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.AdaptiveStressTest`
+        The AST object.
+    actions : list
+        The action sequence.
+    verbose : bool, optional
+        Whether to log the rollout information.
+    sleeptime: float, optional
+        The pause time between each step.
+
+    Returns
+    ----------
+    rewards : list[float]
+        The rewards.
+    actions2 : list
+        The action sequence of the path. Should be the same as the input actions.
+    """
+    rewards, actions2 = MDP.simulate(ast.transition_model, AcionSequence(actions), action_seq_policy, verbose=verbose, sleeptime=sleeptime)
     assert actions == actions2
-    return reward2, actions2
+    return rewards, actions2

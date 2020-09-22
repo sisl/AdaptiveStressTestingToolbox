@@ -1,11 +1,29 @@
 import time
-
-# import ast_toolbox.mcts.mctstracker as mctstracker
 import numpy as np
 
 
 class DPWParams:
-    def __init__(self, d, gamma, ec, n, k, alpha, clear_nodes):  # like constructor self must be as the first
+    """Structure that stores the parameters for the MCTS with DPW.
+
+    Parameters
+    ----------
+    d : int
+        The maximum searching depth. 
+    gamma : float
+        The discount factor.
+    ec : float
+        The weight for the exploration bonus.
+    n : int
+        The mximum number of iterations.
+    k : float
+        The constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha.
+    alpha : float
+        The constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha.
+    clear_nodes : bool
+        Whether to clear redundant nodes in tree.
+        Set it to True for saving memoray. Set it to False to better tree plotting.
+    """
+    def __init__(self, d, gamma, ec, n, k, alpha, clear_nodes):
         self.d = d  # search depth
         self.gamma = gamma  # discount factor
         self.ec = ec  # exploration constant
@@ -16,6 +34,17 @@ class DPWParams:
 
 
 class DPWModel:
+    """The model used in the tree search.
+
+    Parameters
+    ----------
+    model : :py:class:`ast_toolbox.mcts.MDP.TransitionModel`
+        The transition model.
+    getAction : function
+        getAction(s, tree) returns the action used in rollout.
+    getNextAction : function
+        getNextAction(s, tree) returns the action used in exploration.
+    """
     def __init__(self, model, getAction, getNextAction):
         self.model = model
         self.getAction = getAction  # expert action used in rollout
@@ -23,12 +52,16 @@ class DPWModel:
 
 
 class StateActionStateNode:
+    """The structure storing the transition state-action-state.
+    """
     def __init__(self):
         self.n = 0  # UInt64
         self.r = 0.0  # Float64
 
 
 class StateActionNode:
+    """The structure representing the state-action node.
+    """
     def __init__(self):
         self.s = {}  # Dict{State,StateActionStateNode}
         self.n = 0  # UInt64
@@ -36,12 +69,16 @@ class StateActionNode:
 
 
 class StateNode:
+    """The structure representing the state node.
+    """
     def __init__(self):
         self.a = {}  # Dict{Action,StateActionNode}
         self.n = 0  # UInt64
 
 
 class DPWTree:
+    """The structure storing the seaching tree.
+    """
     def __init__(self, p, f):
         self.s_tree = {}  # Dict{State,StateNode}
         self.p = p  # DPWParams
@@ -49,6 +86,22 @@ class DPWTree:
 
 
 def saveBackwardState(old_s_tree, new_s_tree, s_current):
+    """Saving the s_current as well as all its predecessors in the old_s_tree into the new_s_tree.
+
+    Parameters
+    ----------
+    old_s_tree : dict
+        The old tree.
+    new_s_tree : dict
+        The new tree.
+    s_current : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The current state.
+
+    Returns
+    ----------
+    new_s_tree : dict
+        The new tree.
+    """
     if not (s_current in old_s_tree):
         return new_s_tree
     s = s_current
@@ -59,6 +112,22 @@ def saveBackwardState(old_s_tree, new_s_tree, s_current):
 
 
 def saveForwardState(old_s_tree, new_s_tree, s):
+    """Saving the s_current as well as all its successors in the old_s_tree into the new_s_tree.
+
+    Parameters
+    ----------
+    old_s_tree : dict
+        The old tree.
+    new_s_tree : dict
+        The new tree.
+    s_current : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The current state.
+
+    Returns
+    ----------
+    new_s_tree : dict
+        The new tree.
+    """
     if not (s in old_s_tree):
         return new_s_tree
     new_s_tree[s] = old_s_tree[s]
@@ -69,6 +138,21 @@ def saveForwardState(old_s_tree, new_s_tree, s):
 
 
 def saveState(old_s_tree, s):
+    """Saving the s_current as well as all its predecessors and successors
+     in the old_s_tree into the new_s_tree.
+
+    Parameters
+    ----------
+    old_s_tree : dict
+        The old tree.
+    s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The current state.
+
+    Returns
+    ----------
+    new_s_tree : dict
+        The new tree.
+    """
     new_s_tree = {}
     saveBackwardState(old_s_tree, new_s_tree, s)
     saveForwardState(old_s_tree, new_s_tree, s)
@@ -76,6 +160,22 @@ def saveState(old_s_tree, s):
 
 
 def selectAction(tree, s, verbose=False):
+    """Run MCTS to select one action for the state s
+
+    Parameters
+    ----------
+    tree : :py:class:`ast_toolbox.mcts.MCTSdpw.DPWTree`
+        The seach tree.
+    s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The current state.
+    verbose : bool, optional
+        Where to log the seaching information.
+
+    Returns
+    ----------
+    action : `ast_toolbox.mcts.AdaptiveStressTesting.ASTAction`
+        The selected AST action.
+    """
     if tree.p.clear_nodes:
         new_dict = saveState(tree.s_tree, s)
         tree.s_tree.clear()
@@ -100,6 +200,24 @@ def selectAction(tree, s, verbose=False):
 
 
 def simulate(tree, s, depth, verbose=False):
+    """Single run of the forward MCTS search.
+
+    Parameters
+    ----------
+    tree : :py:class:`ast_toolbox.mcts.MCTSdpw.DPWTree`
+        The seach tree.
+    s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The current state.
+    depth : int
+        The maximum search depth
+    verbose : bool, optional
+        Where to log the seaching information.
+
+    Returns
+    ----------
+    q : float
+        The estimated return.
+    """
     if (depth == 0) | tree.f.model.isEndState(s):
         return 0.0
 
@@ -147,6 +265,22 @@ def simulate(tree, s, depth, verbose=False):
 
 
 def rollout(tree, s, depth):
+    """Rollout from the current state s.
+
+    Parameters
+    ----------
+    tree : :py:class:`ast_toolbox.mcts.MCTSdpw.DPWTree`
+        The seach tree.
+    s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
+        The current state.
+    depth : int
+        The maximum search depth
+
+    Returns
+    ----------
+    q : float
+        The estimated return.
+    """
     if (depth == 0) | tree.f.model.isEndState(s):
         return 0.0
     else:
