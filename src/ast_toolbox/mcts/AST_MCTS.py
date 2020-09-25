@@ -1,7 +1,6 @@
-import numpy as np
-
 import ast_toolbox.mcts.MCTSdpw as MCTSdpw
 import ast_toolbox.mcts.MDP as MDP
+
 
 def rollout_getAction(ast):
     """Get the rollout function from ast.

@@ -17,9 +17,9 @@ class MCTS:
         The environment.
     max_path_length: int
         The maximum search depth.
-    ec : float 
+    ec : float
         The exploration constant used in UCT equation.
-    n_itr: int 
+    n_itr: int
             The iteration number, the total numeber of environment call is approximately n_itr*max_path_length*max_path_length.
     k : float
         The constraint parameter used in DPW: |N(s,a)|<=kN(s)^alpha.
@@ -28,7 +28,7 @@ class MCTS:
     clear_nodes : bool
         Whether to clear redundant nodes in tree.
         Set it to True for saving memoray. Set it to False to better tree plotting.
-    log_interval : int 
+    log_interval : int
         The log interval in terms of environment calls.
     top_paths : :py:class:`ast_toolbox.mcts.BoundedPriorityQueues`, optional
         The bounded priority queue to store top-rewarded trajectories.

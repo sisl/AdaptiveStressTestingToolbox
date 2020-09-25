@@ -60,15 +60,15 @@ class DirectionConstraintOptimizer:
 
         Parameters
         ----------
-        target : 
+        target :
             A parameterized object to optimize over. It should implement methods of the
             :py:class:`garage.core.paramerized.Parameterized` class.
         leq_constraint : :py:class:'tensorflow.Tensor'
             The variable to be constrained.
-        inputs : 
+        inputs :
             A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
             that the first dimension of these inputs should correspond to the number of data points.
-        extra_inputs : 
+        extra_inputs :
             A list of symbolic variables as extra inputs which should not be subsampled.
         """
 
@@ -104,7 +104,7 @@ class DirectionConstraintOptimizer:
 
         Parameters
         ----------
-        inputs : 
+        inputs :
             A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
             that the first dimension of these inputs should correspond to the number of data points.
         extra_inputs : optional
@@ -127,7 +127,7 @@ class DirectionConstraintOptimizer:
         ----------
         direction: :py:class:'tensorflow.Tensor'
             The gradient direction.
-        inputs : 
+        inputs :
             A list of symbolic variables as inputs, which could be subsampled if needed. It is assumed
             that the first dimension of these inputs should correspond to the number of data points.
         max_constraint_val : float, optional

@@ -17,6 +17,7 @@ class ASTParams:
         The maximum search depth.
 
     """
+
     def __init__(self, max_steps, log_interval, log_tabular, log_dir=None, n_itr=100):
         self.max_steps = max_steps
         self.log_interval = log_interval
@@ -37,6 +38,7 @@ class AdaptiveStressTest:
     top_paths : :py:class:`ast_toolbox.mcts.BoundedPriorityQueues`, optional
         The bounded priority queue to store top-rewarded trajectories.
     """
+
     def __init__(self, p, env, top_paths):
         self.params = p
         self.env = env
@@ -229,6 +231,7 @@ class ASTState:
     action : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTAction`
         The action leading to this state.
     """
+
     def __init__(self, t_index, parent, action):
         self.t_index = t_index
         self.parent = parent
@@ -265,8 +268,8 @@ class ASTAction:
 
         Parameters
         ----------
-        action : 
-            The true actions used in the env. 
+        action :
+            The true actions used in the env.
         """
         self.action = action
 
@@ -295,8 +298,8 @@ class ASTAction:
 
         Returns
         ----------
-        action : 
-            The true actions used in the env. 
+        action :
+            The true actions used in the env.
         """
         return self.action
 

@@ -17,6 +17,7 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
     .. [1] Couetoux, Adrien, Hassen Doghmen, and Olivier Teytaud. "Improving the exploration in upper confidence trees."
      International Conference on Learning and Intelligent Optimization. Springer, Berlin, Heidelberg, 2012.
     """
+
     def __init__(self, **kwargs):
         super(AdaptiveStressTestBV, self).__init__(**kwargs)
 
@@ -64,14 +65,14 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
         return ASTAction(a_best)
 
     def getDistance(self, a, b):
-        """Get the (L2) distance between two actions. 
+        """Get the (L2) distance between two actions.
 
         Parameters
         ----------
         a : :py:class:`numpy.ndarry`
             The first action.
         b : :py:class:`numpy.ndarry`
-            The second action.      
+            The second action.
 
         Returns
         ----------

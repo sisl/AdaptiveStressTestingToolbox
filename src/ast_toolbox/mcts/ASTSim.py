@@ -1,5 +1,6 @@
 import ast_toolbox.mcts.MDP as MDP
 
+
 class AcionSequence:
     """Sturcture storing the actions sequences.
 
@@ -10,15 +11,17 @@ class AcionSequence:
     index : int, optional
         The initial action index in the sequence.
     """
+
     def __init__(self, sequence, index=0):
         self.sequence = sequence
         self.index = index
+
 
 def action_seq_policy(action_seq, s):
     """The policy wrapper for the action sequence.
 
     Parameters
-    ----------    
+    ----------
     action_seq : :py:class:`ast_toolbox.mcts.ASTSim.AcionSequence`
         The action sequence.
     s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
@@ -33,11 +36,12 @@ def action_seq_policy(action_seq, s):
     action_seq.index += 1
     return action
 
+
 def play_sequence(ast, actions, verbose=False, sleeptime=0.0):
     """Rollout the action sequence.
 
     Parameters
-    ----------   
+    ----------
     ast : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.AdaptiveStressTest`
         The AST object.
     actions : list

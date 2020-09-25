@@ -7,12 +7,13 @@ class RSG:
     """The random seed generator for AST using random seeds.
 
     Parameters
-    ----------   
+    ----------
     state_length : int, optional
         The length of the RSG state.
     seed : int, optional
         The initial seed to generate the initial state.
     """
+
     def __init__(self, state_length=1, seed=0):
         self.state = seed_to_state_itr(state_length, seed)
 
@@ -55,7 +56,7 @@ class RSG:
         """Set the RSG state using the seed.
 
         Parameters
-        ----------   
+        ----------
         length : int
             The length of the RSG state.
         seed : int
@@ -63,11 +64,12 @@ class RSG:
         """
         self.state = seed_to_state_itr(length, seed)
 
+
 def seed_to_state_itr(state_length, seed):
     """Generate the RSG state using the seed.
 
     Parameters
-    ----------   
+    ----------
     state_length : int
         The length of the RSG state.
     seed : int

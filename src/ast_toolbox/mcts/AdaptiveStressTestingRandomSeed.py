@@ -14,6 +14,7 @@ class AdaptiveStressTestRS(AdaptiveStressTest):
     kwargs :
         Keyword arguments passed to `ast_toolbox.mcts.AdaptiveStressTesting.AdaptiveStressTest`
     """
+
     def __init__(self, **kwargs):
         super(AdaptiveStressTestRS, self).__init__(**kwargs)
         self.rsg = RNG.RSG(self.params.rsg_length, self.params.init_seed)
@@ -52,11 +53,12 @@ class ASTRSAction:
 
     Parameters
     ----------
-    action : 
+    action :
         The random seed.
         env : :py:class:`ast_toolbox.envs.go_explore_ast_env.GoExploreASTEnv`
-            The environment. 
+            The environment.
     """
+
     def __init__(self, action, env):
         self.env = env
         self.action = action
@@ -86,8 +88,8 @@ class ASTRSAction:
 
         Returns
         ----------
-        action : 
-            The true actions used in the env. 
+        action :
+            The true actions used in the env.
         """
         rng_state = self.action.state
         # TODO: a better approch to make use of random seed of length > 1

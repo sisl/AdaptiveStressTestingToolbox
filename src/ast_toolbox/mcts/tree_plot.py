@@ -7,7 +7,7 @@ def get_root(tree):
     """Get the root node of the tree.
 
     Parameters
-    ---------- 
+    ----------
     tree : dict
         The tree.
 
@@ -25,7 +25,7 @@ def s2node(s, tree):
     """Transfer the AST state to pydot node.
 
     Parameters
-    ---------- 
+    ----------
     s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
         The AST state.
     tree : dict
@@ -46,7 +46,7 @@ def add_children(s, s_node, tree, graph, d):
     """Add successors of s into the graph.
 
     Parameters
-    ---------- 
+    ----------
     s : :py:class:`ast_toolbox.mcts.AdaptiveStressTesting.ASTState`
         The AST state.
     s_node : :py:class:`pydot.Node`
@@ -76,7 +76,7 @@ def plot_tree(tree, d, path, format="svg"):
     """Plot the tree.
 
     Parameters
-    ---------- 
+    ----------
     tree : dict
         The tree.
     d : int

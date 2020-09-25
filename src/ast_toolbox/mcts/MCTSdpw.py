@@ -1,4 +1,5 @@
 import time
+
 import numpy as np
 
 
@@ -8,7 +9,7 @@ class DPWParams:
     Parameters
     ----------
     d : int
-        The maximum searching depth. 
+        The maximum searching depth.
     gamma : float
         The discount factor.
     ec : float
@@ -23,6 +24,7 @@ class DPWParams:
         Whether to clear redundant nodes in tree.
         Set it to True for saving memoray. Set it to False to better tree plotting.
     """
+
     def __init__(self, d, gamma, ec, n, k, alpha, clear_nodes):
         self.d = d  # search depth
         self.gamma = gamma  # discount factor
@@ -45,6 +47,7 @@ class DPWModel:
     getNextAction : function
         getNextAction(s, tree) returns the action used in exploration.
     """
+
     def __init__(self, model, getAction, getNextAction):
         self.model = model
         self.getAction = getAction  # expert action used in rollout
@@ -54,6 +57,7 @@ class DPWModel:
 class StateActionStateNode:
     """The structure storing the transition state-action-state.
     """
+
     def __init__(self):
         self.n = 0  # UInt64
         self.r = 0.0  # Float64
@@ -62,6 +66,7 @@ class StateActionStateNode:
 class StateActionNode:
     """The structure representing the state-action node.
     """
+
     def __init__(self):
         self.s = {}  # Dict{State,StateActionStateNode}
         self.n = 0  # UInt64
@@ -71,6 +76,7 @@ class StateActionNode:
 class StateNode:
     """The structure representing the state node.
     """
+
     def __init__(self):
         self.a = {}  # Dict{Action,StateActionNode}
         self.n = 0  # UInt64
@@ -79,6 +85,7 @@ class StateNode:
 class DPWTree:
     """The structure storing the seaching tree.
     """
+
     def __init__(self, p, f):
         self.s_tree = {}  # Dict{State,StateNode}
         self.p = p  # DPWParams

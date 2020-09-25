@@ -8,10 +8,11 @@ class BoundedPriorityQueue:
     """The bounded priority Queue.
 
     Parameters
-    ----------   
+    ----------
     N : int
         Size of the queue.
     """
+
     def __init__(self, N):
         self.pq = DEPQ(iterable=None, maxlen=N)
         self.N = N
@@ -20,11 +21,11 @@ class BoundedPriorityQueue:
         """Storing k into the queue based on the priority value v.
 
         Parameters
-        ---------- 
+        ----------
         k :
             The object to be stored.
         v : float
-            The priority value.  
+            The priority value.
         make_copy : bool, optional
             Whether to make a copy of the k.
         """

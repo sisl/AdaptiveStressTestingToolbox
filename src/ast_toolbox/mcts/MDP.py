@@ -1,6 +1,5 @@
 import time
 
-
 # def identity(*args):
 #     if len(args) == 1:
 #         return args[0]
@@ -23,6 +22,7 @@ class TransitionModel:
     goToState : function
         goToState(s) sets the simulator to the target state s.
     """
+
     def __init__(self, getInitialState, getNextState, isEndState, maxSteps, goToState):
         self.getInitialState = getInitialState
         self.getNextState = getNextState
@@ -38,7 +38,7 @@ def simulate(model, p, policy, verbose=False, sleeptime=0.0):
     ----------
     model : :py:class:`ast_toolbox.mcts.MDP.TransitionModel`
         The environment model.
-    p : 
+    p :
         The extra paramters needed by the policy.
     policy : function
         policy(p, s) returns the next action.
