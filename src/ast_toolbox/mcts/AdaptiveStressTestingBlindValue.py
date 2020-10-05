@@ -82,8 +82,7 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
         return np.sqrt(np.sum((a - b)**2))
 
     def getUCB(self, s):
-        """Get the upper confidnece bound for the expected return
-         for evary actions that has been explored at the state.
+        """Get the upper confidnece bound for the expected return for evary actions that has been explored at the state.
 
         Parameters
         ----------
