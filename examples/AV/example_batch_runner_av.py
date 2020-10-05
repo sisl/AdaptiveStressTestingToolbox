@@ -6,6 +6,13 @@ from examples.AV.example_runner_ge_av import runner as go_explore_runner
 from examples.AV.example_runner_mcts_av import runner as mcts_runner
 
 if __name__ == '__main__':
+    # Which algorithms to run
+    RUN_DRL = False
+    RUN_MCTS = True
+    RUN_GA = False
+    RUN_GE = False
+    RUN_BA = False
+
     # Overall settings
     max_path_length = 50
     s_0 = [0.0, -4.0, 1.0, 11.17, -35.0]
@@ -47,169 +54,175 @@ if __name__ == '__main__':
     # spaces settings
     spaces_args = {}
 
-    # Go-Explore Settings
+    # DRL ----------------------------------------------------------------------------------
 
-    ge_algo_args = {'db_filename': None,
-                    'max_db_size': 150,
-                    'max_path_length': max_path_length,
-                    'discount': 0.99,
-                    'save_paths_gap': 1,
-                    'save_paths_path': None,
-                    'overwrite_db': True,
-                    }
+    if RUN_DRL:
+        # DRL Settings
 
-    ge_baseline_args = {}
+        drl_policy_args = {'name': 'lstm_policy',
+                           'hidden_dim': 64,
+                           }
 
-    ge_policy_args = {}
+        drl_baseline_args = {}
 
-    # DRL Settings
+        drl_algo_args = {'max_path_length': max_path_length,
+                         'discount': 0.99,
+                         'lr_clip_range': 1.0,
+                         'max_kl_step': 1.0,
+                         # 'log_dir':None,
+                         }
 
-    drl_policy_args = {'name': 'lstm_policy',
-                       'hidden_dim': 64,
-                       }
+        run_experiment_args['log_dir'] = base_log_dir + '/drl'
+        run_experiment_args['exp_name'] = 'drl'
 
-    drl_baseline_args = {}
+        drl_algo_args['max_path_length'] = max_path_length
 
-    drl_algo_args = {'max_path_length': max_path_length,
-                     'discount': 0.99,
-                     'lr_clip_range': 1.0,
-                     'max_kl_step': 1.0,
-                     # 'log_dir':None,
-                     }
+        # Run DRL
+        drl_runner(
+            env_args=env_args,
+            run_experiment_args=run_experiment_args,
+            sim_args=sim_args,
+            reward_args=reward_args,
+            spaces_args=spaces_args,
+            policy_args=drl_policy_args,
+            baseline_args=drl_baseline_args,
+            algo_args=drl_algo_args,
+            runner_args=runner_args,
+        )
 
-    # MCTS Settings
+    # MCTS ----------------------------------------------------------------------------------
 
-    mcts_policy_args = {}
+    if RUN_MCTS:
+        # MCTS Settings
 
-    mcts_baseline_args = {}
+        mcts_type = 'mcts'
 
-    mcts_algo_args = {'max_path_length': max_path_length,
-                      'stress_test_num': 2,
-                      'ec': 100.0,
-                      'n_itr': 1,
-                      'k': 0.5,
-                      'alpha': 0.5,
-                      'clear_nodes': True,
-                      'log_interval': 500,
-                      'plot_tree': False,
-                      'plot_path': None,
-                      'log_dir': None,
-                      }
+        mcts_sampler_args = {}
 
-    mcts_bpq_args = {'N': 10}
+        mcts_algo_args = {'max_path_length': max_path_length,
+                          'stress_test_mode': 2,
+                          'ec': 100.0,
+                          'n_itr': 1,
+                          'k': 0.5,
+                          'alpha': 0.5,
+                          'clear_nodes': True,
+                          'log_interval': 500,
+                          'plot_tree': False,
+                          'plot_path': None,
+                          'log_dir': None,
+                          }
 
-    # BA Settings
+        mcts_bpq_args = {'N': 10}
 
-    ba_algo_args = {'expert_trajectory': None,
-                    'max_path_length': max_path_length,
-                    'epochs_per_step': 10,
-                    'scope': None,
-                    'discount': 0.99,
-                    'gae_lambda': 1.0,
-                    'center_adv': True,
-                    'positive_adv': False,
-                    'fixed_horizon': False,
-                    'pg_loss': 'surrogate_clip',
-                    'lr_clip_range': 1.0,
-                    'max_kl_step': 1.0,
-                    'policy_ent_coeff': 0.0,
-                    'use_softplus_entropy': False,
-                    'use_neg_logli_entropy': False,
-                    'stop_entropy_gradient': False,
-                    'entropy_method': 'no_entropy',
-                    'name': 'PPO',
-                    'log_dir': None,
-                    }
 
-    ba_baseline_args = {}
+        # MCTS settings
+        run_experiment_args['log_dir'] = base_log_dir + '/mcts'
+        run_experiment_args['exp_name'] = 'mcts'
 
-    ba_policy_args = {'name': 'lstm_policy',
-                      'hidden_dim': 64,
-                      'use_peepholes': True,
-                      }
+        mcts_algo_args['max_path_length'] = max_path_length
+        mcts_algo_args['log_dir'] = run_experiment_args['log_dir']
+        mcts_algo_args['plot_path'] = run_experiment_args['log_dir']
 
-    exp_log_dir = base_log_dir
-    max_path_length = 50
-    s_0 = [0.0, -4.0, 1.0, 11.17, -35.0]
-    env_args['s_0'] = s_0
-    reward_args['use_heuristic'] = True
-    sim_args['max_path_length'] = max_path_length
-    ba_algo_args['max_path_length'] = max_path_length
+        mcts_runner(
+            mcts_type=mcts_type,
+            env_args=env_args,
+            run_experiment_args=run_experiment_args,
+            sim_args=sim_args,
+            reward_args=reward_args,
+            spaces_args=spaces_args,
+            algo_args=mcts_algo_args,
+            runner_args=runner_args,
+            bpq_args=mcts_bpq_args,
+            sampler_args=mcts_sampler_args,
+            save_expert_trajectory=True,
+        )
 
-    # GE settings
-    run_experiment_args['log_dir'] = exp_log_dir + '/ge'
-    run_experiment_args['exp_name'] = 'ge'
-    # run_experiment_args['tabular_log_file'] = 'progress.csv'
+    # Go-Explore ----------------------------------------------------------------------------------
 
-    ge_algo_args['db_filename'] = run_experiment_args['log_dir'] + '/cellpool'
-    ge_algo_args['save_paths_path'] = run_experiment_args['log_dir']
-    ge_algo_args['max_path_length'] = max_path_length
+    if RUN_GE:
+        # Go-Explore Settings
 
-    go_explore_runner(
-        env_args=env_args,
-        run_experiment_args=run_experiment_args,
-        sim_args=sim_args,
-        reward_args=reward_args,
-        spaces_args=spaces_args,
-        policy_args=ge_policy_args,
-        baseline_args=ge_baseline_args,
-        algo_args=ge_algo_args,
-        runner_args=runner_args,
-    )
+        ge_algo_args = {'db_filename': None,
+                        'max_db_size': 150,
+                        'max_path_length': max_path_length,
+                        'discount': 0.99,
+                        'save_paths_gap': 1,
+                        'save_paths_path': None,
+                        'overwrite_db': True,
+                        }
 
-    with open(run_experiment_args['log_dir'] + '/expert_trajectory.p', 'rb') as f:
-        expert_trajectories = pickle.load(f)
+        ge_baseline_args = {}
 
-    run_experiment_args['log_dir'] = run_experiment_args['log_dir'] + '/ba'
-    ba_algo_args['expert_trajectory'] = expert_trajectories[-1]
+        ge_policy_args = {}
 
-    ba_runner(
-        env_args=env_args,
-        run_experiment_args=run_experiment_args,
-        sim_args=sim_args,
-        reward_args=reward_args,
-        spaces_args=spaces_args,
-        policy_args=ba_policy_args,
-        baseline_args=ba_baseline_args,
-        algo_args=ba_algo_args,
-        runner_args=runner_args,
-    )
+        run_experiment_args['log_dir'] = base_log_dir + '/ge'
+        run_experiment_args['exp_name'] = 'ge'
+        # run_experiment_args['tabular_log_file'] = 'progress.csv'
 
-    # DRL settings
-    run_experiment_args['log_dir'] = exp_log_dir + '/drl'
-    run_experiment_args['exp_name'] = 'drl'
+        ge_algo_args['db_filename'] = run_experiment_args['log_dir'] + '/cellpool'
+        ge_algo_args['save_paths_path'] = run_experiment_args['log_dir']
+        ge_algo_args['max_path_length'] = max_path_length
 
-    drl_algo_args['max_path_length'] = max_path_length
+        go_explore_runner(
+            env_args=env_args,
+            run_experiment_args=run_experiment_args,
+            sim_args=sim_args,
+            reward_args=reward_args,
+            spaces_args=spaces_args,
+            policy_args=ge_policy_args,
+            baseline_args=ge_baseline_args,
+            algo_args=ge_algo_args,
+            runner_args=runner_args,
+        )
 
-    drl_runner(
-        env_args=env_args,
-        run_experiment_args=run_experiment_args,
-        sim_args=sim_args,
-        reward_args=reward_args,
-        spaces_args=spaces_args,
-        policy_args=drl_policy_args,
-        baseline_args=drl_baseline_args,
-        algo_args=drl_algo_args,
-        runner_args=runner_args,
-    )
+    # Backward Algorithm ----------------------------------------------------------------------------------
 
-    # MCTS settings
-    run_experiment_args['log_dir'] = exp_log_dir + '/mcts'
-    run_experiment_args['exp_name'] = 'mcts'
+    if RUN_BA:
+        # BA Settings
+        ba_algo_args = {'expert_trajectory': None,
+                        'max_path_length': max_path_length,
+                        'epochs_per_step': 10,
+                        'scope': None,
+                        'discount': 0.99,
+                        'gae_lambda': 1.0,
+                        'center_adv': True,
+                        'positive_adv': False,
+                        'fixed_horizon': False,
+                        'pg_loss': 'surrogate_clip',
+                        'lr_clip_range': 1.0,
+                        'max_kl_step': 1.0,
+                        'policy_ent_coeff': 0.0,
+                        'use_softplus_entropy': False,
+                        'use_neg_logli_entropy': False,
+                        'stop_entropy_gradient': False,
+                        'entropy_method': 'no_entropy',
+                        'name': 'PPO',
+                        'log_dir': None,
+                        }
 
-    mcts_algo_args['max_path_length'] = max_path_length
-    mcts_algo_args['log_dir'] = run_experiment_args['log_dir']
-    mcts_algo_args['plot_path'] = run_experiment_args['log_dir']
+        ba_baseline_args = {}
 
-    mcts_runner(
-        env_args=env_args,
-        run_experiment_args=run_experiment_args,
-        sim_args=sim_args,
-        reward_args=reward_args,
-        spaces_args=spaces_args,
-        policy_args=mcts_policy_args,
-        baseline_args=mcts_baseline_args,
-        algo_args=mcts_algo_args,
-        bpq_args=mcts_bpq_args,
-        runner_args=runner_args,
-    )
+        ba_policy_args = {'name': 'lstm_policy',
+                          'hidden_dim': 64,
+                          }
+
+
+        with open(run_experiment_args['log_dir'] + '/expert_trajectory.p', 'rb') as f:
+            expert_trajectories = pickle.load(f)
+
+        run_experiment_args['log_dir'] = run_experiment_args['log_dir'] + '/ba'
+        ba_algo_args['expert_trajectory'] = expert_trajectories[-1]
+
+        ba_runner(
+            env_args=env_args,
+            run_experiment_args=run_experiment_args,
+            sim_args=sim_args,
+            reward_args=reward_args,
+            spaces_args=spaces_args,
+            policy_args=ba_policy_args,
+            baseline_args=ba_baseline_args,
+            algo_args=ba_algo_args,
+            runner_args=runner_args,
+        )
+
+

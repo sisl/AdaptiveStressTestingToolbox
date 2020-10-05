@@ -1,4 +1,5 @@
 import pickle
+import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
@@ -8,8 +9,10 @@ from matplotlib.patches import Rectangle
 
 from ast_toolbox.algos.go_explore import *
 
+from operator import itemgetter
 
-def convert_itr_data_to_expert_trajectory(last_iter_data):
+
+def convert_drl_itr_data_to_expert_trajectory(last_iter_data):
     best_rollout_idx = np.argmax(np.array([np.sum(rollout['rewards']) for rollout in last_iter_data['paths']]))
     best_rollout = last_iter_data['paths'][best_rollout_idx]
     expert_trajectory = []
@@ -29,11 +32,70 @@ def convert_itr_data_to_expert_trajectory(last_iter_data):
     return expert_trajectory
 
 
-def load_convert_and_save_expert_trajectory(last_iter_filename, expert_trajectory_filename):
+def convert_mcts_itr_data_to_expert_trajectory(best_actions, sim, s_0, reward_function):
+    expert_trajectories = []
+    reward_sums = []
+    for actions in best_actions:
+        sim.reset(s_0=s_0)
+        expert_trajectory = []
+        reward_sum = 0
+        for action in actions:
+            # Run a simulation step
+            observation = sim.step(action)
+            state = sim.clone_state()
+            reward = reward_function.give_reward(
+                action=action,
+                info=sim.get_reward_info())
+
+            # Save out the step info in the correct format
+            expert_trajectory_step = {}
+            expert_trajectory_step['action'] = action
+            expert_trajectory_step['observation'] = observation
+            expert_trajectory_step['reward'] = reward
+            expert_trajectory_step['state'] = state
+
+            expert_trajectory.append(expert_trajectory_step)
+
+            reward_sum += reward
+
+        expert_trajectories.append(expert_trajectory)
+        reward_sums.append(reward_sum)
+
+    # Sort the lists by total reward an return the best on that ends in collision
+    sum_reward_sorted_expert_trajectories = [
+        list(x) for x in zip(*sorted(zip(reward_sums, expert_trajectories), key=itemgetter(0)))][1]
+    for expert_trajectory in sum_reward_sorted_expert_trajectories:
+        import pdb; pdb.set_trace()
+        if expert_trajectory[-1]['reward'] == 0:
+            return expert_trajectory
+
+    # No expert trajectory ended in collision, return empty list
+    return []
+
+
+def load_convert_and_save_drl_expert_trajectory(last_iter_filename, expert_trajectory_filename):
     with open(last_iter_filename, 'rb') as f:
         last_iter_data = pickle.load(f)
 
-    expert_trajectory = convert_itr_data_to_expert_trajectory(last_iter_data=last_iter_data)
+    expert_trajectory = convert_drl_itr_data_to_expert_trajectory(last_iter_data=last_iter_data)
+
+    if len(expert_trajectory) > 0:
+        with open(expert_trajectory_filename, 'wb') as f:
+            pickle.dump(expert_trajectory, f)
+
+
+def load_convert_and_save_mcts_expert_trajectory(best_actions_filename,
+                                                 expert_trajectory_filename,
+                                                 sim,
+                                                 s_0,
+                                                 reward_function):
+    with open(best_actions_filename, 'rb') as f:
+        best_actions = pickle.load(f)
+
+    expert_trajectory = convert_mcts_itr_data_to_expert_trajectory(best_actions=best_actions,
+                                                                  sim=sim,
+                                                                  s_0=s_0,
+                                                                  reward_function=reward_function)
 
     if len(expert_trajectory) > 0:
         with open(expert_trajectory_filename, 'wb') as f:
@@ -78,7 +140,8 @@ def plot_terminal_trajectories(filename, terminal_limit=None, sort_by_reward=Fal
                       goal_limit=None, sort_by_reward=sort_by_reward)
 
 
-def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_limit=None, goal_limit=None, sort_by_reward=False):
+def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_limit=None, goal_limit=None,
+                      sort_by_reward=False):
     cell_pool_shelf = get_cellpool(filename)
     metadata = get_metadata(filename)
 
@@ -104,7 +167,7 @@ def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_lim
             cell = cell_pool_shelf[key]
             ped_trajectory = cell.state[11:13].copy().reshape((1, 2))
 
-            while(cell.parent is not None):
+            while (cell.parent is not None):
                 cell = cell_pool_shelf[cell.parent]
                 ped_trajectory = np.concatenate((cell.state[11:13].copy().reshape((1, 2)), ped_trajectory))
                 plt.plot(ped_trajectory[:, 0], ped_trajectory[:, 1], color=(.1, .9, .1))
@@ -139,6 +202,8 @@ def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_lim
     plt.show()
 
     # def plot_trajectories_from_actions(filename, f_actions_to_trajectories):
+
+
 #     cell_pool_shelf = get_cellpool(filename)
 #     metadata = get_metadata(filename)
 #
@@ -146,12 +211,12 @@ def plot_trajectories(filename, plot_terminal=True, plot_goal=True, terminal_lim
 #     sim.restore_state(root_cell.state)
 #     actions = rcell.trajectory[:,1:].astype(np.float32) / 1000.0
 
-    # trajectories = f_actions_to_trajectories()
+# trajectories = f_actions_to_trajectories()
 
 
 def get_root_cell(pool, cell):
     root_cell = cell
-    while(root_cell.parent is not None):
+    while (root_cell.parent is not None):
         root_cell = pool[root_cell.parent]
 
     return root_cell
@@ -190,7 +255,6 @@ def render(car=None, ped=None, noise=None, ped_obs=None, gif=False):
                          'Noise: Pedestrian X Position', 'Noise: Pedestrian Y Position']
             x = np.arange(noise.shape[0] + 2)
             for idx, ax in enumerate(axs):
-
                 y = np.concatenate(([0], noise[:, idx], [0]))
 
                 ax.step(x, y, color='black', where='pre')

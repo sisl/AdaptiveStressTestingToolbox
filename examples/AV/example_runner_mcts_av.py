@@ -22,6 +22,7 @@ from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.utils.go_explore_utils import load_convert_and_save_mcts_expert_trajectory
 
 
 def runner(
@@ -35,6 +36,7 @@ def runner(
     runner_args=None,
     bpq_args=None,
     sampler_args=None,
+    save_expert_trajectory=False,
     # log_dir='.',
 ):
     if mcts_type is None:
@@ -146,25 +148,15 @@ def runner(
                     local_runner.train(**runner_args)
 
                     log_dir = run_experiment_args['log_dir']
-                    with open(log_dir + '/best_actions.p', 'rb') as f:
-                        best_actions = pickle.load(f)
-                    expert_trajectories = []
-                    for actions in best_actions:
-                        sim.reset(s_0=env_args['s_0'])
-                        path = []
-                        for action in actions:
-                            obs = sim.step(action)
-                            state = sim.clone_state()
-                            reward = reward_function.give_reward(
-                                action=action,
-                                info=sim.get_reward_info())
-                            path.append({'state': state,
-                                         'reward': reward,
-                                         'action': action,
-                                         'observation': obs})
-                        expert_trajectories.append(path)
-                    with open(log_dir + '/expert_trajectory.p', 'wb') as f:
-                        pickle.dump(expert_trajectories, f)
+
+                    if save_expert_trajectory:
+                        load_convert_and_save_mcts_expert_trajectory(
+                            best_actions_filename=log_dir + '/best_actions.p',
+                            expert_trajectory_filename=log_dir + '/expert_trajectory.p',
+                            sim=sim,
+                            s_0=env_args['s_0'],
+                            reward_function=reward_function)
+
     run_experiment(
         run_task,
         **run_experiment_args,
