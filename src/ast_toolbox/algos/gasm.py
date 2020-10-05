@@ -19,8 +19,7 @@ class GASM(GA):
 
     References
     ----------
-    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for
-    training deep neural networks for reinforcement learning."
+    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for training deep neural networks for reinforcement learning."
      arXiv preprint arXiv:1712.06567 (2017).
     .. [2] Lehman, Joel, et al. "Safe mutations for deep and recurrent neural networks through output gradients."
      Proceedings of the Genetic and Evolutionary Computation Conference. 2018.
