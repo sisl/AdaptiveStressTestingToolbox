@@ -33,9 +33,8 @@ class GA(BatchPolopt):
 
     References
     ----------
-    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for
-    training deep neural networks for reinforcement learning."
-     arXiv preprint arXiv:1712.06567 (2017).
+    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for training deep neural networks for reinforcement learning." 
+     arXiv:1712.06567 (2017).
     """
 
     def __init__(
@@ -222,7 +221,7 @@ class GA(BatchPolopt):
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
         """Generate new random seeds and magnitudes for the next generation.
-            The first self.keep_best seeds are set to no-mutation value (0).
+         The first self.keep_best seeds are set to no-mutation value (0).
 
         Parameters
         ----------
@@ -313,18 +312,7 @@ class GA(BatchPolopt):
         Returns
         -------
         samples_data : dict
-            Processed sample data, with key
-                * observations : :py:class:'numpy.ndarray'
-                * actions : :py:class:'numpy.ndarray'
-                * rewards : :py:class:'numpy.ndarray'
-                * baselines : :py:class:'numpy.ndarray'
-                * returns : :py:class:'numpy.ndarray'
-                * valids : :py:class:'numpy.ndarray'
-                * agent_infos : dict
-                * env_infos : dict
-                * paths : list[dict]
-                * average_return : :py:class:'numpy.ndarray'
-
+            Processed sample data with same trajectory length (padded with 0)
         """
         baselines = []
         returns = []
