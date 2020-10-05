@@ -114,7 +114,6 @@ if __name__ == '__main__':
 
         mcts_bpq_args = {'N': 10}
 
-
         # MCTS settings
         run_experiment_args['log_dir'] = base_log_dir + '/mcts'
         run_experiment_args['exp_name'] = 'mcts'
@@ -206,7 +205,6 @@ if __name__ == '__main__':
                           'hidden_dim': 64,
                           }
 
-
         with open(run_experiment_args['log_dir'] + '/expert_trajectory.p', 'rb') as f:
             expert_trajectories = pickle.load(f)
 
@@ -224,5 +222,3 @@ if __name__ == '__main__':
             algo_args=ba_algo_args,
             runner_args=runner_args,
         )
-
-

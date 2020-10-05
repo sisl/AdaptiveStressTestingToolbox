@@ -1,15 +1,14 @@
 import pickle
-import numpy as np
+from operator import itemgetter
 
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.collections import PatchCollection
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Circle
 from matplotlib.patches import Rectangle
 
 from ast_toolbox.algos.go_explore import *
-
-from operator import itemgetter
 
 
 def convert_drl_itr_data_to_expert_trajectory(last_iter_data):
@@ -65,7 +64,8 @@ def convert_mcts_itr_data_to_expert_trajectory(best_actions, sim, s_0, reward_fu
     sum_reward_sorted_expert_trajectories = [
         list(x) for x in zip(*sorted(zip(reward_sums, expert_trajectories), key=itemgetter(0)))][1]
     for expert_trajectory in sum_reward_sorted_expert_trajectories:
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         if expert_trajectory[-1]['reward'] == 0:
             return expert_trajectory
 
@@ -93,9 +93,9 @@ def load_convert_and_save_mcts_expert_trajectory(best_actions_filename,
         best_actions = pickle.load(f)
 
     expert_trajectory = convert_mcts_itr_data_to_expert_trajectory(best_actions=best_actions,
-                                                                  sim=sim,
-                                                                  s_0=s_0,
-                                                                  reward_function=reward_function)
+                                                                   sim=sim,
+                                                                   s_0=s_0,
+                                                                   reward_function=reward_function)
 
     if len(expert_trajectory) > 0:
         with open(expert_trajectory_filename, 'wb') as f:
