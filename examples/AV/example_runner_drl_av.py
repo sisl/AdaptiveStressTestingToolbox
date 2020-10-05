@@ -22,7 +22,7 @@ from ast_toolbox.rewards import ExampleAVReward
 from ast_toolbox.samplers import ASTVectorizedSampler
 from ast_toolbox.simulators import ExampleAVSimulator
 from ast_toolbox.spaces import ExampleAVSpaces
-from ast_toolbox.utils.go_explore_utils import load_convert_and_save_expert_trajectory
+from ast_toolbox.utils.go_explore_utils import load_convert_and_save_drl_expert_trajectory
 
 
 def runner(
@@ -139,12 +139,12 @@ def runner(
                     local_runner.train(**runner_args)
 
                     if save_expert_trajectory:
-                        load_convert_and_save_expert_trajectory(last_iter_filename=os.path.join(run_experiment_args['log_dir'],
-                                                                                                'itr_' +
-                                                                                                str(runner_args['n_epochs'] - 1) +
-                                                                                                '.pkl'),
-                                                                expert_trajectory_filename=os.path.join(run_experiment_args['log_dir'],
-                                                                                                        'expert_trajectory.pkl'))
+                        load_convert_and_save_drl_expert_trajectory(last_iter_filename=os.path.join(run_experiment_args['log_dir'],
+                                                                                                    'itr_' +
+                                                                                                    str(runner_args['n_epochs'] - 1) +
+                                                                                                    '.pkl'),
+                                                                    expert_trajectory_filename=os.path.join(run_experiment_args['log_dir'],
+                                                                                                            'expert_trajectory.pkl'))
 
                     print('done!')
 
