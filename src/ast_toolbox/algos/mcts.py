@@ -9,7 +9,7 @@ from ast_toolbox.mcts import tree_plot
 
 class MCTS:
     """Monte Carlo Tress Search (MCTS) with double progressive widening (DPW) [1]_
-     using the env's action space as its action space.
+    using the env's action space as its action space.
 
     Parameters
     ----------

@@ -94,7 +94,7 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
         ----------
         UCB : dict
             The dictionary containing the upper confidence bound
-             for each explored action in the state node.
+            for each explored action in the state node.
         """
         UCB = dict()
         nS = s.n
@@ -115,7 +115,7 @@ class AdaptiveStressTestBV(AdaptiveStressTest):
             The list of the explored AST actions
         UCB : dict
             The dictionary containing the upper confidence bound
-             for each explored action in the state node.
+            for each explored action in the state node.
 
         Returns
         ----------

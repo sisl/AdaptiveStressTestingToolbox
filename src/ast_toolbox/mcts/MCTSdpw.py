@@ -146,7 +146,7 @@ def saveForwardState(old_s_tree, new_s_tree, s):
 
 def saveState(old_s_tree, s):
     """Saving the s_current as well as all its predecessors and successors
-     in the old_s_tree into the new_s_tree.
+    in the old_s_tree into the new_s_tree.
 
     Parameters
     ----------
