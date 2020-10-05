@@ -220,7 +220,7 @@ class GA(BatchPolopt):
             sort_indx[np.random.randint(low=0, high=self.truncation_size, size=self.pop_size - self.truncation_size)]
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
-        """Generate new random seeds and magnitudes for the next generation.
+        r"""Generate new random seeds and magnitudes for the next generation.
          The first self.keep_best seeds are set to no-mutation value (0).
 
         Parameters
@@ -434,11 +434,7 @@ class GA(BatchPolopt):
         Returns
         -------
         snaposhot : dict
-            The training snapshot, with key
-                * itr : int
-                * policy : :py:class:'garage.tf.policies.Policy'
-                * seeds : :py:class:'numpy.ndarray'
-                * magnitudes : :py:class:'numpy.ndarray'
+            The training snapshot.
         """
         return dict(
             itr=itr,
