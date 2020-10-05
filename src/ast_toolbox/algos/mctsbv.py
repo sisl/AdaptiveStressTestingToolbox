@@ -4,8 +4,7 @@ from ast_toolbox.algos.mcts import MCTS
 
 
 class MCTSBV(MCTS):
-    """Monte Carlo Tress Search (MCTS) with double progressive widening (DPW)  [1]_
-    using Blind Value search from Couetoux et al.  [2]_.
+    """Monte Carlo Tress Search (MCTS) with double progressive widening (DPW) [1]_ using Blind Value search from Couetoux et al.  [2]_.
 
     Parameters
     ----------

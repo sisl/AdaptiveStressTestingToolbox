@@ -4,8 +4,7 @@ from ast_toolbox.algos.mcts import MCTS
 
 
 class MCTSRS(MCTS):
-    """Monte Carlo Tress Search (MCTS) with double progressive widening (DPW) [1]_
-    using the random seeds as its action space.
+    """Monte Carlo Tress Search (MCTS) with double progressive widening (DPW) [1]_ using the random seeds as its action space.
 
     Parameters
     ----------

@@ -220,8 +220,7 @@ class GA(BatchPolopt):
             sort_indx[np.random.randint(low=0, high=self.truncation_size, size=self.pop_size - self.truncation_size)]
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
-        """Generate new random seeds and magnitudes for the next generation.
-        The first self.keep_best seeds are set to no-mutation value (0).
+        """Generate new random seeds and magnitudes for the next generation. The first self.keep_best seeds are set to no-mutation value (0).
 
         Parameters
         ----------
