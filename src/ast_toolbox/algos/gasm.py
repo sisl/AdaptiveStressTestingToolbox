@@ -19,7 +19,8 @@ class GASM(GA):
 
     References
     ----------
-    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for training deep neural networks for reinforcement learning."
+    .. [1] Such, Felipe Petroski, et al. "Deep neuroevolution: Genetic algorithms are a competitive alternative for
+    training deep neural networks for reinforcement learning."
      arXiv preprint arXiv:1712.06567 (2017).
     .. [2] Lehman, Joel, et al. "Safe mutations for deep and recurrent neural networks through output gradients."
      Proceedings of the Genetic and Evolutionary Computation Conference. 2018.
@@ -86,7 +87,8 @@ class GASM(GA):
         npath_var = tf.compat.v1.placeholder(tf.int32, shape=[None], name="npath")  # in order to work with sliced_fn
 
         actions = self.policy.get_action_sym(obs_var, name='policy_action')
-        divergence = tf.reduce_sum(tf.reduce_sum(tf.square(actions - action_var), -1) * valid_var) / tf.reduce_sum(valid_var)
+        divergence = tf.reduce_sum(
+            tf.reduce_sum(tf.square(actions - action_var), -1) * valid_var) / tf.reduce_sum(valid_var)
 
         input_list = [
             obs_var,
@@ -159,7 +161,9 @@ class GASM(GA):
         return all_input_values
 
     def mutation(self, itr, new_seeds, new_magnitudes, all_paths):
-        """Generate new random seeds and magnitudes for the next generation. The first self.keep_best seeds are set to no-mutation value (0).
+        """Generate new random seeds and magnitudes for the next generation.
+
+        The first self.keep_best seeds are set to no-mutation value (0).
 
         Parameters
         ----------
@@ -198,7 +202,8 @@ class GASM(GA):
             all_input_values = self.data2inputs(samples_data)
 
             new_magnitudes[itr + 1, p], constraint_val = \
-                self.optimizer.get_magnitude(direction=direction, inputs=all_input_values, max_constraint_val=self.step_size)
+                self.optimizer.get_magnitude(
+                    direction=direction, inputs=all_input_values, max_constraint_val=self.step_size)
             self.divergences[p] = constraint_val
         return new_seeds, new_magnitudes
 
