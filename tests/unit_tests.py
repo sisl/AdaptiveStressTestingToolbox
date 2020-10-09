@@ -1,4 +1,6 @@
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -11,13 +13,13 @@ from ast_toolbox.algos.go_explore import CellPool
 from ast_toolbox.envs.go_explore_ast_env import Custom_GoExploreASTEnv
 from ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv
 from ast_toolbox.envs.go_explore_ast_env import GoExploreParameter
-from ast_toolbox.simulators import ASTSimulator
-from ast_toolbox.simulators import ExampleAVSimulator
-from ast_toolbox.simulators import ExampleATSimulator
-from ast_toolbox.spaces import ASTSpaces
-from ast_toolbox.spaces import ExampleAVSpaces
-from ast_toolbox.spaces import ExampleATSpaces
 from ast_toolbox.rewards import ExampleATReward
+from ast_toolbox.simulators import ASTSimulator
+from ast_toolbox.simulators import ExampleATSimulator
+from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.spaces import ASTSpaces
+from ast_toolbox.spaces import ExampleATSpaces
+from ast_toolbox.spaces import ExampleAVSpaces
 from examples.AV.example_runner_ba_av import runner as ba_runner
 from examples.AV.example_runner_drl_av import runner as drl_runner
 from examples.AV.example_runner_ga_av import runner as ga_runner
