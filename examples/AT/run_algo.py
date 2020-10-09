@@ -1,4 +1,5 @@
 # This file kicks off separate runs AT given different algorithms and seeds.
+# Copy this to the root AdaptiveStressTestingToolbox directory.
 # To run this from the REPL: exec(open("run_algo.py").read())
 
 import os

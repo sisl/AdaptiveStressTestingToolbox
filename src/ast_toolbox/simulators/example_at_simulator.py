@@ -12,14 +12,7 @@ sys.path.insert(0, '../stlcg/src')
 import stlcg  # noqa
 
 # globalize MATLAB engine for DRL.
-try:
-    ENG
-except NameError:
-    MODEL_NAME = "Autotrans_shift"
-    print("Loading Simulink model: " + MODEL_NAME)
-    ENG = matlab.engine.start_matlab()
-    ENG.load_system(os.path.dirname(os.path.abspath(__file__)) + "/../models/" + MODEL_NAME + ".mdl")
-    print("Done!")
+ENG = None
 
 
 # Define the class: Automatic Transmission Simulink Model (falsification baseline)
@@ -30,6 +23,14 @@ class ExampleATSimulator(ASTSimulator):
     # Accept parameters for defining the behavior of the system under test[SUT]
 
     def __init__(self, **kwargs):
+        global ENG
+        if ENG is None:
+            model_name = "Autotrans_shift"
+            print("Loading Simulink model: " + model_name)
+            ENG = matlab.engine.start_matlab()
+            ENG.load_system(os.path.dirname(os.path.abspath(__file__)) + "/../models/" + model_name + ".mdl")
+            print("Done!")
+
         # Constant hyper-params -- set by user
         self.use_01_formulation = False  # Use the [0, 1] representation of the action space. Note, duplicate in "ExampleATSpaces".
         self.use_stl_robustness = True  # Use STL robustness instead of direct miss distance. (testing)

@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import Mock, MagicMock, patch
 
 import numpy as np
 import pytest
@@ -13,8 +13,11 @@ from ast_toolbox.envs.go_explore_ast_env import GoExploreASTEnv
 from ast_toolbox.envs.go_explore_ast_env import GoExploreParameter
 from ast_toolbox.simulators import ASTSimulator
 from ast_toolbox.simulators import ExampleAVSimulator
+from ast_toolbox.simulators import ExampleATSimulator
 from ast_toolbox.spaces import ASTSpaces
 from ast_toolbox.spaces import ExampleAVSpaces
+from ast_toolbox.spaces import ExampleATSpaces
+from ast_toolbox.rewards import ExampleATReward
 from examples.AV.example_runner_ba_av import runner as ba_runner
 from examples.AV.example_runner_drl_av import runner as drl_runner
 from examples.AV.example_runner_ga_av import runner as ga_runner
@@ -324,3 +327,30 @@ def test_example_runner_ge_av():
 def test_example_runner_mcts_av():
     with patch('examples.AV.example_runner_mcts_av.run_experiment'):
         mcts_runner()
+
+
+def test_at_simulator():
+    ENG = Mock()
+    ENG.mat2str = lambda m: "[0, 100, 0; 10, 100, 0; 20, 100, 0]"
+    ENG.eval = MagicMock(return_value=lambda k: {
+        "results.yout'": [
+            list(np.zeros(30)),
+            list(5000*np.ones(30)),
+            list(np.ones(30))
+        ],
+        "results.tout'": [list(range(31))]}[k])()
+    ENG.evalc = lambda input, **kwargs: None
+
+    with patch("ast_toolbox.simulators.example_at_simulator.ENG", ENG):
+        sim = ExampleATSimulator(blackbox_sim_state=True,
+                                 open_loop=False,
+                                 fixed_initial_state=True,
+                                 max_path_length=4)
+        sim.reset(np.array([0]))
+        space = ExampleATSpaces()
+        action_space = space.action_space
+        space.observation_space
+        action = action_space.sample()
+        sim.closed_loop_step(action)
+        reward = ExampleATReward()
+        reward.give_reward(action, info=sim.get_reward_info())
