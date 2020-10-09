@@ -2,7 +2,11 @@ import os
 import sys
 from pprint import pprint  # pretty print (for lists)
 
-import matlab.engine
+try:
+    import matlab.engine
+except ModuleNotFoundError:
+    print("Please install the MATLAB engine for Python.")
+
 import numpy as np  # Used for math
 import torch
 
