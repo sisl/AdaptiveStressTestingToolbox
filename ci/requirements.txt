@@ -3,3 +3,5 @@ pip>=19.1.1
 setuptools>=18.0.1
 six>=1.12.0
 bumpversion
+wheel
+twine

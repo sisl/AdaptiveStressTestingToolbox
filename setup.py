@@ -49,7 +49,7 @@ EXTRAS['ge'] = ['bsddb3']
 
 setup(
     name='ast-toolbox',
-    version='version='2020.09.01.dev1'',
+    version='2020.09.01.dev1',
     license='MIT',
     description='A toolbox for worst-case validation of autonomous policies',
     long_description='%s\n%s' % (
@@ -86,7 +86,6 @@ setup(
         # 'Programming Language :: Python :: Implementation :: Jython',
         # 'Programming Language :: Python :: Implementation :: Stackless',
         'Topic :: Utilities',
-        'Private :: Do Not Upload',
     ],
     project_urls={
         'Documentation': 'https://AdaptiveStressTestingToolbox.readthedocs.io/',
