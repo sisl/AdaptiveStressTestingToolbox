@@ -2,4 +2,4 @@
 Authors
 =======
 
-* Stanford Intelligent Systems Laboratory - https://web.stanford.edu/group/sisl/cgi-bin/wordpress/
+* Stanford Intelligent Systems Laboratory - http://sisl.stanford.edu/

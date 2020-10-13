@@ -18,6 +18,7 @@ include CHANGELOG.rst
 include CONTRIBUTING.rst
 include LICENSE
 include README.rst
+include UPDATING.rst
 include .gitmodules
 include requirements.txt
 include scripts/setup.sh

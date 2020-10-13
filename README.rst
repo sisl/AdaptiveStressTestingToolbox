@@ -15,7 +15,7 @@ Adaptive Stress Testing is a worst-case validation method for autonomous policie
 
 See https://ast-toolbox.readthedocs.io/en/latest/ for documentation.
 
-Maintained by the Stanford Autonomous Systems Lab
+Maintained by the `Stanford Intelligent Systems Lab (SISL) <http://sisl.stanford.edu/>`_
 
 
 * Free software: MIT license
@@ -78,21 +78,6 @@ Development
 ===========
 
 Please see our `Contributions Guide <https://ast-toolbox.readthedocs.io/en/latest/contributing.html>`_.
-
-.. list-table::
-    :widths: 10 90
-    :stub-columns: 1
-
-    - - Windows
-      - ::
-
-            set PYTEST_ADDOPTS=--cov-append
-            tox
-
-    - - Other
-      - ::
-
-            PYTEST_ADDOPTS=--cov-append tox
 
 
 .. |build-status| image:: https://api.travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg
