@@ -60,14 +60,19 @@ install:
   - tox --version
 script:
 - tox -v
-deploy:
-  provider: pypi
-  username: __token__
-  password:
-    secure: qAUz6O+p3Z+vgZd3mmqywAxfvnLmd/Dlnyk4AniLinml+gZ1vAI8f8aePyFrI5VTzVWF1RCSkPd6RIqwv6XSI8tOOtRO1OfRWhxIZPXCxpq5oewTn73uXoVJBZv36qpnhtyNoTMBbjn5T98SqgXIutVx9ZliC8hU+D6Q9LbuZXSuhj288fhH7Al2OZ88P1yrjo8aB/GEIWeGHic/4Z81feev6NslocuJau/BYeDwcrl07aIPoUvGjfM6a6cgQ698C5BAvHCyAc1Fyd85glxc8a3vR3ylm9iIbSMG3up8EBPbJ/RWfiYavpv5guTL0tt59cwX/AJqGnCblO9unEy4IXjseEpmVuD8YbZHage9tDJ6S+2kX1W5KHOP1mq/d+BhyMWstE7CGIQ/LTZ2C1o6F8361ZSS8SU3ht5r2BB7XjeEnWKf5QWJctKj3qhdbR+WFm2iY0rKYgGAv7IyjLSRVZgnAqp2JlQmXXoRmc/c04VeUT67x5elTeJ9WWw5Wyq8mnwhOJulOxfpMdAsDmDvU5qXjvDXnncw3AvTO/RGoP4S4L3Dk2RIT1Kntvl2ZO/SE8XhtBSCrjh1ie1VY7JEeGaVXphTcpaEbABVo++2jreeEDgJjGN1Jrt/7gtPuPHns1Gy4AGhj72sClYrNyP8HfnDnh8U2G1S+w47Mo5vKuU=
-  on:
-    tags: true
-  distributions: "sdist bdist_wheel"
+jobs:
+  include:
+    - stage: deploy
+      install: python -mpip install --progress-bar=off tox -rci/requirements.txt
+      script: tox -e check
+      deploy:
+        provider: pypi
+        username: __token__
+        password:
+          secure: qAUz6O+p3Z+vgZd3mmqywAxfvnLmd/Dlnyk4AniLinml+gZ1vAI8f8aePyFrI5VTzVWF1RCSkPd6RIqwv6XSI8tOOtRO1OfRWhxIZPXCxpq5oewTn73uXoVJBZv36qpnhtyNoTMBbjn5T98SqgXIutVx9ZliC8hU+D6Q9LbuZXSuhj288fhH7Al2OZ88P1yrjo8aB/GEIWeGHic/4Z81feev6NslocuJau/BYeDwcrl07aIPoUvGjfM6a6cgQ698C5BAvHCyAc1Fyd85glxc8a3vR3ylm9iIbSMG3up8EBPbJ/RWfiYavpv5guTL0tt59cwX/AJqGnCblO9unEy4IXjseEpmVuD8YbZHage9tDJ6S+2kX1W5KHOP1mq/d+BhyMWstE7CGIQ/LTZ2C1o6F8361ZSS8SU3ht5r2BB7XjeEnWKf5QWJctKj3qhdbR+WFm2iY0rKYgGAv7IyjLSRVZgnAqp2JlQmXXoRmc/c04VeUT67x5elTeJ9WWw5Wyq8mnwhOJulOxfpMdAsDmDvU5qXjvDXnncw3AvTO/RGoP4S4L3Dk2RIT1Kntvl2ZO/SE8XhtBSCrjh1ie1VY7JEeGaVXphTcpaEbABVo++2jreeEDgJjGN1Jrt/7gtPuPHns1Gy4AGhj72sClYrNyP8HfnDnh8U2G1S+w47Mo5vKuU=
+        on:
+          tags: false
+        distributions: "sdist bdist_wheel"
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat

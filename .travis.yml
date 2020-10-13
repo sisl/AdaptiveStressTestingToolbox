@@ -45,6 +45,8 @@ script:
 jobs:
   include:
     - stage: deploy
+      install: python -mpip install --progress-bar=off tox -rci/requirements.txt
+      script: tox -e check
       deploy:
         provider: pypi
         username: __token__
