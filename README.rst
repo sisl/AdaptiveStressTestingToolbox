@@ -1,7 +1,7 @@
 ===============================
 Adaptive Stress Testing Toolbox
 ===============================
-v2020.09.01.dev1
+vv2020.09.01.dev1.
 
 |build-status| |docs| |coverage| |license|
 
