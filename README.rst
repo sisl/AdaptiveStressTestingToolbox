@@ -79,6 +79,11 @@ Development
 
 Please see our `Contributions Guide <https://ast-toolbox.readthedocs.io/en/latest/contributing.html>`_.
 
+Acknowledgements
+================
+
+Built using the `cookiecutter-pylibrary <https://github.com/ionelmc/cookiecutter-pylibrary>`_ by Ionel Cristian Mărieș
+
 
 .. |build-status| image:: https://api.travis-ci.org/sisl/AdaptiveStressTestingToolbox.svg
     :alt: Build Status

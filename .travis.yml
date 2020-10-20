@@ -7,8 +7,8 @@ branches:
   - update_travis
 env:
   global:
-  - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
-  - SEGFAULT_SIGNALS=all
+    - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+    - SEGFAULT_SIGNALS=all
 before_install: ./ci/scripts/travis/before_install.sh
 install: ./ci/scripts/travis/install.sh
 script:
@@ -32,8 +32,20 @@ jobs:
       - TOXENV=docs
     - stage: 'test'
       env:
-      - TOXENV=py36-cover,codecov
+        - TOXENV=py36-cover,codecov
       python: '3.6'
+    - stage: 'test'
+      os: osx
+      language: generic
+      env:
+        - TOXENV=py37-cover
+      env:
+        - TOXENV=py37-cover,codecov
+      python: '3.7'
+    - stage: 'test'
+      env:
+        - TOXENV=py38-cover,codecov
+      python: '3.8'
     - stage: deploy
       install: python -mpip install --progress-bar=off tox -rci/requirements.txt
       script: skip
@@ -45,5 +57,3 @@ jobs:
         on:
           tags: false
         distributions: "sdist bdist_wheel"
-
-
