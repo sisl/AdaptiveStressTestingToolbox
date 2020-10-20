@@ -1,6 +1,10 @@
 language: python
 dist: xenial
 cache: false
+branches:
+  only:
+  - master
+  - update_travis
 env:
   global:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so

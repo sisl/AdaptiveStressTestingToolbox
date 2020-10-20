@@ -1,34 +1,16 @@
 language: python
 dist: xenial
 cache: false
+branches:
+  only:
+  - master
+  - update_travis
 env:
   global:
   - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
   - SEGFAULT_SIGNALS=all
-before_install:
-- python --version
-- uname -a
-- lsb_release -a || true
-- |
-  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-    [[ $TOXENV =~ py3 ]] && brew upgrade python
-    [[ $TOXENV =~ py2 ]] && brew install python@2
-    export PATH="/usr/local/opt/python/libexec/bin:${PATH}"
-  fi
-install:
-- |
-  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-    brew install berkeley-db
-    export BERKELEYDB_DIR=$(brew --cellar)/berkeley-db/5.3
-    export YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION=1
-  else
-    sudo apt-get update && sudo apt install libdb-dev python3-bsddb3 graphviz
-  fi
-- python -mpip install --progress-bar=off tox -rci/requirements.txt
-- virtualenv --version
-- easy_install --version
-- pip --version
-- tox --version
+before_install: ./ci/scripts/travis/before_install.sh
+install: ./ci/scripts/travis/install.sh
 script:
 - tox -v
 after_failure:
@@ -40,18 +22,21 @@ notifications:
     on_failure: always
 jobs:
   include:
-    - python: '3.6'
+    - stage: 'style'
+      python: '3.6'
       env:
       - TOXENV=check
-    - python: '3.6'
+    - stage: 'style'
+      python: '3.6'
       env:
       - TOXENV=docs
-    - env:
+    - stage: 'test'
+      env:
       - TOXENV=py36-cover,codecov
       python: '3.6'
     - stage: deploy
       install: python -mpip install --progress-bar=off tox -rci/requirements.txt
-      script: tox -e check
+      script: skip
       deploy:
         provider: pypi
         username: __token__
