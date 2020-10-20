@@ -5,17 +5,17 @@ env:
   global:
   - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
   - SEGFAULT_SIGNALS=all
-matrix:
-  include:
-  - python: '3.6'
-    env:
-    - TOXENV=check
-  - python: '3.6'
-    env:
-    - TOXENV=docs
-  - env:
-    - TOXENV=py36-cover,codecov
-    python: '3.6'
+#matrix:
+#  include:
+#  - python: '3.6'
+#    env:
+#    - TOXENV=check
+#  - python: '3.6'
+#    env:
+#    - TOXENV=docs
+#  - env:
+#    - TOXENV=py36-cover,codecov
+#    python: '3.6'
 before_install:
 - python --version
 - uname -a
@@ -51,6 +51,15 @@ notifications:
     on_failure: always
 jobs:
   include:
+    - python: '3.6'
+      env:
+      - TOXENV=check
+    - python: '3.6'
+      env:
+      - TOXENV=docs
+    - env:
+      - TOXENV=py36-cover,codecov
+    python: '3.6'
     - stage: deploy
       install: python -mpip install --progress-bar=off tox -rci/requirements.txt
       script: tox -e check
