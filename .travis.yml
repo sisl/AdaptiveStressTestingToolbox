@@ -34,18 +34,6 @@ jobs:
       env:
         - TOXENV=py36-cover,codecov
       python: '3.6'
-    - stage: 'test'
-      os: osx
-      language: generic
-      env:
-        - TOXENV=py37-cover
-      env:
-        - TOXENV=py37-cover,codecov
-      python: '3.7'
-    - stage: 'test'
-      env:
-        - TOXENV=py38-cover,codecov
-      python: '3.8'
     - stage: deploy
       install: python -mpip install --progress-bar=off tox -rci/requirements.txt
       script: skip
