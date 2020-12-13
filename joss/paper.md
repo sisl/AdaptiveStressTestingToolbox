@@ -4,15 +4,31 @@ tags:
   - Python
   - stress testing
   - black-box systems
-  - POMDPs.jl
 authors:
+  - name: Mark Koren
+    orcid: 0000-0003-2403-454X
+    affiliation: 1
+  - name: Xiaobai Ma
+    orcid:
+    affiliation: 1
+  - name: Anthony Corso
+    orcid:
+    affiliation: 1
   - name: Robert J. Moss
     orcid: 0000-0003-2403-454X
     affiliation: 1
+  - name: Peter Du
+    orcid:
+    affiliation: 2
+  - name: Katherine Driggs Campbell
+    orcid:
+    affiliation: 2
 affiliations:
  - name: Stanford University
    index: 1
-date: 26 August 2020
+ - name: University of Illinois
+   index: 2
+date: 13 December 2020
 bibliography: paper.bib
 header-includes: |
     \usepackage{listings}
@@ -34,12 +50,12 @@ The reward function uses the standard AST reward structure [@koren2020formulatio
 
 The AST method is shown in \autoref{fig:ast_method}, and the corresponding AST Toolbox architecture is shown in \autoref{fig:ast_arch}.
 The three core concepts of the AST method (simulator, solver, and reward function) have abstract classes associated with them.
-These base classes provide interfaces so they can interact with the AST module, represented by the \texttt{ASTEnv} class.
-\texttt{ASTEnv} is a gym environment [@brockman2016openai] that interacts with a wrapped simulator \texttt{ASTSimulator} and a reward function \texttt{ASTReward}.
-In conjunction with \texttt{ASTSpaces}, which are gym spaces, the AST problem is encoded as a standard gym reinforcement learning problem.
-Many open-source reinforcement learning algorithms are written to work with gym environments, and our solvers are implemented using the \textit{garage} framework [@garage].
-The solver derives from the \textit{garage} class \texttt{RLAlgorithm}, and uses both a \texttt{Policy}, such as a Gaussian LSTM, and an optimization method, such as TRPO [@schulman2015trust] and PPO [@schulman2017ppo].
-Using the \textit{garage} framework, new solvers can be quickly implemented.
+These base classes provide interfaces so they can interact with the AST module, represented by the `ASTEnv` class.
+`ASTEnv` is a gym environment [@brockman2016openai] that interacts with a wrapped simulator `ASTSimulator` and a reward function `ASTReward`.
+In conjunction with `ASTSpaces`, which are gym spaces, the AST problem is encoded as a standard gym reinforcement learning problem.
+Many open-source reinforcement learning algorithms are written to work with gym environments, and our solvers are implemented using the `garage` framework [@garage].
+The solver derives from the `garage` class `RLAlgorithm`, and uses both a `Policy`, such as a Gaussian LSTM, and an optimization method, such as TRPO [@schulman2015trust] and PPO [@schulman2017ppo].
+Using the `garage` framework, new solvers can be quickly implemented.
 
 # Statement of Need
 
@@ -63,9 +79,9 @@ We have also worked with a range of industrial and government partners, includin
 
 # Figures
 
-![Caption for example figure.\label{fig:ast_method}](ast_method.png)
+![The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.\label{fig:ast_method}](ast_method.png)
 
-![Caption for example figure.\label{fig:ast_arch}](ast_arch.png)
+![The AST Toolbox architecture. `ASTEnv` combines the simulator and reward function in a gym environment. The solver is implemented using the `garage` package.\label{fig:ast_arch}](ast_arch.png)
 
 # Acknowledgments
 
