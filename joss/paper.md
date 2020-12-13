@@ -5,7 +5,7 @@ tags:
   - stress testing
   - black-box systems
   - POMDPs.jl
-authors: TODO
+authors:
   - name: Robert J. Moss
     orcid: 0000-0003-2403-454X
     affiliation: 1
@@ -18,53 +18,10 @@ header-includes: |
     \usepackage{listings}
 ---
 
-\lstdefinelanguage{Julia}{
-    keywords=[3]{initialize!, transition!, evaluate!, distance, isevent, isterminal, environment},
-    keywords=[2]{Nothing, Tuple, Real, Bool, Simulation, BlackBox, GrayBox, Sampleable, Environment},
-    keywords=[1]{function, abstract, type, end},
-    sensitive=true,
-    morecomment=[l]{\#},
-    morecomment=[n]{\#=}{=\#},
-    morestring=[s]{"}{"},
-    morestring=[m]{'}{'},
-    alsoletter=!?,
-    literate={,}{{\color[HTML]{0F6FA3},}}1
-             {\{}{{\color[HTML]{0F6FA3}\{}}1
-             {\}}{{\color[HTML]{0F6FA3}\}}}1
-}
-
-\lstset{
-    language         = Julia,
-    backgroundcolor  = \color[HTML]{F2F2F2},
-    basicstyle       = \small\ttfamily\color[HTML]{19177C},
-    numberstyle      = \ttfamily\scriptsize\color[HTML]{7F7F7F},
-    keywordstyle     = [1]{\bfseries\color[HTML]{1BA1EA}},
-    keywordstyle     = [2]{\color[HTML]{0F6FA3}},
-    keywordstyle     = [3]{\color[HTML]{0000FF}},
-    stringstyle      = \color[HTML]{F5615C},
-    commentstyle     = \color[HTML]{AAAAAA},
-    rulecolor        = \color[HTML]{000000},
-    frame=lines,
-    xleftmargin=10pt,
-    framexleftmargin=10pt,
-    framextopmargin=4pt,
-    framexbottommargin=4pt,
-    tabsize=4,
-    captionpos=b,
-    breaklines=true,
-    breakatwhitespace=false,
-    showstringspaces=false,
-    showspaces=false,
-    showtabs=false,
-    columns=fullflexible,
-    keepspaces=true,
-    numbers=none,
-}
-
 # Summary
 
 \href{https://github.com/sisl/AdaptiveStressTestingToolbox}{The AST Toolbox} is a python package that uses reinforcement learning to find failures in autonomous systems while treating the system and the simulator as black-boxes.
-Adaptive stress testing (AST) was recently developed to identify the most likely failure of a system in simulation [@Lee2015adaptive].
+Adaptive stress testing (AST) was recently developed to identify the most likely failure of a system in simulation [@lee2015adaptive].
 AST frames the validation problem as a Markov decision process (MDP) [@DMU], where the AST agent controls the simulation through environment actions to find the most likely failure in the system under test [@koren2020formulation].
 Understanding the most likely failure allows engineers to address issues in their system prior to deployment.
 To facilitate the use of AST for validation, this paper presents a new software package called the AST Toolbox.
