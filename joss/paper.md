@@ -63,9 +63,9 @@ We have also worked with a range of industrial and government partners, includin
 
 # Figures
 
-![Caption for example figure.\label{fig:ast_method}](figure.png)
+![Caption for example figure.\label{fig:ast_method}](ast_method.png)
 
-![Caption for example figure.\label{fig:ast_arch}](figure.png)
+![Caption for example figure.\label{fig:ast_arch}](ast_arch.png)
 
 # Acknowledgments
 
