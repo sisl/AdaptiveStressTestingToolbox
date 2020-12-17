@@ -98,22 +98,6 @@ We have also worked with a range of industrial and government partners, includin
             sim_decision/.style = {simulator, diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt}
 }
 
-\begin{tikzpicture}[node distance=1.5cm,
-    every node/.style={text centered}, align=center] % font=\sffamily,
-  % Specification of nodes (position, etc.)
-    \node (ast)     [ast]   {AST};
-    \node (sim)     [simulator, below of=ast, xshift=-6cm, yshift=-1.25cm]    {Simulator};
-    \node (solver)  [solver, left of=ast, xshift=-4cm]    {Solver};
-    \node (reward)  [reward, below of=ast, xshift=0cm, yshift=-1.25cm]    {Reward\\Function};
-    \node [right of=ast, xshift=2mm, align=left]    {\texttt{ASTEnv}\\\texttt{ASTSpaces}};
-    \node [left of=solver, xshift=-0.6cm, align=right]    {\texttt{RLAlgorithm}\\\texttt{Policy}};
-    \node [below of=reward, yshift=0.4cm, align=center]    {\texttt{ASTReward}};
-    \node [below of=sim, yshift=0.4cm, align=center]    {\texttt{ASTSimulator}};
-    \draw[->]   (sim.45)    -- node [text width=4cm, xshift=0mm, yshift=3mm, text centered, align=center, rotate=19]    {\texttt{step()}, \texttt{reset()}, etc.} (ast.225);
-    \draw[->]   (reward.90) -- node [text width=1cm, xshift=6mm, yshift=0mm, text centered, align=center]    {\texttt{getReward()}} (ast.south);
-    \draw[->]   (ast.180)   -- node [text width=4cm, xshift=1mm, yshift=3mm, text centered, align=center]    {\texttt{step()}, \texttt{reset()}, etc.} (solver.east);
-    \draw[->]   (sim.east)  -- node [text width=1cm, xshift=-10mm, yshift=3mm, text centered, align=center]    {\texttt{getRewardInfo()}} (reward.west);
-\end{tikzpicture}
 
 \begin{figure}[tbp]
     \centering
@@ -125,6 +109,24 @@ We have also worked with a range of industrial and government partners, includin
 ![The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.\label{fig:ast_method}](ast_method.png){ width=70% }
 
 ![The AST Toolbox architecture. `ASTEnv` combines the simulator and reward function in a gym environment. The solver is implemented using the `garage` package.\label{fig:ast_arch}](ast_arch.png){ width=80% }
+
+\begin{figure}[tbp]
+	\centering
+	\begin{subfigure}[t]{0.45\linewidth}
+	    \centering
+        \resizebox{\textwidth}{!}{\input{ast_method.tex}}
+        \subcaption{The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.}
+    	\label{fig:ast_method}
+    \end{subfigure}\qquad
+    \begin{subfigure}[t]{0.45\linewidth}
+	    \centering
+        \resizebox{\textwidth}{!}{\input{ast_arch.tex}}
+        \subcaption{The AST Toolbox architecture. \texttt{ASTEnv} combines the simulator and reward function in a gym environment. The solver is implemented using the \textit{garage} package.}
+    	\label{fig:ast_arch}
+    \end{subfigure}
+    \caption{The AST method and the AST Toolbox architecture.}
+	\label{fig:ast_compare}
+\end{figure}
 
 # Acknowledgments
 
