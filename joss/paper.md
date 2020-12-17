@@ -33,6 +33,9 @@ bibliography: paper.bib
 header-includes: |
     \usepackage{tikz}
     \usetikzlibrary{shapes,arrows,calc,arrows.meta}
+    \usepackage{subcaption}
+    \usepackage{hyperref}
+    \usepackage{cleveref}
 ---
 
 # Summary
@@ -80,6 +83,7 @@ We have also worked with a range of industrial and government partners, includin
 
 # Figures
 
+
 \tikzset{
   >={Latex[width=2mm,length=2mm]},
   % Specifications for style of nodes:
@@ -111,6 +115,13 @@ We have also worked with a range of industrial and government partners, includin
     \draw[->]   (ast.180)   -- node [text width=4cm, xshift=1mm, yshift=3mm, text centered, align=center]    {\texttt{step()}, \texttt{reset()}, etc.} (solver.east);
     \draw[->]   (sim.east)  -- node [text width=1cm, xshift=-10mm, yshift=3mm, text centered, align=center]    {\texttt{getRewardInfo()}} (reward.west);
 \end{tikzpicture}
+
+\begin{figure}[tbp]
+    \centering
+    \resizebox{\textwidth}{!}{\input{Images/ast_method.tex}}
+	\label{fig:ast_method}
+	\caption{The AST method and the AST Toolbox architecture.}
+\end{figure}
 
 ![The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.\label{fig:ast_method}](ast_method.png){ width=70% }
 
