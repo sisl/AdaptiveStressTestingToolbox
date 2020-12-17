@@ -117,7 +117,7 @@ We have also worked with a range of industrial and government partners, includin
 
 \begin{figure}[tbp]
     \centering
-    \resizebox{\textwidth}{!}{\input{Images/ast_method.tex}}
+    \resizebox{\textwidth}{!}{\input{ast_method.tex}}
 	\label{fig:ast_method}
 	\caption{The AST method and the AST Toolbox architecture.}
 \end{figure}
