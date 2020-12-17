@@ -32,7 +32,7 @@ date: 13 December 2020
 bibliography: paper.bib
 header-includes: |
     \usepackage{tikz}
-    \usetikzlibrary{shapes,arrows, calc}
+    \usetikzlibrary{shapes,arrows,calc,arrows.meta}
 ---
 
 # Summary
