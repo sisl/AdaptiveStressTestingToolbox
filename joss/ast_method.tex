@@ -1,0 +1,13 @@
+\begin{tikzpicture}[node distance=1.5cm,
+    every node/.style={fill=white, text centered}, align=center] %  font=\sffamily,
+  % Specification of nodes (position, etc.)
+	\node (sim)             [simulator, minimum width = 3.5cm]              {Simulator $\mathcal{S}$};
+    \node (solver)          [solver, above of = sim, xshift = 0.8cm]              {Solver};
+    \node (reward)          [reward, above of = sim, xshift = 5cm]              {Reward\\Function};
+  % Specification of lines between nodes specified above
+  % with aditional nodes for description
+  \draw[->]					(solver.west) -| node[text width=1cm, xshift = 0mm, yshift = 6mm, text centered, align=center] {Environment\\Actions} ($ (sim.north) - (15mm, 0) $);
+  \draw[->] 	($(sim.east) + (0mm,2mm)$) -| node[text width=1.6cm, xshift = -17mm, yshift = 4mm] {Likelihood} ($ (reward.south) + (-2mm, 0mm) $);
+  \draw[->] 	($(sim.east) + (0mm,-2mm)$) -| node[text width=1cm, xshift = -20mm, yshift = -4mm] {Event} ($ (reward.south) + (2mm, 0mm) $);
+  \draw[->]		(reward.west) -- ++(0mm,0) -- node[text width=1cm, xshift = 0mm, yshift = 3mm] {Reward}(solver.east);
+\end{tikzpicture}

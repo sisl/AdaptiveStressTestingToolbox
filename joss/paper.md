@@ -31,9 +31,14 @@ affiliations:
 date: 13 December 2020
 bibliography: paper.bib
 header-includes: |
-    \usepackage{listings}
+    \usepackage{tikz}
+    \usetikzlibrary{shapes,arrows, calc}
+    \usepackage{pgfplots}
 ---
-
+\pgfplotsset{compat=newest}
+\pgfplotsset{every axis/.append style={
+	font=\LARGE}
+}
 # Summary
 
 \href{https://github.com/sisl/AdaptiveStressTestingToolbox}{The AST Toolbox} is a python package that uses reinforcement learning to find failures in autonomous systems while treating the system and the simulator as black-boxes.
@@ -78,6 +83,41 @@ Applications have included autonomous vehicles, aircraft collision avoidance sof
 We have also worked with a range of industrial and government partners, including Nvidia, NASA Ames, Uber ATG, Samsung, and the FAA.
 
 # Figures
+
+\tikzset{
+  >={Latex[width=2mm,length=2mm]},
+  % Specifications for style of nodes:
+            base/.style = {rectangle, rounded corners, draw=black,
+                           minimum width=1cm, minimum height=1cm,
+                           text centered}, % , font=\sffamily
+            simulator/.style = {base, fill=gray!30}, % green!30
+            solver/.style = {base, fill=red!30},
+            reward/.style = {base, minimum height=1.5cm},
+            ast/.style = {base, fill=blue!50!black!20}, % blue!30
+            module/.style = {base, minimum width=2.5cm, minimum height=1.5cm, fill=blue!30},
+            module2/.style = {base, minimum width=2.5cm, minimum height=1.5cm, fill=white},
+            sim_decision/.style = {simulator, diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt}
+}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{tikzpicture}[node distance=1.5cm,
+    every node/.style={text centered}, align=center] % font=\sffamily,
+  % Specification of nodes (position, etc.)
+    \node (ast)     [ast]   {AST};
+    \node (sim)     [simulator, below of=ast, xshift=-6cm, yshift=-1.25cm]    {Simulator};
+    \node (solver)  [solver, left of=ast, xshift=-4cm]    {Solver};
+    \node (reward)  [reward, below of=ast, xshift=0cm, yshift=-1.25cm]    {Reward\\Function};
+    \node [right of=ast, xshift=2mm, align=left]    {\texttt{ASTEnv}\\\texttt{ASTSpaces}};
+    \node [left of=solver, xshift=-0.6cm, align=right]    {\texttt{RLAlgorithm}\\\texttt{Policy}};
+    \node [below of=reward, yshift=0.4cm, align=center]    {\texttt{ASTReward}};
+    \node [below of=sim, yshift=0.4cm, align=center]    {\texttt{ASTSimulator}};
+    \draw[->]   (sim.45)    -- node [text width=4cm, xshift=0mm, yshift=3mm, text centered, align=center, rotate=19]    {\texttt{step()}, \texttt{reset()}, etc.} (ast.225);
+    \draw[->]   (reward.90) -- node [text width=1cm, xshift=6mm, yshift=0mm, text centered, align=center]    {\texttt{getReward()}} (ast.south);
+    \draw[->]   (ast.180)   -- node [text width=4cm, xshift=1mm, yshift=3mm, text centered, align=center]    {\texttt{step()}, \texttt{reset()}, etc.} (solver.east);
+    \draw[->]   (sim.east)  -- node [text width=1cm, xshift=-10mm, yshift=3mm, text centered, align=center]    {\texttt{getRewardInfo()}} (reward.west);
+\end{tikzpicture}
 
 ![The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.\label{fig:ast_method}](ast_method.png){ width=70% }
 
