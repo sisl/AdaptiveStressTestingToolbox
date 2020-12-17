@@ -43,7 +43,7 @@ header-includes: |
 # Summary
 
 \href{https://github.com/sisl/AdaptiveStressTestingToolbox}{The AST Toolbox} is a python package that uses reinforcement learning to find failures in autonomous systems while treating the system and the simulator as black-boxes.
-Adaptive stress testing (AST) was recently developed to identify the most likely failure of a system in simulation [@lee2015adaptive].
+Adaptive stress testing (AST) was recently developed to identify the most likely failure of a system in simulation [@lee2020adaptive].
 AST frames the validation problem as a Markov decision process (MDP) [@DMU], where the AST agent controls the simulation through environment actions to find the most likely failure in the system under test [@koren2020formulation].
 Understanding the most likely failure allows engineers to address issues in their system prior to deployment.
 To facilitate the use of AST for validation, this paper presents a new software package called the AST Toolbox.
@@ -80,7 +80,7 @@ To facilitate the general use of adaptive stress testing for validation, this pa
 
 The authors have published multiple papers on AST at venues including the Intelligent Vehicle Symposium (IV), the Intelligent Transportation Systems Conference (ITSC), and the Digital Avionics Systems Conference (DASC).
 Research vectors include adding new solver algorithms  [@koren2020adaptive] , improving failure diversity [@corso2019adaptive], adding interpretability [@corso2020interpretable], and improving scalability [@koren2019efficient].
-Applications have included autonomous vehicles [@koren2018adaptive], aircraft collision avoidance software, aircraft flight management systems [@moss2020adaptive], and image-based neural network controllers [@julian2020validation].
+Applications have included autonomous vehicles [@koren2018adaptive], aircraft collision avoidance software [@lee2015adaptive], aircraft flight management systems [@moss2020adaptive], and image-based neural network controllers [@julian2020validation].
 We have also worked with a range of industrial and government partners, including Nvidia, NASA Ames, Uber ATG, Samsung, and the FAA.
 
 # Figures
