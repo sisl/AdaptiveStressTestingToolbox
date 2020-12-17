@@ -56,12 +56,12 @@ The reward function uses the standard AST reward structure [@koren2020formulatio
 
 The AST method is shown in \autoref{fig:ast_method}, and the corresponding AST Toolbox architecture is shown in \autoref{fig:ast_arch}.
 The three core concepts of the AST method (simulator, solver, and reward function) have abstract classes associated with them.
-These base classes provide interfaces so they can interact with the AST module, represented by the `ASTEnv` class.
-\texttt{ASTEnv} is a gym environment [@brockman2016openai] that interacts with a wrapped simulator `ASTSimulator` and a reward function `ASTReward`.
-In conjunction with `ASTSpaces`, which are gym spaces, the AST problem is encoded as a standard gym reinforcement learning problem.
-Many open-source reinforcement learning algorithms are written to work with gym environments, and our solvers are implemented using the `garage` framework [@garage].
-The solver derives from the `garage` class `RLAlgorithm`, and uses both a `Policy`, such as a Gaussian LSTM, and an optimization method, such as TRPO [@schulman2015trust] and PPO [@schulman2017ppo].
-Using the `garage` framework, new solvers can be quickly implemented.
+These base classes provide interfaces so they can interact with the AST module, represented by the \texttt{ASTEnv} class.
+\texttt{ASTEnv} is a gym environment [@brockman2016openai] that interacts with a wrapped simulator \texttt{ASTSimulator} and a reward function \texttt{ASTReward}.
+In conjunction with \texttt{ASTSpaces}, which are gym spaces, the AST problem is encoded as a standard gym reinforcement learning problem.
+Many open-source reinforcement learning algorithms are written to work with gym environments, and our solvers are implemented using the \texttt{garage} framework [@garage].
+The solver derives from the \texttt{garage} class \texttt{RLAlgorithm}, and uses both a \texttt{Policy}, such as a Gaussian LSTM, and an optimization method, such as TRPO [@schulman2015trust] and PPO [@schulman2017ppo].
+Using the \texttt{garage} framework, new solvers can be quickly implemented.
 
 # Statement of Need
 
