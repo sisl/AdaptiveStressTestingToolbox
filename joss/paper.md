@@ -34,10 +34,7 @@ header-includes: |
     \usepackage{tikz}
     \usetikzlibrary{shapes,arrows, calc}
 ---
-\pgfplotsset{compat=newest}
-\pgfplotsset{every axis/.append style={
-	font=\LARGE}
-}
+
 # Summary
 
 \href{https://github.com/sisl/AdaptiveStressTestingToolbox}{The AST Toolbox} is a python package that uses reinforcement learning to find failures in autonomous systems while treating the system and the simulator as black-boxes.
@@ -97,9 +94,6 @@ We have also worked with a range of industrial and government partners, includin
             module2/.style = {base, minimum width=2.5cm, minimum height=1.5cm, fill=white},
             sim_decision/.style = {simulator, diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt}
 }
-\pgfdeclarelayer{background}
-\pgfdeclarelayer{foreground}
-\pgfsetlayers{background,main,foreground}
 
 \begin{tikzpicture}[node distance=1.5cm,
     every node/.style={text centered}, align=center] % font=\sffamily,
