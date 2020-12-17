@@ -33,7 +33,6 @@ bibliography: paper.bib
 header-includes: |
     \usepackage{tikz}
     \usetikzlibrary{shapes,arrows, calc}
-    \usepackage{pgfplots}
 ---
 \pgfplotsset{compat=newest}
 \pgfplotsset{every axis/.append style={
