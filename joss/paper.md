@@ -98,18 +98,6 @@ We have also worked with a range of industrial and government partners, includin
             sim_decision/.style = {simulator, diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt}
 }
 
-
-\begin{figure}[tbp]
-    \centering
-    \resizebox{\textwidth}{!}{\input{ast_method.tex}}
-	\label{fig:ast_method}
-	\caption{The AST method and the AST Toolbox architecture.}
-\end{figure}
-
-![The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.\label{fig:ast_method}](ast_method.png){ width=70% }
-
-![The AST Toolbox architecture. `ASTEnv` combines the simulator and reward function in a gym environment. The solver is implemented using the `garage` package.\label{fig:ast_arch}](ast_arch.png){ width=80% }
-
 \begin{figure}[tbp]
 	\centering
 	\begin{subfigure}[t]{0.45\linewidth}
