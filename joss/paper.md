@@ -35,7 +35,6 @@ header-includes: |
     \usetikzlibrary{shapes,arrows,calc,arrows.meta}
     \usepackage{subcaption}
     \usepackage{hyperref}
-    \usepackage{cleveref}
 ---
 
 # Summary
