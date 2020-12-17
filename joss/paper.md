@@ -79,8 +79,8 @@ To facilitate the general use of adaptive stress testing for validation, this pa
 # Research and Industrial Usage
 
 The authors have published multiple papers on AST at venues including the Intelligent Vehicle Symposium (IV), the Intelligent Transportation Systems Conference (ITSC), and the Digital Avionics Systems Conference (DASC).
-Research vectors include adding new solver algorithms [@koren2018adaptive, @koren2020adaptive] , improving failure diversity [@corso2019adaptive], adding interpretability [@corso2020interpretable], and improving scalability [@koren2019efficient].
-Applications have included autonomous vehicles, aircraft collision avoidance software, aircraft flight management systems [@moss2020adaptive], and image-based neural network controllers [@julian2020validation].
+Research vectors include adding new solver algorithms  [@koren2020adaptive] , improving failure diversity [@corso2019adaptive], adding interpretability [@corso2020interpretable], and improving scalability [@koren2019efficient].
+Applications have included autonomous vehicles [@koren2018adaptive], aircraft collision avoidance software, aircraft flight management systems [@moss2020adaptive], and image-based neural network controllers [@julian2020validation].
 We have also worked with a range of industrial and government partners, including Nvidia, NASA Ames, Uber ATG, Samsung, and the FAA.
 
 # Figures
