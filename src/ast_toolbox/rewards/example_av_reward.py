@@ -95,7 +95,7 @@ class ExampleAVReward(ASTReward):
         ----------
         .. [1] Mahalanobis, Prasanta Chandra. "On the generalized distance in statistics." National Institute of
             Science of India, 1936.
-            `<http://library.isical.ac.in:8080/jspui/bitstream/123456789/6765/1/Vol02_1936_1_Art05-pcm.pdf>`_
+            `<http://library.isical.ac.in:8080/jspui/bitstream/10263/6765/1/Vol02_1936_1_Art05-pcm.pdf>`_
         """
         # Mean action is 0
         mean = np.zeros((6 * self.c_num_peds, 1))
