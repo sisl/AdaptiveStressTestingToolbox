@@ -104,7 +104,6 @@ We have also worked with a range of industrial and government partners, includin
             simstyle/.style = {base,minimum width=0.5cm,minimum height=1.0cm,thick,fill=gray!15},
             sutstyle/.style = {base,minimum width=0.5cm,minimum height=1.0cm,fill=blue!20},
             rewardstyle/.style = {base,minimum height=1.5cm,fill=green!70!gray!20}
-
 }
 
 \pgfdeclarelayer{background}
