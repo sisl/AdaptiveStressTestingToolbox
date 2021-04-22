@@ -115,7 +115,7 @@ We have also worked with a range of industrial and government partners, includin
 	    \centering
         \resizebox{\textwidth}{!}{\input{ast_method.tex}}
         \subcaption{The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.}
-        \vspace{15mm}
+        \vspace{5mm}
     	\label{fig:ast_method}
     \end{subfigure}
     \begin{subfigure}[t]{0.85\linewidth}
