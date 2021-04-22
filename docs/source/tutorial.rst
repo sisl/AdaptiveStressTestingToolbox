@@ -4,7 +4,7 @@ Tutorial
 ******************
 .. _tutorial-introduction:
 
-*This tutorial is up-to-date for version `2020.09.01.1`*
+*This tutorial is up-to-date for version `2020.09.01.2`*
 
 1 Introduction
 ===============

@@ -49,7 +49,7 @@ EXTRAS['ge'] = ['bsddb3']
 
 setup(
     name='ast-toolbox',
-    version='2020.09.01.1',
+    version='2020.09.01.2',
     license='MIT',
     description='A toolbox for worst-case validation of autonomous policies',
     long_description='%s\n%s' % (
