@@ -98,7 +98,13 @@ We have also worked with a range of industrial and government partners, includin
             ast/.style = {base, fill=blue!50!black!20}, % blue!30
             module/.style = {base, minimum width=2.5cm, minimum height=1.5cm, fill=blue!30},
             module2/.style = {base, minimum width=2.5cm, minimum height=1.5cm, fill=white},
-            sim_decision/.style = {simulator, diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt}
+            sim_decision/.style = {simulator, diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt},
+            envstyle/.style = {base,minimum width=0.5cm,minimum height=1.0cm,fill=red!25},
+            learnerstyle/.style = {base,minimum width=0.5cm,minimum height=1.0cm,fill=orange!30},
+            simstyle/.style = {base,minimum width=0.5cm,minimum height=1.0cm,thick,fill=gray!15},
+            sutstyle/.style = {base,minimum width=0.5cm,minimum height=1.0cm,fill=blue!20},
+            rewardstyle/.style = {base,minimum height=1.5cm,fill=green!70!gray!20}
+
 }
 
 \begin{figure}[tbp]
