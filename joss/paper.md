@@ -111,13 +111,13 @@ We have also worked with a range of industrial and government partners, includin
 
 \begin{figure}[tbp]
 	\centering
-	\begin{subfigure}[t]{0.45\linewidth}
+	\begin{subfigure}[t]{0.85\linewidth}
 	    \centering
         \resizebox{\textwidth}{!}{\input{ast_method.tex}}
         \subcaption{The AST method. The simulator is treated as a black box. The solver optimizes a reward based on transition likelihood and whether an event has occurred.}
     	\label{fig:ast_method}
     \end{subfigure}\qquad
-    \begin{subfigure}[t]{0.45\linewidth}
+    \begin{subfigure}[t]{0.85\linewidth}
 	    \centering
         \resizebox{\textwidth}{!}{\input{ast_arch.tex}}
         \subcaption{The AST Toolbox architecture. \texttt{ASTEnv} combines the simulator and reward function in a gym environment. The solver is implemented using the \textit{garage} package.}
