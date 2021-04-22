@@ -1,0 +1,16 @@
+\begin{tikzpicture}[node distance=1.5cm,
+    every node/.style={text centered}, align=center] % font=\sffamily,
+  % Specification of nodes (position, etc.)
+    \node (ast)     [ast]   {AST};
+    \node (sim)     [simstyle, below of=ast, xshift=-6cm, yshift=-1.25cm]    {Simulator};
+    \node (solver)  [learnerstyle, left of=ast, xshift=-4cm]    {Reinforcement\\Learner};
+    \node (reward)  [rewardstyle, below of=ast, xshift=0cm, yshift=-1.25cm]    {Reward\\Function};
+    \node [right of=ast, xshift=2mm, align=left]    {\texttt{ASTEnv}\\\texttt{ASTSpaces}};
+    \node [left of=solver, xshift=-1.0cm, align=right]    {\texttt{RLAlgorithm}\\\texttt{Policy}};
+    \node [below of=reward, yshift=0.4cm, align=center]    {\texttt{ASTReward}};
+    \node [below of=sim, yshift=0.4cm, align=center]    {\texttt{ASTSimulator}};
+    \draw[->]   (sim.45)    -- node [text width=4cm, xshift=0mm, yshift=3mm, text centered, align=center, rotate=19]    {\texttt{step()}, \texttt{reset()}, etc.} (ast.225);
+    \draw[->]   (reward.90) -- node [text width=1cm, xshift=6mm, yshift=0mm, text centered, align=center]    {\texttt{getReward()}} (ast.south);
+    \draw[->]   (ast.180)   -- node [text width=4cm, xshift=1mm, yshift=3mm, text centered, align=center]    {\texttt{step()}, \texttt{reset()}, etc.} (solver.east);
+    \draw[->]   (sim.east)  -- node [text width=1cm, xshift=-10mm, yshift=3mm, text centered, align=center]    {\texttt{getRewardInfo()}} (reward.west);
+\end{tikzpicture}

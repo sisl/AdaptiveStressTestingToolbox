@@ -1,0 +1,38 @@
+\begin{tikzpicture}[node distance=1.5cm,
+    every node/.style={font=\large},
+    align=center]
+  % Specification of nodes (position, etc.)
+	\node (env) [envstyle, xshift=-4.25cm, yshift=1cm] {Environment $\mathcal{E}$};
+    \node (sut) [sutstyle, right of=env, xshift=4.25cm, yshift=0cm] {System\\Under Test $\mathcal{M}$};
+
+    \begin{pgfonlayer}{background}
+        \node (sim) [fit={($(env.north west)+(-4mm,9mm)$) ($(sut.south east)+(4mm,-4mm)$)},simstyle]{};
+    	\node at ($(sim.north west)+(1.4cm,-3.2mm)$) [font={\large}] {Simulator $\mathcal{S}$};
+    \end{pgfonlayer}
+
+    \draw[->,transform canvas={yshift=0.2cm}] (sut.west) -- (env.east) node[midway,above]{action $a$} ;
+    \draw[->,transform canvas={yshift=-0.2cm}] (env.east) -- (sut.west) node[midway,below]{observation $o$};
+
+    \node (learner) [learnerstyle, right=3.25cm of sim] {Reinforcement\\Learner $\mathcal{A}$};
+    \node (reward) [rewardstyle, below=of learner, xshift=-2.5cm] {Reward\\Function $R$};
+
+    \node[] (optional1) at ($(sim.west)+(-0.75cm,0)$) {};
+    % \draw (A |- B) -- (C |- D);
+    \draw[dashed, ->] (optional1 |- reward) -- (reward.west);
+
+    \node[] (optional2) at (reward.north |- learner.west) {};
+    % \path (learner) --  (sim) node (optional2) [midway] {};
+    % \draw[->] (optional2) -- node[below of = learner]{};
+
+    \draw[->] (learner) -- (sim) node (midway) [midway,above] {disturbance $x$};
+    \draw[<-] (learner.south) |- (reward.east) node[pos=0.35,right]{reward\\$r$} ;
+    % \draw[<-] (reward.north) |- (learner);
+    \draw[->] (optional2) --  (reward.north);
+    \draw[->] (sim.west) -- ++(-0.75cm,0) -- ++(0,-4.25cm)node[xshift=3.5cm,yshift=0.7cm]{event $e$, simulation information $\widetilde{s}$} -- ++(+17cm,0) |- (learner);
+
+    \path[] (learner.west) -- (optional2) -- ++(0, -1.25cm) node (optional3) [] {} -| (learner.south) node (optional4) [] {};
+    \node[] (optional5) at (optional4 |- optional3) {};
+    % \draw[->] (optional3) -- node (optional5) at (optional4 |- optional3) [] {D};
+    \draw[dashed, ->] (optional3) -- (optional5);
+
+\end{tikzpicture}
