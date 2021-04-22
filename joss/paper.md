@@ -35,7 +35,7 @@ date: 13 December 2020
 bibliography: paper.bib
 header-includes: |
     \usepackage{tikz}
-    \usetikzlibrary{shapes,arrows,calc,arrows.meta,positioning,patterns,shapes.arrows,shapes.geometric,shapes.misc,fit}
+    \usetikzlibrary{shapes,arrows,calc,arrows.meta,positioning,patterns,shapes.arrows,shapes.geometric,shapes.misc,fit,automata,patterns.meta}
     \usepackage{subcaption}
     \usepackage{hyperref}
 ---
