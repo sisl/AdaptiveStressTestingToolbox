@@ -98,7 +98,7 @@ Built using the `cookiecutter-pylibrary <https://github.com/ionelmc/cookiecutter
 .. |coverage| image:: https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox/branch/master/graph/badge.svg
     :alt: Code Coverage
     :scale: 100%
-    :target: https://codecov.io/gh/sisl/AdaptiveStressTestingToolbox
+    :target: https://app.codecov.io/gh/sisl/AdaptiveStressTestingToolbox
 
 .. |license| image:: https://img.shields.io/badge/license-MIT-yellow.svg
     :alt: License

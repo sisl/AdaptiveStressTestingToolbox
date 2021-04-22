@@ -52,7 +52,7 @@ Three options must be specified to inform ASTEnv what type of simulator it is in
 
 * **Open-loop** vs. Closed-loop control (open_loop): A *closed-loop* simulation is one in which control can be injected at each step during the actual simulation run, vs an *open-loop* simulation where all actions must be specified ahead of time. Essentially, in a closed-loop system we are "closing the loop" by including the toolbox in the calculation of each timestep. For example, if a simulation is run by creating a specification file, and no other control is possible, that simulation would be open-loop. There is no inherent advantage to either mode, and open-loop will be far more common. Closed-loop mode will generally only be used by white-box systems, where closed-loop control is required.
 * **Black box simulation state** vs. White box simulation state (blackbox_sim_state): When running in *black box* simulation mode, the solver does not have access to the true state of the simulator, instead choosing actions based on the initial condition and the history of actions taken so far. If your simulator can provide access to the simulation state, it can be faster and more efficient to run in *white box* simulation mode, in which the simulation state is used as the input to the reinforcement learning algorithm at each time step. White box simulation mode requires closed-loop control.
-* **Fixed initial state** vs. Generalized initial state (fixed_init_state): A simulation with a *fixed initial state* starts every rollout from the exact same simulation state, while a simulation with a *Generalized initial state* samples from a space of initial conditions. For example, if you had a 1-D state space, starting at x=0 would be a fixed initial state, while sampling x from [-2,2] at the start of each simulation would be a generalized initial state. For more information on the specifics see `Efficient Autonomy Validation in Simulation with Adaptive Stress Testing https://arxiv.org/abs/1907.06795>`_.
+* **Fixed initial state** vs. Generalized initial state (fixed_init_state): A simulation with a *fixed initial state* starts every rollout from the exact same simulation state, while a simulation with a *Generalized initial state* samples from a space of initial conditions. For example, if you had a 1-D state space, starting at x=0 would be a fixed initial state, while sampling x from [-2,2] at the start of each simulation would be a generalized initial state. For more information on the specifics see `Efficient Autonomy Validation in Simulation with Adaptive Stress Testing <https://arxiv.org/abs/1907.06795>`_.
 
 .. _tutorial-inheriting-the-base-simulator:
 
@@ -93,16 +93,19 @@ Finally, it is not recommended that you touch these functions:
    - ``step``.
    - ``observation_return``.
    - ``is_terminal``.
+
 For use with the Go-Explore algorithm, the ``clone_state`` and ``restore_state`` functions must be defined.
 
 .. _tutorial-initializing-the-example-simulator:
 
 2.3 Initializing the Example Simulator
 --------------------------------------
+
 Our example simulator takes 3 values:
+
 * **num\_peds**: The number of pedestrians in the scenario.
 * **simulator_args**: A dict of named arguments to be passed to the toy simulator.
-* **kwargs**: Any keyword arguement not listed here. In particular, the base class arguments covered in :ref:`tutorial-inheriting-the-base-simulator` should be passed to the base Simulator as one of the **kwargs.
+* **kwargs**: Any keyword arguement not listed here. In particular, the base class arguments covered in :ref:`tutorial-inheriting-the-base-simulator` should be passed to the base Simulator as one of the kwargs.
 
 The toy simulator will control a modified version of the Intelligent Driver Model (IDM) as our system under test (SUT), while adding sensor noise and filtering it out with an alpha-beta tracker. Initial simulation conditions are needed here as well. Because of all this, the Simulator accepts a number of inputs:
 
@@ -900,8 +903,9 @@ Here we are creating a new directory for the output, and then running the batch 
 
 6.2 Example Output
 ------------------
-As you run the program, rllab will output optimization updates to the terminal. When the method runs iteration 100, you should see something that looks like this:
-::
+
+As you run the program, rllab will output optimization updates to the terminal. When the method runs iteration 100, you should see something that looks like this::
+
 	| -----------------------  ----------------
 	| PolicyExecTime                0.138965
 	| EnvExecTime                   0.471907

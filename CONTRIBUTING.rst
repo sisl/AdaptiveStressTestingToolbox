@@ -100,6 +100,7 @@ Some docstring guidelines:
    * Make the descriptions as explanatory as possible.
    * If the parameter has a default value, indicate this by adding "optional" to the type
    * If the type of a parameter is a non-python class (for example, a class from Garage or from elsewhere in the Toolbox), make the type link to that class's documentation. You can do this using `intersphinx <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html>`_.
+
    For example, to link to a garage class, we first added::
 
       'garage': ('https://garage.readthedocs.io/en/v2019.10.1/', None)
