@@ -5,6 +5,7 @@ graft ci
 graft tests
 prune tests/.pytest_cache
 graft third_party
+graft joss
 recursive-exclude third_party */.git joss
 graft examples
 
