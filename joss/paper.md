@@ -107,6 +107,9 @@ We have also worked with a range of industrial and government partners, includin
 
 }
 
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
+
 \begin{figure}[tbp]
 	\centering
 	\begin{subfigure}[t]{0.45\linewidth}
