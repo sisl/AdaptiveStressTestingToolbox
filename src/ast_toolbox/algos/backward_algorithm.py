@@ -1,8 +1,8 @@
 import itertools
+
 import numpy as np
 from dowel import logger
 from garage.tf.algos.ppo import PPO
-import pdb
 
 
 class BackwardAlgorithm(PPO):
@@ -62,7 +62,7 @@ class BackwardAlgorithm(PPO):
                  expert_trajectory,
                  epochs_per_step=10,
                  max_epochs=None,
-                 skip_until_step = 0,
+                 skip_until_step=0,
                  scope=None,
                  max_path_length=500,
                  discount=0.99,
@@ -97,7 +97,7 @@ class BackwardAlgorithm(PPO):
         self.expert_trajectory_last_step = len(self.expert_trajectory) - 1
 
         # Get initialization variables
-        self.first_iteration_num = np.minimum(self.skip_until_step, self.expert_trajectory_last_step )
+        self.first_iteration_num = np.minimum(self.skip_until_step, self.expert_trajectory_last_step)
         self.first_step_num = np.maximum(0, self.expert_trajectory_last_step - self.first_iteration_num)
         self.num_steps = len(self.expert_trajectory) - self.first_iteration_num
 
@@ -232,13 +232,13 @@ class BackwardAlgorithm(PPO):
                     epoch_paths[rollout_idx]['actions'] = np.concatenate(
                         (self.env_action.reshape((-1, rollout['actions'].shape[1])), rollout['actions']))
                     # epoch_paths[rollout_idx]['observations'] = np.concatenate(
-                        # (self.env_observation.reshape((-1, rollout['observations'].shape[1])), rollout['observations']))
+                    # (self.env_observation.reshape((-1, rollout['observations'].shape[1])), rollout['observations']))
                     epoch_paths[rollout_idx]['observations'] = np.concatenate(
                         (np.repeat(
-                            rollout['observations'][0,:].reshape((1,-1)),
+                            rollout['observations'][0, :].reshape((1, -1)),
                             self.env_observation.shape[0],
                             axis=0),
-                        rollout['observations']))
+                         rollout['observations']))
 
                     # Process the modified rollouts and optimize
             last_return = self.train_once(epoch_itr, epoch_paths)
@@ -271,8 +271,8 @@ class BackwardAlgorithm(PPO):
 
         try:
             paths = self.process_samples(itr, paths)
-        except:
-            import pdb;
+        except BaseException:
+            import pdb
             pdb.set_trace()
 
         self.log_diagnostics(paths)
@@ -298,14 +298,17 @@ class BackwardAlgorithm(PPO):
                 epochs_per_this_step += 1
 
                 if (not self.done and
-                    (self.done_with_step or epochs_per_this_step == self.max_epochs_per_step)):
+                        (self.done_with_step or epochs_per_this_step == self.max_epochs_per_step)):
                     if self.step_num == 0:
                         self.done = True
                     else:
                         # Back up the algorithm to the next step of the expert trajectory
                         epochs_per_this_step = 0
                         print('------------ Backward Algorithm: Stepping Back from Step: ', self.step_num, ' to Step: ',
-                              np.maximum(0, self.expert_trajectory_last_step - np.minimum(iteration_num + 1, self.num_steps - 1)), ' ------------------')
+                              np.maximum(0,
+                                         self.expert_trajectory_last_step -
+                                         np.minimum(iteration_num + 1, self.num_steps - 1)),
+                              ' ------------------')
                         iteration_num = np.minimum(iteration_num + 1, self.num_steps - 1)
                         self.step_num = np.maximum(0, self.expert_trajectory_last_step - iteration_num)
                         # print(self.step_num)
@@ -313,9 +316,6 @@ class BackwardAlgorithm(PPO):
                         self.set_env_to_expert_trajectory_step()
 
                         self.done_with_step = False
-
-
-
 
                     # self.env_state = self.expert_trajectory[step_num]['state']
                     # self.env_reward = self.expert_trajectory[step_num]['reward']
@@ -336,8 +336,6 @@ class BackwardAlgorithm(PPO):
         self.env_observation = np.array([step['observation'] for step in self.expert_trajectory[:self.step_num]])
 
         self.env.set_param_values([self.env_state], robustify_state=True, debug=False)
-
-
 
         # last_return = None
         #
