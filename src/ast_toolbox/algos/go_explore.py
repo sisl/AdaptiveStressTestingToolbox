@@ -409,10 +409,10 @@ class CellPool():
 
         dbtype : int, optional
             Specifies the type of database to open. Use enumerations provided by
-            `bsddb3 <https://www.jcea.es/programacion/pybsddb_doc/db.html#open>`_.
+            `bsddb3 <https://docs.jcea.es/berkeleydb/latest/db.html#db-methods#open>`_.
         flags : int, optional
             Specifies the configuration of the database to open. Use enumerations provided by
-            `bsddb3 <https://www.jcea.es/programacion/pybsddb_doc/db.html#open>`_.
+            `bsddb3 <https://docs.jcea.es/berkeleydb/latest/db.html#db-methods#open>`_.
         protocol : int, optional
             Specifies the data stream format used by
             `pickle <https://docs.python.org/3/library/pickle.html#data-stream-format>`_.
