@@ -9,23 +9,23 @@ authors:
     orcid: 0000-0003-2403-454X
     affiliation: 1
   - name: Xiaobai Ma
-    orcid:
+    orcid: 0000-0001-7491-3935
     affiliation: 1
   - name: Anthony Corso
-    orcid:
+    orcid: 0000-0002-4027-0473
     affiliation: 1
   - name: Robert J. Moss
     orcid: 0000-0003-2403-454X
     affiliation: 1
   - name: Peter Du
-    orcid:
+    orcid: 0000-0001-9073-7521
     affiliation: 2
   - name: Katherine Driggs Campbell
-    orcid:
+    orcid: 0000-0003-3760-9859
     affiliation: 2
   - name: Mykel J. Kochenderfer
     orcid: 0000-0002-7238-9663
-    affiliation: 2
+    affiliation: 1
 affiliations:
  - name: Stanford University
    index: 1
