@@ -42,17 +42,28 @@ def run_task(snapshot_config, variant_data, *_):
         sampler_batch_size = 500
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
 
-        # env = gym.make('PongNoFrameskip-v4')
-        env = CrazyTrolleyEnv(height=84, width=84, from_pixels=True, rgb=True)
+        # # env = gym.make('PongNoFrameskip-v4')
+        # env = CrazyTrolleyEnv(height=84, width=84, from_pixels=True, rgb=True)
+        # env = Noop(env, noop_max=30)
+        # env = MaxAndSkip(env, skip=5)
+        # # env = EpisodicLife(env)
+        # # if 'FIRE' in env.unwrapped.get_action_meanings():
+        #     # env = FireReset(env)
+        # env = Grayscale(env)
+        # env = Resize(env, 84, 84)
+        # env = ClipReward(env)
+        # env = StackFrames(env, 5)
+
+        env = gym.make('PongNoFrameskip-v4')
         env = Noop(env, noop_max=30)
-        env = MaxAndSkip(env, skip=5)
-        # env = EpisodicLife(env)
-        # if 'FIRE' in env.unwrapped.get_action_meanings():
-            # env = FireReset(env)
+        env = MaxAndSkip(env, skip=4)
+        env = EpisodicLife(env)
+        if 'FIRE' in env.unwrapped.get_action_meanings():
+            env = FireReset(env)
         env = Grayscale(env)
         env = Resize(env, 84, 84)
         env = ClipReward(env)
-        env = StackFrames(env, 5)
+        env = StackFrames(env, 4)
 
         env = TfEnv(env)
 
