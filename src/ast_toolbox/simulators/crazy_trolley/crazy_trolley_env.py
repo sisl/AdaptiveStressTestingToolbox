@@ -1,3 +1,5 @@
+import time
+
 import gym
 from gym import spaces
 
@@ -10,6 +12,9 @@ from garage.envs.base import Step
 
 from ast_toolbox.simulators.crazy_trolley.crazy_trolley import CrazyTrolleyHeadlessGame, CrazyTrolleyRenderedGame
 import pdb
+
+def show_plot(plt):
+    plt.show()
 
 class CrazyTrolleyEnv(gym.Env):
     """Custom Environment that follows gym interface"""
@@ -28,10 +33,17 @@ class CrazyTrolleyEnv(gym.Env):
             shape = (height, width)
         self.observation_space = spaces.Box(low=0, high=255, shape=shape, dtype=np.uint8)
 
+        # self.fig, self.ax = plt.subplots()
+        # mng = plt.get_current_fig_manager()
+        # mng.resize(*mng.window.maxsize())
+        # self.canvas = self.ax.figure.canvas
+
         self.renderer = CrazyTrolleyRenderedGame(ax=None, height=height, width=width, rgb=rgb)
         self.game = self.renderer.game
 
         self.score = 0
+
+        self.rendered = False
 
     def step(self, action):
         self.game.player_action(action)
@@ -56,19 +68,65 @@ class CrazyTrolleyEnv(gym.Env):
     def reset(self):
         self.score = 0
 
+
         self.renderer.new_game()
+        self.game._level = np.random.randint(low=0, high=50)
+        self.game.new_frame()
+        self.renderer.update_frame()
         observation = self.renderer.display_frame
+
+        self.rendered = False
 
         return observation  # reward, done, info can't be included
 
     def render(self, mode='human'):
         # display_frame = self.renderer.get_display_frame(self.game.frame)
+        if not self.rendered:
+            self.rendered = True
+
+            # plt.ion()
+            # self.ax = plt.gca()
+
+            self.fig = plt.figure()
+            self.ax = self.fig.add_subplot(111)
+            self.fig.canvas.draw()
+
+            self.disp = self.ax.imshow(self.renderer.display_frame_with_header, interpolation='none')
+            self.title = self.ax.text(0.5, 0.9, "", bbox={'facecolor': 'w', 'alpha': 0.5, 'pad': 5},
+                                      transform=self.ax.transAxes, ha="center")
+
+            # plt.draw()
+            plt.show(block=False)
+            # pdb.set_trace()
+
         self.renderer.update_frame()
-        plt.imshow(self.renderer.display_frame, interpolation='none')
-        plt.show()
+
+        # self.disp = self.ax.imshow(self.renderer.display_frame_with_header, interpolation='none')
+        # self.title = self.ax.text(0.5, 0.9, "", bbox={'facecolor': 'w', 'alpha': 0.5, 'pad': 5},
+        #                           transform=self.ax.transAxes, ha="center")
+
+        self.disp.set_data(self.renderer.display_frame_with_header)
+        # self.ax.draw_artist(self.disp)
+        #
+        self.title.set_text('Level: {level:03d}          Score: {score:07d}          Lives: {lives}'.format(
+            level=self.game.level,
+            score=self.game.score,
+            lives=self.game.lives))
+
+        self.fig.canvas.draw()
+
+        # plt.draw()
+
+        # pdb.set_trace()
+        # self.ax.draw_artist(self.title)
+
 
     def close (self):
-        pass
+        pdb.set_trace()
+        if self.rendered:
+            plt.ioff()
+            plt.close()
+
 
     def get_action_meanings(self):
         return self.game.action_meaning_dict
@@ -87,9 +145,13 @@ class CrazyTrolleyEnv(gym.Env):
 
 if __name__ == '__main__':
     env = CrazyTrolleyEnv()
+    env.reset()
     for i in range(1000):
         if i % 10 == 0:
             env.step(action=np.random.randint(low=0, high=5))
             env.render()
+            # pdb.set_trace()
+            # timestep = 1.0
+            # time.sleep(timestep)
         else:
             env.step(action=0)

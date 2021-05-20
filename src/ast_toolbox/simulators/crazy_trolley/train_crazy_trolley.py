@@ -20,10 +20,11 @@ from garage.replay_buffer import SimpleReplayBuffer
 from garage.tf.algos import DQN
 from garage.tf.envs import TfEnv
 from garage.tf.experiment import LocalTFRunner
-from garage.tf.policies import DiscreteQfDerivedPolicy
+# from garage.tf.policies import DiscreteQfDerivedPolicy
 from garage.tf.q_functions import DiscreteCNNQFunction
 
 from ast_toolbox.simulators.crazy_trolley.crazy_trolley_env import CrazyTrolleyEnv
+from ast_toolbox.policies.discrete_qf_derived_policy import DiscreteQfDerivedPolicy
 def run_task(snapshot_config, variant_data, *_):
     """Run task.
 
@@ -37,7 +38,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 100
+        n_epochs = 1
         n_epoch_cycles = 20
         sampler_batch_size = 500
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
@@ -124,7 +125,7 @@ def _args(buffer_size):
 replay_buffer_size = _args.main(standalone_mode=False)
 run_experiment(
     run_task,
-    n_parallel=32,
+    n_parallel=16,
     snapshot_mode='last',
     seed=1,
     plot=False,

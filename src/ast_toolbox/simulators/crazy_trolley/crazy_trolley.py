@@ -653,58 +653,7 @@ class CrazyTrolleyRenderedGame:
         self.display_frame_with_header = np.vstack([(np.ones_like(self.display_frame) * 255)[0:int(0.25*self.display_frame.shape[0]),:], self.display_frame])
 
 
-
-    # def new_frame(self):
-    #     self.level += 1
-    #     self.crazy_trolley.update_period = self.trolley_update_period(self.level)
-    #     self.intersection_num = 0
-    #     self.intersection_setting = 0
-    #     self.frame, self.track_list = generate_frame(height=self.height, width=self.width, p_obstruction=self.p_obstruction(self.level), p_reward=self.p_reward(self.level))
-    #     self.crazy_trolley.cell = self.track_list.first
-    #
-    #
-    # def update_frame(self):
-    #     display_frame = self.update_trolley(self.frame.copy())
-    #     display_frame = self.update_intersection(display_frame)
-    #     if self.rgb:
-    #         display_frame = self.rgb_frame(display_frame)
-    #
-    #     if self.crazy_trolley.game_over:
-    #         self.on = False
-    #         if self.rgb:
-    #             # Invert frame colors
-    #             display_frame = (np.ones_like(display_frame) * 255) - display_frame
-    #     # self.disp_frame = self.ax.imshow(display_frame, interpolation='none')
-    #     display_frame_with_header = np.vstack([(np.ones_like(display_frame) * 255)[0:4,:], display_frame])
-    #     self.disp_frame.set_data(display_frame_with_header)
-    #     # self.ax.set_title('Score: {score}          Lives: {lives}'.format(score=self.crazy_trolley.score, lives=self.crazy_trolley.lives))
-    #     self.title.set_text('Level: {level:03d}          Score: {score:07d}          Lives: {lives}'.format(
-    #                                                                     level=self.level,
-    #                                                                     score=self.crazy_trolley.score,
-    #                                                                     lives=self.crazy_trolley.lives))
-    #
-    # def update_trolley(self, frame):
-    #     crazy_frame = self.crazy_trolley.update(frame)
-    #     if crazy_frame is None:
-    #         self.new_frame()
-    #         crazy_frame = self.crazy_trolley.update(frame)
-    #
-    #     return frame
-
-    # def update_intersection(self, frame):
-    #     for intersection in self.track_list.intersections:
-    #         for track_start in intersection.next_track_starts:
-    #             frame[track_start.y, track_start.x] = 4
-    #         selected_track = intersection.next_track_start
-    #         frame[selected_track.y, selected_track.x] = 5
-    #
-    #     selected_intersection = self.track_list.intersections[self.intersection_num]
-    #     # selected_track = selected_intersection.next_track_start
-    #     frame[selected_intersection.y + 1, selected_intersection.x - 1] = 7
-    #
-    #     return frame
-
-    def draw(self, event):
+    def draw(self, event, animation_only=False):
 
         if self.background is None:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -715,7 +664,10 @@ class CrazyTrolleyRenderedGame:
         if self.on:
             self.canvas.restore_region(self.background)
 
-            self.game.tick()
+            if not animation_only:
+                # This allows the game state update and the display update to be handled seperately, if needed
+                self.game.tick()
+
             self.update_frame()
 
             if self.ax is not None:
@@ -782,8 +734,8 @@ class CrazyTrolleyRenderedGame:
 
 def play_game(height=16, width=32, rgb=True):
     fig, ax = plt.subplots()
-    mng = plt.get_current_fig_manager()
-    mng.resize(*mng.window.maxsize())
+    # mng = plt.get_current_fig_manager()
+    # mng.resize(*mng.window.maxsize())
     canvas = ax.figure.canvas
     animation = CrazyTrolleyRenderedGame(ax, height=height, width=width, rgb=rgb)
 
