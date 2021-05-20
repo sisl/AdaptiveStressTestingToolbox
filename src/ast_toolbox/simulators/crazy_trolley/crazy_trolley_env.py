@@ -20,7 +20,7 @@ class CrazyTrolleyEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, height=16, width=32, from_pixels=True, rgb=True):
+    def __init__(self, height=16, width=32, from_pixels=True, rgb=True, random_level=False):
         super(CrazyTrolleyEnv, self).__init__()
         # Define action and observation space
         # They must be gym.spaces objects
@@ -44,16 +44,24 @@ class CrazyTrolleyEnv(gym.Env):
         self.score = 0
 
         self.rendered = False
+        self.random_level = random_level
 
-    def step(self, action):
+    def step(self, action, skip=4):
         self.game.player_action(action)
+
         self.game.tick()
+        for _ in range(skip):
+            # Skip a certain number of frames to prevent insane action speed
+            self.game.tick()
 
         self.renderer.update_frame()
 
         observation = self.renderer.display_frame
 
         reward = self.game.score - self.score
+        # Small penalty for taking an action to reduce spurious actions
+        if action > 0:
+            reward -= 1
         self.score = self.game.score
 
         done = self.game.game_over
@@ -68,11 +76,12 @@ class CrazyTrolleyEnv(gym.Env):
     def reset(self):
         self.score = 0
 
-
         self.renderer.new_game()
-        self.game._level = np.random.randint(low=0, high=50)
-        self.game.new_frame()
-        self.renderer.update_frame()
+
+        if self.random_level:
+            self.game._level = np.random.randint(low=0, high=50)
+            self.game.new_frame()
+            self.renderer.update_frame()
         observation = self.renderer.display_frame
 
         self.rendered = False
@@ -89,6 +98,14 @@ class CrazyTrolleyEnv(gym.Env):
 
             self.fig = plt.figure()
             self.ax = self.fig.add_subplot(111)
+
+            self.ax.xaxis.set_visible(False)
+            self.ax.yaxis.set_visible(False)
+            for (_, spine) in self.ax.spines.items():
+                # spine.set_color('0.0')
+                # spine.set_linewidth(1.0)
+                spine.set_color(None)
+
             self.fig.canvas.draw()
 
             self.disp = self.ax.imshow(self.renderer.display_frame_with_header, interpolation='none')

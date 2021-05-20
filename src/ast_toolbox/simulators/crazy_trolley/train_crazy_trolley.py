@@ -20,11 +20,11 @@ from garage.replay_buffer import SimpleReplayBuffer
 from garage.tf.algos import DQN
 from garage.tf.envs import TfEnv
 from garage.tf.experiment import LocalTFRunner
-# from garage.tf.policies import DiscreteQfDerivedPolicy
+from garage.tf.policies import DiscreteQfDerivedPolicy
 from garage.tf.q_functions import DiscreteCNNQFunction
 
 from ast_toolbox.simulators.crazy_trolley.crazy_trolley_env import CrazyTrolleyEnv
-from ast_toolbox.policies.discrete_qf_derived_policy import DiscreteQfDerivedPolicy
+# from ast_toolbox.policies.discrete_qf_derived_policy import DiscreteQfDerivedPolicy
 def run_task(snapshot_config, variant_data, *_):
     """Run task.
 
@@ -46,7 +46,7 @@ def run_task(snapshot_config, variant_data, *_):
         # env = gym.make('PongNoFrameskip-v4')
         env = CrazyTrolleyEnv(height=84, width=84, from_pixels=True, rgb=True)
         env = Noop(env, noop_max=30)
-        env = MaxAndSkip(env, skip=5)
+        # env = MaxAndSkip(env, skip=5)
         # env = EpisodicLife(env)
         # if 'FIRE' in env.unwrapped.get_action_meanings():
             # env = FireReset(env)
