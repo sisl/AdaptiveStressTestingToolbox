@@ -248,6 +248,8 @@ class CrazyTrolleyHeadlessGame:
 
         # Increment level counter
         self._level += 1
+        if self._level > 50:
+            self._lives = 0
 
     def action_noop(self):
         # Do nothing action
