@@ -59,18 +59,22 @@ class CrazyTrolleyEnv(gym.Env):
         observation = self.renderer.display_frame
 
         reward = self.game.score - self.score
+        score = reward
         # Small penalty for taking an action to reduce spurious actions
         if action > 0:
             reward -= 1
         self.score = self.game.score
 
         done = self.game.game_over
+        if done:
+            reward = -10000
 
         info = np.array([])
 
         return Step(observation=observation,
                     reward=reward,
-                    done=done)
+                    done=done,
+                    score=score,)
         # return observation, reward, done, info
 
     def reset(self):
