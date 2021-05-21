@@ -44,7 +44,7 @@ def run_task(snapshot_config, variant_data, *_):
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
 
         # env = gym.make('PongNoFrameskip-v4')
-        env = CrazyTrolleyEnv(height=84, width=84, from_pixels=True, rgb=True)
+        env = CrazyTrolleyEnv(height=84, width=84, from_pixels=True, rgb=True, random_level=True)
         env = Noop(env, noop_max=30)
         # env = MaxAndSkip(env, skip=5)
         # env = EpisodicLife(env)
@@ -96,7 +96,8 @@ def run_task(snapshot_config, variant_data, *_):
                    discount=0.99,
                    min_buffer_size=int(1e4),
                    double_q=False,
-                   n_train_steps=5000,
+                   n_train_steps=500,
+                   max_path_length=5000,
                    n_epoch_cycles=n_epoch_cycles,
                    target_network_update_freq=2,
                    buffer_batch_size=32)
