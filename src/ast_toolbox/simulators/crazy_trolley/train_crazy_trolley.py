@@ -126,7 +126,7 @@ def _args(buffer_size):
 replay_buffer_size = _args.main(standalone_mode=False)
 run_experiment(
     run_task,
-    n_parallel=1,
+    n_parallel=32,
     snapshot_mode='last',
     seed=1,
     plot=False,
