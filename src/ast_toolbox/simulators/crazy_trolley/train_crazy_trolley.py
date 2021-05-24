@@ -97,7 +97,7 @@ def run_task(snapshot_config, variant_data, *_):
                    min_buffer_size=int(1e4),
                    double_q=False,
                    n_train_steps=500,
-                   max_path_length=5000,
+                   max_path_length=50000,
                    n_epoch_cycles=n_epoch_cycles,
                    target_network_update_freq=2,
                    buffer_batch_size=32)

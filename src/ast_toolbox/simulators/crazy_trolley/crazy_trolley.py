@@ -540,14 +540,23 @@ class CrazyTrolleyRenderedGame:
         self.game = CrazyTrolleyHeadlessGame(height=height, width=width)
 
         # Color settings
+        # self.colors = {'background': np.array([255, 255, 255]),
+        #                'track': np.array([175, 175, 175]),
+        #                'trolley': np.array([0, 0, 0]),
+        #                'unselected_intersection': np.array([215, 0, 0]),
+        #                'selected_intersection': np.array([50, 176, 0]),
+        #                'gem': np.array([123, 0, 176]),
+        #                'obstruction': np.array([255, 132, 0]),
+        #                'player': np.array([25, 0, 255]),}
+
         self.colors = {'background': np.array([255, 255, 255]),
                        'track': np.array([175, 175, 175]),
                        'trolley': np.array([0, 0, 0]),
-                       'unselected_intersection': np.array([215, 0, 0]),
-                       'selected_intersection': np.array([50, 176, 0]),
+                       'unselected_intersection': np.array([235, 0, 0]),
+                       'selected_intersection': np.array([25, 115, 0]),
                        'gem': np.array([123, 0, 176]),
                        'obstruction': np.array([255, 132, 0]),
-                       'player': np.array([25, 0, 255]),}
+                       'player': np.array([50, 0, 255]), }
 
         self.on = False
         self.inst = True    # show instructions from the beginning
@@ -776,7 +785,7 @@ if __name__ == '__main__':
     #     print_frame(frame)
         # pdb.set_trace()
 
-    play_game(height=210, width=160, rgb=True)
+    play_game(height=64, width=64, rgb=True)
 
     # frame, track_list = generate_frame(height=16, width=16, rnd_seed=0)
     # track_cell = track_list.first
