@@ -65,16 +65,19 @@ class CrazyTrolleyEnv(gym.Env):
             reward -= 1
         self.score = self.game.score
 
+
         done = self.game.game_over
         if done:
             reward = -10000
 
         info = np.array([])
+        levels = self.game._level - self.start_level
 
         return Step(observation=observation,
                     reward=reward,
                     done=done,
-                    score=score,)
+                    score=score,
+                    levels=levels,)
         # return observation, reward, done, info
 
     def reset(self):
@@ -83,7 +86,8 @@ class CrazyTrolleyEnv(gym.Env):
         self.renderer.new_game()
 
         if self.random_level:
-            self.game._level = np.random.randint(low=0, high=50)
+            self.start_level = np.random.randint(low=0, high=50)
+            self.game._level = self.start_level
             self.game.new_frame()
             self.renderer.update_frame()
         observation = self.renderer.display_frame

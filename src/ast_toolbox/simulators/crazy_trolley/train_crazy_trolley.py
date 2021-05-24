@@ -17,13 +17,14 @@ from garage.envs.wrappers.stack_frames import StackFrames
 from garage.experiment import run_experiment
 from garage.np.exploration_strategies import EpsilonGreedyStrategy
 from garage.replay_buffer import SimpleReplayBuffer
-from garage.tf.algos import DQN
+# from garage.tf.algos import DQN
 from garage.tf.envs import TfEnv
 from garage.tf.experiment import LocalTFRunner
 from garage.tf.policies import DiscreteQfDerivedPolicy
 from garage.tf.q_functions import DiscreteCNNQFunction
 
 from ast_toolbox.simulators.crazy_trolley.crazy_trolley_env import CrazyTrolleyEnv
+from ast_toolbox.algos.dqn import DQN
 # from ast_toolbox.policies.discrete_qf_derived_policy import DiscreteQfDerivedPolicy
 def run_task(snapshot_config, variant_data, *_):
     """Run task.
@@ -52,7 +53,7 @@ def run_task(snapshot_config, variant_data, *_):
             # env = FireReset(env)
         env = Grayscale(env)
         env = Resize(env, 84, 84)
-        env = ClipReward(env)
+        # env = ClipReward(env)
         env = StackFrames(env, 5)
 
         # env = gym.make('PongNoFrameskip-v4')
@@ -97,7 +98,6 @@ def run_task(snapshot_config, variant_data, *_):
                    min_buffer_size=int(1e4),
                    double_q=False,
                    n_train_steps=500,
-                   max_path_length=50000,
                    n_epoch_cycles=n_epoch_cycles,
                    target_network_update_freq=2,
                    buffer_batch_size=32)
@@ -126,7 +126,7 @@ def _args(buffer_size):
 replay_buffer_size = _args.main(standalone_mode=False)
 run_experiment(
     run_task,
-    n_parallel=32,
+    n_parallel=1,
     snapshot_mode='last',
     seed=1,
     plot=False,
