@@ -5,6 +5,7 @@ Here it creates a gym environment Pong, and trains a DQN with 1M steps.
 """
 import click
 import gym
+import argparse
 
 from garage.envs.wrappers.clip_reward import ClipReward
 from garage.envs.wrappers.episodic_life import EpisodicLife
@@ -15,6 +16,7 @@ from garage.envs.wrappers.noop import Noop
 from garage.envs.wrappers.resize import Resize
 from garage.envs.wrappers.stack_frames import StackFrames
 from garage.experiment import run_experiment
+from garage.experiment import SnapshotConfig
 from garage.np.exploration_strategies import EpsilonGreedyStrategy
 from garage.replay_buffer import SimpleReplayBuffer
 # from garage.tf.algos import DQN
@@ -39,7 +41,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 100
+        n_epochs = 25
         n_epoch_cycles = 20
         sampler_batch_size = 500
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
@@ -93,8 +95,8 @@ def run_task(snapshot_config, variant_data, *_):
                    qf=qf,
                    exploration_strategy=epilson_greedy_strategy,
                    replay_buffer=replay_buffer,
-                   qf_lr=1e-4,
-                   discount=0.99,
+                   qf_lr=1e-2,
+                   discount=0.999,
                    min_buffer_size=int(1e4),
                    double_q=False,
                    n_train_steps=500,
@@ -123,12 +125,28 @@ def _args(buffer_size):
     return buffer_size
 
 
-replay_buffer_size = _args.main(standalone_mode=False)
-run_experiment(
-    run_task,
-    n_parallel=32,
-    snapshot_mode='last',
-    seed=1,
-    plot=False,
-    variant={'buffer_size': replay_buffer_size},
-)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--resume', type=str, default=None)
+    args = parser.parse_args()
+    if args.resume:
+        with LocalTFRunner(snapshot_config=SnapshotConfig(snapshot_dir=args.resume, snapshot_mode='last', snapshot_gap=0,)) as runner:
+            runner.restore(args.resume)
+            n_epochs = 25
+            n_epoch_cycles = 20
+            sampler_batch_size = 500
+            runner.algo.qf_lr = 1e-3
+            runner.resume(n_epochs=n_epochs,
+                     n_epoch_cycles=n_epoch_cycles,
+                     batch_size=sampler_batch_size)
+    else:
+
+        replay_buffer_size = _args.main(standalone_mode=False)
+        run_experiment(
+            run_task,
+            n_parallel=32,
+            snapshot_mode='last',
+            seed=1,
+            plot=False,
+            variant={'buffer_size': replay_buffer_size},
+        )
