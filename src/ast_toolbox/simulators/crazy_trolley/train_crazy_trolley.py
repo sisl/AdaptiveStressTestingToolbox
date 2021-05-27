@@ -15,7 +15,7 @@ from garage.envs.wrappers.max_and_skip import MaxAndSkip
 from garage.envs.wrappers.noop import Noop
 from garage.envs.wrappers.resize import Resize
 from garage.envs.wrappers.stack_frames import StackFrames
-from garage.experiment import run_experiment
+from garage.experiment import run_experiment, deterministic
 from garage.experiment import SnapshotConfig
 from garage.np.exploration_strategies import EpsilonGreedyStrategy
 from garage.replay_buffer import SimpleReplayBuffer
@@ -41,7 +41,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 25
+        n_epochs = 100
         n_epoch_cycles = 20
         sampler_batch_size = 500
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
@@ -132,10 +132,11 @@ if __name__ == '__main__':
     if args.resume:
         with LocalTFRunner(snapshot_config=SnapshotConfig(snapshot_dir=args.resume, snapshot_mode='last', snapshot_gap=0,)) as runner:
             runner.restore(args.resume)
-            n_epochs = 25
+            n_epochs = 50
             n_epoch_cycles = 20
             sampler_batch_size = 500
             runner.algo.qf_lr = 1e-3
+            deterministic.set_seed(1)
             runner.resume(n_epochs=n_epochs,
                      n_epoch_cycles=n_epoch_cycles,
                      batch_size=sampler_batch_size)
