@@ -116,7 +116,9 @@ class AdaptiveStressTest:
                     else:
                         with open(self.params.log_dir + '/best_actions.p', 'rb') as f:
                             best_actions = pickle.load(f)
-
+                    print(self.top_paths.pq)
+                    print(self.top_paths.pq[0])
+                    print(self.top_paths.pq[0][0])
                     best_actions.append(np.array([x.get() for x in self.top_paths.pq[0][0]]))
                     with open(self.params.log_dir + '/best_actions.p', 'wb') as f:
                         pickle.dump(best_actions, f)

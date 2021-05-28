@@ -116,11 +116,13 @@ class MCTS:
             else:
                 result = AST_MCTS.stress_test(self.ast, self.macts_params, self.top_paths, verbose=False, return_tree=False)
         self.ast.params.log_tabular = False
-        print("checking reward consistance")
-        for (action_seq, reward_predict) in result:
-            [a.get() for a in action_seq]
-            reward, _ = ASTSim.play_sequence(self.ast, action_seq, sleeptime=0.0)
-            assert np.isclose(reward_predict, reward)
+        # print("checking reward consistency")
+        # for (action_seq, reward_predict) in result:
+        #     import pdb
+        #     pdb.set_trace()
+        #     [a.get() for a in action_seq]
+        #     reward, _ = ASTSim.play_sequence(self.ast, action_seq, sleeptime=0.0)
+        #     assert np.isclose(reward_predict, reward)
         print("done")
         if self.plot_tree:
             tree_plot.plot_tree(tree, d=self.max_path_length, path=self.plot_path, format=self.plot_format)

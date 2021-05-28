@@ -60,6 +60,9 @@ class CrazyTrolleyEnv(gym.Env):
 
         reward = self.game.score - self.score
         score = reward
+        # Small reward for having the intersections set in a safe way
+        if self.game.on_clear_path:
+            reward += 5
         # Small penalty for taking an action to reduce spurious actions
         if action > 0:
             reward -= 1

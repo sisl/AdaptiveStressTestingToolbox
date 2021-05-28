@@ -14,10 +14,12 @@ def debug_print(var_list, global_scope, local_scope):
 class TrackList(object):
     # Linked list of track or intersection cells
 
-    def __init__(self):
+    def __init__(self, has_a_clear_path=False):
         self._first = None
         self._last = None
         self.intersections = []
+        self.has_a_clear_path = has_a_clear_path
+        self.probability = 1.0
 
     @property
     def first(self):
@@ -51,6 +53,12 @@ class TrackCell(object):
         self._y = y
         self.obstruction = (np.random.rand() <= p_obstruction)
         self.reward = (not self.obstruction and (np.random.rand() <= p_reward))
+        if self.obstruction:
+            self._probability = p_obstruction
+        elif self.reward:
+            self._probability = p_reward
+        else:
+            self._probability = 1.0 - p_obstruction - p_reward
         self._next = None
 
     @property
@@ -77,11 +85,20 @@ class TrackCell(object):
     def next(self, value):
         self._next = value
 
+    @property
+    def probability(self):
+        return self._probability
+
+    @probability.setter
+    def probability(self, value):
+        self._probability = value
+
 class IntersectionCell(TrackCell):
 
-    def __init__(self, x, y, next_track_num=0):
+    def __init__(self, x, y, next_track_num=0, has_a_clear_path=False):
         self._next_track_num = next_track_num
         self._next_track_starts = []
+        self.has_a_clear_path = has_a_clear_path
         super().__init__(x,y, p_obstruction=0.0, p_reward=0.0)
 
     @property
@@ -122,7 +139,7 @@ def print_frame(frame):
     plt.show()
 
 class CrazyTrolleyHeadlessGame:
-    def __init__(self, height=16, width=32, hardest_level=50, init_p_split=0.3):
+    def __init__(self, height=16, width=32, hardest_level=50, init_p_split=0.3, debug=False):
 
         self.level_bonus = 100
         self.gem_bonus = 50
@@ -137,6 +154,8 @@ class CrazyTrolleyHeadlessGame:
         self._score = 0
         self.intersection_num = 0
         self.intersection_setting = 0
+        self._random_seed = None
+        self.debug = debug
 
         self._height = height
         self._width = width
@@ -155,6 +174,15 @@ class CrazyTrolleyHeadlessGame:
                                                                      (1 - (self.p_split(self._level)) **
                                                                       (self.scale * max_tracks)))
                                                               / (self.scale * np.log(self.p_split(self._level)))))
+        # Calculate probability of num_tracks
+        lower = lambda num_tracks, max_tracks: -(
+                np.exp((num_tracks - 1) * self.scale * np.log(self.p_split(self._level))) - 1) / (
+                                                       1 - (self.p_split(self._level) ** (self.scale * max_tracks)))
+        upper = lambda num_tracks, max_tracks: -(
+                np.exp(num_tracks * self.scale * np.log(self.p_split(self._level))) - 1) / (
+                                                       1 - (self.p_split(self._level) ** (self.scale * max_tracks)))
+        self.prob_num_tracks = lambda num_tracks, max_tracks: upper(num_tracks, max_tracks) - lower(num_tracks,
+                                                                                                    max_tracks)
         # pdb.set_trace()
 
         # self.p_obstruction = lambda x: 0.5 - (0.45/(x ** (1/2)))
@@ -186,12 +214,22 @@ class CrazyTrolleyHeadlessGame:
         # Generate a list of pixel types
         self.pixel_keys = [k for k in self._pixel_num_from_key_dict.keys()]
 
+
+
         self.new_game()
 
 
         #
         # self.new_frame()
         # self.tick()
+
+    def debug_print(self, *args):
+        if self.debug:
+            print(*args)
+
+    @property
+    def on_clear_path(self):
+        return self.check_trolley_path()
 
     @property
     def game_over(self):
@@ -213,9 +251,21 @@ class CrazyTrolleyHeadlessGame:
     def frame(self):
         return self._frame.copy()
 
-    # @cached_propery
-    # def pixel_keys(self):
-    #     return self._pixel_num_from_key_dict.keys()
+    @property
+    def random_seed(self):
+        return self._random_seed
+
+    @property
+    def end_of_frame(self):
+        return (self._cell is None) or (self._cell.next is None)
+
+    @random_seed.setter
+    def random_seed(self, value):
+        self._random_seed = value
+
+    @property
+    def frame_probability(self):
+        return self._track_list.probability
 
     def pixel_num_from_key(self, key):
         return self._pixel_num_from_key_dict[key]
@@ -235,7 +285,8 @@ class CrazyTrolleyHeadlessGame:
 
     def new_frame(self):
         # Generate a new frame
-        self._base_frame, self._track_list = self.generate_frame(height=self._height, width=self._width, rnd_seed=None)
+        self._base_frame, self._track_list = self.generate_frame(height=self._height, width=self._width, rnd_seed=self._random_seed)
+        self.debug_print(self.frame_probability)
         self._frame = self._base_frame.copy()
         self._cell = self._track_list.first
 
@@ -289,6 +340,7 @@ class CrazyTrolleyHeadlessGame:
     def tick(self):
         self._frame = self._base_frame.copy()
 
+
         # Update intersections
         for intersection in self._track_list.intersections:
             for track_start in intersection.next_track_starts:
@@ -318,11 +370,39 @@ class CrazyTrolleyHeadlessGame:
             if self._cell.reward:
                 self._score += self.gem_bonus
 
+            # self.debug_print(self.check_trolley_path())
+
         self._frame[self._cell.y, self._cell.x] = self._pixel_num_from_key_dict['trolley']
 
+    def check_trolley_path(self):
+        cell_trace = self._cell
+        # Scan to end of frame
+        while (cell_trace is not None):
+            # Scan to next intersection
+            while (type(cell_trace) is not IntersectionCell):
+                cell_trace = cell_trace.next
+
+                if cell_trace is None:
+                    return True
+                if cell_trace.obstruction:
+                    return False
+
+            self.debug_print(cell_trace._next_track_num)
+            self.debug_print(cell_trace.has_a_clear_path)
+            if not cell_trace.has_a_clear_path:
+                return False
+            # Move onto next track
+            cell_trace=cell_trace.next
+
+        # Got to end of frame on clear path
+        return True
+
     def lay_track(self, frame, track_list, frame_start_x, frame_end_x, frame_y, track_start_x, track_y, on_clear_path=False):
+        path_is_clear = True
+        track_probability = 1.0
         for track_x_idx, frame_x in enumerate(range(frame_start_x, frame_end_x)):
             track_cell = TrackCell(x=track_start_x+track_x_idx, y=track_y, p_obstruction=self.p_obstruction(self._level, on_clear_path), p_reward=self.p_reward(self._level))
+            track_probability *= track_cell.probability
             if track_list.first is None:
                 track_list.first = track_cell
             else:
@@ -330,10 +410,14 @@ class CrazyTrolleyHeadlessGame:
 
             if track_cell.obstruction:
                 frame[frame_y, frame_x] = self._pixel_num_from_key_dict['obstruction']
+                path_is_clear = False
             elif track_cell.reward:
                 frame[frame_y, frame_x] = self._pixel_num_from_key_dict['gem']
             else:
                 frame[frame_y, frame_x] = self._pixel_num_from_key_dict['track']
+
+        track_list.has_a_clear_path = path_is_clear
+        track_list.probability = track_probability
 
         return frame, track_list
 
@@ -368,12 +452,18 @@ class CrazyTrolleyHeadlessGame:
         # Create and connect intersection
         intersection_cell = IntersectionCell(x=intersection_x, y=intersection_y)
         intersection_cell.next = connected_sub_track_list
+        has_a_clear_path = False
         for sub_track_list in sub_track_lists:
+            if sub_track_list.has_a_clear_path:
+                has_a_clear_path = True
             next_track_start = sub_track_list.first
             # Due to rendering issues, first track cell of each intersection path can't be special
             next_track_start.obstruction = False
             next_track_start.reward = False
+            next_track_start.probability = 1.0
             intersection_cell._next_track_starts.append(next_track_start)
+
+        intersection_cell.has_a_clear_path = has_a_clear_path
 
         return frame, intersection_cell
 
@@ -390,6 +480,7 @@ class CrazyTrolleyHeadlessGame:
             frame[:, 5:] = sub_frame
             track_list.last = sub_track_list.first
             track_list.intersections = sub_track_list.intersections
+            track_list.probability *= sub_track_list.probability
         except Exception as e:
             print(e)
             print_frame(frame)
@@ -429,6 +520,8 @@ class CrazyTrolleyHeadlessGame:
         free_height = height - 2
         max_tracks = max([(free_height - 1) // 2, 1])
         num_tracks = self.num_tracks(max_tracks)
+        num_tracks_probability = self.prob_num_tracks(num_tracks, max_tracks)
+        track_list.probability *= num_tracks_probability
         # if max_tracks > 1:
         #     # Generate random number of tracks
         #     num_tracks = np.random.randint(low=1, high=max_tracks+1)
@@ -514,18 +607,24 @@ class CrazyTrolleyHeadlessGame:
                 track_list.intersections.append(intersection_cell)
 
 
+
             except Exception as e:
                 print(e)
                 print_frame(frame)
                 pdb.set_trace()
                 print()
 
+        has_a_clear_path = False
         for sub_track_list in sub_track_lists:
+            track_list.probability *= sub_track_list.probability
+            if sub_track_list.has_a_clear_path:
+                has_a_clear_path = True
             # print(len(sub_track_list.intersections))
             if len(sub_track_list.intersections) > 0:
                 track_list.intersections += sub_track_list.intersections
 
         # pdb.set_trace()
+        track_list.has_a_clear_path = has_a_clear_path
         return frame, track_list
 
     # def __getstate__(self):
@@ -536,8 +635,8 @@ class CrazyTrolleyHeadlessGame:
 
 
 class CrazyTrolleyRenderedGame:
-    def __init__(self, ax, height=16, width=32, rgb=True):
-        self.game = CrazyTrolleyHeadlessGame(height=height, width=width)
+    def __init__(self, ax, height=16, width=32, rgb=True, debug=False):
+        self.game = CrazyTrolleyHeadlessGame(height=height, width=width, debug=debug)
 
         # Color settings
         # self.colors = {'background': np.array([255, 255, 255]),
@@ -743,12 +842,12 @@ class CrazyTrolleyRenderedGame:
     # def __setstate__(self, state):
     #     self.__dict__ = dill.loads(state)
 
-def play_game(height=16, width=32, rgb=True):
+def play_game(height=16, width=32, rgb=True, debug=False):
     fig, ax = plt.subplots()
     # mng = plt.get_current_fig_manager()
     # mng.resize(*mng.window.maxsize())
     canvas = ax.figure.canvas
-    animation = CrazyTrolleyRenderedGame(ax, height=height, width=width, rgb=rgb)
+    animation = CrazyTrolleyRenderedGame(ax, height=height, width=width, rgb=rgb, debug=debug)
 
     # disable the default key bindings
     if fig.canvas.manager.key_press_handler_id is not None:
@@ -785,7 +884,7 @@ if __name__ == '__main__':
     #     print_frame(frame)
         # pdb.set_trace()
 
-    play_game(height=64, width=64, rgb=True)
+    play_game(height=64, width=64, rgb=True, debug=True)
 
     # frame, track_list = generate_frame(height=16, width=16, rnd_seed=0)
     # track_cell = track_list.first
