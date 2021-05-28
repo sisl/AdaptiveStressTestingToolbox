@@ -132,10 +132,10 @@ if __name__ == '__main__':
     if args.resume:
         with LocalTFRunner(snapshot_config=SnapshotConfig(snapshot_dir=args.resume, snapshot_mode='last', snapshot_gap=0,)) as runner:
             runner.restore(args.resume)
-            n_epochs = 50
+            n_epochs = 500
             n_epoch_cycles = 20
             sampler_batch_size = 500
-            runner.algo.qf_lr = 1e-3
+            runner.algo.qf_lr = 1e-4
             deterministic.set_seed(1)
             runner.resume(n_epochs=n_epochs,
                      n_epoch_cycles=n_epoch_cycles,
