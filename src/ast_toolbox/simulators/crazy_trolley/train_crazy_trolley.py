@@ -56,7 +56,7 @@ def run_task(snapshot_config, variant_data, *_):
         env = Grayscale(env)
         env = Resize(env, 84, 84)
         # env = ClipReward(env)
-        env = StackFrames(env, 5)
+        # env = StackFrames(env, 5)
 
         # env = gym.make('PongNoFrameskip-v4')
         # env = Noop(env, noop_max=30)
