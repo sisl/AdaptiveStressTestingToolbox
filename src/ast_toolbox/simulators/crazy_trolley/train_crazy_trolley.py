@@ -67,7 +67,7 @@ def run_task(snapshot_config, variant_data, *_):
         # env = Grayscale(env)
         # env = Resize(env, 84, 84)
         # env = ClipReward(env)
-        # env = StackFrames(env, 4)
+        env = StackFrames(env, 1)
 
         env = TfEnv(env)
 
