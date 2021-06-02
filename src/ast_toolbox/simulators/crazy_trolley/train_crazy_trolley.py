@@ -43,7 +43,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 50
+        n_epochs = 500
         n_epoch_cycles = 20
         sampler_batch_size = 500
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
@@ -98,7 +98,7 @@ def run_task(snapshot_config, variant_data, *_):
                    exploration_strategy=epilson_greedy_strategy,
                    replay_buffer=replay_buffer,
                    qf_lr=1e-2,
-                   discount=0.999,
+                   discount=1.0,
                    min_buffer_size=int(1e4),
                    double_q=False,
                    n_train_steps=500,
@@ -134,10 +134,10 @@ if __name__ == '__main__':
     if args.resume:
         with LocalTFRunner(snapshot_config=SnapshotConfig(snapshot_dir=args.resume, snapshot_mode='last', snapshot_gap=0,)) as runner:
             runner.restore(args.resume)
-            n_epochs = 500
+            n_epochs = 50
             n_epoch_cycles = 20
             sampler_batch_size = 500
-            runner.algo.qf_lr = 1e-4
+            runner.algo.qf_lr = 1e-2
             deterministic.set_seed(1)
             runner.resume(n_epochs=n_epochs,
                      n_epoch_cycles=n_epoch_cycles,
@@ -148,7 +148,7 @@ if __name__ == '__main__':
         run_experiment(
             run_task,
             n_parallel=32,
-            snapshot_mode='last',
+            snapshot_mode='gap',
             snapshot_gap=100,
             seed=1,
             plot=False,
