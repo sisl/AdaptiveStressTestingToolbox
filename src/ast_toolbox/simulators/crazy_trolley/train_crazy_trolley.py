@@ -41,7 +41,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 100
+        n_epochs = 500
         n_epoch_cycles = 20
         sampler_batch_size = 500
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
@@ -146,7 +146,8 @@ if __name__ == '__main__':
         run_experiment(
             run_task,
             n_parallel=32,
-            snapshot_mode='last',
+            snapshot_mode='gap',
+            snapshot_gap=100,
             seed=1,
             plot=False,
             variant={'buffer_size': replay_buffer_size},
