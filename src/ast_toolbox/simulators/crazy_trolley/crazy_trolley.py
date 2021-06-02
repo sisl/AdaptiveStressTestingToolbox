@@ -648,14 +648,15 @@ class CrazyTrolleyRenderedGame:
         #                'obstruction': np.array([255, 132, 0]),
         #                'player': np.array([25, 0, 255]),}
 
-        self.colors = {'background': np.array([255, 255, 255]),
-                       'track': np.array([175, 175, 175]),
-                       'trolley': np.array([0, 0, 0]),
-                       'unselected_intersection': np.array([235, 0, 0]),
-                       'selected_intersection': np.array([25, 115, 0]),
-                       'gem': np.array([123, 0, 176]),
-                       'obstruction': np.array([255, 132, 0]),
-                       'player': np.array([50, 0, 255]), }
+        self.colors = {'trolley': np.array([0, 0, 0]),  # 0
+                       'player': np.array([8, 8, 255]),  # 36.2
+                       'unselected_intersection': np.array([244, 0, 0]),  # 72.9
+                       'gem': np.array([255, 7, 255]),  # 109.4
+                       'selected_intersection': np.array([0, 248, 0]),  # 145.6
+                       'obstruction': np.array([255, 180, 2]),  # 182.1
+                       'track': np.array([218, 219, 218]),  # 218.6
+                        'background': np.array([255, 255, 255]),  # 255
+                       }
 
         self.on = False
         self.inst = True    # show instructions from the beginning
