@@ -2,7 +2,7 @@
 # from gym.envs.registration import register
 import gym
 
-__version__ = '2020.09.01.6'
+__version__ = '2020.09.01.7'
 
 
 def register(id, entry_point, force=True, **kwargs):
