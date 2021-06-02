@@ -5,6 +5,7 @@ branches:
   only:
   - master
   - update_travis
+  - ^v[0-9]+\.(0?[1-9]|[1][0-2])\.[0-9]+\.(?:[a-zA-Z]+)?[0-9]+$
 env:
   global:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
