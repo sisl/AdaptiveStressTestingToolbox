@@ -37,7 +37,7 @@ project = 'AdaptiveStressTestingToolbox'
 year = '2018-2020'
 author = 'Stanford Intelligent Systems Laboratory'
 copyright = '{0}, {1}'.format(year, author)
-version = release = '2020.09.01.4'
+version = release = '2020.09.01.5'
 
 pygments_style = 'trac'
 templates_path = ['.']
