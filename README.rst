@@ -32,7 +32,7 @@ You can install the latest stable release from pypi::
 
 You can also install the latest version with::
 
-    pip install git+ssh://git@https://github.com/sisl/AdaptiveStressTestingToolbox.git@master
+    pip install git+https://github.com/sisl/AdaptiveStressTestingToolbox.git@master
 
 Using the Go-Explore work requires having a Berkely DB installation findable on your system. If you are on Linux::
 

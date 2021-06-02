@@ -8,7 +8,7 @@ At the command line::
 
 You can also install the in-development version with::
 
-    pip install git+ssh://git@https://github.com/sisl/AdaptiveStressTestingToolbox.git@master
+    pip install git+https://github.com/sisl/AdaptiveStressTestingToolbox.git@master
 
 Using the Go-Explore work requires having a Berkely DB installation findable on your system. If you are on Linux::
 
