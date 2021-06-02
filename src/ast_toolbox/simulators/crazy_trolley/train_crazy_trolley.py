@@ -10,10 +10,12 @@ import argparse
 from garage.envs.wrappers.clip_reward import ClipReward
 from garage.envs.wrappers.episodic_life import EpisodicLife
 from garage.envs.wrappers.fire_reset import FireReset
-from garage.envs.wrappers.grayscale import Grayscale
+# from garage.envs.wrappers.grayscale import Grayscale
+from ast_toolbox.envs.grayscale import Grayscale
 from garage.envs.wrappers.max_and_skip import MaxAndSkip
 from garage.envs.wrappers.noop import Noop
-from garage.envs.wrappers.resize import Resize
+# from garage.envs.wrappers.resize import Resize
+from ast_toolbox.envs.resize import Resize
 from garage.envs.wrappers.stack_frames import StackFrames
 from garage.experiment import run_experiment, deterministic
 from garage.experiment import SnapshotConfig
