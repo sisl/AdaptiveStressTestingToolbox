@@ -45,7 +45,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 1
+        n_epochs = 5
         n_epoch_cycles = 20
         sampler_batch_size = 5000
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
