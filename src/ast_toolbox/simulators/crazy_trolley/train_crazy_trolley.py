@@ -16,7 +16,8 @@ from garage.envs.wrappers.max_and_skip import MaxAndSkip
 from garage.envs.wrappers.noop import Noop
 # from garage.envs.wrappers.resize import Resize
 from ast_toolbox.envs.resize import Resize
-from garage.envs.wrappers.stack_frames import StackFrames
+# from garage.envs.wrappers.stack_frames import StackFrames
+from ast_toolbox.envs.stack_frames import StackFrames
 from garage.experiment import run_experiment, deterministic
 from garage.experiment import SnapshotConfig
 from garage.np.exploration_strategies import EpsilonGreedyStrategy
@@ -25,6 +26,7 @@ from garage.replay_buffer import SimpleReplayBuffer
 from garage.tf.envs import TfEnv
 from garage.tf.experiment import LocalTFRunner
 from garage.tf.policies import DiscreteQfDerivedPolicy
+# from ast_toolbox.policies.discrete_qf_derived_policy import DiscreteQfDerivedPolicy
 from garage.tf.q_functions import DiscreteCNNQFunction
 
 from ast_toolbox.simulators.crazy_trolley.crazy_trolley_env import CrazyTrolleyEnv
@@ -43,20 +45,20 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 500
+        n_epochs = 100
         n_epoch_cycles = 20
-        sampler_batch_size = 500
+        sampler_batch_size = 5000
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
 
         # env = gym.make('PongNoFrameskip-v4')
-        env = CrazyTrolleyEnv(height=84, width=84, from_pixels=True, rgb=True, random_level=True)
+        env = CrazyTrolleyEnv(height=32, width=32, from_pixels=True, rgb=True, random_level=True)
         env = Noop(env, noop_max=30)
         # env = MaxAndSkip(env, skip=5)
         # env = EpisodicLife(env)
         # if 'FIRE' in env.unwrapped.get_action_meanings():
             # env = FireReset(env)
         env = Grayscale(env)
-        env = Resize(env, 84, 84)
+        env = Resize(env, 32, 32)
         # env = ClipReward(env)
         # env = StackFrames(env, 5)
 
@@ -70,8 +72,16 @@ def run_task(snapshot_config, variant_data, *_):
         # env = Resize(env, 84, 84)
         # env = ClipReward(env)
         env = StackFrames(env, 1)
+        # from matplotlib import pyplot as plt
+        #         plt.imshow(pil_frame, cmap='gray', vmin=0, vmax=255)
+        #         plt.show()
+        #         print('actions')
+        #         import pdb
+        #         pdb.set_trace()
 
         env = TfEnv(env)
+        import pdb
+        # pdb.set_trace()
 
         replay_buffer = SimpleReplayBuffer(
             env_spec=env.spec,
@@ -79,10 +89,10 @@ def run_task(snapshot_config, variant_data, *_):
             time_horizon=1)
 
         qf = DiscreteCNNQFunction(env_spec=env.spec,
-                                  filter_dims=(8, 4, 3),
+                                  filter_dims=(8, 2, 4),
                                   num_filters=(32, 64, 64),
-                                  strides=(4, 2, 1),
-                                  dueling=False)
+                                  strides=(1, 2, 1),
+                                  dueling=True)
 
         policy = DiscreteQfDerivedPolicy(env_spec=env.spec, qf=qf)
         epilson_greedy_strategy = EpsilonGreedyStrategy(
@@ -97,13 +107,13 @@ def run_task(snapshot_config, variant_data, *_):
                    qf=qf,
                    exploration_strategy=epilson_greedy_strategy,
                    replay_buffer=replay_buffer,
-                   qf_lr=1e-2,
+                   qf_lr=1e-4,
                    discount=1.0,
                    min_buffer_size=int(1e4),
-                   double_q=False,
+                   double_q=True,
                    n_train_steps=500,
                    n_epoch_cycles=n_epoch_cycles,
-                   target_network_update_freq=2,
+                   target_network_update_freq=5,
                    buffer_batch_size=32)
 
         runner.setup(algo, env)
@@ -136,7 +146,7 @@ if __name__ == '__main__':
             runner.restore(args.resume)
             n_epochs = 50
             n_epoch_cycles = 20
-            sampler_batch_size = 500
+            sampler_batch_size = 5000
             runner.algo.qf_lr = 1e-2
             deterministic.set_seed(1)
             runner.resume(n_epochs=n_epochs,
@@ -147,7 +157,7 @@ if __name__ == '__main__':
         replay_buffer_size = _args.main(standalone_mode=False)
         run_experiment(
             run_task,
-            n_parallel=32,
+            n_parallel=1,
             snapshot_mode='gap',
             snapshot_gap=100,
             seed=1,
