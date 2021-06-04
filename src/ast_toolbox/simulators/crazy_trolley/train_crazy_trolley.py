@@ -45,7 +45,7 @@ def run_task(snapshot_config, variant_data, *_):
 
     """
     with LocalTFRunner(snapshot_config=snapshot_config) as runner:
-        n_epochs = 50
+        n_epochs = 500
         n_epoch_cycles = 20
         sampler_batch_size = 5000
         num_timesteps = n_epochs * n_epoch_cycles * sampler_batch_size
@@ -89,9 +89,9 @@ def run_task(snapshot_config, variant_data, *_):
             time_horizon=1)
 
         qf = DiscreteCNNQFunction(env_spec=env.spec,
-                                  filter_dims=(8, 2, 4),
+                                  filter_dims=(8, 4, 2),
                                   num_filters=(32, 64, 64),
-                                  strides=(1, 2, 1),
+                                  strides=(1, 1, 1),
                                   dueling=True)
 
         policy = DiscreteQfDerivedPolicy(env_spec=env.spec, qf=qf)
@@ -107,7 +107,7 @@ def run_task(snapshot_config, variant_data, *_):
                    qf=qf,
                    exploration_strategy=epilson_greedy_strategy,
                    replay_buffer=replay_buffer,
-                   qf_lr=1e-2,
+                   qf_lr=1e-4,
                    discount=1.0,
                    min_buffer_size=int(1e4),
                    double_q=True,
@@ -158,8 +158,8 @@ if __name__ == '__main__':
         run_experiment(
             run_task,
             n_parallel=32,
-            snapshot_mode='last',
-            snapshot_gap=5,
+            snapshot_mode='gap',
+            snapshot_gap=50,
             seed=1,
             plot=False,
             variant={'buffer_size': replay_buffer_size},
