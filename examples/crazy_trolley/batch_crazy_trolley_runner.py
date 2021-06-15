@@ -28,8 +28,8 @@ if __name__ == '__main__':
                            }
 
     # runner settings
-    runner_args = {'n_epochs': 1,
-                   'batch_size': 100,
+    runner_args = {'n_epochs': 25,
+                   'batch_size': 1000,
                    'plot': False
                    }
 
@@ -46,15 +46,15 @@ if __name__ == '__main__':
                 'open_loop': False,
                 'fixed_initial_state': True,
                 'max_path_length': max_path_length,
-                'height': 84,
-                'width': 84,
+                'height': 32,
+                'width': 32,
                 'from_pixels': True,
                 'rgb': True,
                 'random_level': False,
                 'skip': 5,
                 'noop': 30,
-                'stack_frames': 5,
-                'max_and_skip': True,
+                'stack_frames': 1,
+                'max_and_skip': False,
                 'grayscale': True,
                 'resize': None
                 }
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         mcts_algo_args = {'max_path_length': max_path_length,
                           'stress_test_mode': 2,
                           'ec': 100.0,
-                          'n_itr': 1,
+                          'n_itr': 50,
                           'k': 0.5,
                           'alpha': 0.5,
                           'clear_nodes': True,

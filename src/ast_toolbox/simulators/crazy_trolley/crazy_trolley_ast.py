@@ -6,6 +6,7 @@ import warnings
 from collections import deque
 from skimage import color, img_as_ubyte
 from skimage.transform import resize
+from PIL import Image
 
 from garage.experiment import Snapshotter
 
@@ -45,7 +46,7 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
         snapshotter = Snapshotter()
         self.session = tf.compat.v1.Session()
         with self.session.as_default():  # optional, only for TensorFlow
-            data = snapshotter.load('./examples/crazy_trolley/crazy_trolley_suts/experiment_2021_05_24_11_26_48_0001')
+            data = snapshotter.load('./examples/crazy_trolley/crazy_trolley_suts/experiment_2021_06_03_11_52_44_0001')
             self.agent = data['algo'].policy
 
             self.skip = skip
@@ -67,6 +68,9 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
 
             self.rendered = False
             self.random_level = random_level
+
+            self._info = {}
+            self._info['levels'] = []
 
 
     def simulate(self, actions, s_0):
@@ -92,15 +96,16 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
 
         """
         self.reset(s_0)
+
         while self._path_length <= self.c_max_path_length:
             self._path_length += 1
             action = actions[self._path_length]
             self.closed_loop_step(action)
 
             if self.game.game_over():
-                return self._path_length, np.array(self._info)
+                return self._path_length, self._info
 
-        return -1, np.array(self._info)
+        return -1, self._info
 
     def closed_loop_step(self, action):
         """User implemented function to step the simulation forward in time when closed-loop control is active.
@@ -119,8 +124,23 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
         array_like
             An observation from the timestep, determined by the settings and the `observation_return` helper function.
         """
+        print(self.c_max_path_length)
+        print(self._path_length)
         with self.session.as_default() :
             print('Closed Loop Step')
+            self.game.random_seed = action
+            self.game.new_frame()
+            self._info['levels'].append(self.game._level)
+            self.last_level = self.game.level
+            # Fill up frame stack
+            self.renderer.update_frame()
+            self.player_observation.clear()
+            for _ in range(self.stack_frames):
+                self.player_observation.append(self.process_frame(self.renderer.display_frame))
+
+            # Handle noop actions
+            self.skip_frames(np.random.randint(low=self.skip, high=self.noop))
+
             while not (self.game.game_over or self.game.end_of_frame):
                 # self.renderer.update_frame()
                 # player_observation = self.process_frame(self.renderer.display_frame)
@@ -131,6 +151,8 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
                 self.game.tick()
 
                 self.skip_frames(self.skip)
+                if self.game.game_over:
+                    print('################# GAME OVER ########################')
 
             if not self.game.game_over:
                 while(self.game.end_of_frame):
@@ -140,6 +162,9 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
 
 
             self.observation = action
+
+            if self.game.game_over:
+                print('################# GAME OVER ########################')
 
             return self.observation_return()
 
@@ -182,11 +207,16 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
         self.score = 0
 
         self.renderer.new_game()
+        self._info = {}
+        self._info['levels'] = []
 
+        self.start_level = 0
         if self.random_level:
             self.start_level = np.random.randint(low=0, high=50)
             self.game._level = self.start_level
             self.game.new_frame()
+
+        self.last_level = self.start_level
 
         # Fill up frame stack
         self.renderer.update_frame()
@@ -226,16 +256,6 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
         """
         return self.game.game_over
 
-    def is_terminal(self):
-        """
-        Returns whether rollout horizon has been reached.
-        Returns
-        -------
-        bool
-            True if rollout horizon has been reached.
-        """
-        return self.game.game_over
-
     def log(self):
         """
         perform any logging steps
@@ -254,7 +274,7 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
             An array of all the simulation state variables.
 
         """
-        return np.array([0])
+        return np.array([self.last_level])
 
     def restore_state(self, in_simulator_state):
         """Reset the simulation deterministically to a previously cloned state.
@@ -283,7 +303,25 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
     def _stack_frames(self):
         return np.stack(self.player_observation, axis=2)
 
-    def process_frame(self, frame):
+    # def process_frame(self, frame):
+    #     # handle frame processing like grayscale, stacking, or resizing
+    #     with warnings.catch_warnings():
+    #         """
+    #         Suppressing warnings for
+    #         1. possible precision loss when converting from float64 to uint8
+    #         2. anti-aliasing will be enabled by default in skimage 0.15
+    #         """
+    #         warnings.simplefilter('ignore')
+    #         # Save dtype to cast after processing
+    #         dtype = frame.dtype
+    #         # Set to greyscale
+    #         if self.grayscale:
+    #             frame = img_as_ubyte(color.rgb2gray((frame)))
+    #         # Resize frame
+    #         frame = resize(frame, (self.resize))  # now it's float
+    #
+    #         return frame.astype(dtype)
+    def process_frame(self, frame, grayscale=True, normalize=True):
         # handle frame processing like grayscale, stacking, or resizing
         with warnings.catch_warnings():
             """
@@ -294,11 +332,13 @@ class CrazyTrolleyASTSimulator(ASTSimulator):
             warnings.simplefilter('ignore')
             # Save dtype to cast after processing
             dtype = frame.dtype
+            pil_frame = Image.fromarray(frame.astype(np.uint8))
             # Set to greyscale
-            if self.grayscale:
-                frame = img_as_ubyte(color.rgb2gray((frame)))
+            if grayscale:
+                pil_frame = pil_frame.convert('L')
             # Resize frame
-            frame = resize(frame, (self.resize))  # now it's float
-
-            return frame.astype(dtype)
-
+            # frame = resize(frame, (resize_shape))  # now it's float
+            pil_frame = pil_frame.resize(self.resize)
+            if normalize:
+                return np.asarray(pil_frame).astype(np.float32) / 255.0
+            return np.asarray(pil_frame).astype(dtype)

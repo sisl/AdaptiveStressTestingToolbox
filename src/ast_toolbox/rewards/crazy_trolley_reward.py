@@ -51,6 +51,7 @@ class CrazyTrolleyReward(ASTReward):
 
         if (is_goal):  # We found a crash
             reward = 0
+            print('########### is_goal ##############')
         elif (is_terminal):
             # reward = 0
             # Heuristic reward based on distance between car and ped at end
@@ -59,9 +60,11 @@ class CrazyTrolleyReward(ASTReward):
             else:
                 # No Herusitic
                 heuristic_reward = 0
+            print('########### is_terminal ##############')
             reward = -100000 - 10000 * heuristic_reward  # We reached
             # the horizon with no crash
         else:
+            print('########### else ##############')
             reward = np.log(frame_probability) # No crash or horizon yet
 
         return reward

@@ -68,6 +68,7 @@ class AdaptiveStressTest:
         self._isterminal = False
         self._reward = 0.0
         self.action_seq = []
+        self.info_seq = []
         self.trajectory_reward = 0.0
         return self.env.reset()
 
@@ -95,9 +96,12 @@ class AdaptiveStressTest:
         self._isterminal = done
         self._reward = reward
         self.action_seq.append(action)
+        self.info_seq.append(info)
         self.trajectory_reward += reward
+        # levels = self.env
+        # print(info)
         if done:
-            self.top_paths.enqueue(self.action_seq, self.trajectory_reward, make_copy=True)
+            self.top_paths.enqueue([self.action_seq, self.info_seq], self.trajectory_reward, make_copy=True)
         self.logging()
         return obs, reward, done, info
 
@@ -119,7 +123,7 @@ class AdaptiveStressTest:
                     print(self.top_paths.pq)
                     print(self.top_paths.pq[0])
                     print(self.top_paths.pq[0][0])
-                    best_actions.append(np.array([x.get() for x in self.top_paths.pq[0][0]]))
+                    best_actions.append(np.array([x.get() for x in self.top_paths.pq[0][0][0]]))
                     with open(self.params.log_dir + '/best_actions.p', 'wb') as f:
                         pickle.dump(best_actions, f)
 

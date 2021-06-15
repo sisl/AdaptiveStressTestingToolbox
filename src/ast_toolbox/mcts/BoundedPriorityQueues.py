@@ -33,7 +33,7 @@ class BoundedPriorityQueue:
             for pair in self.pq.data:
                 if np.array_equal(k, pair[0]):
                     return
-        elif k in [pair[0] for pair in self.pq]:
+        elif k[0] in [pair[0][0] for pair in self.pq]:
             return
         while v in [pair[1] for pair in self.pq]:
             v += 1e-4

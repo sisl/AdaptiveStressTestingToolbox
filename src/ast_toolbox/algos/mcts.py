@@ -116,6 +116,9 @@ class MCTS:
             else:
                 result = AST_MCTS.stress_test(self.ast, self.macts_params, self.top_paths, verbose=False, return_tree=False)
         self.ast.params.log_tabular = False
+        import pickle
+        with open('./crazy_trolley_ast_results.pkl', 'wb') as f:
+            pickle.dump(result, f)
         # print("checking reward consistency")
         # for (action_seq, reward_predict) in result:
         #     import pdb
