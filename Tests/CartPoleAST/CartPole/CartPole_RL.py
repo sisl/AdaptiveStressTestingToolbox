@@ -111,5 +111,4 @@ with tf.Session() as sess:
 	    )
 
 	algo.train(sess=sess, init_var=False)
-
 	

@@ -128,7 +128,7 @@ class ASTEnv(gym.Env, Serializable):
     def log(self):
         self.simulator.log()
 
-    def render(self):
+    def render(self, mode):
         if hasattr(self.simulator, "render") and callable(getattr(self.simulator, "render")):
             return self.simulator.render()
         else:

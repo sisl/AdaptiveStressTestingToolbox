@@ -71,7 +71,7 @@ with tf.Session() as sess:
 	env = TfEnv(AcrobotEnv(max_path_length = max_path_length,
 							success_threshhold = -0.5,
 							torque_noise_max = 0.0,))
-
+	print(env.spec)
 	# Create policy
 	policy = DeterministicMLPPolicy(
 		name='ast_agent',

@@ -85,8 +85,11 @@ class GATRD(GA):
 		return dict()
 
 	@overrides
-	def extra_recording(self, itr, p):
-		logger.record_tabular('Divergence',self.divergences[p])
+	def extra_recording(self, itr):
+		logger.record_tabular('Mean Divergence',np.mean(self.divergences))
+		logger.record_tabular('Std Divergence',np.std(self.divergences))
+		logger.record_tabular('Max Divergence',np.max(self.divergences))
+		logger.record_tabular('Min Divergence',np.min(self.divergences))
 		return None
 
 	def data2inputs(self, samples_data):

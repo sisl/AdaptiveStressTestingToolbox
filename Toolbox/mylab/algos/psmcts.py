@@ -1,3 +1,4 @@
+import time
 from garage.algos.base import RLAlgorithm
 from garage.misc.overrides import overrides
 import garage.misc.logger as logger
@@ -46,7 +47,7 @@ class PSMCTS(BatchPolopt):
 		self.log_interval = log_interval
 		self.s = {}
 		self.initial_pop = initial_pop
-		self.stepNum = 0
+		self.step_num = 0
 		self.np_random, seed = seeding.np_random() #used in set_params
 		super(PSMCTS, self).__init__(**kwargs, sampler_cls=VectorizedSampler)
 		self.policy.set_param_values(self.policy.get_param_values())
@@ -103,8 +104,10 @@ class PSMCTS(BatchPolopt):
 			sess.run(tf.global_variables_initializer())
 		self.start_worker(sess)
 		# self.initial()
+		self.start_time = time.time()
 		for i in range(self.n_itr):
 			# print(self.s.keys())
+			self.itr_start_time = time.time()
 			self.itr = i
 			s0 = self.getInitialState()
 			self.simulate(s0)
@@ -112,8 +115,15 @@ class PSMCTS(BatchPolopt):
 
 			logger.log("Saving snapshot...")
 			params = self.get_itr_snapshot(i)
+			if self.top_paths is not None:
+				top_paths = dict()
+				for (topi, path) in enumerate(self.top_paths):
+					top_paths[path[1]] = path[0]
+				params['top_paths'] = top_paths
 			logger.save_itr_params(i, params)
 			logger.log("Saved")
+
+			self.record_tabular()
 
 		self.shutdown_worker()
 		if created_session:
@@ -194,23 +204,26 @@ class PSMCTS(BatchPolopt):
 		samples_data = self.process_samples(0, paths)
 		q = self.evaluate(undiscounted_returns)
 		self.s[s].v = q
-		self.record_tabular()
+		
 		return q
 
 	@overrides
 	def obtain_samples(self, itr):
-		self.stepNum += self.batch_size
+		self.step_num += self.batch_size
 		paths = self.sampler.obtain_samples(itr)
 		return paths
 
 	def record_tabular(self):
-		if self.stepNum%self.log_interval == 0:
+		del logger._tabular[:]
+		if self.itr%self.log_interval == 0:
 			logger.record_tabular('Itr',self.itr)
-			logger.record_tabular('StepNum',self.stepNum)
+			logger.record_tabular('Time', time.time() - self.start_time)
+			logger.record_tabular('ItrTime', time.time() - self.itr_start_time)
+			logger.record_tabular('StepNum',self.step_num)
 			logger.record_tabular('TreeSize',len(self.s))
 			if self.top_paths is not None:
 				for (topi, path) in enumerate(self.top_paths):
-					logger.record_tabular('reward '+str(topi), path[0])
+					logger.record_tabular('reward '+str(topi), path[1])
 			logger.record_tabular('BestMean', self.best_mean)
 			logger.record_tabular('BestVar', self.best_var)
 			logger.dump_tabular(with_prefix=False)

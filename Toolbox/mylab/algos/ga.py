@@ -34,7 +34,7 @@ class GA(BatchPolopt):
 			truncation_size = 2,
 			keep_best = 1,
 			f_F = "mean",
-			log_interval = 4000,
+			# log_interval = 4000,
 			**kwargs):
 
 		self.top_paths = top_paths
@@ -45,7 +45,7 @@ class GA(BatchPolopt):
 		self.pop_size = pop_size
 		self.truncation_size = truncation_size
 		self.f_F = f_F
-		self.log_interval = log_interval
+		# self.log_interval = log_interval
 		self.keep_best = keep_best
 
 		self.seeds = np.zeros([kwargs['n_itr'], pop_size],dtype=int)
@@ -76,9 +76,9 @@ class GA(BatchPolopt):
 		self.start_worker(sess)
 		start_time = time.time()
 		self.initial()
-
+		self.start_time = time.time()
 		for itr in range(self.n_itr):
-			itr_start_time = time.time()
+			self.itr_start_time = time.time()
 			with logger.prefix('itr #%d | ' % itr):
 				all_paths = {}
 				for p in range(self.pop_size):
@@ -96,40 +96,52 @@ class GA(BatchPolopt):
 
 						logger.log("Logging diagnostics...")
 						self.log_diagnostics(paths)
-						# logger.log("Saving snapshot...")
-						# snap = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
-						# if self.store_paths:
-						# 	snap["paths"] = samples_data["paths"]
-						# logger.save_itr_params(itr, snap)
-						# logger.log("Saved")
 
-						self.record_tabular(itr,p)
-
+				logger.log("Saving snapshot...")
+				params = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
+				if self.top_paths is not None:
+					top_paths = dict()
+					for (topi, path) in enumerate(self.top_paths):
+						top_paths[path[1]] = path[0]
+					params['top_paths'] = top_paths
+				if self.store_paths:
+					params["paths"] = samples_data["paths"]
+					
+				logger.save_itr_params(itr, params)
+				logger.log("Saved")
 				logger.log("Optimizing Population...")
 				self.optimize_policy(itr, all_paths)
 				self.step_size = self.step_size*self.step_size_anneal
+
+				self.record_tabular(itr)
 
 		self.shutdown_worker()
 		if created_session:
 			sess.close()
 
-	def record_tabular(self, itr, p):
-		if self.stepNum%self.log_interval == 0:
-			logger.record_tabular('Itr',itr)
-			logger.record_tabular('Ind',p)
-			logger.record_tabular('StepNum',self.stepNum)
-			if self.top_paths is not None:
-				for (topi, path) in enumerate(self.top_paths):
-					logger.record_tabular('reward '+str(topi), path[0])
-			logger.record_tabular('BestMean', self.best_mean)
-			logger.record_tabular('BestVar', self.best_var)
-			logger.record_tabular('parent',self.parents[p])
-			logger.record_tabular('StepSize',self.step_size)
-			logger.record_tabular('Magnitude',self.magnitudes[itr,p])
-			self.extra_recording(itr, p)
-			logger.dump_tabular(with_prefix=False)
+	def record_tabular(self, itr):
+		del logger._tabular[:]
+		logger.record_tabular('Itr',itr)
+		# logger.record_tabular('Ind',p)
+		logger.record_tabular('StepNum',self.stepNum)
+		logger.record_tabular('BestMean', self.best_mean)
+		logger.record_tabular('BestVar', self.best_var)
+		# logger.record_tabular('parent',self.parents[p])
+		# logger.record_tabular('StepSize',self.step_size)
+		# logger.record_tabular('Magnitude',self.magnitudes[itr,p])
+		logger.record_tabular('Mean Magnitude',np.mean(self.magnitudes[itr,:]))
+		logger.record_tabular('Std Magnitude',np.std(self.magnitudes[itr,:]))
+		logger.record_tabular('Max Magnitude',np.max(self.magnitudes[itr,:]))
+		logger.record_tabular('Min Magnitude',np.min(self.magnitudes[itr,:]))
+		logger.record_tabular('Time', time.time() - self.start_time)
+		logger.record_tabular('ItrTime', time.time() - self.itr_start_time)
+		self.extra_recording(itr)
+		if self.top_paths is not None:
+			for (topi, path) in enumerate(self.top_paths):
+				logger.record_tabular('reward '+str(topi), path[1])
+		logger.dump_tabular(with_prefix=False)
 
-	def extra_recording(self, itr, p):
+	def extra_recording(self, itr):
 		return None
 
 	@overrides

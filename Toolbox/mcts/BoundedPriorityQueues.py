@@ -1,55 +1,91 @@
-import queue
 import copy
+
 import numpy as np
+from depq import DEPQ
+
 
 class BoundedPriorityQueue:
-	def __init__(self,N):
-		self.pq = queue.PriorityQueue()
-		self.N = N
-	def enqueue(self, k, v, make_copy=False):
-		if self.pq.qsize() >= self.N:
-			if type(k) == np.ndarray:
-				for pair in self.pq.queue:
-					if np.array_equal(k,pair[1]):
-						return
-			elif k in [pair[1] for pair in self.pq.queue]:
-					return
-		while v in [pair[0] for pair in self.pq.queue]:
-			v += 1e-10
-		if make_copy:
-			ck = copy.deepcopy(k)
-			self.pq.put((v,ck))
-		else:
-			self.pq.put((v,k))
-		while self.pq.qsize() > self.N:
-			self.pq.get()
-	def length(self):
-		return self.pq.qsize()
-	def empty(self):
-		while self.pq.qsize() > 0:
-			self.pq.get()
-	def isempty(self):
-		return self.pq.qsize() == 0
-	def haskey(self,k):
-		return k in [pair[1] for pair in self.pq.queue]
-	def __iter__(self):
-		return start(self)
+    """The bounded priority Queue.
 
-class BPQIterator:
-	def __init__(self,sorted_pairs,index):
-		self.sorted_pairs = sorted_pairs
-		self.index = index
-	def __next__(self):
-		if self.index > len(self.sorted_pairs) - 1:
-			raise StopIteration
-		else:
-			item = self.sorted_pairs[self.index]
-			self.index += 1
-			return item
+    Parameters
+    ----------
+    N : int
+        Size of the queue.
+    """
 
-def start(q):
-	kvs = list(reversed(sorted(q.pq.queue,key=lambda x: x[0])))
-	return BPQIterator(kvs,0)
+    def __init__(self, N):
+        self.pq = DEPQ(iterable=None, maxlen=N)
+        self.N = N
 
+    def enqueue(self, k, v, make_copy=False):
+        """Storing k into the queue based on the priority value v.
 
-			
+        Parameters
+        ----------
+        k :
+            The object to be stored.
+        v : float
+            The priority value.
+        make_copy : bool, optional
+            Whether to make a copy of the k.
+        """
+        if isinstance(k, np.ndarray):
+            for pair in self.pq.data:
+                if np.array_equal(k, pair[0]):
+                    return
+        elif k in [pair[0] for pair in self.pq]:
+            return
+        while v in [pair[1] for pair in self.pq]:
+            v += 1e-4
+        if make_copy:
+            ck = copy.deepcopy(k)
+            self.pq.insert(ck, v)
+        else:
+            self.pq.insert(k, v)
+
+    def length(self):
+        """Return the current size of the queue.
+
+        Returns
+        ----------
+        length : int
+            The current size of the queue.
+        """
+        return self.pq.size()
+
+    def empty(self):
+        """Clear the queue.
+        """
+        self.pq.clear()
+
+    def isempty(self):
+        """Check whether the queue is empty.
+
+        Returns
+        ----------
+        is_empty : bool
+            Whether the queue is empty.
+        """
+        return self.pq.is_empty()
+
+    def haskey(self, k):
+        """Check whether k in in the queue.
+
+        Returns
+        ----------
+        has_key : bool
+            Whether k in in the queue.
+        """
+        return k in [pair[0] for pair in self.pq]
+
+    def __iter__(self):
+        """The redefined iteration function.
+
+        Returns
+        ----------
+        BPQ_Iterator : generator
+            The BPQ iterator.
+        """
+        # return start(self)
+        kvs = list(reversed(sorted(self.pq, key=lambda x: x[1])))
+        return (kv for kv in kvs)

@@ -84,19 +84,24 @@ class TRPO(NPO):
 				self.optimize_policy(itr, samples_data)
 				logger.log("Saving snapshot...")
 				params = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
+				if self.top_paths is not None:
+					top_paths = dict()
+					for (topi, path) in enumerate(self.top_paths):
+						top_paths[path[1]] = path[0]
+					params['top_paths'] = top_paths
 				if self.store_paths:
 					params["paths"] = samples_data["paths"]
 				logger.save_itr_params(itr, params)
 				logger.log("Saved")
-				# logger.record_tabular('Time', time.time() - start_time)
-				# logger.record_tabular('ItrTime', time.time() - itr_start_time)
+				logger.record_tabular('Time', time.time() - start_time)
+				logger.record_tabular('ItrTime', time.time() - itr_start_time)
 				logger.record_tabular('Itr',itr)
 				logger.record_tabular('StepNum',int((itr+1)*self.batch_size))
 				logger.record_tabular('BestMean', self.best_mean)
 				logger.record_tabular('BestVar', self.best_var)
 				if self.top_paths is not None:
 					for (topi, path) in enumerate(self.top_paths):
-						logger.record_tabular('reward '+str(topi), path[0])
+						logger.record_tabular('reward '+str(topi), path[1])
 
 				logger.dump_tabular(with_prefix=False)
 				if self.plot:

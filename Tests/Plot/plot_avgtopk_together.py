@@ -1,7 +1,7 @@
 import csv
 import os.path
 import matplotlib 
-matplotlib.rcParams.update({'font.size': 45, 'font.family':'Times New Roman',\
+matplotlib.rcParams.update({'font.size': 25, 'font.family':'Times New Roman',\
                             'text.usetex': True})
 from matplotlib import pyplot as plt
 import numpy as np
@@ -61,8 +61,8 @@ parameters = [["step size 0.1","step size 1.0"],\
                 ]
 colors = ["blue","green","red"]
     # plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/ClassicControl/"
-csv_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/ClassicControl/stats.csv"
+plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/presentation/Plots/ClassicControl/"
+csv_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/presentation/Plots/ClassicControl/stats.csv"
 
 csv_file = open(csv_path, mode='w')
 field_names = ["Evironment"]

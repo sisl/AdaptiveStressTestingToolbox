@@ -19,7 +19,7 @@ class GATR(GA):
 			self,
 			optimizer=None,
 			**kwargs):
-		self.sum_other_weights = np.zeros(kwargs['pop_size']) #used for gatr and gatris
+
 		self.kls = np.zeros(kwargs['pop_size'])
 		if optimizer == None:
 			self.optimizer = DirectionConstraintOptimizer()
@@ -107,9 +107,11 @@ class GATR(GA):
 		return dict()
 
 	@overrides
-	def extra_recording(self, itr, p):
-		logger.record_tabular('MeanKl',self.kls[p])
-		logger.record_tabular('SumOtherWeights',self.sum_other_weights[p])
+	def extra_recording(self, itr):
+		logger.record_tabular('Mean KL',np.mean(self.kls))
+		logger.record_tabular('Std KL',np.std(self.kls))
+		logger.record_tabular('Max KL',np.max(self.kls))
+		logger.record_tabular('Min KL',np.min(self.kls))
 		return None
 
 	def data2inputs(self, samples_data):

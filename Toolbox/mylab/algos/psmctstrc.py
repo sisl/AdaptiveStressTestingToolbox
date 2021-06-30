@@ -83,5 +83,5 @@ class PSMCTSTRC(PSMCTSTR):
 		self.s[s].ca = self.getCandidateActions(s,samples_data)
 		q = self.evaluate(undiscounted_returns)
 		self.s[s].v = q
-		self.record_tabular()
+		
 		return q

@@ -1,8 +1,8 @@
 import csv
 import os.path
 import matplotlib 
-matplotlib.rcParams.update({'font.size': 45, 'font.family':'Times New Roman',\
-                            'text.usetex': True})
+matplotlib.rcParams.update({'font.size': 35, 'font.family':'Times New Roman',\
+                            'text.usetex': False})
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -14,11 +14,11 @@ max_reward = np.inf
 min_reward = -np.inf
 
 exp_name = 'Acrobot'#'BipedalWalker'#'MountainCar'#'CartPole'#'LunarLander'#
-exp_param = 'L100Th1999new'#'L100TL30new'#'L100P0002new'#'L100Th1203It02'#'L100R1U0'#
+exp_param = 'L100Th1999new'#'L100TL30new'#'L100P00015new'#'L100Th1203It02'#'L100R1U0'#
 extra_name = ''#'hyper'
 prepath = "../"+exp_name+"/Data/AST/Lexington/"+exp_param
 # plot_path = "../"+exp_name+"/Data/Plot/avgtop"+str(top_k)+"/"
-plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/Plots/"
+plot_path = "/Users/xiaobaima/Dropbox/SISL/MCTSPO/IJCAI/presentation/Plots/"
 
 policy_groups = [
                 [
@@ -126,8 +126,8 @@ axes = plt.gca()
 # axes.set_xlim([xmin,xmax])
 axes.set_ylim([-0.15,1.0])
 # plt.title(exp_name_f+' '+exp_param_f)
-plt.title(exp_name_f)
-# plt.legend(plts,legends)
+# plt.title(exp_name_f)
+plt.legend(plts,legends,loc='upper left')
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.xlabel('Step Number')
 # plt.ylabel('Average Top '+str(top_k) +' Reward')    
