@@ -1,0 +1,9 @@
+.eggs/*
+.pytest_chache/*
+.tox/
+data
+dist
+htmlcov
+events*
+ast-toolbox*
+examples/crazy_trolley/crazy_trolley_suts/
