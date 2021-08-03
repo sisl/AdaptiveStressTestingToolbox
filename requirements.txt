@@ -185,7 +185,7 @@ traitlets==4.3.3
 trulens==0.0.6
 twine==3.2.0
 typing-extensions==3.7.4.2
-urllib3==1.25.10
+urllib3==1.26.5
 virtualenv
 wcwidth==0.2.5
 webencodings==0.5.1
