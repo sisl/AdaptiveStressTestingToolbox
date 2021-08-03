@@ -26,6 +26,17 @@ Installation
 Pip Installation Method
 -----------------------
 
+UPDATE:
+For now, please only use the following Docker install. We are working on an update to fix dependency conflicts caused by an update in some underlying packages.
+
+Docker Method::
+
+   git clone https://github.com/sisl/AdaptiveStressTestingToolbox.git
+   cd AdaptiveStressTestingToolbox
+   git submodule update --init --recursive
+   docker build -t ast-toolbox . -f ./docker/Dockerfile
+   docker container run -it ast-toolbox:latest
+
 You can install the latest stable release from pypi::
 
     pip install ast-toolbox
