@@ -6,3 +6,6 @@ bumpversion
 wheel
 twine
 matrix
+tox
+pytest
+pytest-cov
