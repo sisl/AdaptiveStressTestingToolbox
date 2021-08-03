@@ -29,6 +29,8 @@ include scripts/install_all.sh
 include tox.ini .travis.yml .appveyor.yml
 include test.test
 
+recursive-include docker *.sh
+
 exclude .pre-commit-config.yaml
 exclude .readthedocs.yml
 
