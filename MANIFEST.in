@@ -8,6 +8,7 @@ graft third_party
 graft joss
 recursive-exclude third_party */.git joss
 graft examples
+recursive-exclude examples/crazy_trolley *
 
 include .bumpversion.cfg
 include .coveragerc
@@ -28,6 +29,10 @@ include scripts/install_all.sh
 
 include tox.ini .travis.yml .appveyor.yml
 include test.test
+
+recursive-include docker *.sh
+include .dockerignore
+include docker/Dockerfile
 
 exclude .pre-commit-config.yaml
 exclude .readthedocs.yml
