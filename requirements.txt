@@ -9,7 +9,7 @@ async-generator==1.10
 async-timeout==3.0.1
 atari-py==0.1.15
 attrs==19.3.0
-Babel==2.8.0
+Babel==2.9.1
 backcall==0.2.0
 bcrypt==3.2.0
 beautifulsoup4==4.9.1
