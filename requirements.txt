@@ -103,7 +103,7 @@ numpy==1.19.1
 opt-einsum==3.3.0
 packaging==20.4
 pandocfilters==1.4.3
-paramiko==2.7.2
+paramiko==2.10.1
 parso==0.8.2
 Pebble==4.6.0
 pep517==0.10.0
